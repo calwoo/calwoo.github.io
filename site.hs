@@ -2,9 +2,7 @@
 
 import           Data.Monoid (mappend)
 import           Hakyll
-import qualified Data.Set as S 
 import           Text.Pandoc.Options
-import           Text.Pandoc.Highlighting (pygments)
 
 
 main :: IO ()
