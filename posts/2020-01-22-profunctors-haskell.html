@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Optics in Haskell - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Optics in Haskell</h1>
+            <article>
+    <section class="header">
+        Posted on January 22, 2020
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is not finished yet. Read on with caution.</strong></p>
+<p>I’ll admit that I am slightly skeptical of “category theory” in Haskell. I don’t think I’ve been programming enough to see how many advanced abstractions can turn into usable structures, and profunctors + lenses seem to be one source of this mysticism that I’m struggling to understand. If anyone has a truly intuitive picture as to why this should all fit together, please reach out to me!</p>
+<p>Anyway, in this post we’ll look at how profunctors play out in Haskell, and how this ends up turning into the lens abstraction that functional programmers know and love. As in all things in category theory, we have to start with the Yoneda lemma.</p>
+<h3 id="the-yoneda-lemma">the yoneda lemma</h3>
+<p>Follow almost any categorical thought long enough and you’ll find the Yoneda lemma. For a mathematician, the intuitive explanation of Yoneda is this: given any object of a category <span class="math inline">\(C\)</span>, we can completely identify the object (up to unique isomorphism) by the entire set of functions mapping into that object. Another way I’ve heard it is that Yoneda is like a particle accelerator: If you study all the collisions between particles and your target long enough, you’ll end up knowing the target particle.</p>
+<p>Mathematically, if <span class="math inline">\(C\)</span> is a category, we can identify natural transformations between <span class="math inline">\(\text{Hom}\)</span>-functors with homs themselves:</p>
+<p><span class="math display">\[ \text{Yoneda: } \text{Nat}(\text{Hom}_C(a,-), \text{Hom}_C(b,-))\simeq \text{Hom}_C(b, a) \]</span></p>
+<p>More generally, for any functor <span class="math inline">\(f:C\to \text{Set}\)</span>, we get a Yoneda of the form (but same spirit):</p>
+<p><span class="math display">\[ \text{Yoneda: } \text{Nat}(\text{Hom}_C(a,-), f) \simeq f(a) \]</span></p>
+<p>How do we get about using this in Haskell? We unwind the definitions– the set of natural transformations is a special version of an <em>end</em>, a categorical limit construction. To unwind this, you just need to remember that a natural transformation in the above Yoneda is a <strong>collection</strong> of maps <span class="math inline">\(\text{Hom}_C(a,x)\to f(x)\)</span> for all <span class="math inline">\(x\)</span>, such that these maps are compatible by natural coherences. In Haskell, this can be written in the form</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">yoneda ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="kw">forall</span> x<span class="fu">.</span> (a <span class="ot">-&gt;</span> x) <span class="ot">-&gt;</span> f x) <span class="ot">-&gt;</span> f a</a>
+<a class="sourceLine" id="cb1-2" title="2">yoneda gs <span class="fu">=</span> gs <span class="fu">id</span></a></code></pre></div>
+<p><strong>NOTE:</strong> This type signature doesn’t enforce the coherences for an end! So this is slightly confusing to me. Unless I am wrong, in which case, please let me know!</p>
+<p>Now for a bit of a mind-bender– <span class="math inline">\(C\)</span> can be any category! So we take the category to the functor category from <span class="math inline">\(C\to\text{Set}\)</span>, call it <span class="math inline">\([C,\text{Set}]\)</span>. Then we have</p>
+<p><span class="math display">\[ \text{Nat}(\text{Hom}_{[C,\text{Set}]}(f,-), \text{Hom}_{[C,\text{Set}]}(g,-)) \simeq \text{Hom}_{[C,\text{Set}]}(g,f) \]</span></p>
+<p>for functors <span class="math inline">\(f, g\)</span>.</p>
+<p>Recall what <span class="math inline">\(\text{Hom}_{[C,\text{Set}]}(-,-)\)</span> is: it’s natural transformations <span class="math inline">\(\text{Nat}(-,-)\)</span>! Now letting <span class="math inline">\(a, b\)</span> be objects in <span class="math inline">\(C\)</span>, and letting <span class="math inline">\(f=\text{Hom}_C(a,-), g=\text{Hom}_C(b,-)\)</span>, we have</p>
+<p><span class="math display">\[ \text{Nat}_{[C,\text{Set}]}(\text{Nat}(\text{Hom}_C(a,-), -), \text{Nat}(\text{Hom}_C(b,-), -)) \simeq
+    \text{Nat}(\text{Hom}_C(b,-), \text{Hom}_C(a,-)) \]</span></p>
+<p>Magic time: apply the original Yoneda lemma for <span class="math inline">\(C\)</span> and we get finally:</p>
+<p><span class="math display">\[ \text{Nat}_{[C,\text{Set}]}([-](a), [-](b)) \simeq \text{Hom}_C(a, b) \]</span></p>
+<p>where <span class="math inline">\([-](x): [C,\text{Set}]\to\text{Set}\)</span> is the application functor <span class="math inline">\(f\mapsto f(x)\)</span>. Unwinding this as an end, we remember that the natural transformations <span class="math inline">\([-](a) \to [-](b)\)</span> are a <strong>collection</strong> of maps from <span class="math inline">\(f(a)\to f(b)\)</span> for <strong>any functor</strong>. In Haskell, this gives the amazing functional identity</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">yoneda' ::</span> (<span class="kw">forall</span> f<span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> f b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b)</a></code></pre></div>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
