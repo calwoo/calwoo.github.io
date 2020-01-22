@@ -32,7 +32,7 @@
         
     </section>
     <section>
-        <p><strong>Note: This blog post isn’t finished yet. Read on with caution.</strong></p>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
 <p>There’s a thread of connections that I’ve been curiously following for a few weeks now, but I’ve not been able to grasp it fully. I’ve heard people say at various Haskell meetups that there are relations between lenses/prisms, profunctors, and traversals. I don’t really know what lenses are, and traversals seem too different to me from profunctors.</p>
 <p>As far as I can tell, <code>Traversable</code> is a type class that endows a data container/functor the ability to “walk along” itself while processing a computational effect (which comes from the fact that <code>Traversable</code> instances subclass <code>Applicative</code>s). How in the world does this have anything to do with a “pro”functor?</p>
 <p>In this post, I’m going to look over what profunctors are in the mathematical sense, and in later posts I’ll hopefully try and enlighten myself as to the connections to the functional programming perspective.</p>
@@ -56,6 +56,23 @@
 <p>which by adjunction gives rise to our first definition of a profunctor. Continuing from here, another guarantee we have here is that as <span class="math inline">\(\text{PShv}(D)\)</span> is cocomplete, by Kan extension we can lift our composition to a functor between the cocompletion of <span class="math inline">\(C\)</span> (which happens to be <span class="math inline">\(\text{PShv(C)}\)</span>!) and <span class="math inline">\(\text{PShv}(D)\)</span> that preserves colimits:</p>
 <p><span class="math display">\[ \text{PShv}(C) \to \text{PShv}(D) \]</span></p>
 <p>This is the Eilenberg-Watts theorem! And also, this is a strikingly nice categorical description of a profunctor in terms of colimit properties.</p>
+<h3 id="composition-of-profunctors">composition of profunctors</h3>
+<p>If we have functors, we’d like to compose them. If we have profunctors, we’d like to compose them too. How?</p>
+<p>Let’s fix an example. Let <span class="math inline">\(C\)</span> be a category, and consider the <span class="math inline">\(\text{Hom}\)</span> profunctor. How would we compute the composition <span class="math inline">\(\text{Hom}_C\circ\text{Hom}_C\)</span>? Let <span class="math inline">\(a, b\)</span> be two objects of <span class="math inline">\(C\)</span>, and consider the value of the composition <span class="math inline">\((\text{Hom}_C\circ\text{Hom}_C)(a, b)\)</span>, which is a set.</p>
+<p>Naturally, we’d think of the elements in this set to correspond to compositions of original functions (afterall, that’s what <span class="math inline">\(\text{Hom}_C(-,-)\)</span> represents):</p>
+<p><span class="math display">\[ a \to ? \to b \]</span></p>
+<p>But which object “<span class="math inline">\(?\)</span>” does the map pass through? Just like Feynman’s path integrals, we could let the function pass through anything! In essence, we can consider all the possible ways to get from <span class="math inline">\(a \to b\)</span> while passing through another object, which is represented by the coproduct</p>
+<p><span class="math display">\[ \coprod_{d\in C} \text{Hom}_C(a,d)\times\text{Hom}_C(d,b) \]</span></p>
+<p>This isn’t the true composition however, because there are a lot of equivalent ways to get from <span class="math inline">\(a\to b\)</span> through different objects! In essence, we will try to identify as many “commutative diagrams” as possible to get a lossless compression of the above set. Mathematically, this is a <strong>coend</strong>, which is a kind of Kan extension.</p>
+<p>In general, for profunctors <span class="math inline">\(F\)</span> and <span class="math inline">\(G\)</span>, the composition is given by the coend:</p>
+<p><span class="math display">\[ G \circ F := \int^{d \in D} F(d,-)\otimes G(-,d) \]</span></p>
+<p>where here, the <span class="math inline">\(\otimes\)</span> denotes the monoidal structure of the enrichment category. As above, a coend should be thought of as all the ways to “create a varying family of functors by using the family of functors defined by <span class="math inline">\(F\)</span> and <span class="math inline">\(G\)</span>”.</p>
+<h3 id="hochschild-homology">hochschild homology?</h3>
+<p>Finally, I’d like to look at another way to describe generalized functions. Another description of the graph <span class="math inline">\(\hat{f}\)</span> of a function <span class="math inline">\(f:X\to Y\)</span> is as a <strong>correspondence</strong> or <strong>span</strong>:</p>
+<p><span class="math display">\[ X \leftarrow Z \to Y \]</span></p>
+<p>If the category we’re working in has (homotopy) pullbacks (a kind of colimit), we can compose such spans using them. In particular, if we’re working in a derived/homotopical setting, given a span <span class="math inline">\(X\leftarrow A\to X\)</span>, it’s self-composition is given by the derived tensor product</p>
+<p><span class="math display">\[ X \leftarrow \text{Spec}(A\otimes^{\mathbb{L}}_X A) \to X \]</span></p>
+<p>The object <span class="math inline">\(A\otimes^{\mathbb{L}}_X A\)</span> is known as the <strong>Hochschild homology</strong> of the bimodule <span class="math inline">\(A\)</span> over <span class="math inline">\(X\)</span>, and is a central object of study in noncommutative algebraic geometry and algebraic topology. It would be interesting to see how this object makes its way into computer science as these other tidbits of category theory already has.</p>
     </section>
 </article>
 
