@@ -42,8 +42,10 @@
 <p>More generally, for any functor <span class="math inline">\(f:C\to \text{Set}\)</span>, we get a Yoneda of the form (but same spirit):</p>
 <p><span class="math display">\[ \text{Yoneda: } \text{Nat}(\text{Hom}_C(a,-), f) \simeq f(a) \]</span></p>
 <p>How do we get about using this in Haskell? We unwind the definitions– the set of natural transformations is a special version of an <em>end</em>, a categorical limit construction. To unwind this, you just need to remember that a natural transformation in the above Yoneda is a <strong>collection</strong> of maps <span class="math inline">\(\text{Hom}_C(a,x)\to f(x)\)</span> for all <span class="math inline">\(x\)</span>, such that these maps are compatible by natural coherences. In Haskell, this can be written in the form</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">yoneda ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="kw">forall</span> x<span class="fu">.</span> (a <span class="ot">-&gt;</span> x) <span class="ot">-&gt;</span> f x) <span class="ot">-&gt;</span> f a</a>
-<a class="sourceLine" id="cb1-2" title="2">yoneda gs <span class="fu">=</span> gs <span class="fu">id</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">{-# LANGUAGE RankNTypes #-}</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="ot">yoneda ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="kw">forall</span> x<span class="fu">.</span> (a <span class="ot">-&gt;</span> x) <span class="ot">-&gt;</span> f x) <span class="ot">-&gt;</span> f a</a>
+<a class="sourceLine" id="cb1-4" title="4">yoneda gs <span class="fu">=</span> gs <span class="fu">id</span></a></code></pre></div>
 <p><strong>NOTE:</strong> This type signature doesn’t enforce the coherences for an end! So this is slightly confusing to me. Unless I am wrong, in which case, please let me know!</p>
 <p>Now for a bit of a mind-bender– <span class="math inline">\(C\)</span> can be any category! So we take the category to the functor category from <span class="math inline">\(C\to\text{Set}\)</span>, call it <span class="math inline">\([C,\text{Set}]\)</span>. Then we have</p>
 <p><span class="math display">\[ \text{Nat}(\text{Hom}_{[C,\text{Set}]}(f,-), \text{Hom}_{[C,\text{Set}]}(g,-)) \simeq \text{Hom}_{[C,\text{Set}]}(g,f) \]</span></p>
@@ -54,7 +56,12 @@
 <p>Magic time: apply the original Yoneda lemma for <span class="math inline">\(C\)</span> and we get finally:</p>
 <p><span class="math display">\[ \text{Nat}_{[C,\text{Set}]}([-](a), [-](b)) \simeq \text{Hom}_C(a, b) \]</span></p>
 <p>where <span class="math inline">\([-](x): [C,\text{Set}]\to\text{Set}\)</span> is the application functor <span class="math inline">\(f\mapsto f(x)\)</span>. Unwinding this as an end, we remember that the natural transformations <span class="math inline">\([-](a) \to [-](b)\)</span> are a <strong>collection</strong> of maps from <span class="math inline">\(f(a)\to f(b)\)</span> for <strong>any functor</strong>. In Haskell, this gives the amazing functional identity</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="ot">yoneda' ::</span> (<span class="kw">forall</span> f<span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> f b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">import</span> <span class="dt">Data.Functor.Identity</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="ot">yoneda' ::</span> (<span class="kw">forall</span> f<span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> f b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b)</a>
+<a class="sourceLine" id="cb2-4" title="4">yoneda' gs <span class="fu">=</span> \x <span class="ot">-&gt;</span> runIdentity <span class="fu">$</span> gs (<span class="dt">Identity</span> x)</a></code></pre></div>
+<p>This is where we get our first glimpse at the philosophy of lenses: If we want to understand an object, it suffices to probe it with as many different “views” as possible, and if all these views coherently agree, we can say we understand the object!</p>
+<h3 id="profunctors-and-isos">profunctors and isos</h3>
     </section>
 </article>
 
