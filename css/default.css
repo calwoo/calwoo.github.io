@@ -1,9 +1,13 @@
+.katex { font-size: 1em !important; }
+
 html {
   font-size: 62.5%;
 }
 
 body {
-  font-size: 1.6rem;
+  font-family: KaTeX_Main,Times New Roman,serif;
+  font-size: 16px;
+  margin: auto;
   color: #000;
 }
 
