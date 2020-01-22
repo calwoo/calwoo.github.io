@@ -23,6 +23,8 @@ $$ \text{Yoneda: } \text{Nat}(\text{Hom}_C(a,-), f) \simeq f(a) $$
 How do we get about using this in Haskell? We unwind the definitions-- the set of natural transformations is a special version of an *end*, a categorical limit construction. To unwind this, you just need to remember that a natural transformation in the above Yoneda is a **collection** of maps $\text{Hom}_C(a,x)\to f(x)$ for all $x$, such that these maps are compatible by natural coherences. In Haskell, this can be written in the form
 
 ```haskell
+{-# LANGUAGE RankNTypes #-}
+
 yoneda :: Functor f => (forall x. (a -> x) -> f x) -> f a
 yoneda gs = gs id
 ```
@@ -47,6 +49,15 @@ $$ \text{Nat}_{[C,\text{Set}]}([-](a), [-](b)) \simeq \text{Hom}_C(a, b) $$
 where $[-](x): [C,\text{Set}]\to\text{Set}$ is the application functor $f\mapsto f(x)$. Unwinding this as an end, we remember that the natural transformations $[-](a) \to [-](b)$ are a **collection** of maps from $f(a)\to f(b)$ for **any functor**. In Haskell, this gives the amazing functional identity
 
 ```haskell
+import Data.Functor.Identity
+
 yoneda' :: (forall f. Functor f => f a -> f b) -> (a -> b)
+yoneda' gs = \x -> runIdentity $ gs (Identity x)
 ```
+
+This is where we get our first glimpse at the philosophy of lenses: If we want to understand an object, it suffices to probe it with as many different "views" as possible, and if all these views coherently agree, we can say we understand the object!
+
+
+### profunctors and isos
+
 
