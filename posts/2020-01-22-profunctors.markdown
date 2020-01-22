@@ -2,7 +2,7 @@
 title: Profunctors are generalized functors
 ---
 
-**Note: This blog post isn't finished yet. Read on with caution.**
+**Note: This blog post is still a rough draft. Read on with caution.**
 
 There's a thread of connections that I've been curiously following for a few weeks now, but I've not been able to grasp it fully. I've heard people say at various Haskell meetups that there are relations between lenses/prisms, profunctors, and traversals. I don't really know what lenses are, and traversals seem too different to me from profunctors.
 
@@ -48,6 +48,39 @@ $$ \text{PShv}(C) \to \text{PShv}(D) $$
 
 This is the Eilenberg-Watts theorem! And also, this is a strikingly nice categorical description of a profunctor in terms of colimit properties.
 
+
+### composition of profunctors
+If we have functors, we'd like to compose them. If we have profunctors, we'd like to compose them too. How?
+
+Let's fix an example. Let $C$ be a category, and consider the $\text{Hom}$ profunctor. How would we compute the composition $\text{Hom}_C\circ\text{Hom}_C$? Let $a, b$ be two objects of $C$, and consider the value of the composition $(\text{Hom}_C\circ\text{Hom}_C)(a, b)$, which is a set.
+
+Naturally, we'd think of the elements in this set to correspond to compositions of original functions (afterall, that's what $\text{Hom}_C(-,-)$ represents):
+
+$$ a \to ? \to b $$
+
+But which object "$?$" does the map pass through? Just like Feynman's path integrals, we could let the function pass through anything! In essence, we can consider all the possible ways to get from $a \to b$ while passing through another object, which is represented by the coproduct
+
+$$ \coprod_{d\in C} \text{Hom}_C(a,d)\times\text{Hom}_C(d,b) $$
+
+This isn't the true composition however, because there are a lot of equivalent ways to get from $a\to b$ through different objects! In essence, we will try to identify as many "commutative diagrams" as possible to get a lossless compression of the above set. Mathematically, this is a **coend**, which is a kind of Kan extension.
+
+In general, for profunctors $F$ and $G$, the composition is given by the coend:
+
+$$ G \circ F := \int^{d \in D} F(d,-)\otimes G(-,d) $$
+
+where here, the $\otimes$ denotes the monoidal structure of the enrichment category. As above, a coend should be thought of as all the ways to "create a varying family of functors by using the family of functors defined by $F$ and $G$".
+
+
+### hochschild homology?
+Finally, I'd like to look at another way to describe generalized functions. Another description of the graph $\hat{f}$ of a function $f:X\to Y$ is as a **correspondence** or **span**:
+
+$$ X \leftarrow Z \to Y $$
+
+If the category we're working in has (homotopy) pullbacks (a kind of colimit), we can compose such spans using them. In particular, if we're working in a derived/homotopical setting, given a span $X\leftarrow A\to X$, it's self-composition is given by the derived tensor product
+
+$$ X \leftarrow \text{Spec}(A\otimes^{\mathbb{L}}_X A) \to X $$
+
+The object $A\otimes^{\mathbb{L}}_X A$ is known as the **Hochschild homology** of the bimodule $A$ over $X$, and is a central object of study in noncommutative algebraic geometry and algebraic topology. It would be interesting to see how this object makes its way into computer science as these other tidbits of category theory already has.
 
 
 
