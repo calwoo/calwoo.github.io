@@ -59,5 +59,28 @@ This is where we get our first glimpse at the philosophy of lenses: If we want t
 
 
 ### profunctors and isos
+As explained in the [previous post](/posts/2020-01-21-profunctors.html), a profunctor from $C\to D$ is a functor $p: D^{op}\times C \to\text{Set}$. This mix of covariance and contravariance can be described in the `Profunctor` type class
+
+```haskell
+class Profunctor p where
+    dimap :: (s -> a) -> (b -> t) -> (p a b -> p s t)
+```
+
+This class describes the double-lift, since given objects $(a, b)$ and $(s, t)$ of $D^{op}\times C$, a "map" in that category is given by a pair of maps $s\to a$ and $b\to t$. Applying the Yoneda lemma above for profunctors means running the Yoneda twice, so that we can read off as
+
+```haskell
+yonedaPro :: (forall p. Profunctor p => p a b -> p s t) -> Iso s t a b
+```
+
+where
+
+```haskell
+data Iso s t a b = Iso (s -> a) (b -> t)
+```
+
+is just a product type for pairs of functions.
+
+**NOTE:** I don't know why they call this `Iso`, since it doesn't really have much to do with isomorphisms. In fact, they are usually NOT isomorphisms. I prefer to call these things by what they really are in mathematics: twisted arrows `TwArr`. But alas, the crowd has spoken.
+
 
 
