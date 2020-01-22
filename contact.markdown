@@ -2,5 +2,4 @@
 title: Contact
 ---
 
-I live in a small hut in the mountains of Kumano Kodō on Kii Hantō and would not
-like to be contacted.
+I live in the greater New York City area and am open to job opportunities. If you'd like to contact me, you can email me at calvin.d.woo@gmail.com.
