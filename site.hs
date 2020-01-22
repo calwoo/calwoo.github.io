@@ -1,10 +1,12 @@
---------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+
 import           Data.Monoid (mappend)
 import           Hakyll
+import qualified Data.Set as S 
+import           Text.Pandoc.Options
+import           Text.Pandoc.Highlighting (pygments)
 
 
---------------------------------------------------------------------------------
 main :: IO ()
 main = hakyll $ do
     match "images/*" $ do
@@ -17,13 +19,13 @@ main = hakyll $ do
 
     match (fromList ["about.rst", "contact.markdown"]) $ do
         route   $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ pandocCompiler_
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
 
     match "posts/*" $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ pandocCompiler_
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
             >>= loadAndApplyTemplate "templates/default.html" postCtx
             >>= relativizeUrls
@@ -65,3 +67,27 @@ postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
+
+--------------------------------------------------------------------------------
+-- custom pandoc compiler for LaTeX support
+
+pandocCompiler_ :: Compiler (Item String)
+pandocCompiler_ =
+    let mathExts =
+            [ Ext_tex_math_dollars
+            , Ext_tex_math_double_backslash
+            , Ext_latex_macros
+            ]
+        codeExts =
+            [ Ext_fenced_code_blocks
+            , Ext_backtick_code_blocks
+            ]
+        defaultExts = writerExtensions defaultHakyllWriterOptions
+        newExts = foldr enableExtension defaultExts (mathExts <> codeExts)
+        writerOptions =
+            defaultHakyllWriterOptions {
+                writerExtensions = newExts
+              , writerHTMLMathMethod = MathJax ""
+            }
+    in pandocCompilerWith defaultHakyllReaderOptions writerOptions
+
