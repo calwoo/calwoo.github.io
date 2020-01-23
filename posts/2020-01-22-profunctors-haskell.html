@@ -71,6 +71,44 @@
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">data</span> <span class="dt">Iso</span> s t a b <span class="fu">=</span> <span class="dt">Iso</span> (s <span class="ot">-&gt;</span> a) (b <span class="ot">-&gt;</span> t)</a></code></pre></div>
 <p>is just a product type for pairs of functions.</p>
 <p><strong>NOTE:</strong> I don’t know why they call this <code>Iso</code>, since it doesn’t really have much to do with isomorphisms. In fact, they are usually NOT isomorphisms. I prefer to call these things by what they really are in mathematics: twisted arrows <code>TwArr</code>. But alas, the crowd has spoken.</p>
+<h3 id="profunctor-composition">profunctor composition</h3>
+<p>If profunctors are generalized functors, then they should be able to compose. Recall that the composition of two functors is again a functor</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">newtype</span> <span class="dt">Compose</span> f g a <span class="fu">=</span> <span class="dt">Compose</span> {<span class="ot"> getCompose ::</span> f (g a) }</a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">instance</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> <span class="dt">Functor</span> (<span class="dt">Compose</span> f g) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="ot">    fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g a <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g b</a>
+<a class="sourceLine" id="cb6-5" title="5">    <span class="fu">fmap</span> f (<span class="dt">Compose</span> x) <span class="fu">=</span> <span class="dt">Compose</span> <span class="fu">$</span> <span class="fu">fmap</span> (<span class="fu">fmap</span> f) x</a></code></pre></div>
+<p>But given two profunctors <span class="math inline">\(D^{op}\times C\to\text{Set}, E^{op}\times D\to\text{Set}\)</span>, how do we compose them? Lets recall the definition of the composition as a Kan extension:</p>
+<p><span class="math display">\[ G \circ F := \int^{d \in D} F(d,-)\otimes G(-,d) \]</span></p>
+<p>In traditional Haskell fashion, we won’t enforce the coend gluing laws in the type, but in spirit: unwinding this definition we see that we get a valid constructor of elements of the composition– we take a “path in F” and a “path in G”.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">data</span> <span class="dt">PCompose</span> p q x y <span class="kw">where</span></a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="dt">ProCompose</span><span class="ot"> ::</span> (p d y, q x d) <span class="ot">-&gt;</span> <span class="dt">PCompose</span> p q x y</a></code></pre></div>
+<p>As a sanity check, lets see what this looks like for functors “completed” to profunctors. What do I mean by this? Recall from last post there was a way to promote an ordinary functor <span class="math inline">\(f:C\to D\)</span> to a profunctor by post-composing with the Yoneda embedding:</p>
+<p><span class="math display">\[ f^{\text{pro}}: C \stackrel{F}{\longrightarrow} D \stackrel{Yoneda}{\longrightarrow} \text{PShv}(D) \]</span></p>
+<p>In terms of objects, it sends <span class="math inline">\(c\mapsto\text{Hom}_D(-,f(c))\)</span>. This inspires the following promotion operator in Haskell:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">newtype</span> <span class="dt">Promotion</span> f d c <span class="fu">=</span> <span class="dt">Promotion</span> {<span class="ot"> runPromoted ::</span> d <span class="ot">-&gt;</span> f c }</a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Profunctor</span> (<span class="dt">Promotion</span> f) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> (<span class="dt">Promotion</span> f a b <span class="ot">-&gt;</span> <span class="dt">Promotion</span> f s t) s <span class="ot">-&gt;</span> f t</a>
+<a class="sourceLine" id="cb8-5" title="5">    dimap g h pf <span class="fu">=</span> <span class="dt">Promotion</span> <span class="fu">$</span> </a>
+<a class="sourceLine" id="cb8-6" title="6">        <span class="fu">fmap</span> h <span class="fu">.</span> runPromoted pf <span class="fu">.</span> g</a></code></pre></div>
+<p>Now we wish to study the composition of promoted functors. In one direction we have</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="dt">PCompose</span> (<span class="dt">Promotion</span> f) (<span class="dt">Promotion</span> g) x y</a>
+<a class="sourceLine" id="cb9-2" title="2">    <span class="fu">==</span> (<span class="dt">Promotion</span> f d y, <span class="dt">Promotion</span> g x d)</a>
+<a class="sourceLine" id="cb9-3" title="3">    <span class="fu">==</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</a></code></pre></div>
+<p>and in the other we have</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="dt">Promotion</span> (<span class="dt">Compose</span> g f) x y</a>
+<a class="sourceLine" id="cb10-2" title="2">    <span class="fu">==</span> x <span class="ot">-&gt;</span> (<span class="dt">Compose</span> g f) y</a>
+<a class="sourceLine" id="cb10-3" title="3">    <span class="fu">==</span> x <span class="ot">-&gt;</span> g (f y)</a></code></pre></div>
+<p>But there is a clear isomorphism between <code>(d -&gt; f y, x -&gt; g d)</code><span class="math inline">\(\simeq\)</span><code>x -&gt; g (f y)</code> given by</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">compIso ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d) <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> g (f y))</a>
+<a class="sourceLine" id="cb11-2" title="2">compIso (h, k) <span class="fu">=</span> <span class="fu">fmap</span> h <span class="fu">.</span> k</a>
+<a class="sourceLine" id="cb11-3" title="3"></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="ot">compIsoInv ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (x <span class="ot">-&gt;</span> g (f y)) <span class="ot">-&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</a>
+<a class="sourceLine" id="cb11-5" title="5">compIsoInv k <span class="fu">=</span> (<span class="fu">id</span>, k)</a></code></pre></div>
+<p>And this should make sense! Profunctor composition should be a version of regular composition.</p>
+<h3 id="profunctor-optics-finally">profunctor optics, finally</h3>
+<p>So far, we’ve been wandering around profunctors and Yoneda, and haven’t talked about optics. What’s the upshot of using all of this?</p>
     </section>
 </article>
 
