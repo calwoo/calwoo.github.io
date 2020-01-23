@@ -83,4 +83,71 @@ is just a product type for pairs of functions.
 **NOTE:** I don't know why they call this `Iso`, since it doesn't really have much to do with isomorphisms. In fact, they are usually NOT isomorphisms. I prefer to call these things by what they really are in mathematics: twisted arrows `TwArr`. But alas, the crowd has spoken.
 
 
+### profunctor composition
+If profunctors are generalized functors, then they should be able to compose. Recall that the composition of two functors is again a functor
 
+```haskell
+newtype Compose f g a = Compose { getCompose :: f (g a) }
+
+instance (Functor f, Functor g) => Functor (Compose f g) where
+    fmap :: (a -> b) -> Compose f g a -> Compose f g b
+    fmap f (Compose x) = Compose $ fmap (fmap f) x
+```
+
+But given two profunctors $D^{op}\times C\to\text{Set}, E^{op}\times D\to\text{Set}$, how do we compose them? Lets recall the definition of the composition as a Kan extension:
+
+$$ G \circ F := \int^{d \in D} F(d,-)\otimes G(-,d) $$
+
+In traditional Haskell fashion, we won't enforce the coend gluing laws in the type, but in spirit: unwinding this definition we see that we get a valid constructor of elements of the composition-- we take a "path in F" and a "path in G".
+
+```haskell
+data PCompose p q x y where
+    ProCompose :: (p d y, q x d) -> PCompose p q x y
+```
+
+As a sanity check, lets see what this looks like for functors "completed" to profunctors. What do I mean by this? Recall from last post there was a way to promote an ordinary functor $f:C\to D$ to a profunctor by post-composing with the Yoneda embedding:
+
+$$ f^{\text{pro}}: C \stackrel{F}{\longrightarrow} D \stackrel{Yoneda}{\longrightarrow} \text{PShv}(D) $$
+
+In terms of objects, it sends $c\mapsto\text{Hom}_D(-,f(c))$. This inspires the following promotion operator in Haskell:
+
+```haskell
+newtype Promotion f d c = Promotion { runPromoted :: d -> f c }
+
+instance Functor f => Profunctor (Promotion f) where
+    dimap :: (s -> a) -> (b -> t) -> (Promotion f a b -> Promotion f s t) s -> f t
+    dimap g h pf = Promotion $ 
+        fmap h . runPromoted pf . g
+```
+
+Now we wish to study the composition of promoted functors. In one direction we have
+
+```haskell
+PCompose (Promotion f) (Promotion g) x y
+    == (Promotion f d y, Promotion g x d)
+    == (d -> f y, x -> g d)
+```
+
+and in the other we have
+
+```haskell
+Promotion (Compose g f) x y
+    == x -> (Compose g f) y
+    == x -> g (f y)
+```
+
+But there is a clear isomorphism between `(d -> f y, x -> g d)`$\simeq$`x -> g (f y)` given by
+
+```haskell
+compIso :: (Functor f, Functor g) => (d -> f y, x -> g d) -> (x -> g (f y))
+compIso (h, k) = fmap h . k
+
+compIsoInv :: (Functor f, Functor g) => (x -> g (f y)) -> (d -> f y, x -> g d)
+compIsoInv k = (id, k)
+```
+
+And this should make sense! Profunctor composition should be a version of regular composition. 
+
+
+### profunctor optics, finally
+So far, we've been wandering around profunctors and Yoneda, and haven't talked about optics. What's the upshot of using all of this? 
