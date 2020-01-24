@@ -46,6 +46,7 @@ jobs:
               git checkout -b master --track origin/master
               echo "overwriting existing files with new files"
               # cp -a _site/. .
+              sudo apt-get clean
               sudo apt-get update
               sudo apt-get -y install rsync
               rsync -a --filter='P _site/'      \
