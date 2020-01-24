@@ -115,7 +115,7 @@ In terms of objects, it sends $c\mapsto\text{Hom}_D(-,f(c))$. This inspires the 
 newtype Promotion f d c = Promotion { runPromoted :: d -> f c }
 
 instance Functor f => Profunctor (Promotion f) where
-    dimap :: (s -> a) -> (b -> t) -> (Promotion f a b -> Promotion f s t) s -> f t
+    dimap :: (s -> a) -> (b -> t) -> (Promotion f a b -> Promotion f s t)
     dimap g h pf = Promotion $ 
         fmap h . runPromoted pf . g
 ```
@@ -151,3 +151,91 @@ And this should make sense! Profunctor composition should be a version of regula
 
 ### profunctor optics, finally
 So far, we've been wandering around profunctors and Yoneda, and haven't talked about optics. What's the upshot of using all of this? 
+
+Remember, profunctors are generalizations of functions. In fact, the canonical example of a profunctor is given by $\text{Hom}_C(-,-)$
+
+```haskell
+instance Profunctor (->) where
+    dimap :: (s -> a) -> (b -> t) -> ((a -> b) -> (s -> t))
+    dimap h k = \f -> k . f . h
+```
+
+In this way it's clear that profunctors perform some kind of interplay between covariance and contravariant functoriality, which is in essence what an optic is doing. An *optic* is an abstraction for understanding an object and a "focus". Here a canonical example is that of a *lens*, which gives an interface for setters and getters in objects-with-attributes (I won't say classes). 
+
+A trivial example of an optic is one in which the there is no interaction between the focus and the object-- given an object, we can view the focus, but given the (might be polymorphically-changed) focus, we might get a new object that had nothing to do with the original whole! In such generality, all we can say about this optic is that it is composed to two arrows of "opposing direction". This sounds familiar: it's just a twisted arrow! (or as we called it in Haskell, an `Iso`). And above, we've already identified via Yoneda what twisted arrows are in terms of profunctors-- it's just an end
+
+$$ \text{Iso}_{s,t,a,b} = \int_{p\in\text{Prof}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+
+where $\text{Prof}$ is the category of profunctors (we defined composition above). 
+
+In this form, we could experiment by giving our profunctors more structure, dependent on the monoidal properties of the underlying enrichment (which is $\text{Set}$ in this case). We know that $\text{Set}$ is a symmetric monoidal category under the cartesian product $\times$, so restrict ourselves to profunctors that respect the monoidal structure:
+
+```haskell
+class Profunctor p => Cartesian p where
+    first  :: p a b -> p (a, c) (b, c)
+    second :: p a b -> p (c, a) (c, b)
+```
+
+What optic does this give us? Computing the end as above, we have
+
+$$ \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) \simeq 
+   \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(\text{mul}_c(s,a), \text{mul}_c(b,t))
+$$
+
+where $\text{mul}_c:C^{op}\times C\to\text{Set}$ is the profunctor given by $(a,b)\mapsto\text{Hom}_{\text{Set}}(a,b\times c)$. By the usual computation, this is given by a pair of functions
+
+$$ \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(s, a\times c)\times\text{Hom}_{\text{Set}}(b\times c, t) $$
+
+which by the Yoneda lemma gives $\text{Hom}_{\text{Set}}(s,a)\times\text{Hom}_{\text{Set}}(s\times b, t)$. This is precisely a *lens*!
+
+```haskell
+data Lens s t a b = Lens { view   :: s -> a
+                         , update :: (b, s) -> t 
+                         }
+```
+
+Hence we get our first nontrivial optics--
+
+$$ \text{Lens}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+
+```haskell
+type LensP s t a b = forall p. Cartesian p => p a b -> p s t
+```
+
+
+### diversion: the isomorphism in code
+I think it's a great exercise to show this equivalence between the lens definitions explicitly. The derivation in Haskell is as follows.
+
+```haskell
+comparison :: Lens s t a b -> LensP s t a b
+comparison (Lens v u) = dimap dup u . second . lmap v
+    where
+        lmap :: (a' -> a) -> p a b -> p a' b
+        lmap f = dimap f id
+
+        dup  :: a -> (a, a)
+        dup x = (x, x)
+
+-- constant functor
+type Constant b a = Constant { runConstant :: b }
+    deriving Functor
+
+comparisonInv :: LensP s t a b -> Lens s t a b
+comparisonInv pfn = Lens view' update'
+    where
+        view' :: s -> a
+        view' s = runConstant . runPromotion (pfn (Promotion Constant))
+
+        update' :: (b, s) -> t
+        update' (b, s) = pfn (const b) s
+```
+
+
+### intuitions and final remarks
+This gives us a great tool-box for building optics-- enrich our profunctors with special properties and we get different optics. If we let our optics preserve the cocartesian structure of $\text{Set}$, we get *prisms*. 
+
+$$ \text{Prisms}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{coCart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+
+If we let our profunctors be derived from polynomial functors, we get traversals. This is awesome.
+
+I close with my intuition as to why profunctors are needed for this. It comes down to the co-Yoneda lemma, which roughly states that all profunctors are colimits of the promoted functors. In this way, we can just rename profunctors as **colimit-completions of functors**. Under this perspective, as functors are ways to peer into the structure of objects, the completion allows us to "break parts off" of objects-- the remainder part will be the quotient, which is a kind of colimit! The colimit-completion property assures that such an object exists in our set. It would be nice to expand on this intuition a little more in the future, but I'll leave that for a later post.
