@@ -2,8 +2,6 @@
 title: Optics in Haskell
 ---
 
-**Note: This blog post is not finished yet. Read on with caution.**
-
 I'll admit that I am slightly skeptical of "category theory" in Haskell. I don't think I've been programming enough to see how many advanced abstractions can turn into usable structures, and profunctors + lenses seem to be one source of this mysticism that I'm struggling to understand. If anyone has a truly intuitive picture as to why this should all fit together, please reach out to me!
 
 Anyway, in this post we'll look at how profunctors play out in Haskell, and how this ends up turning into the lens abstraction that functional programmers know and love. As in all things in category theory, we have to start with the Yoneda lemma.
