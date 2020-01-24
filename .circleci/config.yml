@@ -45,17 +45,17 @@ jobs:
               stack exec site rebuild
               git checkout -b master --track origin/master
               echo "overwriting existing files with new files"
-              # cp -a _site/. .
-              sudo apt-get clean
-              sudo apt-get update
-              sudo apt-get -y install rsync
-              rsync -a --filter='P _site/'      \
-                       --filter='P _cache/'     \
-                       --filter='P .git/'       \
-                       --filter='P .gitignore'  \
-                       --filter='P .stack-work' \
-                       --delete-excluded        \
-                       _site/ .
+              cp -a _site/. .
+              # sudo apt-get clean
+              # sudo apt-get update
+              # sudo apt-get -y install rsync
+              # rsync -a --filter='P _site/'      \
+              #          --filter='P _cache/'     \
+              #          --filter='P .git/'       \
+              #          --filter='P .gitignore'  \
+              #          --filter='P .stack-work' \
+              #          --delete-excluded        \
+              #          _site/ .
               echo "adding files to git..."
               git add .
               git status
