@@ -32,8 +32,7 @@
         
     </section>
     <section>
-        <p><strong>Note: This blog post is not finished yet. Read on with caution.</strong></p>
-<p>I’ll admit that I am slightly skeptical of “category theory” in Haskell. I don’t think I’ve been programming enough to see how many advanced abstractions can turn into usable structures, and profunctors + lenses seem to be one source of this mysticism that I’m struggling to understand. If anyone has a truly intuitive picture as to why this should all fit together, please reach out to me!</p>
+        <p>I’ll admit that I am slightly skeptical of “category theory” in Haskell. I don’t think I’ve been programming enough to see how many advanced abstractions can turn into usable structures, and profunctors + lenses seem to be one source of this mysticism that I’m struggling to understand. If anyone has a truly intuitive picture as to why this should all fit together, please reach out to me!</p>
 <p>Anyway, in this post we’ll look at how profunctors play out in Haskell, and how this ends up turning into the lens abstraction that functional programmers know and love. As in all things in category theory, we have to start with the Yoneda lemma.</p>
 <h3 id="the-yoneda-lemma">the yoneda lemma</h3>
 <p>Follow almost any categorical thought long enough and you’ll find the Yoneda lemma. For a mathematician, the intuitive explanation of Yoneda is this: given any object of a category <span class="math inline">\(C\)</span>, we can completely identify the object (up to unique isomorphism) by the entire set of functions mapping into that object. Another way I’ve heard it is that Yoneda is like a particle accelerator: If you study all the collisions between particles and your target long enough, you’ll end up knowing the target particle.</p>
