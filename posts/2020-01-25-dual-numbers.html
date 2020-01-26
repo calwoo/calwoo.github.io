@@ -34,8 +34,7 @@
         
     </section>
     <section>
-        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
-<p>So last week I went to the <a href="https://www.meetup.com/nycpython/">NYCPython</a> lightning talk night at <a href="https://www.thisismetis.com/">Metis</a> and I had a blast! Thanks to everyone who talked, there was a lot of really cool stuff there (including a static analysis constraint checker for Python utilizing the Z3 solver)! As a result, I’m sorta inspired to give a talk at the next one, but since they’re 5 minutes long I’m not sure how I would fit something interesting into that time.</p>
+        <p>So last week I went to the <a href="https://www.meetup.com/nycpython/">NYCPython</a> lightning talk night at <a href="https://www.thisismetis.com/">Metis</a> and I had a blast! Thanks to everyone who talked, there was a lot of really cool stuff there (including a static analysis constraint checker for Python utilizing the Z3 solver)! As a result, I’m sorta inspired to give a talk at the next one, but since they’re 5 minutes long I’m not sure how I would fit something interesting into that time.</p>
 <p>Instead I’ll just write a blog post about something I’ve been learning about in the last year, and that’s autodifferentation. It’s an old idea, with many different forms but it has been immensely influential for modern machine learning when people started realizing you could use stochastic gradient descent for <em>almost</em> anything. But even more recently, there has been a push to make differentiation of programs a “first-class entity” in programming languages, and there has been many ideas as to how to express this as a language primitive.</p>
 <p>For example, wouldn’t it be nice if your favorite programming language had built-in support for generating gradients of your code without explicitly coding it in? This is the dream of <strong>differentiable programming</strong>– you would write a program with free or constrained parameters that lived in various metric spaces (or types), and you would just apply the <code>grad</code> primitive and all of a sudden your function would be trained by some kind of gradient descent to give back optimal values. This is vague, but it would akin to the sort of transformation occuring with probabilistic programming languages, in which Bayesian inference is a “first-class entity”– you only have to define the code, and all stochastic elements are captured by the runtime-system and inference is performed automatically for you without you having to hardcode a custom algorithm yourself.</p>
 <h3 id="dual-numbers">dual numbers</h3>
@@ -98,7 +97,66 @@
 <a class="sourceLine" id="cb4-10" title="10"><span class="fl">2.0</span>         <span class="co"># derivative w.r.t y</span></a></code></pre></div>
 <p>That’s cool.</p>
 <h3 id="reverse-mode-autodiff">reverse-mode autodiff</h3>
-<p><strong>NOTE</strong>: Write this part!</p>
+<p>Note that for the function <span class="math inline">\(f:\mathbb{R}^2\to\mathbb{R}\)</span> above, we had to perform the forward-mode procedure twice to compute the directional derivatives. In general, for a function <span class="math inline">\(f:\mathbb{R}^n\to\mathbb{R}\)</span> we require <span class="math inline">\(\mathcal{O}(n)\)</span> forward-passes to compute the complete Jacobian of the function. As these are the kind of functions ubiquitously found in machine learning (e.g. loss functions), we seek more efficient ways to compute this.</p>
+<p>Instead, reverse-mode autodifferentiation propagates errors backwards from the output of the computation. To keep track of the gradients, we take any computation and lift it to a computational graph DSL (domain-specific language).</p>
+<p>To start, the computational graph is a collection of nodes:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">from</span> typing <span class="im">import</span> List, Tuple, Optional</a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> Node:</a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value: <span class="bu">float</span>):</a>
+<a class="sourceLine" id="cb5-5" title="5">        <span class="va">self</span>.value <span class="op">=</span> value</a>
+<a class="sourceLine" id="cb5-6" title="6">        <span class="va">self</span>.children: List[Tuple[<span class="st">&quot;Node&quot;</span>, <span class="bu">float</span>]] <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="va">self</span>.grad_value: Optional[<span class="bu">float</span>] <span class="op">=</span> <span class="va">None</span></a></code></pre></div>
+<p>Each node in a graph contains a list of references to each child node– this is because when computing the gradient value in a node, we compute it as a weighted sum of the propagated gradients from the children. As a convention, each reference in the <code>children</code> list is a tuple of the child node and the intermediate gradient <span class="math inline">\(\frac{d\text{child}}{d\text{parent}}\)</span>.</p>
+<p>Computations are then build via Python’s magic methods (operator overloading also):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1">    <span class="at">@nodeize</span></a>
+<a class="sourceLine" id="cb6-2" title="2">    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
+<a class="sourceLine" id="cb6-3" title="3">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">*</span> other.value)</a>
+<a class="sourceLine" id="cb6-4" title="4">        <span class="co"># attach hooks to dependency nodes</span></a>
+<a class="sourceLine" id="cb6-5" title="5">        <span class="va">self</span>.children.append((new_node, other.value))</a>
+<a class="sourceLine" id="cb6-6" title="6">        other.children.append((new_node, <span class="va">self</span>.value))</a>
+<a class="sourceLine" id="cb6-7" title="7">        <span class="cf">return</span> new_node</a>
+<a class="sourceLine" id="cb6-8" title="8"></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="at">@nodeize</span></a>
+<a class="sourceLine" id="cb6-10" title="10">    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
+<a class="sourceLine" id="cb6-11" title="11">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">+</span> other.value)</a>
+<a class="sourceLine" id="cb6-12" title="12">        <span class="co"># attach hooks to dependency nodes</span></a>
+<a class="sourceLine" id="cb6-13" title="13">        <span class="va">self</span>.children.append((new_node, <span class="fl">1.0</span>))</a>
+<a class="sourceLine" id="cb6-14" title="14">        other.children.append((new_node, <span class="fl">1.0</span>))</a>
+<a class="sourceLine" id="cb6-15" title="15">        <span class="cf">return</span> new_node</a>
+<a class="sourceLine" id="cb6-16" title="16"></a>
+<a class="sourceLine" id="cb6-17" title="17">    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, other: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
+<a class="sourceLine" id="cb6-18" title="18">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">**</span> other)</a>
+<a class="sourceLine" id="cb6-19" title="19">        <span class="va">self</span>.children.append((new_node, other <span class="op">*</span> <span class="va">self</span>.value <span class="op">**</span> (other <span class="op">-</span> <span class="dv">1</span>)))</a>
+<a class="sourceLine" id="cb6-20" title="20">        <span class="cf">return</span> new_node</a></code></pre></div>
+<p>Here, <code>nodeize</code> is a decorator to avoid excessive <code>isinstance</code> checks (we don’t type-hint it for readability):</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">def</span> nodeize(fn):</a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="kw">def</span> _fn(cls, other):</a>
+<a class="sourceLine" id="cb7-3" title="3">        <span class="cf">if</span> <span class="bu">isinstance</span>(other, <span class="bu">float</span>):</a>
+<a class="sourceLine" id="cb7-4" title="4">            other <span class="op">=</span> Node(other)</a>
+<a class="sourceLine" id="cb7-5" title="5">        <span class="cf">return</span> fn(cls, other)</a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="cf">return</span> _fn</a></code></pre></div>
+<p>Finally, gradients are computed by the process above:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">    <span class="at">@property</span></a>
+<a class="sourceLine" id="cb8-2" title="2">    <span class="kw">def</span> grad(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</a>
+<a class="sourceLine" id="cb8-3" title="3">        <span class="co"># accept gradients from all children</span></a>
+<a class="sourceLine" id="cb8-4" title="4">        <span class="cf">if</span> <span class="va">self</span>.grad_value <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb8-5" title="5">            <span class="va">self</span>.grad_value <span class="op">=</span> <span class="bu">sum</span>(var.grad <span class="op">*</span> dx <span class="cf">for</span> var, dx <span class="kw">in</span> <span class="va">self</span>.children)</a>
+<a class="sourceLine" id="cb8-6" title="6"></a>
+<a class="sourceLine" id="cb8-7" title="7">        <span class="cf">return</span> <span class="va">self</span>.grad_value</a></code></pre></div>
+<p>This gives a fully-fledged reverse-mode autodifferentation system.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> x <span class="op">=</span> Node(<span class="fl">2.0</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="op">&gt;</span> y <span class="op">=</span> Node(<span class="fl">1.0</span>)</a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="op">&gt;</span> z <span class="op">=</span> x <span class="op">*</span> y <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> x <span class="op">**</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="op">&gt;</span> <span class="co"># Set gradient value at output to start reverse-mode</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="op">&gt;</span> z.grad_value <span class="op">=</span> <span class="fl">1.0</span> </a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="op">&gt;</span> x.grad</a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="fl">5.0</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="op">&gt;</span> y.grad</a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="fl">4.0</span></a></code></pre></div>
+<h3 id="closing">closing</h3>
+<p>These are two very basic ways to build an autodiff system. I am not sure how to connect the dual number perspective to reverse-mode autodifferentiation (I would need a dual-number approach to the cotangent space, but making it explicit might be difficult). If anyone knows how, let me know please!</p>
+<p>In a later blog post, I’ll talk about another way to approach reverse-mode autodifferentiation using something I have been interested in for the past year: effect handlers and delimited continuations.</p>
     </section>
 </article>
 
