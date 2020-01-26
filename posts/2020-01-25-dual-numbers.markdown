@@ -3,8 +3,6 @@ title: Dual numbers in autodifferentiation
 author: Calvin
 ---
 
-**Note: This blog post is still a rough draft. Read on with caution.**
-
 So last week I went to the [NYCPython](https://www.meetup.com/nycpython/) lightning talk night at [Metis](https://www.thisismetis.com/) and I had a blast! Thanks to everyone who talked, there was a lot of really cool stuff there (including a static analysis constraint checker for Python utilizing the Z3 solver)! As a result, I'm sorta inspired to give a talk at the next one, but since they're 5 minutes long I'm not sure how I would fit something interesting into that time.
 
 Instead I'll just write a blog post about something I've been learning about in the last year, and that's autodifferentation. It's an old idea, with many different forms but it has been immensely influential for modern machine learning when people started realizing you could use stochastic gradient descent for *almost* anything. But even more recently, there has been a push to make differentiation of programs a "first-class entity" in programming languages, and there has been many ideas as to how to express this as a language primitive. 
@@ -103,4 +101,88 @@ That's cool.
 
 
 ### reverse-mode autodiff
-**NOTE**: Write this part!
+Note that for the function $f:\mathbb{R}^2\to\mathbb{R}$ above, we had to perform the forward-mode procedure twice to compute the directional derivatives. In general, for a function $f:\mathbb{R}^n\to\mathbb{R}$ we require $\mathcal{O}(n)$ forward-passes to compute the complete Jacobian of the function. As these are the kind of functions ubiquitously found in machine learning (e.g. loss functions), we seek more efficient ways to compute this.
+
+Instead, reverse-mode autodifferentiation propagates errors backwards from the output of the computation. To keep track of the gradients, we take any computation and lift it to a computational graph DSL (domain-specific language). 
+
+To start, the computational graph is a collection of nodes:
+
+```python
+from typing import List, Tuple, Optional
+
+class Node:
+    def __init__(self, value: float):
+        self.value = value
+        self.children: List[Tuple["Node", float]] = []
+        self.grad_value: Optional[float] = None
+```
+
+Each node in a graph contains a list of references to each child node-- this is because when computing the gradient value in a node, we compute it as a weighted sum of the propagated gradients from the children. As a convention, each reference in the `children` list is a tuple of the child node and the intermediate gradient $\frac{d\text{child}}{d\text{parent}}$. 
+
+Computations are then build via Python's magic methods (operator overloading also):
+
+```python
+    @nodeize
+    def __mul__(self, other: "Node") -> "Node":
+        new_node = Node(self.value * other.value)
+        # attach hooks to dependency nodes
+        self.children.append((new_node, other.value))
+        other.children.append((new_node, self.value))
+        return new_node
+
+    @nodeize
+    def __add__(self, other: "Node") -> "Node":
+        new_node = Node(self.value + other.value)
+        # attach hooks to dependency nodes
+        self.children.append((new_node, 1.0))
+        other.children.append((new_node, 1.0))
+        return new_node
+
+    def __pow__(self, other: float) -> "Node":
+        new_node = Node(self.value ** other)
+        self.children.append((new_node, other * self.value ** (other - 1)))
+        return new_node
+```
+
+Here, `nodeize` is a decorator to avoid excessive `isinstance` checks (we don't type-hint it for readability):
+
+```python
+def nodeize(fn):
+    def _fn(cls, other):
+        if isinstance(other, float):
+            other = Node(other)
+        return fn(cls, other)
+    return _fn
+```
+
+Finally, gradients are computed by the process above:
+
+```python
+    @property
+    def grad(self) -> float:
+        # accept gradients from all children
+        if self.grad_value is None:
+            self.grad_value = sum(var.grad * dx for var, dx in self.children)
+
+        return self.grad_value
+```
+
+This gives a fully-fledged reverse-mode autodifferentation system.
+
+```python
+> x = Node(2.0)
+> y = Node(1.0)
+> z = x * y ** 2 + x ** 2
+> # Set gradient value at output to start reverse-mode
+> z.grad_value = 1.0 
+> x.grad
+5.0
+> y.grad
+4.0
+```
+
+
+### closing
+These are two very basic ways to build an autodiff system. I am not sure how to connect the dual number perspective to reverse-mode autodifferentiation (I would need a dual-number approach to the cotangent space, but making it explicit might be difficult). If anyone knows how, let me know please!
+
+In a later blog post, I'll talk about another way to approach reverse-mode autodifferentiation using something I have been interested in for the past year: effect handlers and delimited continuations.
