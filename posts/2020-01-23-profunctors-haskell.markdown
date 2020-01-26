@@ -162,7 +162,7 @@ In this way it's clear that profunctors perform some kind of interplay between c
 
 A trivial example of an optic is one in which the there is no interaction between the focus and the object-- given an object, we can view the focus, but given the (might be polymorphically-changed) focus, we might get a new object that had nothing to do with the original whole! In such generality, all we can say about this optic is that it is composed to two arrows of "opposing direction". This sounds familiar: it's just a twisted arrow! (or as we called it in Haskell, an `Iso`). And above, we've already identified via Yoneda what twisted arrows are in terms of profunctors-- it's just an end
 
-$$ \text{Iso}_{s,t,a,b} = \int_{p\in\text{Prof}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+$$ \text{Iso}_{s,t,a,b} = \int_{p\in\text{Prof}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) $$
 
 where $\text{Prof}$ is the category of profunctors (we defined composition above). 
 
@@ -176,8 +176,8 @@ class Profunctor p => Cartesian p where
 
 What optic does this give us? Computing the end as above, we have
 
-$$ \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) \simeq 
-   \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(\text{mul}_c(s,a), \text{mul}_c(b,t))
+$$ \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) \simeq 
+   \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(\text{mul}_c(a,b), \text{mul}_c(s,t))
 $$
 
 where $\text{mul}_c:C^{op}\times C\to\text{Set}$ is the profunctor given by $(a,b)\mapsto\text{Hom}_{\text{Set}}(a,b\times c)$. By the usual computation, this is given by a pair of functions
@@ -194,7 +194,7 @@ data Lens s t a b = Lens { view   :: s -> a
 
 Hence we get our first nontrivial optics--
 
-$$ \text{Lens}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+$$ \text{Lens}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) $$
 
 ```haskell
 type LensP s t a b = forall p. Cartesian p => p a b -> p s t
@@ -232,7 +232,7 @@ comparisonInv pfn = Lens view' update'
 ### intuitions and final remarks
 This gives us a great tool-box for building optics-- enrich our profunctors with special properties and we get different optics. If we let our optics preserve the cocartesian structure of $\text{Set}$, we get *prisms*. 
 
-$$ \text{Prisms}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{coCart}}} \text{Hom}_{\text{Set}}(p(s,a), p(b,t)) $$
+$$ \text{Prisms}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{coCart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) $$
 
 If we let our profunctors be derived from polynomial functors, we get traversals. This is awesome.
 
