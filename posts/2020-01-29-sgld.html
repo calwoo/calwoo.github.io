@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Langevin dynamics for Bayesian inference - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Langevin dynamics for Bayesian inference</h1>
+            <article>
+    <section class="header">
+        Posted on January 29, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>Bayesian methods in deep learning seem to be a hot topic these days, and that’s good for me since Bayesian methods are my favorite part of machine learning. The basic idea behind these methods is simple– a neural network is merely a family of very complicated functions parameterized by a collection of weights <span class="math inline">\(w_{\text{net}}\)</span>. Given training data we tend to use optimization methods to seek out the MLE weights for this family <span class="math inline">\(w_{\text{mle}}\)</span> guided by some loss function.</p>
+<p>In the Bayesian framework we put a <strong>prior</strong> on the (restricted) space of functions that these neural networks belong to, and use Bayesian inference techniques to establish a posterior distribution over this space given the training data. Usually, this prior is described as a distributional prior over the weight-space <span class="math inline">\(p(w)\)</span> and we are seeking the posterior <span class="math inline">\(p(w|\mathcal{D})\)</span>.</p>
+<p>Why would this be ever beneficial? The key equation to keep in mind is the <em>Bayesian average</em>:</p>
+<p><span class="math display">\[ p_\text{bayes}(y|\mathcal{D}) = \int_{w_{\text{net}}\in \{\text{weight space\}}} 
+p(y|w_\text{net},\mathcal{D})\cdot p(w_\text{net}|\mathcal{D}) \, dw_\text{net} \]</span></p>
+<p>In classical deep learning, the output distribution is given by a “single network” <span class="math inline">\(p(y|w_\text{mle}, \mathcal{D})\)</span>. The core question becomes “how confident are you that that one model is truly correct?” In the Bayesian averaging model, the output distribution <span class="math inline">\(p_\text{bayes}(y|\mathcal{D})\)</span> is a weighted <strong>ensemble</strong> of an infinite number of neural networks, where each network is weighted according to the quality of the distribution weights <span class="math inline">\(w_\text{net}\)</span>. In this way, we don’t have to choose– given a prior, the averaging process takes into account all the possible neural networks that could have given us good results as well, but may not be as confident as our MLE estimate network.</p>
+<p>But now we have a new technical problem to deal with– how do we determine the posterior <span class="math inline">\(p(w_\text{net}|\mathcal{D})\)</span>? By Bayes rule, we are reduced to computing the normalizing factor of the product</p>
+<p><span class="math display">\[ p(w_\text{net}|\mathcal{D}) \propto f_\text{nnet}(\mathcal{D}|w_\text{net}) p(w_\text{net}) \]</span></p>
+<p>where <span class="math inline">\(f_\text{nnet}(-|w_\text{net})\)</span> is a fixed architecture of neural network that we are using to model our function space. Computing this normalizing constant is absurdly difficult! In fact, it usually is so difficult that we give up on this entirely. Research in Bayesian inference often looks at ways to avoid this computation by using the right-hand side of the proportionality directly without normalization.</p>
+<p>There are two approaches one could think of to get at a probability distribution without analytic computation– the first is to simulate sampling from it. Then the normalization is simply a count, which is trivial. The second is to compare your distribution to another known, simpler family of distributions and compare via ratios. Choosing ratios cleverly removes the dependence on the normalization factor, but now we have to deal with two families of distributions that might be vastly different.</p>
+<p>The first idea leads to Markov chain Monte Carlo (<strong>MCMC</strong>), and the second leads to the wonderful world of <strong>variational inference</strong>. Which would you choose? It depends on the problem/tradeoff you’re willing to make. The quick slogan to keep is “MCMC is slow but low-bias, VI is fast but can be incredibly biased”. Both approaches can suffer from horrific variance issues, which can be tempered with a variety of techniques such as Rao-Blackwellization and control variates. I might address these in a future post.</p>
+<p>For now, I want to in this post talk about a first-pass attempt to combine MCMC and stochastic variational inference. To motivate this, we need to delve into some math.</p>
+<h3 id="markov-processes">markov processes</h3>
+<p>What is a Markov chain/process? It’s a discrete (finite)-space dynamical system, i.e. a system that evolves over time. However, the system evolves probabilistically, meaning the transition from a state <span class="math inline">\(x_i\mapsto x_j\)</span> is not deterministic, but instead given by a probability <span class="math inline">\(p_{ij}\)</span>. Taken together, we see that the evolution of the dynamical system is determined by a <strong>evolution/transition matrix</strong> <span class="math inline">\(A=(p_{ij})_{i, j\in\{\text{states}\}}\)</span>.</p>
+<p>It is interesting to say something about what happens in the long-term limit as the dynamical system evolves. If each node gets visited an infinite number of times as <span class="math inline">\(\text{time}\to\infty\)</span>, then we call the system <strong>ergodic</strong>, and the average amount of time a person walking around the dynamical system spends at each state gives rise to a probability distribution called the <em>stationary distribution</em>. In equations we have</p>
+<p><span class="math display">\[ p_\text{stationary} = \lim_{t\to\infty} A^t x_\text{init} \]</span></p>
+<p>where <span class="math inline">\(x_\text{init}\)</span> is any randomly-initialized state vector for the system. It is clear that from the equation above the stationary distribution vector is an <em>eigenvector</em> for the evolution matrix.</p>
+<p>This suggests then a really good way to produce samples from the distribution <span class="math inline">\(p_\text{stationary}\)</span>: walk along the dynamical system according to the evolution matrix for a long time, and eventually your path simulates sampling from <span class="math inline">\(p_\text{stationary}\)</span>! It was a great <a href="https://archive.siam.org/pdf/news/637.pdf">triumph</a> of mathematical statistics that it was discovered that one could reverse this process to produce from any distribution <span class="math inline">\(p\)</span> a dynamical Markov process whose stationary distribution is <span class="math inline">\(p\)</span> itself: <span class="math inline">\(p=p_\text{stationary}\)</span>. This is MCMC!</p>
+<h3 id="ito-markov-processes">ito-markov processes</h3>
+<p>However, the world of dynamical systems are not restricted to discrete spaces. Indeed, a very interesting class of dynamical systems are those over continuous-time, continuous-space systems. Such systems can be described by an evolving <em>stochastic differential equation</em>, the simplest of which are built from a deterministic time-component and the simplest stochastic process, a Brownian-Wiener process:</p>
+<p><span class="math display">\[ dx_t = a_t dt + b_t dB_t \]</span></p>
+<p>This is called an <strong>Ito-Markov process</strong>. Just like for Markov chains, this dynamical system has an underlying <strong>evolution/transition equation</strong>, which is given by a <em>Fokker-Planck equation</em> (computed by the Ito-Stratonovich lemma):</p>
+<p><span class="math display">\[ \partial_t p = -\partial_x(a_t p) + \frac{1}{2} \partial^2_x (b_t^2 p) \]</span></p>
+<p>The Fokker-Planck equation gives a probabilistic interpretation of the dynamical system– it describes a continually evolving family of probability distributions. The <em>stationary distribution</em> is a steady-state for the system, and is characterized by the equation <span class="math inline">\(\partial_t p_\text{stationary} = 0\)</span>. In this case,</p>
+<p><span class="math display">\[ 0 = -a_t\partial_x p + \frac{1}{2} b_t^2\partial^2_x p \]</span></p>
+<p>We get something resembling the <a href="https://en.wikipedia.org/wiki/Wave_equation">wave equation</a>. This PDE perspective on Ito-Markov processes is useful in machine learning, for example with the Stein’s method-based variational inference techniques. However, for stochastic gradient Langevin dynamics, we refer back to the SDE perspective. In this way, we have a continuous distribution <span class="math inline">\(p\)</span> that we’d like to exhibit as the stationary distribution of some stochastic dynamical system, and as in MCMC, we’d like to sample from that dynamical system directly. It turns out that this is slightly easier than in discrete-time MCMC.</p>
+<h3 id="langevin-dynamics">langevin dynamics</h3>
+<p>Suppose that we have an <strong>energy perspective</strong> on the <a href="https://en.wikipedia.org/wiki/Boltzmann_distribution">distribution</a> so that</p>
+<p><span class="math display">\[ p(x) \propto e^{-\beta E(x)} \]</span></p>
+<p>(<em>Note:</em> This can always be done). Then we are seeking <span class="math inline">\(a_t\)</span> and <span class="math inline">\(b_t\)</span> so that <span class="math inline">\(a_t p = \frac{1}{2} b_t^2\partial_x p\)</span> (one of the partials is removed as there is no longer any time-dependence!). Plugging in the Boltzmann expression of <span class="math inline">\(p\)</span> (and ignoring the normalizing constant, because they cancel out on both sides!) we are reduced to</p>
+<p><span class="math display">\[ a_t \cdot e^{-\beta E(x)} = -\frac{1}{2}\beta\cdot b_t^2\cdot \partial_x E(x) e^{-\beta E(x)}  \]</span></p>
+<p>Letting <span class="math inline">\(a_t = -\partial_x E(x)\)</span> and <span class="math inline">\(b_t = \sqrt{2\beta^{-1}}\)</span> gives the equality above! Hence we have rediscovered the <strong>Langevin stochastic dynamical equation</strong></p>
+<p><span class="math display">\[ dx_t = \frac{1}{\beta}\partial_x \log{p} \cdot dt + \sqrt{2\beta^{-1}} dB_t \]</span></p>
+<p><strong>Upshot:</strong> Simulating this dynamical system is over the long-run, equivalent to sampling from our distribution <span class="math inline">\(p\)</span>, as the Fokker-Planck equation for this SDE has <span class="math inline">\(p\)</span> as our stationary distribution <span class="math inline">\(p=p_\text{stationary}\)</span>! To turn this into something that looks like stochastic gradient descent, we use the <strong>Euler-Maruyama discretization</strong> technique to get a gradient descent update rule:</p>
+<p><span class="math display">\[ x_{t+1} \leftarrow x_t + \frac{1}{\beta}\partial_x \log{p(x_t)}\cdot\Delta t + \sqrt{2\Delta t\beta^{-1}} \eta \]</span></p>
+<p>where <span class="math inline">\(\eta \sim N(0, 1)\)</span> is a Gaussian sample. Hence running this iteratively, we can from an initial seed <span class="math inline">\(x_0\)</span> get a sequence of samples from our desired distribution <span class="math inline">\(p\)</span> via gradient descent updates! This is <strong>stochastic gradient Langevin dynamics</strong> <a href="https://www.ics.uci.edu/~welling/publications/papers/stoclangevin_v6.pdf">(SGLD)</a>.</p>
+<h3 id="an-example">an example</h3>
+<p>Lets see an example of SGLD in action by sampling from a Gaussian mixture model. Sampling from this is easy when treating the model hierarchically as a categorical-Gaussian mixture, but lets amuse ourselves by using SGLD. Note that all we care about from our model is the log-likelihood <span class="math inline">\(\log{p(x)}\)</span>! In Python our log-likelihood is given by</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> jax </a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> jax.numpy <span class="im">as</span> np </a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="at">@jax.jit</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">def</span> gaussian(x, mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb1-6" title="6">    energy <span class="op">=</span> <span class="op">-</span>(x <span class="op">-</span> mean) <span class="op">**</span> <span class="dv">2</span> <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> std <span class="op">**</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> std <span class="op">**</span> <span class="dv">2</span>) <span class="op">*</span> np.exp(energy)</a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="at">@jax.jit</span></a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="kw">def</span> log_mixture(x):</a>
+<a class="sourceLine" id="cb1-11" title="11">    weights <span class="op">=</span> [<span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.2</span>]</a>
+<a class="sourceLine" id="cb1-12" title="12">    mixture_1 <span class="op">=</span> gaussian(x, mean<span class="op">=-</span><span class="dv">3</span>, std<span class="op">=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb1-13" title="13">    mixture_2 <span class="op">=</span> gaussian(x, mean<span class="op">=-</span><span class="dv">1</span>, std<span class="op">=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb1-14" title="14">    mixture_3 <span class="op">=</span> gaussian(x, mean<span class="op">=</span><span class="dv">2</span>, std<span class="op">=</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16">    <span class="cf">return</span> np.log(weights[<span class="dv">0</span>] <span class="op">*</span> mixture_1 <span class="op">+</span> weights[<span class="dv">1</span>] <span class="op">*</span> mixture_2 <span class="op">+</span> <span class="op">\</span></a>
+<a class="sourceLine" id="cb1-17" title="17">                  weights[<span class="dv">2</span>] <span class="op">*</span> mixture_3)</a></code></pre></div>
+<p>Using the autodifferentiation library JAX, we easily get the gradient <span class="math inline">\(\partial_x \log{p(x)}\)</span> via the <code>jax.grad</code> function:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">grad_log_p <span class="op">=</span> jax.grad(log_mixture)</a></code></pre></div>
+<p>SGLD is then just the iterative process above:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> sgld_update(key, grad, x, beta<span class="op">=</span><span class="dv">1</span>, lr<span class="op">=</span><span class="fl">0.01</span>):</a>
+<a class="sourceLine" id="cb3-2" title="2">    noise <span class="op">=</span> jax.random.normal(key)</a>
+<a class="sourceLine" id="cb3-3" title="3">    grad_term <span class="op">=</span> grad(x) <span class="op">*</span> lr <span class="op">/</span> beta</a>
+<a class="sourceLine" id="cb3-4" title="4">    gaus_term <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> lr <span class="op">/</span> beta) <span class="op">*</span> noise</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">return</span> grad_term <span class="op">+</span> gaus_term</a></code></pre></div>
+<p>We run the loop via</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">n_samples <span class="op">=</span> <span class="dv">100000</span></a>
+<a class="sourceLine" id="cb4-2" title="2">samples <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb4-3" title="3">x <span class="op">=</span> <span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb4-4" title="4">lr <span class="op">=</span> <span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_samples):</a>
+<a class="sourceLine" id="cb4-6" title="6">    key, subkey <span class="op">=</span> jax.random.split(key)</a>
+<a class="sourceLine" id="cb4-7" title="7">    upd <span class="op">=</span> sgld_update(subkey, grad_log_p, x, lr<span class="op">=</span>lr)</a>
+<a class="sourceLine" id="cb4-8" title="8">    x <span class="op">+=</span> upd</a>
+<a class="sourceLine" id="cb4-9" title="9">    samples.append(x)</a>
+<a class="sourceLine" id="cb4-10" title="10"></a>
+<a class="sourceLine" id="cb4-11" title="11">samples <span class="op">=</span> onp.asarray(samples)</a></code></pre></div>
+<p>For this example, we get the sampling histogram</p>
+<p><strong>NOTE:</strong> Insert image here.</p>
+<h3 id="bayesian-neural-network">bayesian neural network</h3>
+<p>That was cute. Let’s use SGLD to train a simple Bayesian neural network.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
