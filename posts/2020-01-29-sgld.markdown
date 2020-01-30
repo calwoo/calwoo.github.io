@@ -134,8 +134,81 @@ samples = onp.asarray(samples)
 
 For this example, we get the sampling histogram
 
-**NOTE:** Insert image here.
+<p align="center">
+  <img width="560" height="300" src="../images/mixture-sgld.png">
+</p>
 
+Here, the dotted red line is the mixture distribution.
 
 ### bayesian neural network
-That was cute. Let's use SGLD to train a simple Bayesian neural network.
+That was cute. Let's use SGLD to train a simple Bayesian neural network. We will again use a Gaussian mixture model as our data.
+
+**NOTE:** Insert image here of GMM.
+
+We build a simple 2-layer neural network to solve this classification problem $\text{2D-point}\to\text{class label}$:
+
+```python
+import torch 
+import torch.nn as nn 
+import torch.nn.functional as F 
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(2, 5)
+        self.fc2 = nn.Linear(5, 3)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = F.relu(x)
+        x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
+```
+
+In Pytorch, we can implement a custom optimizer that performs SGD with an added step-- add on some scaled Gaussian noise in order to allow the dynamics of the gradient descent process to search around the posterior space of weights. Following the source on the [SGD optimizer]() we have
+
+```python
+# SGLD optimizer
+class SGLD(torch.optim.Optimizer):
+    def __init__(self, params, lr=1e-3):
+        defaults = {"lr": lr}
+        super(SGLD, self).__init__(params, defaults)
+
+    def step(self, lr=None, beta=1.0) -> None:
+        for group in self.param_groups:
+            if lr:
+                group["lr"] = lr
+
+            for p in group["params"]:
+                if p.grad is None:
+                    continue
+                d_p = p.grad.data
+                # add gaussian noise
+                noise = np.sqrt(2 / (group["lr"] * beta)) * torch.randn_like(d_p)
+                p.data.add_(-group["lr"], d_p / beta + noise)
+```
+
+It is then simple to run the gradient descent optimizer using the standard loop
+
+```python
+sgld_optimizer = SGLD(model.parameters(), lr=1e-3)
+n_epochs = 1000
+
+for epoch in range(n_epochs):
+    sgld_optimizer.zero_grad()
+    # run batch into network and propagate gradients
+    preds = model.forward(data)
+    loss = F.nll_loss(preds, labels)
+    loss.backward()
+    sgld_optimizer.step()
+```
+
+As the optimizer performs as step, the weights are perturbed to walk around the posterior weight space $p(w|\mathcal{D})$ just like in MCMC, but with the scalability of SGD! We evaluate the model by testing the probability predictions for a chosen point on the neural network models chosen by the optimizer. For example, by choosing the point $(2, 2)$ we see that the model is better able to capture its (un)certainty around the first cluster.
+
+**NOTE:** Insert image.
+
+
+### closing
+SGLD is the first of a series of modern scalable Bayesian inference methods. Other variations of the idea try to add many of the standard provisions of SGD, such as Nesterov momentum and adaptive scaling. Other directions to this theme involve importing the ideas of symplectic geometry to this setting, in the guise of Hamiltonian Monte Carlo, Riemannian MC, etc.
+
+Bayesian methods are notorious for being forboding to many data scientists because of the difficulty of scaling to large distributed systems and the higher mathematical prerequisites to understanding it's inner workings. However, I hope that more expository material will come out that assist in the propagation and proliferation of these ideas. The future of machine learning and AI might rely on these very techniques.
