@@ -141,9 +141,11 @@ For this example, we get the sampling histogram
 Here, the dotted red line is the mixture distribution.
 
 ### bayesian neural network
-That was cute. Let's use SGLD to train a simple Bayesian neural network. We will again use a Gaussian mixture model as our data.
+That was cute. Let's use SGLD to train a simple Bayesian neural network. We will again use a Gaussian mixture model as our data. (The cluster ordering is purple, teal, yellow).
 
-**NOTE:** Insert image here of GMM.
+<p align="center">
+  <img width="560" height="300" src="../images/sgld_data.png">
+</p>
 
 We build a simple 2-layer neural network to solve this classification problem $\text{2D-point}\to\text{class label}$:
 
@@ -165,7 +167,7 @@ class Net(nn.Module):
         return F.log_softmax(x, dim=1)
 ```
 
-In Pytorch, we can implement a custom optimizer that performs SGD with an added step-- add on some scaled Gaussian noise in order to allow the dynamics of the gradient descent process to search around the posterior space of weights. Following the source on the [SGD optimizer]() we have
+In Pytorch, we can implement a custom optimizer that performs SGD with an added step-- add on some scaled Gaussian noise in order to allow the dynamics of the gradient descent process to search around the posterior space of weights. Following the source on the [SGD optimizer](https://pytorch.org/docs/stable/_modules/torch/optim/sgd.html) we have
 
 ```python
 # SGLD optimizer
@@ -205,7 +207,9 @@ for epoch in range(n_epochs):
 
 As the optimizer performs as step, the weights are perturbed to walk around the posterior weight space $p(w|\mathcal{D})$ just like in MCMC, but with the scalability of SGD! We evaluate the model by testing the probability predictions for a chosen point on the neural network models chosen by the optimizer. For example, by choosing the point $(2, 2)$ we see that the model is better able to capture its (un)certainty around the first cluster.
 
-**NOTE:** Insert image.
+<p align="center">
+  <img width="560" height="300" src="../images/sgld_uncertainty.png">
+</p>
 
 
 ### closing
