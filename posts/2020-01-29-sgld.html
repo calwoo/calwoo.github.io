@@ -111,9 +111,68 @@ p(y|w_\text{net},\mathcal{D})\cdot p(w_\text{net}|\mathcal{D}) \, dw_\text{net} 
 <a class="sourceLine" id="cb4-10" title="10"></a>
 <a class="sourceLine" id="cb4-11" title="11">samples <span class="op">=</span> onp.asarray(samples)</a></code></pre></div>
 <p>For this example, we get the sampling histogram</p>
-<p><strong>NOTE:</strong> Insert image here.</p>
+<p align="center">
+<img width="560" height="300" src="../images/mixture-sgld.png">
+</p>
+<p>Here, the dotted red line is the mixture distribution.</p>
 <h3 id="bayesian-neural-network">bayesian neural network</h3>
-<p>That was cute. Let’s use SGLD to train a simple Bayesian neural network.</p>
+<p>That was cute. Let’s use SGLD to train a simple Bayesian neural network. We will again use a Gaussian mixture model as our data. (The cluster ordering is purple, teal, yellow).</p>
+<p align="center">
+<img width="560" height="300" src="../images/sgld_data.png">
+</p>
+<p>We build a simple 2-layer neural network to solve this classification problem <span class="math inline">\(\text{2D-point}\to\text{class label}\)</span>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> torch </a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> torch.nn <span class="im">as</span> nn </a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> torch.nn.functional <span class="im">as</span> F </a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">class</span> Net(nn.Module):</a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="bu">super</span>(Net, <span class="va">self</span>).<span class="fu">__init__</span>()</a>
+<a class="sourceLine" id="cb5-8" title="8">        <span class="va">self</span>.fc1 <span class="op">=</span> nn.Linear(<span class="dv">2</span>, <span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb5-9" title="9">        <span class="va">self</span>.fc2 <span class="op">=</span> nn.Linear(<span class="dv">5</span>, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11">    <span class="kw">def</span> forward(<span class="va">self</span>, x):</a>
+<a class="sourceLine" id="cb5-12" title="12">        x <span class="op">=</span> <span class="va">self</span>.fc1(x)</a>
+<a class="sourceLine" id="cb5-13" title="13">        x <span class="op">=</span> F.relu(x)</a>
+<a class="sourceLine" id="cb5-14" title="14">        x <span class="op">=</span> <span class="va">self</span>.fc2(x)</a>
+<a class="sourceLine" id="cb5-15" title="15">        <span class="cf">return</span> F.log_softmax(x, dim<span class="op">=</span><span class="dv">1</span>)</a></code></pre></div>
+<p>In Pytorch, we can implement a custom optimizer that performs SGD with an added step– add on some scaled Gaussian noise in order to allow the dynamics of the gradient descent process to search around the posterior space of weights. Following the source on the <a href="https://pytorch.org/docs/stable/_modules/torch/optim/sgd.html">SGD optimizer</a> we have</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># SGLD optimizer</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">class</span> SGLD(torch.optim.Optimizer):</a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, params, lr<span class="op">=</span><span class="fl">1e-3</span>):</a>
+<a class="sourceLine" id="cb6-4" title="4">        defaults <span class="op">=</span> {<span class="st">&quot;lr&quot;</span>: lr}</a>
+<a class="sourceLine" id="cb6-5" title="5">        <span class="bu">super</span>(SGLD, <span class="va">self</span>).<span class="fu">__init__</span>(params, defaults)</a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7">    <span class="kw">def</span> step(<span class="va">self</span>, lr<span class="op">=</span><span class="va">None</span>, beta<span class="op">=</span><span class="fl">1.0</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-8" title="8">        <span class="cf">for</span> group <span class="kw">in</span> <span class="va">self</span>.param_groups:</a>
+<a class="sourceLine" id="cb6-9" title="9">            <span class="cf">if</span> lr:</a>
+<a class="sourceLine" id="cb6-10" title="10">                group[<span class="st">&quot;lr&quot;</span>] <span class="op">=</span> lr</a>
+<a class="sourceLine" id="cb6-11" title="11"></a>
+<a class="sourceLine" id="cb6-12" title="12">            <span class="cf">for</span> p <span class="kw">in</span> group[<span class="st">&quot;params&quot;</span>]:</a>
+<a class="sourceLine" id="cb6-13" title="13">                <span class="cf">if</span> p.grad <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-14" title="14">                    <span class="cf">continue</span></a>
+<a class="sourceLine" id="cb6-15" title="15">                d_p <span class="op">=</span> p.grad.data</a>
+<a class="sourceLine" id="cb6-16" title="16">                <span class="co"># add gaussian noise</span></a>
+<a class="sourceLine" id="cb6-17" title="17">                noise <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">/</span> (group[<span class="st">&quot;lr&quot;</span>] <span class="op">*</span> beta)) <span class="op">*</span> torch.randn_like(d_p)</a>
+<a class="sourceLine" id="cb6-18" title="18">                p.data.add_(<span class="op">-</span>group[<span class="st">&quot;lr&quot;</span>], d_p <span class="op">/</span> beta <span class="op">+</span> noise)</a></code></pre></div>
+<p>It is then simple to run the gradient descent optimizer using the standard loop</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">sgld_optimizer <span class="op">=</span> SGLD(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2">n_epochs <span class="op">=</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(n_epochs):</a>
+<a class="sourceLine" id="cb7-5" title="5">    sgld_optimizer.zero_grad()</a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="co"># run batch into network and propagate gradients</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    preds <span class="op">=</span> model.forward(data)</a>
+<a class="sourceLine" id="cb7-8" title="8">    loss <span class="op">=</span> F.nll_loss(preds, labels)</a>
+<a class="sourceLine" id="cb7-9" title="9">    loss.backward()</a>
+<a class="sourceLine" id="cb7-10" title="10">    sgld_optimizer.step()</a></code></pre></div>
+<p>As the optimizer performs as step, the weights are perturbed to walk around the posterior weight space <span class="math inline">\(p(w|\mathcal{D})\)</span> just like in MCMC, but with the scalability of SGD! We evaluate the model by testing the probability predictions for a chosen point on the neural network models chosen by the optimizer. For example, by choosing the point <span class="math inline">\((2, 2)\)</span> we see that the model is better able to capture its (un)certainty around the first cluster.</p>
+<p align="center">
+<img width="560" height="300" src="../images/sgld_uncertainty.png">
+</p>
+<h3 id="closing">closing</h3>
+<p>SGLD is the first of a series of modern scalable Bayesian inference methods. Other variations of the idea try to add many of the standard provisions of SGD, such as Nesterov momentum and adaptive scaling. Other directions to this theme involve importing the ideas of symplectic geometry to this setting, in the guise of Hamiltonian Monte Carlo, Riemannian MC, etc.</p>
+<p>Bayesian methods are notorious for being forboding to many data scientists because of the difficulty of scaling to large distributed systems and the higher mathematical prerequisites to understanding it’s inner workings. However, I hope that more expository material will come out that assist in the propagation and proliferation of these ideas. The future of machine learning and AI might rely on these very techniques.</p>
     </section>
 </article>
 
