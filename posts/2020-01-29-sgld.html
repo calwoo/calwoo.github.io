@@ -34,8 +34,7 @@
         
     </section>
     <section>
-        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
-<p>Bayesian methods in deep learning seem to be a hot topic these days, and that’s good for me since Bayesian methods are my favorite part of machine learning. The basic idea behind these methods is simple– a neural network is merely a family of very complicated functions parameterized by a collection of weights <span class="math inline">\(w_{\text{net}}\)</span>. Given training data we tend to use optimization methods to seek out the MLE weights for this family <span class="math inline">\(w_{\text{mle}}\)</span> guided by some loss function.</p>
+        <p>Bayesian methods in deep learning seem to be a hot topic these days, and that’s good for me since Bayesian methods are my favorite part of machine learning. The basic idea behind these methods is simple– a neural network is merely a family of very complicated functions parameterized by a collection of weights <span class="math inline">\(w_{\text{net}}\)</span>. Given training data we tend to use optimization methods to seek out the MLE weights for this family <span class="math inline">\(w_{\text{mle}}\)</span> guided by some loss function.</p>
 <p>In the Bayesian framework we put a <strong>prior</strong> on the (restricted) space of functions that these neural networks belong to, and use Bayesian inference techniques to establish a posterior distribution over this space given the training data. Usually, this prior is described as a distributional prior over the weight-space <span class="math inline">\(p(w)\)</span> and we are seeking the posterior <span class="math inline">\(p(w|\mathcal{D})\)</span>.</p>
 <p>Why would this be ever beneficial? The key equation to keep in mind is the <em>Bayesian average</em>:</p>
 <p><span class="math display">\[ p_\text{bayes}(y|\mathcal{D}) = \int_{w_{\text{net}}\in \{\text{weight space\}}} 
