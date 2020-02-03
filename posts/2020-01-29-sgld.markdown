@@ -3,8 +3,6 @@ title: Langevin dynamics for Bayesian inference
 author: Calvin
 ---
 
-**Note: This blog post is still a rough draft. Read on with caution.**
-
 Bayesian methods in deep learning seem to be a hot topic these days, and that's good for me since Bayesian methods are my favorite part of machine learning. The basic idea behind these methods is simple-- a neural network is merely a family of very complicated functions parameterized by a collection of weights $w_{\text{net}}$. Given training data we tend to use optimization methods to seek out the MLE weights for this family $w_{\text{mle}}$ guided by some loss function.
 
 In the Bayesian framework we put a **prior** on the (restricted) space of functions that these neural networks belong to, and use Bayesian inference techniques to establish a posterior distribution over this space given the training data. Usually, this prior is described as a distributional prior over the weight-space $p(w)$ and we are seeking the posterior $p(w|\mathcal{D})$.
