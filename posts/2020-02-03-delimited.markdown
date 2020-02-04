@@ -150,7 +150,46 @@ Running `example1` gives 21, as nothing is thrown. However, in `example2` a `thr
 
 
 ### the yield statement
-**TODO:** Finish this section.
+Our delimited continuations are awesome, and we wish languages had a fun way to expose these objects without turning to continuation-passing style (CPS). (Yes, the `Cont` monad is CPS-- code written wrapped in the `Cont`-context is implicitly in CPS). It turns out that languages that expose a `yield` primitive actually have a way to access delimited continuations! This is the central result of the paper by James-Sabry ["Yield: Mainstream delimited continuations"](https://legacy.cs.indiana.edu/~sabry/papers/yield.pdf), written by two professors at IU. For some reason I never really spent any time near Lindley Hall (the CS department) even though Rawles was literally across the street...
 
-Our delimited continuations are awesome, and we wish languages had a fun way to expose these objects. It turns out that languages that expose a `yield` primitive actually have a way to access delimited continuations! This is the central result of the paper by James-Sabry ["Yield: Mainstream delimited continuations"](https://legacy.cs.indiana.edu/~sabry/papers/yield.pdf), written by two professors at IU. For some reason I never really spent any time near Lindley Hall (the CS department) even though Rawles was literally across the street...
+Since `yield` statements are used in Python generators, let's explore how to build a generator with continuations. Recall that a generator is effectively a lazy iterator. What this entails is that once a generator is called to output a value, it *suspends* until the next time it is called. This should immediately scream reified continuation! A generator will output not only a value, but also keeps track of the reified continuation corresponding to the remainder of the iterator. When the generator resumes, it merely starts over by running this continuation object.
 
+We can capture these continuations using the `reset/shift` control operators. Consider an example:
+
+```haskell
+gen = reset (do
+            (shift (\k -> liftM2 (:) (return 1) (k <$> (return []))))
+            (shift (\k -> liftM2 (:) (return 2) (k <$> (return []))))
+            (shift (\k -> liftM2 (:) (return 3) (k <$> (return [])))))
+```
+
+We see that in this, whenever the expression `k <$> (return [])` is reached, a continuation is reified, and that continuation object represents the rest of the iteration! When we run this generator we get back `[1,2,3]`. We abstract the repeated statement-- this is a `yield`:
+
+```haskell
+yield x = shift (\k -> liftM2 (:) (return x) (k <$> (return [])))
+```
+
+This `yield` statement has the right credentials: calling it suspends the computation by reifying the remainder of the computation, which exists outside of the `shift` statement. With this operator, we get the generator as:
+
+```haskell
+gen = reset (do
+                yield 1
+                yield 2
+                yield 3)
+```
+
+The main insight of the above paper is a generator (with `yield` statement) entirely encapsulates a delimited continuation, where each `yield` statement is equivalent to a `shift` statement. In this way, the `reset` block tells us how to run the generator. This can be extracted in familiar language as `run`:
+
+```haskell
+run e = reset (do x <- e; return x)
+
+gen = run (yield 1 >> yield 2 >> yield 3)
+```
+
+We see that running `gen` gives back our `[1,2,3]` as desired.
+
+
+### python?
+Since Python generators are so prevalent, could we use them like delimited continuations? As an experiment, I wanted to try replicating the above exception handling. However I ran into an issue-- generators are not really designed to be flattened. I needed multiple layers of generators, and the `yield` statements in Python seems to only capture the continuation in its base generator.
+
+This presents a small issue. It seems like Python generators and its built-in try/except exception handling are orthogonal abstractions! This is exploitable, and is the focus of one of my favorite papers in computer science: thermometer continuations. This is the content of my next post.
