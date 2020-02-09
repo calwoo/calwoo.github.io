@@ -219,7 +219,7 @@ Here `interp` is a `FState`-algebra. However, this is unsatisfactory: we wanted 
 
 ```haskell
 data StateF s a where
-    Get :: StateF s a
+    Get :: StateF s s
     Put :: s -> StateF s ()
 ```
 
@@ -283,3 +283,75 @@ instance Monad (FFree f) where
 ```
 
 Notice that we don't need `f` to be a functor anymore!
+
+
+### closing
+To finish this tour off, lets implement the fibonacci above again, but with this algebraic effect handler. First we describe the interface of effect operations we need to have
+
+```haskell
+data EffI s a where
+    Get   :: EffI s s
+    Put   :: s -> EffI s ()
+    Print :: Show a => a -> EffI s ()
+
+type EffM s = FFree (EffI s)
+```
+
+Here, the `I` denotes the "interface" while `M` denotes the monad. We are using the freer monadic type constructor so we don't need to reify the GADT `EffI` as a functor instance. The helper function `etaF` allows us to lift effect operators to the freer monad:
+
+```haskell
+etaF :: f a -> FFree f a
+etaF fx = FImpure fx FPure
+```
+
+An example of a program written with this monad is
+
+```haskell
+test :: EffM Int Int
+test = do
+    y <- etaF Get
+    etaF $ Put (10 + y)
+    x <- etaF Get
+    etaF $ Print (2 * x)
+    return x
+```
+
+Notice unlike the monad transformer version, all effects are treated at the same level! Programs are only now at the mercy of their effect handlers:
+
+```haskell
+interp :: EffM s a -> s -> IO a
+interp m s = do x <- run m s; return $ fst x
+    where
+        run :: EffM s x -> s -> IO (x, s)
+        run (FPure   x)           s = return (x, s)
+        run (FImpure Get       k) s = run (k s) s
+        run (FImpure (Put s')  k) s = run (k ()) s'  
+        run (FImpure (Print t) k) s = do print t; run (k ()) s 
+```
+
+Running on `test` we have
+
+```haskell
+> interp test 0
+20
+10
+```
+
+Finally, we get a "lift-less" version of the fibonacci function with the freer monad:
+
+```haskell
+fibF :: Int -> IO ()
+fibF n = interp (forM_ [0..n] loop) (0, 0) >> print "done!"
+    where
+        loop m = do
+            if m == 0
+                then do
+                    etaF $ Put (0, 1)
+                    etaF $ Print 0
+                else do
+                    (a, b) <- etaF $ Get
+                    etaF $ Put (b, a + b)
+                    etaF $ Print b
+```
+
+We'll use this as a jumping stone for algebraic effects in probabilistic programming in later posts. Thanks for reading!
