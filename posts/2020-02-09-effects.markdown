@@ -1,0 +1,285 @@
+---
+title: Algebraic effects and freeness
+author: Calvin
+---
+
+**Note: This blog post is still a rough draft. Read on with caution.**
+
+This post is mostly for my own personal benefit, as I've been trying for the past few months to understand the circle of ideas between delimited continuations, algebraic effects, and probabilistic programming. Those looking for true elucidation would do no better than pivoting to the works of [Oleg Kiselyov](http://okmij.org/) and bask in his writing. Anything else you read will be a mere shadow.
+
+Anyway, why **effects**? Effects give the impurity to programming languages. In the end, the program has to do something beyond the functions whether it be mutating state, writing something to `stdout`, taking in external input, etc. A lot of semantical choices can be made to control these effects from doing untold damage to your codebase, the most well-known of which in the functional programming community is to encapsulate the effects into a monad.
+
+Monads are an encapsulation of a computational effect, and their definitions abstract away the process of "effect propagation" through a sequential process. Indeed, the `bind` (`>>=`) command abstracts the propagation of effects such as choice/failure/state/logging/etc through a program. For example, let's describe the `State` monad. 
+
+Intuitively, in a functional language without mutable state we have to pass the state `s` around with us throughout all our functions. If we're given a function `a -> b` that may require state, we can naively pass it along by accepting the state explicitly as a reified object `(a, s) -> (b, s)`. Writing our code this way makes it clear that we can have composable functions-with-state-attached and be perfectly happy with it. However, we'd like to hide this state a bit, so the first bit of cleaning up is through a currying:
+
+```
+a -> (s -> (b, s))
+```
+
+Now, we encapsulate the tail `s -> (b, s)` into a datatype
+
+```haskell
+newtype State s a = State { runState :: s -> (a, s) }
+```
+
+In this formulation, functions-with-state are expressed as functions `a -> State s b`. We lost our obvious compositionality, but it's not entirely gone! This composition expresses the entire monadicity of the State datatype:
+
+```haskell
+instance Monad (State s) where
+    return x = State $ \s -> (x, s)
+    State m >>= k = State $ \s -> let (v, s') = m s 
+                                  in runState (k v) s'
+```
+
+To recap: the entire point of the monadic composition operator `>>=` above is to give us an abstraction of "passing state along the computations". If a computation manipulates state, it must pass that mutated state around to the next computation, and to the next, otherwise our semantics would be all wrong. This is the essence of what monads do-- they're not [burritos](https://blog.plover.com/prog/burritos.html) or whatever fancible food-item people think they are. They are **ways to propagate effects through functions**.
+
+However, the monad is fairly obtuse to use by itself-- often we write helper functions for the monad instance to allow access to the "internals" of the monad. For `State` 99.9% of the time we just want a way to fetch the current state, and to assign a state to be propagated. This usually gives rise to the two functions:
+
+```haskell
+get :: State s s
+get = State $ \s -> (s, s)
+
+put :: s -> State s ()
+put s = State $ \_ -> ((), s)
+```
+
+Plugging in the definitions above and running it through the monad instance gives you a sense of why these definitions are valid. From this, we can write various programs such as
+
+```haskell
+import Data.Foldable (forM_)
+
+fib :: Int -> State (Int, Int) ()
+fib n = forM_ [0..n] loop
+    where
+        loop m = do
+            if m == 0
+            then do
+                    put (0, 1)
+                    return 1
+            else do
+                    (a, b) <- get
+                    put (b, a + b)
+                    return b
+
+fibo :: Int -> IO ()
+fibo n = forM_ [0..n] $ \m ->
+    print $ fst (snd (runState (fib m) (0, 0)))
+```
+
+How nice.
+
+### compositionality and monad transformers
+But the above looks undeniably wasteful-- if all we wanted was to run `fibo 10` and print out the first 10 fibonacci numbers, why don't we just print them out as opposed to the `return` command in `fib`? After all, `forM_` discards all those monadic return values and just propagates the effects (state in this case), and running `fibo` for printing merely runs through each `fib` wastefully again. But doing so naively results in an error! 
+
+Why is this the case? The crux is that monadic effects do not play well with one another, because monads do **not** compose. Unlike functors, the composition of two monads may no longer be a monad. The way I think it becomes clear is actually by thinking of monads as the monoid objects in the category of endofunctors of $\text{Set}$, but people may differ...
+
+To elucidate this, consider the category of monads over $\text{Set}$ as
+
+$$ \text{Monad}_\text{Set} = \text{Mon}(\text{Fun}(\text{Set}, \text{Set})) $$ 
+
+Here, a monad is given by an endofunctor $F:\text{Set}\to\text{Set}$ with natural transformations $F\circ F\to F$ and $\text{id}_\text{Set}\to F$. When we compose two monads $F\circ G$, how can we define the composition transformation $F\circ G\circ F\circ G \to F \circ G$? This makes the crux of the matter clear: we need to propagate an effect corresponding to $G$ through the monad $F$, $F\circ G \rightsquigarrow G\circ F$.
+
+This is the point behind a **monad transformer**, which reifies this propagation through the `lift` function. Simply said, a monad transformer is an operation that turns monads to monads. Usually such transformers operate on monads to imbue them with an *extra effect*, for example the `StateT` monad transformer:
+
+```haskell
+newtype StateT s m a = StateT { runStateT :: s -> m (a, s) }
+
+instance (Monad m) => Monad (StateT s m) where
+    return a = StateT $ \s -> return (a, s)
+    StateT x >>= f = StateT $ \s -> do
+        (v, s') <- x s
+        runStateT (f v) s'
+```
+
+The `lift` function is encoded in the `MonadTrans` typeclass
+
+```haskell
+class MonadTrans t where
+    lift :: (Monad m) => m a -> t m a
+
+instance MonadTrans (StateT s) where
+    lift ma = StateT $ \s -> do c <- ma
+                                return (c, s)
+```
+Along with encoding the usual `get/put` functions we get the second-take of the fibonacci function:
+
+```haskell
+get :: Monad m => StateT s m s
+get = StateT $ \s -> return (s, s)
+
+put :: Monad m => s -> StateT s m ()
+put s = StateT $ \_ -> return ((), s)
+
+fibT :: Int -> IO ()
+fibT n = runStateT (forM_ [0..n] loop) (0, 0) >> print "done!"
+    where
+        loop m = do
+            if m == 0
+            then do
+                    put (0, 1)
+                    lift $ print 0
+            else do
+                    (a, b) <- get
+                    put (b, a + b)
+                    lift $ print b
+```
+
+This looks nicer. But arguably more cumbersome. Isn't there a better way to combine monadic (computational) effects?
+
+
+### local vs global coordinates
+Monads explicitly tell us how to sequence computational effects, and this makes it difficult to combine them because of the amount of boilerplate needed to write them. But most of the time we don't care about the implementation of the monad-- we care about the interface it affords us, the **operations**, such as `get/put`.
+
+Indeed, we can declare that any such abstraction that implements the state operations is "`State`". And the State monad is merely a reification of this interface. For analogy reasons, we imagine that the `get/put` interface is the global "manifold" that we are trying to study, where the relations between the two interfaces constraining the "geometry" of such manifold. A monad instantiation of this interface corresponds to a local coordinatization of the manifold. The upshot of this view is the realization that there are many ways to instantiate this interface! This separation of effect operators from their interpretation via *handlers* is the theory of **algebraic effects**.
+
+We wish to give an idea of the mathematical theory. The core slogan which starts this is the mathematical fact that:
+
+$$ \text{"Any adjunction gives rise to a monad."} $$
+
+Recall that given an adjunction $L: \mathcal{C}\to\mathcal{D}, R:\mathcal{D}\to\mathcal{C}$, we get a monad $M=L\circ R:\mathcal{D}\to\mathcal{D}$. Let's turn the question on it's head and ask:
+
+$$ \text{"Does every monad come from an adjunction?"} $$
+
+**Yes.** Let $M$ be a monad (which is the data of a monoid object in the category of endofunctors of $\mathcal{C}$) and let $\mathcal{C}^M$ be the **Eilenberg-Moore category** of the monad: it is the category of $M$-algebras $\nu: M(A) \to A$ for an object $A$ in $\mathcal{C}$. The morphisms in this category are morphisms $f: A\to B$ in $\mathcal{C}$ satisfying the usual commutative squares.
+
+There is a forgetful functor $U:\mathcal{C}^M\to \mathcal{C}$ given by forgetting the structure morphism $\nu$ and just returning $A$:
+
+$$ U: (\nu: M(A) \to A) \mapsto A $$
+
+What about the other direction? Given $A$ in $\mathcal{C}$, can we get a $M$-algebra $M(A)\to A$? Not always. But the monoid property of the monad gives $M(A)$ the structure of an $M$-algebra for any $A$, the so-called **free $M$-algebra** $M(M(A))\to M(A)$. This gives a free functor:
+
+$$ F: A \mapsto (\nu_\text{free}: M(M(A))\to M(A)) $$
+
+Hence, almost tautologically, we get our monad $M$ back as the composite of the free-forgetful adjunction $M=U\circ F$! This conveys to us two lessons: 1) We should study the Eilenberg-Moore category as the "manifold of $M$-effectful computations" and 2) we should study the free $M$-algebras, as they are the building blocks of all our monadic effects. Indeed, any $M$-algebra can be reconstructed from free $M$-algebras via the 2-stage **bar construction**:
+
+$$ (M^2 A, \mu_{M A})
+  \stackrel{\overset{\mu_A}{\longrightarrow}}{\underset{M \nu}{\longrightarrow}}
+  (M A, \mu_A)
+  \stackrel{\nu}{\longrightarrow}
+  (A,\nu)
+  \,. $$
+ty
+The above is a coequalizer (categorical colimit), and so it suffices to study the free $M$-algebras. Pushing this down to the 2-categorical level we see the monad $M$ itself is a bar construction of **free monads**. 
+
+Hence a guise of algebraic effects can be seen in studying *free algebras over free monads*, which are equivalent to studying
+
+$$ \text{trees of computational effects and folds of such trees} $$
+
+
+### free(r) monads
+An algebra for a monad $M(A)\to A$ can be thought of as a way to capture a computational effect and return a value, i.e. an **effect handler**. Described this way, a free algebra for a free monad is a way to separate the semantics of an algebraic effect from its handler, i.e. its interpretation in reified values.
+
+As above, free monads allow us to describe an operation we want to perform, and then promote these into abstract syntax trees. The data type for a free monad is given by
+
+```haskell
+{-# LANGUAGE GADTs #-}
+
+data Free f a where
+    Pure   :: a -> Free f a 
+    Impure :: f (Free f a) -> Free f a
+
+eta :: Functor f => f a -> Free f a 
+eta = Impure . fmap Pure 
+```
+
+For example, we can describe ASTs for the `State` effect as
+
+```haskell
+type FState s = Free (State s)
+```
+
+A value of type `FState s` is an abstract syntax tree with state counters in the nodes. Propagating effects through these trees is given by the monad instance:
+
+```haskell
+instance Functor f => Monad (Free f) where
+    return = Pure
+    Pure a   >>= k = k a 
+    Impure m >>= k = Impure (fmap (>>= k) m)
+```
+
+As a result, we can separate the ASTs (effects) from their interpreters (handlers):
+
+```haskell
+test :: FState Int Int
+test = do
+    eta $ put 10
+    x <- eta get
+    return x
+
+interp :: FState Int a -> a
+interp m = fst $ run m 0
+    where
+        run (Pure x)   s = (x, s)
+        run (Impure m) s = let (m0, s0) = runState m s
+                           in run m0 s0
+```
+
+Here `interp` is a `FState`-algebra. However, this is unsatisfactory: we wanted to provide an *interface* of operations for the state effect, such as `get/put` and then promote that into abstract syntax trees. So we start with the interface
+
+```haskell
+data StateF s a where
+    Get :: StateF s a
+    Put :: s -> StateF s ()
+```
+
+And try to create the free monad from it:
+
+```haskell
+type FFState s = Free (StateF s)
+
+>>> ERROR: StateF s is NOT a functor!
+```
+
+Here, `StateF` is described as a GADT, which can't be promoted to a functor instance! After all, where would `Put 10` be mapped to? 
+
+But category theory saves us a bit here. We have a not-yet-functor `StateF s` and we want to "thicken" it to one, in the minimal way. In other words, we are looking for the *best approximation to the problem of finding a functor* `StateFF s : Type -> Type` *extending* `StateF`. This is known as a **left Kan extension**. To read more about it, we refer to the [nLab](https://ncatlab.org/nlab/show/Kan+extension) article about it.
+
+How do we define the Kan extension? Let's abstract the situation a bit. Suppose you had a not-yet-functor $F:\mathcal{C}\to\mathcal{D}$ (by this we mean, $F$ is only defined on a subpart of $\mathcal{C}$) and you wanted to extend it to an actual functor $\text{Lan}_\text{id} F:\mathcal{C}\to\mathcal{D}$.
+
+Let $c$ be an object in $\mathcal{C}$. Where would it go? If it were in the subpart of $C$ that $F$ is defined on, call it $\hat{\mathcal{C}}$, we simply send it to $F(c)$. What if it isn't? Simple idea: if $F$ isn't defined on $c$, we can instead look at an object *close to* $c$ where $F$ is defined, and use that as our answer. Obviously, that isn't great, because we have to ask "which object close to $c$ do we choose?" In category theory, we don't make choices. We take them all!
+
+For any object $c'$ in $\hat{\mathcal{C}}$ with a map to $c$, $c'\to c$, we look at the value $F(c')$. This gives us a large graph of values in $\mathcal{D}$-- if $F$ were defined on $c$, they would all have maps $F(c')\to F(c)$. But since it isn't, we don't have these maps. The left Kan extension is then the best approximation to this map, which is also known as the *colimit*:
+
+$$ (\text{Lan}_\text{id} F)(c) = \text{colim}^{\text{Hom}_\mathcal{C}(- ,c)} F
+  \,.
+$$
+
+To write this in Haskell, it is convenient to encode this as a coend:
+
+$$ (\text{Lan}_\text{id} F)(c) \simeq \int^{c' \in C} \text{Hom}_\mathcal{C}(c',c)\otimes F(c') $$
+
+This allows us to write the left Kan extension as
+
+```haskell
+data Lan f a where
+    Lan :: f x -> (x -> a) -> Lan f a
+
+instance Functor (Lan f) where
+    fmap k (Lan fx h) = Lan fx (k . h)
+```
+
+**Upshot:** Given the interface, we get a new **freer monad**
+
+```haskell
+type FFState s = Free (Lan (State s))
+```
+
+The type constructor `Free Lan` when desugared gives the (non-GADT!) datatype
+
+```haskell
+data FFree f a where
+    FPure   :: a -> FFree f a
+    FImpure :: f x -> (x -> FFree f a) -> FFree f a
+```
+
+In this, the type signature for `FImpure` describes effects clearly: it's a continuation! From this, the monad instance for `FFree f` is like that of a free monad:
+
+```haskell
+instance Monad (FFree f) where
+    return = FPure
+    FPure x       >>= k = k x
+    FImpure fx ct >>= k = FImpure fx (\x -> (ct x) >>= k)
+```
+
+Notice that we don't need `f` to be a functor anymore!
