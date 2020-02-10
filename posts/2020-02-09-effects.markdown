@@ -159,7 +159,7 @@ $$ (M^2 A, \mu_{M A})
   \stackrel{\nu}{\longrightarrow}
   (A,\nu)
   \,. $$
-ty
+
 The above is a coequalizer (categorical colimit), and so it suffices to study the free $M$-algebras. Pushing this down to the 2-categorical level we see the monad $M$ itself is a bar construction of **free monads**. 
 
 Hence a guise of algebraic effects can be seen in studying *free algebras over free monads*, which are equivalent to studying
@@ -354,4 +354,21 @@ fibF n = interp (forM_ [0..n] loop) (0, 0) >> print "done!"
                     etaF $ Print b
 ```
 
-We'll use this as a jumping stone for algebraic effects in probabilistic programming in later posts. Thanks for reading!
+We'll use this as a jumping stone for algebraic effects in probabilistic programming in later posts.
+
+
+### speculative future?
+Let's revisit the 2-stage bar construction for monads that we saw above:
+
+$$ (M^2 A, \mu_{M A})
+  \stackrel{\overset{\mu_A}{\longrightarrow}}{\underset{M \nu}{\longrightarrow}}
+  (M A, \mu_A)
+  \stackrel{\nu}{\longrightarrow}
+  (A,\nu)
+  \,. $$
+
+Applying to a free $M$-algebra we see that monads in general can be constructed as a 2-stage bar construction of free monads, where the arrows correspond to "relations" that the operations described in the abstract syntax trees must satisfy. This is formalized in the theory of **algebraic theories** and **Lawvere theories**. 
+
+However, what if our relations are more lax? Suppose we are dealing with the effect handling of probabilistic traces and stochastic choice. We could reasonably suppose we can deal with relations *up to a choice*, and the corresponding relations of the choices, and etc. Then we wouldn't be able to reconstruct our monads from just a 2-stage bar construction, as we'd need to remember all the choices and relations above.
+
+This would probably be the realm of **homotopy theory** and we'd be looking at reconstructing monads through the *monadic bar construction*. What kind of new semantics would programming languages take in this setting?
