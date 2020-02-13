@@ -1,5 +1,5 @@
 ---
-title: Thermometer continuations
+title: Thermometer continuations, part 1
 author: Calvin
 ---
 
@@ -100,3 +100,108 @@ def get(xs, k, length):
     return xs[k]
 ```
 
+Aside from the slightly-added complexity of having an index as global state, the same idea stays the same: **we replay the function repeatedly, each time using a new value of the choice function**. Now the `choose` operator is a suitably extended version of the 2-choice version above:
+
+```python
+def choose(xs):
+    global state
+    if len(xs) == 0:
+        raise ValueError("it's the end")
+    else:
+        # Grab a value based on the current global state
+        if state[0] is None:
+            state = start_idx(xs)
+            return get(xs, *state)
+        else:
+            return get(xs, *state)
+```
+
+where the effect handler `with_nondeterminism` is updated to run through the index state one-by-one, as opposed to just flipping a boolean state:
+
+```python
+def with_nondeterminism(fn):
+    global state
+    try:
+        # Run the function with current state
+        results = [fn()]
+        if state[0] is None:
+            return results
+        else:
+            if next_idx(*state)[0] is None:
+                return results
+            else:
+                state = next_idx(*state)
+                return results + with_nondeterminism(fn)
+    except ValueError:
+        return []
+```
+
+However, we notice that our global state can only deal with a single `choose` operator-- how do we extend this to deal with multiple choose branches as in the original `test_fn` above? If you think about what the function execution would look like with all choices enumerated, this looks like a (stateful) tree. Performing a traversal of this tree while keeping state is effectively what an effect handler for `choose` would be doing! So taking a cue from iterative [traversal](https://stackoverflow.com/questions/1294701/post-order-traversal-of-binary-tree-without-recursion) techniques (see? coding interviews are helpful!), we will keep along our global state two stacks: the **future** and the **past**.
+
+```python
+past   = []
+future = []
+```
+
+The `past` contains choices already made. The `future` contains the known choices *to be* made. The basic idea is that we record in our stacks the path taken by the execution of the program (this is similar to MCMC done in probabilistic programming languages). We then modify a single choice in our path at each new iteration, until we have exhausted all the possible paths possible through the tree. 
+
+
+```python
+def next_path(xs):
+    if len(xs) == 0:
+        return []
+    else:
+        i = xs[0]
+        if next_idx(*i)[0] is None:
+            return next_path(xs[1:])
+        else:
+            return [next_idx(*i)] + xs[1:]
+```
+
+How is this handler supposed to work? When the execution of the handler reaches a call to choose, it reads the choice from the future stack, and pushes the remainder to the past. If the future is unknown, then it means we have reached a choose statement for the first time, at which we pick the first choice and record it in the past stack.
+
+```python
+def choose(xs):
+    global past, future
+    if len(xs) == 0:
+        raise ValueError("it's the end")
+    else:
+        if len(future) == 0:
+            # If there is no future, start a new path index and
+            # push it into the past.
+            i = start_idx(xs)
+            past.insert(0, i)
+            return get(xs, *i)
+        else:
+            # Otherwise, read the instruction from the future stack
+            # and execute, pushing back into the past.
+            i = future.pop(0)
+            past.insert(0, i)
+            return get(xs, *i)
+
+def with_nondeterminism(fn):
+    global past, future
+    try:
+        results = [fn()]
+        next_future = list(reversed(next_path(past)))
+        # Reset past/future stacks
+        past   = []
+        future = next_future
+        if len(future) == 0:
+            return results
+        else:
+            return results + with_nondeterminism(fn)
+    except ValueError:
+        return []
+```
+
+Testing this gives us the expected behavior:
+
+```python
+> with_nondeterminism(test_fn)
+[1, 2, 3, 4]
+```
+
+
+### next steps
+And that's pretty much it. Delimited continuations are only a slightly more complicated version of this-- we are traversing paths through execution trees as well, except this time the trees have state in their nodes. In the next post we'll start looking at delimited continuations in the `shift/reset` paradigm and use this to build some cool algebraic effects in Python.
