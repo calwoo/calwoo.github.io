@@ -3,8 +3,6 @@ title: Delimited continuations
 author: Calvin
 ---
 
-**Note: This blog post is still a rough draft. Read on with caution.**
-
 Some of the most amazing quality-of-life features of many programming languages are centered around control flow. For example, lazy-evaluated iterators in the form of generators in Python, async/await for asynchronous control, etc. are all ways to improve the control flow in a language. However, as more disciplines become more computational, it is becoming apparent that new types of control flow operators are necessary. For example, modern machine learning relies heavily on reverse-mode autodifferentiation, which in many languages is implemented as a secondary DSL embedded in the host language.
 
 Wouldn't it be great if our languages had an abstraction that allowed us to build any control flow operator we wanted? These atomic objects are known a **delimited continuations**. Recall that a *continuation* is merely an abstraction of "the rest of a computation". For example, consider the following computation
