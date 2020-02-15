@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Thermometer continuations, part 2 - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Thermometer continuations, part 2</h1>
+            <article>
+    <section class="header">
+        Posted on February 15, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In this post we’ll describe the construction of the <code>shift/reset</code> control operators for implementing delimited continuations, under the style of replay-based thermometer continuations. Recall that the main idea of thermometer continuations is simple: continuations act as “resumable exceptions”, so we need to simulate the “resume” part of a continuation, which we can do by the dumbest possible way– just do the entire computation again! But this time with our already established choices intact until the point where the resumption is called.</p>
+<p>We will again build this in stages, following the paper of Koppel et al. But the construction is so simple one has to think if one could have invented it themselves!</p>
+<p>Again, the code is on my github <a href="https://github.com/calwoo/delimited">here</a>.</p>
+<h3 id="baby-version">baby version</h3>
+<p>Just like for the case of nondeterministic effects, we will first restrict to a version of the <code>shift/reset</code> operators that assumes the reset block only contains one shift, which invokes its passed continuation 0 or multiple times. As before we need to some form of global state. What do we need?</p>
+<p>The <code>reset</code> operator takes in a lambda function with no arguments, returning an expression comprising of (in this case, a single) <code>shift</code> operators and other computations. Semantically, when a continuation in <code>shift</code> is called, the continuation passed in is the rest of the computation outside of the <code>shift</code> operator, delimited by the <code>reset</code> block. As such, to capture this continuation we need to “replay” this function again, this time with the <code>shift</code> operator replaced by the value called in the <code>shift</code> block.</p>
+<p>For example, in the expression</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1">reset(<span class="kw">lambda</span>: <span class="dv">2</span> <span class="op">*</span> shift(<span class="kw">lambda</span> k: <span class="dv">1</span> <span class="op">+</span> k(<span class="dv">5</span>)))</a></code></pre></div>
+<p>we compute the expression <code>1 + k(5)</code>, where the argument <code>k</code> is given by the continuation <code>2 * []</code> captured by the <code>reset</code> statement. Hence once the shift block is hit, we replay the entire computation in <code>reset</code>, except this time <code>shift(...)</code> is replaced by <code>5</code>, so we get <code>2 * 5</code>, which is the return value of the <code>k(5)</code> in the <code>shift</code> block. We continue the computation from there to get <code>1 + 10</code> or <code>11</code> as the final value.</p>
+<p>Hence as a first step, we need to keep around the function inside the <code>reset</code> block as a piece of global state, so that we can replay it again when necessary. We also need to keep around a floating <code>state</code> global variable, which will be the value replacing the <code>shift</code> block during replays of the <code>reset</code> block (this what is happening during a single replay):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">cur_expr <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb2-2" title="2">state <span class="op">=</span> <span class="va">None</span></a></code></pre></div>
+<p>The <code>reset</code> operator is fairly simple: we just want to run the function.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> reset(fn):</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="kw">global</span> state, cur_expr</a>
+<a class="sourceLine" id="cb3-3" title="3">    cur_expr <span class="op">=</span> fn</a>
+<a class="sourceLine" id="cb3-4" title="4">    state <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb3-6" title="6">        fn()</a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="cf">except</span> Done <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb3-8" title="8">        <span class="cf">return</span> e.value</a></code></pre></div>
+<p>Here, <code>Done</code> is an exception wrapping the return value of a (single) <code>shift</code> block:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> Done(<span class="pp">Exception</span>):</a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value):</a>
+<a class="sourceLine" id="cb4-3" title="3">        <span class="va">self</span>.value <span class="op">=</span> value</a></code></pre></div>
+<p>Uh, why are we wrapping a return value of a <code>shift</code> block in an exception? And why are we throwing an exception in the first place? It’s because after the <code>shift</code> computation, we just want that as our return value– we don’t want to continue in the <code>reset</code> block after a <code>shift</code> statement!</p>
+<p>Look at our example above– after the <code>shift</code> block gives us 11, we want to abandon the rest and return that as our total return from the <code>reset</code> block. If we were to go on afterwards, we would get <code>2 * 11</code> or 22. This is why we need both <strong>exceptions</strong> and <strong>state</strong> to build thermometer continuations. To exit out of the <code>reset</code> early, we throw an exception.</p>
+<p>The replay loop is contained then in the <code>shift</code> operator– we will step through this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> shift(fn):</a>
+<a class="sourceLine" id="cb5-2" title="2">    <span class="kw">global</span> state</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="cf">if</span> state <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb5-5" title="5">        <span class="cf">return</span> state</a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="kw">def</span> k(x):</a>
+<a class="sourceLine" id="cb5-8" title="8">            <span class="kw">global</span> state</a>
+<a class="sourceLine" id="cb5-9" title="9">            state <span class="op">=</span> x</a>
+<a class="sourceLine" id="cb5-10" title="10">            <span class="cf">return</span> cur_expr()</a>
+<a class="sourceLine" id="cb5-11" title="11">        <span class="co"># Recursively call the replay</span></a>
+<a class="sourceLine" id="cb5-12" title="12">        result <span class="op">=</span> fn(k)</a>
+<a class="sourceLine" id="cb5-13" title="13">        <span class="cf">raise</span> Done(result)</a></code></pre></div>
+<p>Firstly we see that <code>shift</code> relies on a global <code>state</code> variable. Recall here that the argument to <code>shift</code> is a lambda function <code>fn = lambda k: (...)</code> where the argument <code>k</code> will be given the value of the captured delimited continuation after the <code>shift</code> block, delimited by the <code>reset</code>. Hence when running a <code>shift</code> block, when we hit an instance of the argument <code>k</code> in <code>fn</code>, we replay the entire <code>reset</code> block where the <code>shift</code> block is replaced by the value of the called <code>k</code> function. If this is overwhelming, read this paragraph again slowly while writing down how to compute the delimited continuation example above.</p>
+<p>The implementation of this (baby) <code>shift</code> is clear then: if the state is not <code>None</code>, that means we are performing a replay where a value has been passed into the continuation. Then here, <code>shift</code> will act as if the entire block is that value, for the purpose of performing the delimited continuation.</p>
+<p>Otherwise, we are running the <code>shift</code> block for the first time. Here <code>k</code> represents the captured continuation: during the replay, we’ll replay the entire computation with the state set to the value called in <code>shift</code>, so that on the next pass the other if condition will ignore this <code>shift</code> block.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1">        <span class="kw">def</span> k(x):</a>
+<a class="sourceLine" id="cb6-2" title="2">            <span class="kw">global</span> state</a>
+<a class="sourceLine" id="cb6-3" title="3">            state <span class="op">=</span> x</a>
+<a class="sourceLine" id="cb6-4" title="4">            <span class="cf">return</span> cur_expr()</a></code></pre></div>
+<p>We then recursively call the replay and when we hit a result, we create an exception to abort the computation inside the <code>reset</code> block so that we don’t perform the further computation outside of the <code>shift</code> blocks.</p>
+<p>This implementation of the <code>shift/reset</code> control operators is enough for simple delimited control statements such as</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="op">&gt;</span> reset(<span class="kw">lambda</span>: <span class="dv">2</span> <span class="op">*</span> shift(<span class="kw">lambda</span> k: <span class="dv">1</span> <span class="op">+</span> k(<span class="dv">5</span>)))</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="dv">11</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="op">&gt;</span> reset(<span class="kw">lambda</span>: <span class="dv">1</span> <span class="op">+</span> shift(<span class="kw">lambda</span> k: k(<span class="dv">1</span>) <span class="op">*</span> k(<span class="dv">2</span>) <span class="op">*</span> k(<span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="dv">24</span></a></code></pre></div>
+<p>Since we’ve succeeded in using one <code>shift</code> block, let’s see how to extend this to more!</p>
+<h3 id="return-of-the-stacks">return of the stacks</h3>
+<p>Suppose we have a delimited control statement with multiple <code>shift</code> operators in it:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">reset(<span class="kw">lambda</span>: <span class="dv">1</span> <span class="op">+</span> shift(<span class="kw">lambda</span> k: k(<span class="dv">3</span>)) <span class="op">*</span> shift(<span class="kw">lambda</span> m: <span class="dv">1</span> <span class="op">+</span> m(<span class="dv">4</span>)))</a></code></pre></div>
+<p>During computation we hit the first <code>shift</code> statement and it calls the captured <code>k</code> on 3. The continuation captured by <code>k</code> is given by</p>
+<pre><code>1 + [] * shift(\m -&gt; 1 + m(4))</code></pre>
+<p>which is itself a call to a <code>shift</code> statement, where the continuation captured by <code>m</code> is <code>&lt;return of first shift&gt; * [] + 1</code>. By the semantics, this continuation is run with the value plugged into <code>m</code>, i.e. 4. Here the replay sets the return of the first <code>shift</code> to be the value plugged into <code>k</code>, i.e. 3, so we have the continuation captured by <code>m</code> applied to 4 gives the value 1 + 4 * 3 = 13. This value is then finished up in the <code>shift</code> block to give the return value of 14.</p>
+<p>Note that in the above we need to keep track of all the return values for each <code>shift</code> operator during the replay. This is the origin of the <strong>thermometer</strong>, which will be a stack of values replacing the <code>shift</code> operators during a replay. As a start, our global state will consist of the function to be called repeatedly (in the <code>reset</code> block):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1">cur_expr <span class="op">=</span> <span class="va">None</span></a></code></pre></div>
+<p>and some stacks to form our “thermometer”:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">past <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb11-2" title="2">future <span class="op">=</span> []</a></code></pre></div>
+<p>Here, state is represented by a past and future stack. What if our calls to <code>shift</code> are nested? Looking at the semantics of a control statement like</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="dv">1</span> <span class="op">+</span> reset(<span class="kw">lambda</span>: <span class="dv">2</span> <span class="op">+</span> shift(<span class="kw">lambda</span> k: <span class="dv">3</span> <span class="op">*</span> shift(<span class="kw">lambda</span> l: l(k(<span class="dv">10</span>)))))</a></code></pre></div>
+<p>we see that we can’t just blindly set a <code>shift</code> operator to a fixed value, because in a nested call, we will prematurely replace the entire <code>shift</code> value with the past state during replay without reaching inwards and evaluating the inside <code>shift</code>. Hence we need to keep track of nested calls with an extra stack</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1">nest <span class="op">=</span> []</a></code></pre></div>
+<p>This gives us the full global state necessary to implement delimited continuations. First we show what a thermometer is: it is a data structure that keeps track of the stateful replays of a <code>reset</code> operator.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">def</span> thermometer(fn, fn_future):</a>
+<a class="sourceLine" id="cb14-2" title="2">    <span class="kw">global</span> past, future, nest, cur_expr</a>
+<a class="sourceLine" id="cb14-3" title="3">    <span class="co"># Push state of current reset block into nest stack</span></a>
+<a class="sourceLine" id="cb14-4" title="4">    nest.append((cur_expr, past.copy(), future.copy()))</a>
+<a class="sourceLine" id="cb14-5" title="5">    <span class="co"># Set up the thermometer</span></a>
+<a class="sourceLine" id="cb14-6" title="6">    past <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb14-7" title="7">    future <span class="op">=</span> fn_future</a>
+<a class="sourceLine" id="cb14-8" title="8">    cur_expr <span class="op">=</span> fn</a>
+<a class="sourceLine" id="cb14-9" title="9">    <span class="co"># Run the computation</span></a>
+<a class="sourceLine" id="cb14-10" title="10">    <span class="kw">def</span> run():</a>
+<a class="sourceLine" id="cb14-11" title="11">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb14-12" title="12">            <span class="cf">return</span> fn()</a>
+<a class="sourceLine" id="cb14-13" title="13">        <span class="cf">except</span> Done <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb14-14" title="14">            <span class="cf">return</span> e.value</a>
+<a class="sourceLine" id="cb14-15" title="15">    result <span class="op">=</span> run()</a>
+<a class="sourceLine" id="cb14-16" title="16">    <span class="co"># Undo the nesting</span></a>
+<a class="sourceLine" id="cb14-17" title="17">    <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb14-18" title="18">        <span class="co"># Set the thermometer state for recursive return</span></a>
+<a class="sourceLine" id="cb14-19" title="19">        prev_expr, prev_past, prev_future <span class="op">=</span> nest.pop()</a>
+<a class="sourceLine" id="cb14-20" title="20">        cur_expr <span class="op">=</span> prev_expr</a>
+<a class="sourceLine" id="cb14-21" title="21">        past <span class="op">=</span> prev_past</a>
+<a class="sourceLine" id="cb14-22" title="22">        future <span class="op">=</span> prev_future</a>
+<a class="sourceLine" id="cb14-23" title="23">        <span class="cf">return</span> result</a>
+<a class="sourceLine" id="cb14-24" title="24">    <span class="cf">except</span> <span class="pp">IndexError</span>:</a>
+<a class="sourceLine" id="cb14-25" title="25">        <span class="cf">raise</span> <span class="pp">ValueError</span></a></code></pre></div>
+<p>Once we have the thermometer set up, the <code>reset</code> operator is the initial instance of one:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">def</span> reset(fn):</a>
+<a class="sourceLine" id="cb15-2" title="2">    <span class="cf">return</span> thermometer(fn, [])</a></code></pre></div>
+<p>As before, in the <code>run</code> function, the <code>shift</code> operator will return its final value to <code>reset</code> via a thrown exception, which will ignore the remainder of the computation outside of those operators.</p>
+<p>The thermometer gives us the ability to replay a <code>reset</code> block with the <code>shift</code> statements replaced by the evaluated <code>future</code> stack. This informs how to build the <code>shift</code> operator. Put another way, the thermometer (which is the future) contains the values of all effectful computations that have perspired in the execution of a <code>shift</code> operator.</p>
+<p>There are two cases in the execution of a <code>shift</code> block: the first is if the block is called for the first time. In this case, we’ll replay the entire computation with the state set to the value called in <code>shift</code>’s captured continuation, so that on the next pass the other case will ignore that block:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1">        new_future <span class="op">=</span> <span class="bu">list</span>(<span class="bu">reversed</span>(past))</a>
+<a class="sourceLine" id="cb16-2" title="2">        our_expr <span class="op">=</span> cur_expr</a>
+<a class="sourceLine" id="cb16-3" title="3">        <span class="kw">def</span> k(v):</a>
+<a class="sourceLine" id="cb16-4" title="4">            <span class="cf">return</span> thermometer(our_expr, new_future <span class="op">+</span> [v])</a>
+<a class="sourceLine" id="cb16-5" title="5">        past.append(<span class="va">None</span>)</a>
+<a class="sourceLine" id="cb16-6" title="6">        <span class="co"># Recursively call the replay</span></a>
+<a class="sourceLine" id="cb16-7" title="7">        result <span class="op">=</span> fn(k)</a>
+<a class="sourceLine" id="cb16-8" title="8">        <span class="co"># When we hit a result, create an exception to abort the computation in</span></a>
+<a class="sourceLine" id="cb16-9" title="9">        <span class="co"># the reset block so that we don't perform the further computation outside</span></a>
+<a class="sourceLine" id="cb16-10" title="10">        <span class="co"># of the shift blocks.</span></a>
+<a class="sourceLine" id="cb16-11" title="11">        <span class="cf">raise</span> Done(result)</a></code></pre></div>
+<p>The other case is during a replay, in which the <code>shift</code> block will have a determined value given by the <code>future</code> stack:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1">        val <span class="op">=</span> future.pop(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb17-2" title="2">        past.append(val)</a>
+<a class="sourceLine" id="cb17-3" title="3">        <span class="cf">return</span> val</a></code></pre></div>
+<p>Combined into a single operator, this gives the <code>shift</code> function:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">def</span> shift(fn):</a>
+<a class="sourceLine" id="cb18-2" title="2">    <span class="kw">global</span> past, future, cur_expr</a>
+<a class="sourceLine" id="cb18-3" title="3">  </a>
+<a class="sourceLine" id="cb18-4" title="4">    case <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb18-5" title="5">    <span class="cf">if</span> <span class="bu">len</span>(future) <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb18-6" title="6">        case <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb18-7" title="7">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb18-8" title="8">        val <span class="op">=</span> future.pop(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-9" title="9">        <span class="cf">if</span> val <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb18-10" title="10">            case <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb18-11" title="11">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb18-12" title="12">            case <span class="op">=</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb18-13" title="13">    <span class="co"># Case 1</span></a>
+<a class="sourceLine" id="cb18-14" title="14">    <span class="cf">if</span> case <span class="op">==</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb18-15" title="15">        new_future <span class="op">=</span> <span class="bu">list</span>(<span class="bu">reversed</span>(past))</a>
+<a class="sourceLine" id="cb18-16" title="16">        our_expr <span class="op">=</span> cur_expr</a>
+<a class="sourceLine" id="cb18-17" title="17">        <span class="kw">def</span> k(v):</a>
+<a class="sourceLine" id="cb18-18" title="18">            <span class="cf">return</span> thermometer(our_expr, new_future <span class="op">+</span> [v])</a>
+<a class="sourceLine" id="cb18-19" title="19">        past.append(<span class="va">None</span>)</a>
+<a class="sourceLine" id="cb18-20" title="20">        <span class="co"># Recursively call the replay</span></a>
+<a class="sourceLine" id="cb18-21" title="21">        result <span class="op">=</span> fn(k)</a>
+<a class="sourceLine" id="cb18-22" title="22">        <span class="cf">raise</span> Done(result)</a>
+<a class="sourceLine" id="cb18-23" title="23">    <span class="co"># Case 2</span></a>
+<a class="sourceLine" id="cb18-24" title="24">    <span class="cf">elif</span> case <span class="op">==</span> <span class="dv">2</span>:</a>
+<a class="sourceLine" id="cb18-25" title="25">        past.append(val)</a>
+<a class="sourceLine" id="cb18-26" title="26">        <span class="cf">return</span> val</a></code></pre></div>
+<p>This gives our general delimited control operators <code>shift/reset</code>, all in Python! We can test this out and get a bunch of cool results from it.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1"><span class="op">&gt;</span> reset(<span class="kw">lambda</span>: <span class="dv">2</span> <span class="op">*</span> shift(<span class="kw">lambda</span> k: <span class="dv">1</span> <span class="op">+</span> k(<span class="dv">5</span>)))</a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="dv">11</span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="op">&gt;</span> reset(<span class="kw">lambda</span>: <span class="dv">1</span> <span class="op">+</span> shift(<span class="kw">lambda</span> k: k(<span class="dv">1</span>) <span class="op">*</span> k(<span class="dv">2</span>) <span class="op">*</span> k(<span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="dv">24</span></a>
+<a class="sourceLine" id="cb19-5" title="5"><span class="op">&gt;</span> <span class="dv">1</span> <span class="op">+</span> reset(<span class="kw">lambda</span>: <span class="dv">2</span> <span class="op">+</span> shift(<span class="kw">lambda</span> k:</a>
+<a class="sourceLine" id="cb19-6" title="6"><span class="op">&gt;</span>           <span class="dv">3</span> <span class="op">*</span> shift(<span class="kw">lambda</span> l: l(k(<span class="dv">10</span>)))))</a>
+<a class="sourceLine" id="cb19-7" title="7"><span class="dv">37</span></a></code></pre></div>
+<h3 id="closing">closing</h3>
+<p>To encapsulate all this control logic into a single object, the <code>delim</code> library on my github exposes a single class called <code>Cont</code> which gives delimited control to any codebase. An example use is similar to the above:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1"><span class="im">import</span> delim</a>
+<a class="sourceLine" id="cb20-2" title="2"></a>
+<a class="sourceLine" id="cb20-3" title="3">C <span class="op">=</span> delim.Cont()</a>
+<a class="sourceLine" id="cb20-4" title="4">ex <span class="op">=</span> C.reset(<span class="kw">lambda</span>: <span class="dv">1</span> <span class="op">+</span> C.shift(<span class="kw">lambda</span> k: k(<span class="dv">1</span>) <span class="op">*</span> k(<span class="dv">2</span>) <span class="op">*</span> k(<span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="bu">print</span>(ex2) <span class="co"># =&gt; 24</span></a></code></pre></div>
+<p>Delimited control gives us a bunch of algebraic effects and handlers that we would be happy to use in a modern programming language. In the next post of the series, I’ll use delimited continuations to implement reverse-mode autodifferentiation, a less well-known algebraic effect in the programming language theory literature. Thanks for reading!</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
