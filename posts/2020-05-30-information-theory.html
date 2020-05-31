@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Entropy in information theory - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Entropy in information theory</h1>
+            <article>
+    <section class="header">
+        Posted on May 30, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p>A lot has happened since my last post, especially the coronavirus pandemic sweeping the world. I am also now a senior data scientist/machine learning engineer at Prognos Health, a healthcare-tech startup focused on creating an analytics platform for analyzing clinical lab data at scale.</p>
+<p>This post won’t have anything to do with that, but I might talk about that in the future. I stumbled upon some really cool stuff linking homology to information theory, and I wanted to spend some blog posts putting down my notes on the papers I’m reading regarding this. A lot of this material will come form the paper of Baudot-Bennequin “The homological nature of entropy”.</p>
+<h3 id="entropy">entropy</h3>
+<p>Let <span class="math inline">\(p\)</span> be a probability measure on a finite set <span class="math inline">\(X\)</span>. Shannon defined in 1948 a definition of the entropy for <span class="math inline">\(p\)</span>, a measure of the information content:</p>
+<p><span class="math display">\[ H(p) = - \sum_{i\in X} p_i\ln{p_i} \]</span></p>
+<p>A few notes: (1) if <span class="math inline">\(p\)</span> is localized on a single element <span class="math inline">\(i\)</span>, say <span class="math inline">\(p_i = 1\)</span> then <span class="math inline">\(H(p)=0\)</span>, and (2) if <span class="math inline">\(p\)</span> is uniformly-distributed over <span class="math inline">\(X\)</span>, then entropy is maximized.</p>
+<p>Where does this come from? While there are many derivations coming from physics or whatnot, there is a simple axiomatic characterization of entropy. Let <span class="math inline">\(\text{Prob}^\text{fin}\)</span> be the category of finite sets equipped with discrete probability measures, where a morphism <span class="math inline">\(f:(X, p)\to (Y, q)\)</span> is a measure-preserving function between finite probability spaces. We make the <em>heuristic</em> declaration that whatever measure of information we want to assign to the measure <span class="math inline">\(p\)</span> that it decreases across the map <span class="math inline">\(f\)</span>– that is, information is <strong>lost across a channel</strong>.</p>
+<p>Hence, we assume there is a function <span class="math inline">\(F:\text{Hom}_{\text{Prob}^\text{fin}}(p, q)\to \mathbf{R}^{\ge 0}\)</span> called the <strong>information loss</strong>, which satisfies the following:</p>
+<ol type="1">
+<li><strong>functoriality</strong> the amount of imformation lost in a composition of channels is the sum of the loss in each:</li>
+</ol>
+<p><span class="math display">\[ F(p\to q\to r) = F(p \to q) + F(q \to r) \]</span></p>
+<ol start="2" type="1">
+<li><p><strong>convexity</strong> effectively this says that for a discrete probability distribution <span class="math inline">\(\xi\)</span> over a finite collection of maps <span class="math inline">\(\{f_i:p\to q\}_{i=1..m}\)</span>, we have that <span class="math inline">\(F\)</span> preserves expectations, i.e. <span class="math inline">\(F(\mathbf{E}_\xi(\{f_i:p\to q\}_{i=1..m}) = \mathbf{E}_\xi(F(f_i)))\)</span>. In the case where <span class="math inline">\(m=2\)</span>, this is the convexity relationship where the choice of channel is given by a Bernoulli coin flip.</p></li>
+<li><p><strong>continuity</strong> <span class="math inline">\(F\)</span> is continuous in <span class="math inline">\(f\)</span>.</p></li>
+</ol>
+<p>Let us also impose a normalization condition:</p>
+<ol start="4" type="1">
+<li><strong>identity</strong> the loss of the identity channel is 0, <span class="math inline">\(F(\text{id}_X) = 0\)</span>.</li>
+</ol>
+<p>We claim that this uniquely characterizes Shannon entropy. Let <span class="math inline">\(\zeta_p\)</span> be the unique morphism from any <span class="math inline">\(p\)</span> to the one-point set <span class="math inline">\(*\)</span>. From our heuristic we see that the total information loss of this map should be the total information stored in <span class="math inline">\(p\)</span>. So define the <strong>entropy</strong> of <span class="math inline">\(p\)</span> to be <span class="math inline">\(F(\zeta_p)\)</span>.</p>
+<p>Note that we have for any <span class="math inline">\(f:p \to q\)</span> that <span class="math inline">\(\zeta_p = \zeta_q \circ f\)</span>. Hence by functoriality we have</p>
+<p><span class="math display">\[ F(\zeta_p) - F(\zeta_q) = F(f) \]</span></p>
+<p>So we are reduced to computing form of the entropies <span class="math inline">\(F(\zeta_p)\)</span>. Let <span class="math inline">\(X_1,..., X_n\)</span> be a collection of finite sets and <span class="math inline">\(q_1,...,q_n\)</span> their probability measures. Let <span class="math inline">\(p\)</span> be a probability measure on the <span class="math inline">\(q\)</span>’s and form their expectation measure <span class="math inline">\(z = \mathbf{E}_p[q_k]\)</span> on the disjoint union of the <span class="math inline">\(X_i\)</span>’s. Form the map</p>
+<p><span class="math display">\[ f = \mathbf{E}_p[\zeta_{q_k}]: \mathbf{E}_p[q_k] \to (\{1,...,n\}, p) \]</span></p>
+<p>From the convexity property we see that <span class="math inline">\(F(f) = F(\mathbf{E}_p[\zeta_{q_k}]) = \mathbf{E}_p[F(\zeta_{q_k})]\)</span>, and from the functoriality above we see that <span class="math inline">\(F(f) = F(\zeta_{\mathbf{E}_p[q_k]}) - F(\zeta_p)\)</span>. Hence</p>
+<p><span class="math display">\[ F(\zeta_{\mathbf{E}_p[q_k]}) - F(\zeta_p) = \mathbf{E}_p[F(\zeta_{q_k})] \]</span></p>
+<p>But this is the <a href="https://www.sciencedirect.com/science/article/pii/S0076539208627368">strong additivity condition</a> of Shannon entropy, which characterizes entropy up to a constant.</p>
+<h3 id="operads-and-additivity">operads and additivity</h3>
+<p>Where does the strong additivity condition come from? It is actually fairly fundamental, enough that I would market it as a fundamental theorem of the field (though that term is severely overloaded, and often poorly used, this one included). This was made extremely clear to me after reading the <a href="https://ncatlab.org/johnbaez/show/Entropy+as+a+functor">nLab</a> post on operadic entropy.</p>
+<p>Let <span class="math inline">\(q_1,..., q_n\)</span> be probability distributions on <span class="math inline">\(X_1,..., X_n\)</span> finite sets, and let <span class="math inline">\(p\)</span> be a probability distribution over the <span class="math inline">\(q\)</span>’s, as above. We will write the expectation measure <span class="math inline">\(\mathbf{E}_p[q_k]\)</span> with the symbology <span class="math inline">\(p \circ (q_1,..., q_n)\)</span>. This is then a probability distribution on the disjoint union <span class="math inline">\(\amalg_k {X_k}\)</span>. What is the Shannon entropy of this distribution?</p>
+<p>By computation, we get</p>
+<p><span class="math display">\[ H(p \circ (q_1,..., q_n)) = -\sum_{ij} p_i q_{ij}\log{p_i q_{ij}} = -\sum_{ij} p_i q_{ij}\log{p_i} -\sum_{ij} p_i q_{ij}\log{q_{ij}} \]</span></p>
+<p>But one term is <span class="math inline">\(H(p)\)</span> and the other is <span class="math inline">\(\mathbf{E}_p[H(q)]\)</span>. Following the lead of Leinster, we symbologize the expectation via the suggestive term <span class="math inline">\(p(H(q_1),..., H(q_n))\)</span>. Then we get the “algebraic” equation</p>
+<p><span class="math display">\[ H(p \circ (q_1,..., q_n)) = H(p) + p(H(q_1),..., H(q_n)) \]</span></p>
+<p>I say “algebraic” because this looks like <span class="math inline">\(H\)</span> is a homomorphism of sort, except for the <em>extra term</em> <span class="math inline">\(H(p)\)</span>. Leinster in his <a href="https://www.maths.ed.ac.uk/~tl/operadic_entropy.pdf">note</a> outlines an incredibly slick way to get this out as a part of some operadic technology.</p>
+<p>Let <span class="math inline">\(\mathcal{O}\)</span> be a (symmetric) <span class="math inline">\(\Sigma\)</span>-operad and consider <span class="math inline">\(\mathcal{O}\)</span>-algebras in the category <span class="math inline">\(\text{Cat}\)</span> of (small) categories (call them categorical <span class="math inline">\(\mathcal{O}\)</span>-algebras). Recall that an <span class="math inline">\(\mathcal{O}\)</span>-algebra <span class="math inline">\(A\)</span> in any category is a collection of maps <span class="math inline">\(\mathcal{O}(k)\otimes A^{\otimes k}\to A\)</span> satisfying the usual commutative, associative, and identity laws. We define a <strong>lax map</strong> between categorical <span class="math inline">\(\mathcal{O}\)</span>-algebras <span class="math inline">\(A, B\)</span> to be a functor <span class="math inline">\(A\to B\)</span> with natural transformations given by the commutative diagram</p>
+<p><span class="math display">\[
+\begin{matrix}
+\mathcal{O}(k) \otimes A^{\otimes k} &amp;\to        &amp;\mathcal{O}(k) \otimes B^{\otimes k} \\
+\downarrow     &amp;\Leftarrow &amp;\downarrow     \\
+A              &amp;\to        &amp;B
+\end{matrix}
+\]</span></p>
+<p>satisfying obvious axioms. Let <span class="math inline">\(1\)</span> be the terminal category (with its unique <span class="math inline">\(\mathcal{O}\)</span>-algebra structure). A <strong>lax point</strong> of the <span class="math inline">\(\mathcal{O}\)</span>-algebra <span class="math inline">\(A\)</span> is a lax map <span class="math inline">\(1\to A\)</span>.</p>
+<p>Unwinding this definition, we see that a lax point consists of an object <span class="math inline">\(a\in A\)</span> and a collection of maps <span class="math inline">\(h_\theta: \theta(a,...,a)\to a\)</span> for every <span class="math inline">\(\theta\in\mathcal{O}(k)\)</span> for each <span class="math inline">\(k\ge 0\)</span>. Composition of operads gives us an equality between the composition</p>
+<p><span class="math display">\[ \theta(\theta_1(a,...,a),...,\theta_m(a,...,a)) \xrightarrow{\theta(h_{\theta_1},..., h_{\theta_m})} \theta(a,...,a)
+    \xrightarrow{h_\theta} a \]</span></p>
+<p>and the map</p>
+<p><span class="math display">\[ (\theta\circ (\theta_1, ..., \theta_m))(a,..., a) \xrightarrow{h_{\theta\circ (\theta_1, ..., \theta_m)}} a \]</span></p>
+<p>where the equivalence of the domains is given by <a href="https://en.wikipedia.org/wiki/Operad">operadic composition</a>. This gives us the tantalizing functional equation</p>
+<p><span class="math display">\[ h_{\theta\circ (\theta_1, ..., \theta_m)} = h_{\theta}\circ \theta(h_{\theta_1},..., h_{\theta_m}) \]</span></p>
+<p>This looks like strong additivity! To get us as close as possible, consider the operad <span class="math inline">\(\mathcal{O}\)</span> to be given by the simplex/probability operad <span class="math inline">\(\Delta\)</span>. This is the operad of finite discrete probability distributions on finite sets. Let <span class="math inline">\(A\)</span> be the additive monoid of reals <span class="math inline">\(\mathbf{R}\)</span>. Then for any <span class="math inline">\(p\in\Delta(k)\)</span>, the operadic action is given by <span class="math inline">\(p(a_1,..., a_k) = \sum_i p_i a_i\)</span>.</p>
+<p>Then for any lax point <span class="math inline">\(\gamma:\Delta \to A\)</span> we get the identity</p>
+<p><span class="math display">\[ \gamma(p\circ (q_1, ..., q_m)) = \gamma(p) + p(\gamma(q_1),..., \gamma(q_m)) \]</span></p>
+<p>as above! Finally, we note that <span class="math inline">\(H(p) = -\mathbb{E}_p[\log{p}]\)</span> gives a lax point <span class="math inline">\(H:\Delta\to\mathbf{R}\)</span>.</p>
+<h3 id="derivations-and-partitions">derivations and partitions</h3>
+<p>Let <span class="math inline">\(\beta &gt; 0\)</span> be a temperature parameter, and consider the <strong>partition function</strong></p>
+<p><span class="math display">\[ Z(p; \beta) = \sum_{i \in X} p_i^\beta \]</span></p>
+<p>If we let <span class="math inline">\(p_i = e^{-\beta H_i}\)</span> for <span class="math inline">\(H_i\)</span> the suggestively defined Hamiltonian, we get the usual physicists definition. But we don’t really care for that. What matters more to us is that under the definition of probability density composition given by the probability operad, the partition function <span class="math inline">\(Z(-) = Z(-;\beta)\)</span> is an <span class="math inline">\(\Delta\)</span>-algebra homomorphism <span class="math inline">\(1\to\mathbf{R}\)</span>:</p>
+<p><span class="math display">\[ Z(p\circ (q_1, ..., q_m)) = p(Z(q_1),..., Z(q_m)) \]</span></p>
+<p>What does entropy have to do with the partition function?</p>
+<p><span class="math display">\[ H(p) = -\left. \frac{d}{d\beta}Z(p; \beta)\right|_{\beta=1} \]</span></p>
+<p>With some calculation, one can show that the derivative of the <span class="math inline">\(\Delta\)</span>-algebra homomorphism equation above gives us strong additivity, which is a remarkable fact.</p>
+<h3 id="conclusion">conclusion</h3>
+<p>Next time I’ll talk about some things I’m reading about information cohomology. One nice corollary of the machinery there is that the Shannon entropy is given as a 1-cocycle in the information complex, which might tie in nicely with this material above (I’m not sure). My mathematical heart would love there to be some kind of interplay between some kind of de Rham cohomology and the information cohomology, but I’ll have to read on to find out more.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
