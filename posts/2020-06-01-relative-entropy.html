@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Kullback-Leibler divergence, categorically - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Kullback-Leibler divergence, categorically</h1>
+            <article>
+    <section class="header">
+        Posted on June  1, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In my rabbit-hole readings on entropy and its algebro-topological connections, I stumbled upon an interesting paper by Baez-Fritz <a href="https://arxiv.org/abs/1402.3067">“A Bayesian characterization of relative entropy”</a>. What’s particularly funny is that the authors wanted to name this a “categorical characterization”, but in fear of scaring off the broader mathematical community from reading this otherwise beautiful paper, they opted to call it a “Bayesian” one. Funny, because I don’t yet understand the Bayesian-ness of it.</p>
+<p>A plus of this paper is that it gives an introduction to probability theory from a categorical viewpoint, which I want to review first before diving into Kullback-Leibler divergence.</p>
+<h3 id="finite-sets">finite sets</h3>
+<p>Let <span class="math inline">\(\mathbf{R}^{\ge 0}=[0,\infty)\)</span> be the commutative rig (ring without negatives) of nonzero reals. Let <span class="math inline">\(\text{Mod}^{\text{f.g, free}}_{[0,\infty)}\)</span> be the category of finitely-generated free <span class="math inline">\(\mathbf{R}^{\ge 0}\)</span>-modules. As usual, a finitely-generated free <span class="math inline">\(\mathbf{R}^{\ge 0}\)</span>-module is isomorphic to a product <span class="math inline">\([0, \infty)^n\)</span> for some <span class="math inline">\(n\ge 0\)</span>, and morphisms are given by matrices over <span class="math inline">\(\mathbf{R}^{\ge 0}\)</span>.</p>
+<p>We give the category <span class="math inline">\(\text{Mod}^{\text{f.g, free}}_{[0,\infty)}\)</span> a monoidal structure via the normal <span class="math inline">\(\otimes\)</span>-product of free modules. Also since we’re dealing with free modules over a commutative rig, we can take matrix transposes of the corresponding morphisms and give <span class="math inline">\(\text{Mod}^{\text{f.g, free}}_{[0,\infty)}\)</span> the structure of a <span class="math inline">\(\dagger\)</span>-category (recall that a <span class="math inline">\(\dagger\)</span>-category is one with a contravariant endofunctor that sends any morphism <span class="math inline">\(f:a\to b\)</span> to a “transpose” <span class="math inline">\(f^\dagger:b\to a\)</span>).</p>
+<p>In all, this makes <span class="math inline">\(\text{Mod}^{\text{f.g, free}}_{[0,\infty)}\)</span> into a symmetric monoidal <span class="math inline">\(\dagger\)</span>-category. This is the base category where the remaining constructions will come into play. First, we need to get back the category of finite sets <span class="math inline">\(\text{Set}^{\text{fin}}\)</span> from within this category.</p>
+<p>But isn’t this easy? Each finitely-generated free module is <span class="math inline">\([0, \infty)^S\)</span> for some finite set <span class="math inline">\(S\)</span>. But the trouble is that it isn’t obvious how to get that <span class="math inline">\(S\)</span> out– a priori if given a finitely-generated free module <span class="math inline">\(A\)</span>, how can we detect the set <span class="math inline">\(S\)</span>?</p>
+<p>The <strong>key</strong> is the familiar(!) fact that <strong>sets have diagonal maps</strong> <span class="math inline">\(S \to S\times S\)</span>. This gives rise to a coproduct <span class="math inline">\(\Delta:[0,\infty)^S\to [0,\infty)^S\otimes [0,\infty)^S\)</span> that turns <span class="math inline">\([0,\infty)^S\)</span> into a <strong>special commutative <span class="math inline">\(\dagger\)</span>-Frobenius algebra</strong>. Then the set of grouplike elements <span class="math inline">\(\Delta(x)=x\otimes x\)</span> gives us our set <span class="math inline">\(S\)</span>! The upshot is that we get an equivalence of categories</p>
+<p><span class="math display">\[ \text{Set}^{\text{fin}}\simeq\text{ComFrob}^\dagger_{\mathbf{R}^{\ge 0}, \Delta}\hookrightarrow \text{Mod}^{\text{f.g, free}}_{[0,\infty)} \]</span></p>
+<p>We should be careful here. The <span class="math inline">\(\Delta\)</span> in <span class="math inline">\(\text{ComFrob}^\dagger_{\mathbf{R}^{\ge 0}, \Delta}\)</span> denotes that the maps are only morphisms of the underlying coalgebra. If we allow all Frobenius homomorphisms (preserving all structure), the axioms of the special algebra (multiplication-comultiplication interaction) forces the morphisms to be an isomorphism on the finite sets.</p>
+<h3 id="probability-categorically">probability, categorically</h3>
+<p>From above, a map between special commutative <span class="math inline">\(\dagger\)</span>-Frobenius algebras that preserves the comultiplication and counit are given by maps of the equivalent finite sets. But note that by tracing the definitions, the counit map <span class="math inline">\(\epsilon: A\to\mathbf{R}^{\ge 0}\)</span> is given by integration with respect to counting measure. So if we relax the restriction that morphisms between algebras preserve the comultiplication map, then on the underlying sets, maps can send grouplike elements to <em>distributions on the finite set</em> in such a way that preserves <em>measure</em>. We hence call such morphisms <strong>stochastic maps</strong> and define the category of such sets and maps <span class="math inline">\(\text{Stoch}^\text{fin}\simeq \text{ComFrob}^\dagger_{\mathbf{R}^{\ge 0}, \epsilon}\)</span>.</p>
+<p>If the <span class="math inline">\(epsilon\)</span> map is an analogue of Lesbegue integration, then a section of this map is a <strong>measure</strong> on the finite set <span class="math inline">\(S\)</span>. Hence we define a <strong>finite measure space</strong> as a special commutative <span class="math inline">\(\dagger\)</span>-Frobenius algebra <span class="math inline">\(A\)</span> with a map</p>
+<p><span class="math display">\[ \mu: \mathbf{R}^{\ge 0} \to A \]</span></p>
+<p>Then such a finite measure space is a finite <em>probability</em> space if integrating the measure is 1: <span class="math inline">\(\epsilon\circ\mu = 1\)</span>. We denote the category of such finite probability spaces as <span class="math inline">\(\text{Prob}^\text{fin}\)</span>, where morphisms are given by the obvious commutative triangles.</p>
+<p>Okay, great! Now what? To be fair, there isn’t much you can do with general probability distributions on finite sets. You can do some cute things, like considering the monoidal/composition structures on <span class="math inline">\(\text{Prob}^\text{fin}\)</span> (with parallels to the Giry monad), but it isn’t enough to do any kind of <em>statistics</em>. Another cute thing is something I thought of while trying to understand this material: given a special commutative <span class="math inline">\(\dagger\)</span>-Frobenius algebra <span class="math inline">\(A\)</span>, we can fix an isomorphism <span class="math inline">\(A\simeq [0,\infty)^S\)</span>. Then for any probability distribution <span class="math inline">\(p(s): [0,\infty)\to [0,\infty)^S\)</span>, and family of spaces <span class="math inline">\(p(t|s): [0,\infty)\to [0,\infty)^T\)</span>, one can form the composition <span class="math inline">\(p(s,t): [0,\infty)\to [0,\infty)^{S\times T}\)</span>. But Bayes theorem then just comes down the fact that <span class="math inline">\(S\times T\simeq T\times S\)</span> and that we can repartition the composition (look at the underlying matrix) to reflect that.</p>
+<p>How do we encode statistics into the category <span class="math inline">\(\text{Prob}^\text{fin}\)</span>? The slogan is that “statistics is the inverse problem of probability”. That is, given a stochastic map <span class="math inline">\(f: A\to B\)</span>, statistics is composed of hypotheses: if <span class="math inline">\(f\)</span> describes a sampling procedure, and we observe <span class="math inline">\(y\in Y\)</span>, then our hypothesis describes the distribution on <span class="math inline">\(X\)</span> after observing <span class="math inline">\(y\)</span>. That is, a <strong>hypothesis</strong> is a stochastic map <span class="math inline">\(s:B\to A\)</span>. But we also need to be consistent– we shouldn’t say anything about points of <span class="math inline">\(X\)</span> that don’t actually give us anything about our observed result, that is, <span class="math inline">\(s\)</span> is actually a <em>section</em> of <span class="math inline">\(f\)</span>, <span class="math inline">\(f\circ s = \text{id}_Y\)</span>.</p>
+<p>We can wrap such finite probability spaces into a category <span class="math inline">\(\text{Stat}^\text{fin}\)</span> where morphisms are maps of finite probability spaces equipped with a stochastic hypothesis section, as above.</p>
+<h3 id="relative-entropy">relative entropy</h3>
+<p>Most of the time in <span class="math inline">\(\text{Stat}^\text{fin}\)</span>, <span class="math inline">\(s\)</span> is off the mark. But occasionally, our hypothesis about the distribution of <span class="math inline">\(A\)</span> is quite on the nose, and then we would say our hypothesis is <strong>optimal</strong>. Diagrammatically, we would say that <span class="math inline">\(s\)</span> makes the triangle of distributions commute. We can call the category of such maps <span class="math inline">\(\text{FP}\)</span>, though I don’t really know why that is the case.</p>
+<p>Now we get to our Bayesian characterization. Given an object <span class="math inline">\((f:(A,p)\to (B,q), s: B\to A))\)</span> in <span class="math inline">\(\text{Stat}^\text{fin}\)</span>, we know that <span class="math inline">\(s\)</span> furnishes us a probability distribution over <span class="math inline">\(A\)</span> for each measurement value <span class="math inline">\(b\in B\)</span>. Hence there is a <strong>prior</strong> we impose on <span class="math inline">\(p\)</span> given on each <span class="math inline">\(a\in A\)</span> by the sum</p>
+<p><span class="math display">\[ p^\text{prior}_a = \sum_{b\in B} q_b\cdot s(b)_a \]</span></p>
+<p>This is our “guess” about what the probability distribution over <span class="math inline">\(A\)</span> is given our hypothesis <span class="math inline">\(s\)</span>. The true <strong>posterior</strong> would thus be given by the distribution <span class="math inline">\(p\)</span> itself. The discrete <span class="math inline">\(KL\)</span>-divergence of these two distributions hence furnish us a functor</p>
+<p><span class="math display">\[ \text{KL}: \text{Stat}^\text{fin} \to \mathbf{R}^{\ge 0} \]</span></p>
+<p>What special properties does this functor have? Suppose we restrict to the subcategory <span class="math inline">\(\text{FP}\hookrightarrow\text{Stat}^\text{fin}\)</span>. Then by optimality, the prior <span class="math inline">\(p^\text{prior}\)</span> is <span class="math inline">\(p\)</span>! Hence the functor <span class="math inline">\(\text{KL}\)</span> <em>vanishes</em> on the category <span class="math inline">\(\text{FP}\)</span>. The result of Baez-Fritz is that along with some convexity/functoriality conditions, this entirely characterizes (up to a constant) Kullback-Leibler divergence.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
