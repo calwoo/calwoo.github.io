@@ -5,7 +5,7 @@ author: Calvin
 
 A lot has happened since my last post, especially the coronavirus pandemic sweeping the world. I am also now a senior data scientist/machine learning engineer at Prognos Health, a healthcare-tech startup focused on creating an analytics platform for analyzing clinical lab data at scale.
 
-This post won't have anything to do with that, but I might talk about that in the future. I stumbled upon some really cool stuff linking homology to information theory, and I wanted to spend some blog posts putting down my notes on the papers I'm reading regarding this. A lot of this material will come form the paper of Baudot-Bennequin "The homological nature of entropy". 
+This post won't have anything to do with that, but I might talk about that in the future. I stumbled upon some really cool stuff linking homology to information theory, and I wanted to spend some blog posts putting down my notes on the papers I'm reading regarding this. The goal is to get to the meat of the paper of Baudot-Bennequin "The homological nature of entropy". 
 
 
 ### entropy
