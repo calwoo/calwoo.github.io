@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Probability monads - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Probability monads</h1>
+            <article>
+    <section class="header">
+        Posted on June 14, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>I’ve been a big fan of probabilistic programming for a year now, and being a data scientist, I am always looking for ways to “Bayesify” our models to encode epistemic uncertainty. However, my main motivation a year back for learning about Bayesian statistics (unlike many people) was a functional pearl <a href="http://web.engr.oregonstate.edu/~erwig/papers/PFP_JFP06.pdf">“Probabilistic functional programming in Haskell”</a> by Erwig-Kollmansberger.</p>
+<p>There they describe a nice way to encode basic probabilistic structures into a functional paradigm– and it was so naturally done. This led me to try and learn about the Giry monad and really just led me down the rabbit hole of Haskell and functional programming in general. Despite this, I never really wrote down my notes on this, even on paper. So this post will be effectively a dump of notes on the topic of categorical probability theory and the associated probability monads.</p>
+<h3 id="giry-monad">giry monad</h3>
+<p>Let <span class="math inline">\(\mathcal{C}\)</span> be a base category of “spaces”, for example we can take <span class="math inline">\(\mathcal{C}=\text{Set}^{\text{fin}}\)</span> to be finite sets, or <span class="math inline">\(\mathcal{C}=\text{Meas}^{\text{bdd}}\)</span> to be the category of bounded measurable spaces. Then we can try and define probability monads to be endofunctors that encode a notion of “random variable” or “distribution” on objects in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p>As a first attempt, we can define the <strong>distribution monad</strong> on <span class="math inline">\(\text{Set}^{\text{fin}}\)</span> to be defined by the functor that sends a finite set <span class="math inline">\(X\)</span> to finite distributions <span class="math inline">\(p:X\to [0,1]\)</span> (i.e. <span class="math inline">\(p(x)\ge 0\)</span> for all <span class="math inline">\(x\in X\)</span> and <span class="math inline">\(\sum_{x} p(x) = 1\)</span>). We can extend this to non-finite sets by restricting ourselves to finitely-<em>supported</em> distributions. Turning this mapping into a functor is motivated by measure theory: the pushforward of measures over a map of base spaces <span class="math inline">\(f:X\to Y\)</span> is given by</p>
+<p><span class="math display">\[ f_*p(y) = \sum_{x: f^{-1}(y)} p(x) \]</span></p>
+<p>This indeed gives a monad <span class="math inline">\(\text{Dist}_\text{fin}\)</span>: the unit is given by the Dirac measure supported at a point <span class="math inline">\(x\)</span>, and the monadic composition is given by a marginalization process. What is interesting is to consider what the composition of Kleisli morphisms <span class="math inline">\(X\to\text{Dist}_\text{fin}Y\)</span> is like.</p>
+<p>This is again a straightforward computation– a Kleisli morphism <span class="math inline">\(X\to\text{Dist}_\text{fin}Y\)</span> is equivalent to a function <span class="math inline">\(k:X\times Y\to [0,1]\)</span> such that for each <span class="math inline">\(x\in X\)</span>, <span class="math inline">\(k(x,-): Y\to [0,1]\)</span> is a finite-supported probability distribution on <span class="math inline">\(Y\)</span>. Unwinding the definition of Kleisli composition in terms of the monadic composition above, we see that for morphisms <span class="math inline">\(k:X\to\text{Dist}_\text{fin}Y\)</span> and <span class="math inline">\(h:Y\to\text{Dist}_\text{fin}Z\)</span> we have</p>
+<p><span class="math display">\[ (h\circ k)(x, z) = \sum_{y: Y} k(x,y)h(y,z) \]</span></p>
+<p>which are the <strong>Chapman-Kolmogorov</strong> equations. Hence we get Markovian properties from Kleisli composition in our formulation of probability theory.</p>
+<p>We <strong>note</strong> that the above doesn’t give us a functor on <span class="math inline">\(\text{Set}^\text{fin}\)</span> as the sets <span class="math inline">\(\text{Dist}_\text{fin}X\)</span> are surely never finite. However, this doesn’t stop us from abusing the notation, and having it give us inspiration as to what to do in the case of bounded measurable spaces.</p>
+<p>In this case, let <span class="math inline">\(X\)</span> be a measurable space and let <span class="math inline">\(\text{Prob}(X)\)</span> be the space of probability measures on <span class="math inline">\(X\)</span>. To make this a measure space, we need to equip <span class="math inline">\(\text{Prob}(X)\)</span> with a <span class="math inline">\(\sigma\)</span>-algebra structure. We do this by borrowing the <span class="math inline">\(\sigma\)</span>-algebra structure on <span class="math inline">\(\mathbf{R}\)</span>. Let <span class="math inline">\(f\in\text{Meas}(X,[0,1])\)</span> be a measurable function. Then for each, there is an integration function <span class="math inline">\(\epsilon_f: \text{Prob}(X)\to\mathbf{R}\)</span> induced from it:</p>
+<p><span class="math display">\[ p \mapsto \int_X f(x) dp(x) \]</span></p>
+<p>We define the <span class="math inline">\(\sigma\)</span>-algebra on <span class="math inline">\(\text{Prob}(X)\)</span> to be the smallest such that makes all of the <span class="math inline">\(\epsilon_f\)</span> measurable. Now that we are dealing with real measures, functoriality of <span class="math inline">\(\text{Prob}\)</span> comes from the true pushforward of measures</p>
+<p><span class="math display">\[ f_*p(A) = p(f^{-1}(B)) \]</span></p>
+<p>the unit is given by the Dirac distribution (tempered?) and the monadic composition is given analogously as above to the marginalization <span class="math inline">\(b_X:\text{Prob}(\text{Prob}(X)) \to \text{Prob}(X)\)</span></p>
+<p><span class="math display">\[ b_X(\mathcal{P})(A) = \int_{p: \text{Prob}(X)} p(A)\cdot d\mathcal{P}(p) \]</span></p>
+<p>This together gives us the <strong>Giry monad</strong> <span class="math inline">\(\text{Prob}\)</span> on the category <span class="math inline">\(\text{Meas}^\text{bdd}\)</span> of bounded measurable spaces.</p>
+<h3 id="monoidal-structures">monoidal structures</h3>
+<p>It’s worth pointing out that there is a monoidal structure on the probability monads that correspond to the independent joint distribution on product spaces. Let <span class="math inline">\(X, Y\)</span> be base spaces of interest: then for given probability distributions/measures <span class="math inline">\(p, q\)</span> on <span class="math inline">\(X, Y\)</span> respectively, we get the product joint distribution <span class="math inline">\(p\otimes q\)</span> on <span class="math inline">\(X\times Y\)</span>. That is, we get a monoidal structure</p>
+<p><span class="math display">\[ \otimes: \text{Prob}(X)\times \text{Prob}(Y)\to \text{Prob}(X\times Y) \]</span></p>
+<p>on the (Giry) monads, making them <a href="https://ncatlab.org/nlab/show/commutative+monad">commutative monads</a>. Since the monoidal product is derived from the product on base spaces, we functorially get projection morphisms</p>
+<p><span class="math display">\[ \text{Prob}(X) \xleftarrow{\pi_{X*}} \text{Prob}(X\times Y) \xrightarrow{\pi_{Y*}}\text{Prob}(Y) \]</span></p>
+<p>Given a joint distribution <span class="math inline">\(p_{XY}\in\text{Prob}(X\times Y)\)</span>, we can compute its pushforward along the projection on a measurable subspace <span class="math inline">\(A\)</span> as</p>
+<p><span class="math display">\[ \pi_{X*}p_{XY}(A) = p_{XY}(\pi_X^{-1}(A)) \]</span></p>
+<p>which is the <strong>marginalization</strong> operator. Hence there is an opportunity to reframe many computations in probability theory in the language of pushforwards.</p>
+<p>Another such computation comes from the fact that the strong monoidal property of the monad <span class="math inline">\(\text{Prob}\)</span> gives operations on <span class="math inline">\(\text{Prob}(X)\)</span> derived from operations on <span class="math inline">\(X\)</span>. For example, the addition operator <span class="math inline">\(+:\mathbf{R}\times\mathbf{R}\to\mathbf{R}\)</span> leads to an operator on probability distributions over <span class="math inline">\(\mathbf{R}\)</span></p>
+<p><span class="math display">\[ \text{Prob}(\mathbf{R})\times\text{Prob}(\mathbf{R})\xrightarrow{\otimes}\text{Prob}(\mathbf{R}\times\mathbf{R})\xrightarrow{+_*}\text{Prob}(\mathbf{R}) \]</span></p>
+<p>But computing this, we see this is given by <span class="math inline">\((p,q)\mapsto (p\otimes q)(+^{-1}(-))\)</span>, which on local coordinates is given by the integral</p>
+<p><span class="math display">\[ x \mapsto (p\otimes q)(+^{-1}(x)) = \int_{y: \mathbf{R}} p(x-y) q(y) \cdot d\mu_\text{Lebesgue} \]</span></p>
+<p>where <span class="math inline">\(\mu_\text{Lebesgue}\)</span> is the Lebesgue measure on <span class="math inline">\(\mathbf{R}\)</span>. Hence the monoidal operation on probability distributions derived from addition of reals is the <strong>convolution</strong> operator. There are likely many other fun examples one can cook up by playing around with pushforwards.</p>
+<h3 id="a-projection-formula">a projection formula?</h3>
+<p>A small aside before moving onto the Kantorovich monad.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
