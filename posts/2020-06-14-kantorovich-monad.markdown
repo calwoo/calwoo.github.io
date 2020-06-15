@@ -113,4 +113,26 @@ $$ \lVert p \rVert_{\text{Wass}, 1} = \inf_{\mu: \Gamma(p,q)}{\int_{x,y:X\times 
 
 where the infimum runs over all joint probability distributions $\mu$ on $X\times X$ with marginals $p,q$.
 
-Let $\text{Prob}_{\text{Wass}, 1}(X)$ be the space of probability measures on $X$ with finite first moment. This is a complete metric space under the 1-Wasserstein metric, and then $\text{Prob}_{\text{Wass}, 1}$ provides a probability monad, called the **Kantorovich monad** on complete metric spaces.
+Let $\text{Prob}_{\text{Wass}, 1}(X)$ be the space of probability measures on $X$ with finite first moment. This is a complete metric space under the 1-Wasserstein metric, and $\text{Prob}_{\text{Wass}, 1}$ provides a probability monad, called the **Kantorovich monad** on complete metric spaces. There is an interesting characterization of this monad in terms of "colimits of finite samples", following [Fritz-Perrone](http://www.tac.mta.ca/tac/volumes/34/7/34-07abs.html). 
+
+The basis for this characterization comes from the following probabilistic fact: under the 1-Wasserstein metric, any probability distribution on a complete metric space with finite first moment can be approximated by finite empirical distributions. To encode this in the monad, we need to represent the space of finite empirical distributions over $X$. This is straightforward-- let $X^{\otimes n}$ be the $n$-fold product of $X$ with the metric given by the normalized sum
+
+$$ d(\{x_i\}_i, \{y_j\}_j) = \frac{1}{n}\sum_{k} d(x_k, y_k) $$
+
+Since distributions are independent of the order of the points being presented, we take the quotient space under the symmetric group action (all permutations) to get $(X^{\otimes n})_{\Sigma_n}$ as our space of finite empirical distributions. Here, the metric is defined as the discrete 1-Wasserstein metric
+
+$$ d(\{x_i\}_i, \{y_j\}_j) = \min_{\sigma\in\Sigma_n}{\frac{1}{n}\sum_{k} d(x_k, y_{\sigma(k)})} $$
+
+Diagonal maps $X\to X^{\otimes k}$ define transition maps $(X^{\otimes n})_{\Sigma_n}\to(X^{\otimes nk})_{\Sigma_{nk}}$ which define a functor 
+
+$$ X^{\text{sym}}: \mathbf{N}_\text{mult}\to \text{Met}^\text{cmpl} $$
+
+from the multiplicative monoid of natural numbers to complete metric spaces. The main theorem of Fritz-Perrone is that the colimit of this functor recovers the Kantorovich space of probability measures
+
+$$ \text{Prob}_{\text{Wass}, 1}(X) \simeq \text{colim}_{n: \mathbf{N}_\text{mult}}{X^\text{sym}} = \text{colim}_n (X^{\otimes n})_{\Sigma_n} $$
+
+But this doesn't just recover the space-- since the monadic actions of each of the $(X^{\otimes n})_{\Sigma_n}$ are compatible, the *monadic structure* on $\text{Prob}_{\text{Wass}, 1}$ itself is recovered. 
+
+
+### algebras over a probability monad
+
