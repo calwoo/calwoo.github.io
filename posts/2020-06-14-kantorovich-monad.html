@@ -67,7 +67,27 @@
 <p><span class="math display">\[ x \mapsto (p\otimes q)(+^{-1}(x)) = \int_{y: \mathbf{R}} p(x-y) q(y) \cdot d\mu_\text{Lebesgue} \]</span></p>
 <p>where <span class="math inline">\(\mu_\text{Lebesgue}\)</span> is the Lebesgue measure on <span class="math inline">\(\mathbf{R}\)</span>. Hence the monoidal operation on probability distributions derived from addition of reals is the <strong>convolution</strong> operator. There are likely many other fun examples one can cook up by playing around with pushforwards.</p>
 <h3 id="a-projection-formula">a projection formula?</h3>
-<p>A small aside before moving onto the Kantorovich monad.</p>
+<p>A small aside before moving onto the Kantorovich monad. Let <span class="math inline">\(f:X\to Y\)</span> be a map of measurable spaces, and let <span class="math inline">\(q\)</span> be a probability distribution on <span class="math inline">\(Y\)</span>. Suppose that <span class="math inline">\(f\)</span> has bounded fibers, that is for each <span class="math inline">\(y\in Y\)</span>, the preimage <span class="math inline">\(f^{-1}(y)\)</span> is measurable of finite measure. Then we can define a <strong>pullback</strong> measure <span class="math inline">\(f^*q\)</span> on <span class="math inline">\(X\)</span> given by</p>
+<p><span class="math display">\[ df^*q(x) = \frac{1}{\mu_X(f^{-1}(f(x)))} \cdot dq(f(x)) \]</span></p>
+<p>Let <span class="math inline">\(p, q\)</span> be probability measures on <span class="math inline">\(X, Y\)</span> respectively, and <span class="math inline">\(f:X\to Y\)</span> a measurable function between them. Then we can look at the joint probability distribution</p>
+<p><span class="math display">\[ d(f_*p\otimes q)(a,b) = df_*p(a)\otimes dq(b) = dp(f^{-1}(a))\otimes dq(b) \]</span></p>
+<p>On the other hand, the pushforward given by</p>
+<p><span class="math display">\[ d((f\times f)_*(p\otimes f^*q))(a, b) = d(p\otimes f^*q)(f^{-1}(a), f^{-1}(b))\]</span></p>
+<p>is exactly the same. Indeed, we see that because</p>
+<p><span class="math display">\[ df^*q(f^{-1}(b)) = \sum_{a: f^{-1}(b)} \frac{1}{\mu_X(f^{-1}(b))}\cdot dq(b) = dq(b) \]</span></p>
+<p>we get the identity of measures</p>
+<p><span class="math display">\[ f_*p\otimes q = (f\times f)_*(p\otimes f^*q) \]</span></p>
+<p>This is a form of <a href="https://stacks.math.columbia.edu/tag/01E6">projection formula</a> from algebraic geometry. This is fairly interesting because it suggests some formulation of these probability monads in terms of <strong>probability sheaves</strong> over measurable base spaces.</p>
+<p>It is also worth investigating the origin of these projection formulae in terms of adjunctions in a Wirthmuller context, following Fausk-Hu-May’s <a href="http://www.tac.mta.ca/tac/volumes/11/4/11-04.pdf">“Isomorphisms between left and right adjoints”</a>.</p>
+<h3 id="kantorovich-monad">kantorovich monad</h3>
+<p>Let <span class="math inline">\(\mathcal{C} = \text{Met}^\text{cmpl}\)</span> be the category of complete metric spaces and 1-Lipschitz maps. Since we have no implicit boundedness condition on the spaces, we need to impose a boundedness conditions on the space of probability measures we will use as our probability monad.</p>
+<p>Which one? The main reason for imposing a boundedness condition in the first place is to ensure that functions <span class="math inline">\(X\to\mathbf{R}\)</span> (which generate the <span class="math inline">\(\sigma\)</span>-algebra) are well-defined and measurable for all the measures we could impose on <span class="math inline">\(X\)</span> (assuming the Lebesgue measure <span class="math inline">\(\mu_\text{Lebesgue}\)</span> on <span class="math inline">\(\mathbf{R}\)</span>). For <span class="math inline">\(X\)</span> a complete metric space, this doesn’t always hold for general probability measures <span class="math inline">\(p\)</span> on <span class="math inline">\(X\)</span>, so the most naive condition we could impose on admissible <span class="math inline">\(p\)</span> is just for these maps to be defined.</p>
+<p>It turns out that this is equivalent to <span class="math inline">\(p\)</span> having <strong>finite first moment</strong>, that is, the (upper bound) of the <a href="https://en.wikipedia.org/wiki/Wasserstein_metric">1-Wasserstein metric</a> of the probability measure</p>
+<p><span class="math display">\[ \int_{x,y:X\times X} \text{d}(x, y)\cdot dp(x) dp(y) &lt; \infty \]</span></p>
+<p>is finite. This is also known as the Kantorovich metric (because of its role in Kantorvich-Rubenstein duality). While finiteness of the first moment gives finiteness of the 1-Wasserstein metric, it isn’t by itself the metric. We define the <strong>1-Wasserstein metric</strong> as</p>
+<p><span class="math display">\[ \lVert p \rVert_{\text{Wass}, 1} = \inf_{\mu: \Gamma(p,q)}{\int_{x,y:X\times X} \text{d}(x,y)\cdot d\mu(x,y)} \]</span></p>
+<p>where the infimum runs over all joint probability distributions <span class="math inline">\(\mu\)</span> on <span class="math inline">\(X\times X\)</span> with marginals <span class="math inline">\(p,q\)</span>.</p>
+<p>Let <span class="math inline">\(\text{Prob}_{\text{Wass}, 1}(X)\)</span> be the space of probability measures on <span class="math inline">\(X\)</span> with finite first moment. This is a complete metric space under the 1-Wasserstein metric, and then <span class="math inline">\(\text{Prob}_{\text{Wass}, 1}\)</span> provides a probability monad, called the <strong>Kantorovich monad</strong> on complete metric spaces.</p>
     </section>
 </article>
 
