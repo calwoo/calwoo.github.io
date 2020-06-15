@@ -72,4 +72,45 @@ where $\mu_\text{Lebesgue}$ is the Lebesgue measure on $\mathbf{R}$. Hence the m
 
 ### a projection formula?
 
-A small aside before moving onto the Kantorovich monad. 
+A small aside before moving onto the Kantorovich monad. Let $f:X\to Y$ be a map of measurable spaces, and let $q$ be a probability distribution on $Y$. Suppose that $f$ has bounded fibers, that is for each $y\in Y$, the preimage $f^{-1}(y)$ is measurable of finite measure. Then we can define a **pullback** measure $f^*q$ on $X$ given by
+
+$$ df^*q(x) = \frac{1}{\mu_X(f^{-1}(f(x)))} \cdot dq(f(x)) $$
+
+Let $p, q$ be probability measures on $X, Y$ respectively, and $f:X\to Y$ a measurable function between them. Then we can look at the joint probability distribution
+
+$$ d(f_*p\otimes q)(a,b) = df_*p(a)\otimes dq(b) = dp(f^{-1}(a))\otimes dq(b) $$
+
+On the other hand, the pushforward given by
+
+$$ d((f\times f)_*(p\otimes f^*q))(a, b) = d(p\otimes f^*q)(f^{-1}(a), f^{-1}(b))$$
+
+is exactly the same. Indeed, we see that because
+
+$$ df^*q(f^{-1}(b)) = \sum_{a: f^{-1}(b)} \frac{1}{\mu_X(f^{-1}(b))}\cdot dq(b) = dq(b) $$
+
+we get the identity of measures
+
+$$ f_*p\otimes q = (f\times f)_*(p\otimes f^*q) $$
+
+This is a form of [projection formula](https://stacks.math.columbia.edu/tag/01E6) from algebraic geometry. This is fairly interesting because it suggests some formulation of these probability monads in terms of **probability sheaves** over measurable base spaces.
+
+It is also worth investigating the origin of these projection formulae in terms of adjunctions in a Wirthmuller context, following Fausk-Hu-May's ["Isomorphisms between left and right adjoints"](http://www.tac.mta.ca/tac/volumes/11/4/11-04.pdf).
+
+
+### kantorovich monad
+
+Let $\mathcal{C} = \text{Met}^\text{cmpl}$ be the category of complete metric spaces and 1-Lipschitz maps. Since we have no implicit boundedness condition on the spaces, we need to impose a boundedness conditions on the space of probability measures we will use as our probability monad.
+
+Which one? The main reason for imposing a boundedness condition in the first place is to ensure that functions $X\to\mathbf{R}$ (which generate the $\sigma$-algebra) are well-defined and measurable for all the measures we could impose on $X$ (assuming the Lebesgue measure $\mu_\text{Lebesgue}$ on $\mathbf{R}$). For $X$ a complete metric space, this doesn't always hold for general probability measures $p$ on $X$, so the most naive condition we could impose on admissible $p$ is just for these maps to be defined.
+
+It turns out that this is equivalent to $p$ having **finite first moment**, that is, the (upper bound) of the [1-Wasserstein metric](https://en.wikipedia.org/wiki/Wasserstein_metric) of the probability measure
+
+$$ \int_{x,y:X\times X} \text{d}(x, y)\cdot dp(x) dp(y) < \infty $$
+
+is finite. This is also known as the Kantorovich metric (because of its role in Kantorvich-Rubenstein duality). While finiteness of the first moment gives finiteness of the 1-Wasserstein metric, it isn't by itself the metric. We define the **1-Wasserstein metric** as
+
+$$ \lVert p \rVert_{\text{Wass}, 1} = \inf_{\mu: \Gamma(p,q)}{\int_{x,y:X\times X} \text{d}(x,y)\cdot d\mu(x,y)} $$
+
+where the infimum runs over all joint probability distributions $\mu$ on $X\times X$ with marginals $p,q$.
+
+Let $\text{Prob}_{\text{Wass}, 1}(X)$ be the space of probability measures on $X$ with finite first moment. This is a complete metric space under the 1-Wasserstein metric, and then $\text{Prob}_{\text{Wass}, 1}$ provides a probability monad, called the **Kantorovich monad** on complete metric spaces.
