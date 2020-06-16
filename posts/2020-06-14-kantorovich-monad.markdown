@@ -136,3 +136,13 @@ But this doesn't just recover the space-- since the monadic actions of each of t
 
 ### algebras over a probability monad
 
+An algebra for the Kantorovich monad is a complete metric space $X$ equipped with an **expectation map** $\mathbf{E}_{p}[x]:\text{Prob}_{\text{Wass}, 1}(X)\to X$. There is a suggestive interpretation of the higher-order "relations" $\text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X))$. Consider the two maps
+
+$$  p\in\text{Prob}_{\text{Wass}, 1}(X)\xleftarrow{\mu} \text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X)) 
+    \xrightarrow{\text{Prob}_{\text{Wass}, 1}(\textbf{E}_p[x])} \text{Prob}_{\text{Wass}, 1}(X) \ni q $$
+
+We call an element $k\in\text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X))$ that maps to $p, q$ a **partial evaluation** of $p, q$. Such an element is ultimately an element of the 1-truncated monadic bar construction $\tau_{\le 1}B\text{Prob}_{\text{Wass}, 1}(X)$. 
+
+It turns out such elements can be defined as **families of conditional expectations**, and the tower law for conditional expectations come from the fact that the expectation map on distributions $p, q$ related by such a family give the same value in $X$. We are hence led to the question: what does the rest of the monadic bar construction give us probabilistically?
+
+And what about cohomology?
