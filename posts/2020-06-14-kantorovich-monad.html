@@ -98,6 +98,12 @@
 <p><span class="math display">\[ \text{Prob}_{\text{Wass}, 1}(X) \simeq \text{colim}_{n: \mathbf{N}_\text{mult}}{X^\text{sym}} = \text{colim}_n (X^{\otimes n})_{\Sigma_n} \]</span></p>
 <p>But this doesn’t just recover the space– since the monadic actions of each of the <span class="math inline">\((X^{\otimes n})_{\Sigma_n}\)</span> are compatible, the <em>monadic structure</em> on <span class="math inline">\(\text{Prob}_{\text{Wass}, 1}\)</span> itself is recovered.</p>
 <h3 id="algebras-over-a-probability-monad">algebras over a probability monad</h3>
+<p>An algebra for the Kantorovich monad is a complete metric space <span class="math inline">\(X\)</span> equipped with an <strong>expectation map</strong> <span class="math inline">\(\mathbf{E}_{p}[x]:\text{Prob}_{\text{Wass}, 1}(X)\to X\)</span>. There is a suggestive interpretation of the higher-order “relations” <span class="math inline">\(\text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X))\)</span>. Consider the two maps</p>
+<p><span class="math display">\[  p\in\text{Prob}_{\text{Wass}, 1}(X)\xleftarrow{\mu} \text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X)) 
+    \xrightarrow{\text{Prob}_{\text{Wass}, 1}(\textbf{E}_p[x])} \text{Prob}_{\text{Wass}, 1}(X) \ni q \]</span></p>
+<p>We call an element <span class="math inline">\(k\in\text{Prob}_{\text{Wass}, 1}(\text{Prob}_{\text{Wass}, 1}(X))\)</span> that maps to <span class="math inline">\(p, q\)</span> a <strong>partial evaluation</strong> of <span class="math inline">\(p, q\)</span>. Such an element is ultimately an element of the 1-truncated monadic bar construction <span class="math inline">\(\tau_{\le 1}B\text{Prob}_{\text{Wass}, 1}(X)\)</span>.</p>
+<p>It turns out such elements can be defined as <strong>families of conditional expectations</strong>, and the tower law for conditional expectations come from the fact that the expectation map on distributions <span class="math inline">\(p, q\)</span> related by such a family give the same value in <span class="math inline">\(X\)</span>. We are hence led to the question: what does the rest of the monadic bar construction give us probabilistically?</p>
+<p>And what about cohomology?</p>
     </section>
 </article>
 
