@@ -8,7 +8,6 @@ academic, I'm used to using pen and paper to write notes, but since I use a keyb
 than I write nowadays, my handwriting skills have seriously deteriorated.
 
 My first couple of posts will probably be about profunctors and traversals in Haskell, and then
-I might pivot towards topics in machine learning, along with some random math thrown in there
-from my slowly-progressing thesis.
+I might pivot towards topics in machine learning, along with some random math thrown in there.
 
 Let's take it a step at a time.
