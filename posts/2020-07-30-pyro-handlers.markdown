@@ -587,6 +587,8 @@ print("b = {}".format(torch.abs(PARAM_STORE["b"][0]).item()))
 
 This is close to what can be inferred analytically for this problem!
 
+As we see, flexible algebraic effect systems allow us to build complicated inference algorithms without thinking too much about the emitted effects. For example, with multi-shot delimited effects we can build inference algorithms that allow us to fully enumerate over discrete latent variables. This is the idea behind the construction of `pyro.poutine.queue`.
+
 ### mcmc
 
 **Note:** Write this section at some point when I have time.
