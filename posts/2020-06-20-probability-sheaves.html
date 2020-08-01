@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Probability sheaves - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Probability sheaves</h1>
+            <article>
+    <section class="header">
+        Posted on June 20, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>Since I’m trying to learn about information cohomology, I would hope there is a sheaf theory underlying everything. There are inklings of one, but I’m not sure how developed it is. In this post I want to write up some notes on probability sheaves and their connection to the monadic viewpoint of probability theory.</p>
+<h3 id="probability-sheaves">probability sheaves</h3>
+<p>To talk about (pre)sheaves, we need a convenient category of spaces to do probability theory on. The category we will use is that of <strong>Polish spaces</strong>, that is, the category of topological spaces homeomorphic to separable complete metric spaces. Let <span class="math inline">\(\text{Polish}=\text{Met}^{\text{cmpl, sep}}\)</span> be the category of Polish spaces. Why is this nice? It’s easy to turn a Polish space into a measurable one– just take the <span class="math inline">\(\sigma\)</span>-algebra of Borel sets. So implicitly when we talk about a Polish space <span class="math inline">\(X\)</span>, we are talking about a Borel-measurable space with a Borel probability measure. <em>A technical detail</em>: maps between Polish spaces are measure-preserving, and we identify maps that differ on a measure-zero space. This is ultimately because we will impose the same restriction on random variables, because some important random variable constructions are only well-defined up to measure-zero equivalence.</p>
+<p>Why should we consider sheaves when we talk about probability theory? A famous <a href="https://terrytao.wordpress.com/2010/01/01/254a-notes-0-a-review-of-probability-theory/">blog post</a> of Tao pushes the viewpoint of modern probability theory that rejects mention of the underlying sample space. Indeed, this Grothendieck-inspired view defines probability theory as the study of “concepts that are preserved with respect to extension of the underlying sample space”. Indeed, the slogan here is: probability theory only concerns itself with random properties, not with the underlying space they are organized on. This multi-scale viewpoint (extension) fits well with the categorical notion underlying presheaves (restriction).</p>
+<p>Anyway, onwards to sheaves. Let <span class="math inline">\(A\)</span> be a Polish space (which we will consider the space of values). Let <span class="math inline">\(\text{RV}(A):\text{Polish}^\text{op}\to\text{Set}\)</span> be the presheaf of random variables with values in <span class="math inline">\(A\)</span>, up to measure-zero equivalence:</p>
+<p><span class="math display">\[ \text{RV}(A)(\Omega) = \{\text{random variables }X:\Omega\to A\} / \sim_0 \]</span></p>
+<p>where <span class="math inline">\(\sim_0\)</span> is the relation of measure-zero equivalence.</p>
+<p><strong>Note</strong>: This is not merely the Yoneda embedding! Here, a random variable <span class="math inline">\(X:\Omega\to A\)</span> may not be measure-preserving, but maps between Polish spaces in our category are.</p>
+<p>To form sheaves, we must endow <span class="math inline">\(\text{Polish}\)</span> with a Grothendieck topology. As all maps between Polish spaces are measure-preserving, random variables are essentially “invariant” to pullbacks <strong>and</strong> pushforwards. Indeed, this implies that we can take any map in <span class="math inline">\(\text{Polish}\)</span> to be a covering map. We express this by giving <span class="math inline">\(\text{Polish}\)</span> the <strong>atomic topology</strong>, in which all maps are coverings, and denote this Grothendieck site by <span class="math inline">\(\text{Polish}_\text{atomic}\)</span>. As a corollary, we see that all presheaves are sheaves on the random variable topos defined here.</p>
+<p>To check this is a valid Grothendieck site, the only property we need to verify is the existence of pullback coverings: for a pair of maps <span class="math inline">\(\Omega_a\to\Omega\leftarrow\Omega_b\)</span> between Polish spaces, we define the <strong>independent pullback</strong> to be the Polish space <span class="math inline">\(\Omega_a\times_\Omega \Omega_b\)</span> given by the standard set-theoretic pullback endowed with the unique probability measure characterized by the algebraic measures</p>
+<p><span class="math display">\[ d(\Omega_a\times_\Omega\Omega_b)(x, y) = d\Omega_a(x)\otimes d\Omega_b(y) \]</span></p>
+<p>for each <span class="math inline">\((x,y)\in\Omega_a\times_\Omega\Omega_b\)</span>. Put another way, we see that the probability measure <span class="math inline">\(d(\Omega_a\times_\Omega\Omega_b)\)</span> is a parameterized family of conditionally independent measures varying over <span class="math inline">\(\Omega\)</span>.</p>
+<h3 id="cohomology">cohomology</h3>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
