@@ -492,6 +492,7 @@
 <a class="sourceLine" id="cb24-5" title="5"><span class="bu">print</span>(<span class="st">&quot;b = </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(torch.<span class="bu">abs</span>(PARAM_STORE[<span class="st">&quot;b&quot;</span>][<span class="dv">0</span>]).item()))</a>
 <a class="sourceLine" id="cb24-6" title="6"><span class="op">&gt;</span> b <span class="op">=</span> <span class="fl">0.49517199397087097</span></a></code></pre></div>
 <p>This is close to what can be inferred analytically for this problem!</p>
+<p>As we see, flexible algebraic effect systems allow us to build complicated inference algorithms without thinking too much about the emitted effects. For example, with multi-shot delimited effects we can build inference algorithms that allow us to fully enumerate over discrete latent variables. This is the idea behind the construction of <code>pyro.poutine.queue</code>.</p>
 <h3 id="mcmc">mcmc</h3>
 <p><strong>Note:</strong> Write this section at some point when I have time.</p>
     </section>
