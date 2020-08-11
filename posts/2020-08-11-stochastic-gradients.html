@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Stochastic gradient estimators - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Stochastic gradient estimators</h1>
+            <article>
+    <section class="header">
+        Posted on August 11, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p>The central algorithm that makes modern deep learning (and all of machine learning as a consequence) tick is the <strong>backpropagation</strong> algorithm. Roughly, a model constructs a computational graph of all arithmetical operations performed during forward propagation, which is then traversed in reverse to compute gradients of the output loss function with respect to model parameters. Modern deep learning frameworks attempt to make this algorithm a <em>first-class citizen</em>, so-called <strong>differentiable programming</strong> by using automatic differentiation techniques.</p>
+<p>However, a limitation of autodiff concerns nodes in the computational graph that do not represent a deterministic operation, but instead a conditional distribution on its parent nodes. For example, in a <em>variational autoencoder</em> the encoder takes the input to a probabilistic latent variable, whose samples provide the input to the subsequent decoder neural network. The loss function in this case is an expectation over all of the possible values of the stochastic latent node, and we expect for an end-to-end model to be trained via backpropagation in the same way as a normal deterministic autoencoder.</p>
+<p>In this post, we will review stochastic gradient estimators. My motivation for this and the next few blog posts is to understand how to perform Bayesian inference on probabilistic models of discrete counts data, which is a type of data I often deal with at Prognos.</p>
+<h3 id="stochastic-gradients">stochastic gradients</h3>
+<p>We often deal with loss functions that are an expectation over random variables. Such loss functions take the form</p>
+<p><span class="math display">\[ \text{Loss}(\theta) = \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] \]</span></p>
+<p>where <span class="math inline">\(z\)</span> can be a stochastic node in the overall computational graph that has a distribution conditional on its parent nodes. We are often interested in computing the <strong>gradients</strong> <span class="math inline">\(\nabla_\theta\text{Loss}(\theta)\)</span> of the loss function. But this is difficult, because computing the loss function exactly turns out to be intractable for many models. Indeed, for a variational autoencoder, the reconstruction loss is of the form</p>
+<p><span class="math display">\[ \text{Loss}_{\text{vae,rc}}(x, \theta, \phi) = \mathbf{E}_{z\sim q(z|x;\theta)}[p(x|z;\phi)] \]</span></p>
+<p>where both <span class="math inline">\(p, q\)</span> are neural networks of arbitrary complexity.</p>
+<p>The crux of the difficulty stems from the fact that since the latent variable the expectation is taken over depends on <span class="math inline">\(\theta\)</span>, one cannot just swap the order of the expectation and the gradient operator <span class="math inline">\(\nabla_\theta\)</span>. If one could bring <span class="math inline">\(\nabla_\theta\)</span> into the expectation, i.e. we have an expectation of gradients, we can perform Monte-Carlo estimation to form <strong>stochastic gradient estimators</strong>. That is, our goal is to find functions <span class="math inline">\(\tilde{f}(z)\)</span> such that in expectation,</p>
+<p><span class="math display">\[ \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] = \mathbf{E}_{\tilde{z}\sim\tilde{p}(z|\theta)}[\tilde{f}(z)] \]</span></p>
+<p>The right-side can be approximated by Monte-Carlo sums over <span class="math inline">\(\tilde{z}\)</span>-samples. Hence, our goal for the next sections is to find estimators of this gradient that are <em>unbiased</em>. Often this is the easy step: the hard thing is to find estimators with reasonable variance.</p>
+<p>A quick <strong>note</strong>: A theorem of Robbins-Monroe guarantees that stochastic gradient descent with an unbiased gradient estimator will converge to a local optimum as long as the step sizes decay quadratically. Hence our estimators are actually useful for solving the problem at hand, which is optimizing complex models with latent variables using backpropagation.</p>
+<h3 id="score-function-estimator">score-function estimator</h3>
+<p>The basic score-function/REINFORCE estimator is derived by noticing that by the logarithmic derivative, <span class="math inline">\(p(z|\theta)\cdot\nabla_\theta\log{p(z|\theta)} = \nabla_\theta p(z|\theta)\)</span>. Hence,</p>
+<p><span class="math display">\[ \begin{align} \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] &amp;= \int_z \nabla_\theta (f(z)\cdot p(z|\theta)) \\
+    &amp;= \int_z f(z) p(z|\theta)\nabla_\theta\log{p(z|\theta)} \\
+    &amp;= \mathbf{E}_{z\sim p(z|\theta)}[f(z)\nabla_\theta\log{p(z|\theta)}] 
+    \end{align} \]</span></p>
+<p>This gives the <strong>score-function estimator</strong></p>
+<p><span class="math display">\[ f_{\text{SF}}(z)=f(z)\cdot\nabla_\theta\log{p(z|\theta)} \]</span></p>
+<p>In a modern deep learning framework, the above loss function would be given by</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">def</span> loss(p, f):</a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="co"># Here, p depends on parameters</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    z <span class="op">=</span> p.sample()</a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="cf">with</span> torch.no_grad():</a>
+<a class="sourceLine" id="cb1-5" title="5">        <span class="co"># Block function from producing a gradient</span></a>
+<a class="sourceLine" id="cb1-6" title="6">        fz_nograd <span class="op">=</span> f(z)</a>
+<a class="sourceLine" id="cb1-7" title="7">    mc_loss <span class="op">=</span> fz_nograd <span class="op">*</span> p.log_prob(z)</a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> mc_loss</a></code></pre></div>
+<p>It is an exercise to show the well-known identity <span class="math inline">\(\mathbf{E}_{z\sim p(z|\theta)}[\nabla_\theta\log{p(z|\theta)}] = 0\)</span>. This implies that for any <span class="math inline">\(c\in\mathbf{R}\)</span>, the estimator <span class="math inline">\((f(z)-c)\cdot\nabla_\theta\log{p(z|\theta)}\)</span> is also unbiased. However, if <span class="math inline">\(c=c(z)\)</span> depends on the sampled value <span class="math inline">\(z\sim p(z|\theta)\)</span>, there is no guarantee that the resulting estimator is unbiased:</p>
+<p><span class="math display">\[ \mathbf{E}_{z\sim p(z|\theta)}[(f(z)-c(z))\nabla_\theta\log{p(z|\theta)}] \neq \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] \]</span></p>
+<p>Indeed, the above estimator is biased by the expectation <span class="math inline">\(\mathbf{E}_{z\sim p(z|\theta)}[c(z)\nabla_\theta\log{p(z|\theta)}]\)</span>, so by adding this mean we get a new unbiased gradient estimator</p>
+<p><span class="math display">\[ f_{\text{SF},c}(z) = (f(z)-c(z))\nabla_\theta\log{p(z|\theta)} + \mathbf{E}_{z\sim p(z|\theta)}[c(z)\nabla_\theta\log{p(z|\theta)}] \]</span></p>
+<p>In general, for any function of the random variable <span class="math inline">\(z\)</span>, say <span class="math inline">\(\zeta(z)\)</span>, the estimator</p>
+<p><span class="math display">\[ f_{\text{SF},\zeta}(z) = f_{\text{SF}}(z) - \zeta(z) + \mathbf{E}_{z\sim p(z|\theta)}[\zeta(z)] \]</span></p>
+<p>is an unbiased gradient estimator. Here <span class="math inline">\(\zeta(z)\)</span> is called a <strong>control variate</strong>. The <em>goal</em> is to choose control variates that lower the variance of the resulting estimator. Can we actually do this? Note that the <strong>variance</strong> of the control variate estimator <span class="math inline">\(f_{\text{SF},\zeta}\)</span> is given by</p>
+<p><span class="math display">\[ \text{Var}(f_{\text{SF},\zeta}) = \text{Var}(f_{\text{SF}}) + \text{Var}(\zeta) - 2 \text{Cov}(f_{\text{SF}}, \zeta) \]</span></p>
+<p>If we can get <span class="math inline">\(\text{Var}(\zeta) &lt; 2 \text{Cov}(f_{\text{SF}}, \zeta)\)</span> then consequently <span class="math inline">\(\text{Var}(f_{\text{SF},\zeta}) &lt; \text{Var}(f_{\text{SF}})\)</span> and so our control variate estimator is an unbiased gradient estimator of lower variance!</p>
+<h3 id="reparameterization-trick">reparameterization trick</h3>
+<p>Notice that the score-function estimator depends only on the differentiability of <span class="math inline">\(\log{p(z|\theta)}\)</span> with respect to <span class="math inline">\(\theta\)</span>, and not on the differentiability of <span class="math inline">\(f\)</span>. In particular, this gradient estimator applies also when <span class="math inline">\(z\)</span> is given by a discrete latent variable. However, without proper control variates, the variance of the score-function estimator <span class="math inline">\(f_{\text{SF}}\)</span> might be prohibitive, forcing us to seek out better gradient estimators. Intuitively, the poor performance of <span class="math inline">\(f_\text{SF}\)</span> stems from the fact that it doesn’t take into account the interaction between <span class="math inline">\(f\)</span> and <span class="math inline">\(\theta\)</span>.</p>
+<p>But sometimes, the distribution of the latent variable <span class="math inline">\(p(z|\theta)\)</span> can be decomposed into a differentiable function <span class="math inline">\(g(\theta, \epsilon)\)</span> of the parameters and a fixed sampling distribution <span class="math inline">\(\epsilon\sim p(\epsilon)\)</span>. As a concrete example, suppose <span class="math inline">\(p(z|\theta)\)</span> is given by a normal distribution <span class="math inline">\(\text{Normal}(z|\mu,\sigma)\)</span>. Then a sample <span class="math inline">\(z\sim\text{Normal}(\mu,\sigma)\)</span> is equivalent to <span class="math inline">\(g(\epsilon) = \mu + \sigma\cdot\epsilon\)</span> where <span class="math inline">\(\epsilon\sim\text{Normal}(0, 1)\)</span>.</p>
+<p>As a consequence, we have the identity of gradients</p>
+<p><span class="math display">\[ \begin{align} \nabla_\theta\mathbf{E}_{z\sim p(z|\theta)}[f(z)] &amp;= \nabla_\theta\mathbf{E}_{\epsilon\sim p(\epsilon)}[f(g(\theta, \epsilon))] \\
+    &amp;= \mathbf{E}_{\epsilon\sim p(\epsilon)}[\nabla_\theta f(g(\theta, \epsilon))]
+    \end{align} \]</span></p>
+<p>which gives a new gradient estimator <span class="math inline">\(f_\text{reparam}(\epsilon) = \nabla_\theta f(g(\theta, \epsilon))\)</span>, the <strong>reparameterization gradient</strong>. Since this estimator takes into account the interaction between <span class="math inline">\(f\)</span> and <span class="math inline">\(\theta\)</span>, the reparameterization gradient tends to achieve lower variance than the score-function estimator. This seems good, but the tradeoff is that our distributions <span class="math inline">\(p(z|\theta)\)</span> need to be decomposed into a deterministic function of a simpler base distribution that does not depend on the parameters we’re optimizing. This is often tricky or impossible to do.</p>
+<p>An example of writing out a reparameterized sampling distribution is given by the <span class="math inline">\(\text{Normal}(\mu,\sigma)\)</span> distribution.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> Normal(Distribution):</a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, mu, sigma):</a>
+<a class="sourceLine" id="cb2-3" title="3">        <span class="va">self</span>.mu <span class="op">=</span> mu</a>
+<a class="sourceLine" id="cb2-4" title="4">        <span class="va">self</span>.sigma <span class="op">=</span> sigma</a>
+<a class="sourceLine" id="cb2-5" title="5"></a>
+<a class="sourceLine" id="cb2-6" title="6">    <span class="kw">def</span> sample(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb2-7" title="7">        epsilon <span class="op">=</span> torch.randn()</a>
+<a class="sourceLine" id="cb2-8" title="8">        <span class="cf">return</span> <span class="va">self</span>.mu <span class="op">+</span> <span class="va">self</span>.sigma <span class="op">*</span> epsilon</a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">def</span> loss(p, f):</a>
+<a class="sourceLine" id="cb2-11" title="11">    z <span class="op">=</span> p.sample()</a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">return</span> f(z)        </a></code></pre></div>
+<p>The above is entirely backpropagatable, so any model with this normal distribution in it can sample with impunity. Here, the normal distribution (by virtue of its status as a <a href="https://en.wikipedia.org/wiki/Stable_distribution">stable distribution</a>) can be decomposed into an affine transformation of a unit Gaussian. This is admittedly unusual among probability distributions– finding readily computable <strong>explicit reparameterizations</strong> is rare, and we often cannot apply this trick directly.</p>
+<p>It’s a consequence of the <a href="https://en.wikipedia.org/wiki/Probability_integral_transform">universality of the uniform</a> distribution that given any probability distribution, we can reparameterize sampling from it by sampling from a uniform and applying the inverse CDF of the distribution to it. While it is nice that we can always theoretically find a reparameterization to a uniform, in practice computing the inverse of the CDF can be computationally or analytically intractible. Could we compute a gradient estimator relying only on the CDF itself?</p>
+<p>Let <span class="math inline">\(z = F^{-1}_\theta(\epsilon)\sim p(z|\theta)\)</span> where <span class="math inline">\(\epsilon\sim\text{Uniform}(0,1)\)</span> and <span class="math inline">\(F_\theta\)</span> is the CDF of <span class="math inline">\(p\)</span>. Then we can compute the reparameterization gradient as</p>
+<p><span class="math display">\[ \begin{align} \nabla_\theta\mathbf{E}_{z\sim p(z|\theta)}[f(z)] &amp;= \nabla_\theta\mathbf{E}_{\epsilon\sim \text{Uniform}(0,1)}[f(F^{-1}_\theta(\epsilon))] 
+\\ &amp;= \mathbf{E}_{\epsilon\sim \text{Uniform}(0,1)}[\nabla_\theta f(F^{-1}_\theta(\epsilon))]  \\
+ &amp;= \mathbf{E}_{\epsilon\sim \text{Uniform}(0,1)}[\nabla_z f(z) \nabla_\theta F^{-1}_\theta(\epsilon))] \\
+ &amp;= \mathbf{E}_{\epsilon\sim \text{Uniform}(0,1)}[\nabla_z f(z) \nabla_\theta z]
+    \end{align} \]</span></p>
+<p>All is fine and good, but what the heck is <span class="math inline">\(\nabla_\theta z\)</span>? We can approach this by implicitly differentiating the equation <span class="math inline">\(F_\theta(z)=\epsilon\)</span>, giving</p>
+<p><span class="math display">\[ \begin{align} 0 &amp;= \text{grad}_\theta[\epsilon] \\
+    &amp;= \text{grad}_\theta[F_\theta(z)] \\
+    &amp;= \nabla_\theta F_\theta(z) + \nabla_z F_\theta(z) \nabla_\theta z
+    \end{align} \]</span></p>
+<p>which implies</p>
+<p><span class="math display">\[ \nabla_\theta z = -(\nabla_z F_\theta(z))^{-1}\nabla_\theta F_\theta(z) \]</span></p>
+<p>This entire process gives us a way to compute a gradient estimator without inverting the CDF. This is the <strong>implicit reparameterization</strong> gradient of <a href="https://arxiv.org/pdf/1805.08498.pdf">Figurnov-Mohamed-Mnih</a>.</p>
+<h3 id="relaxations">relaxations</h3>
+<p>The previous gradient estimators assumed that either <span class="math inline">\(p(z|\theta)\)</span> was differentiable with respect to <span class="math inline">\(\theta\)</span> or that <span class="math inline">\(f\)</span> was differentiable and the random variable <span class="math inline">\(z\)</span> could be reparameterized via a differentiable transformation <span class="math inline">\(g(\theta, \epsilon)\)</span>. The computational graphs represented by these gradient estimators is given by the first row of the following diagram:</p>
+<p align="center">
+<img width="400" height="300" src="../images/reparam-graphs.png">
+</p>
+<p>In the diagrams above, the blue represents <em>stochastic nodes</em>– that is, nodes where a sampling process is performed. These nodes are often impossible to backpropagate through, so reparameterization tricks focus on “creating a differentiable path”, bypassing the sampling process.</p>
+<p>However, in many situations (especially those involving discrete latent variables) reparameterization can be done only up to a <em>non-differentiable</em> function. An example of such is given by the <a href="https://arxiv.org/abs/1611.01144">Gumbel-max trick</a>, which we will discuss. This situation is described by the bottom-row of the diagram. What are we to do in this situation?</p>
+<p>Using a statistical-mechanical trick used throughout the machine learning literature, we will use a <strong>temperature scaling</strong> to <em>relax</em> the non-differentiable node into a differentiable one approximating the original reparameterization. These <strong>relaxations</strong> are essential to the literature on inference over discrete latent variables.</p>
+<h3 id="gumbel-softmax-trick">gumbel-softmax trick</h3>
+<p>Now let’s describe the Gumbel-softmax relaxation. The goal of this trick is to <em>differentiably</em> sample from a categorical distribution– for now, let’s just focus on sampling in the first place. Let <span class="math inline">\([\pi_1,...,\pi_k]\)</span> describe a point in the embedded unit simplex</p>
+<p><span class="math display">\[ \Delta^{k-1} = \left\{(\pi_1,...,\pi_k) \middle| \sum_{i=1}^k \pi_i = 1 \right\} \subset \mathbf{R}^k \]</span></p>
+<p>and let <span class="math inline">\(z\sim\text{Categorical}(\pi_1,...,\pi_k)\)</span> be a sample from the discrete categorical distribution on the <span class="math inline">\(\pi\)</span>. If we think about the computational graph described by this sample, there isn’t a way for the gradient to propagate through. However, there is a clever trick for reparameterizing the <span class="math inline">\(\text{Categorical}(\pi_1,...,\pi_k)\)</span> distribution to something of the form in the reparameterization gradient section above.</p>
+<p>Suppose that our simplex point <span class="math inline">\([\pi_1,...,\pi_k]\)</span> is instead described by a unnormalized list of <em>logits</em> <span class="math inline">\([\alpha_1,...,\alpha_k]\)</span>– that is, <span class="math inline">\(\alpha_i\in\mathbf{R}\)</span> generally, and we retrieve the <span class="math inline">\(\pi_i\)</span> by the softmax</p>
+<p><span class="math display">\[ \pi_j = \frac{\alpha_j}{\sum_{i=1}^k \alpha_i} \]</span></p>
+<p>Then the <strong>Gumbel-max trick</strong> is the following reparameterization of the <span class="math inline">\(\text{Categorical}(\pi_1,...,\pi_k)\)</span> distribution: Sample iid. samples <span class="math inline">\(z_i\sim\text{Gumbel}(0,1)\)</span> and add the samples to the logits <span class="math inline">\(z_i + \log{\alpha_i}\)</span>. Then</p>
+<p><span class="math display">\[ z = \text{arg}\max_{i=1..k}\left\{ z_i + \log{\alpha_i} \right\} \]</span></p>
+<p>is a sample from <span class="math inline">\(\text{Categorical}(\pi_1,...,\pi_k)\)</span>.</p>
+<p><strong>Proof:</strong> Proving this is a straightforward, if not tedious exercise from the definition of the Gumbel distribution. Let</p>
+<p><span class="math display">\[ p(x; \mu, \beta) = \frac{1}{\beta}e^{-z-e^{-z}} \text{ where } z = \frac{x - \mu}{\beta}\]</span></p>
+<p>be the pdf of the <span class="math inline">\(\text{Gumbel}(\mu, \beta)\)</span> distribution. From this one can compute that the CDF of the <span class="math inline">\(\text{Gumbel}(0,1)\)</span> is given by</p>
+<p><span class="math display">\[ \text{cdf}(z) = e^{-e^{-z}} \]</span></p>
+<p>and hence for samples <span class="math inline">\(z_i + \log{\alpha_i}\sim\text{Gumbel}(\log{\alpha_i}, 1)\)</span>, we find that</p>
+<p><span class="math display">\[ \text{cdf}_{\text{shifted},\alpha_i}(z) = e^{-e^{-(z-\log{\alpha_i})}} \]</span></p>
+<p>is the CDF of the <span class="math inline">\(\text{Gumbel}(\log{\alpha_i}, 1)\)</span>. We compute that</p>
+<p><span class="math display">\[ \begin{align} \text{Pr}\left\{\ell=\text{arg}\max_{i=1..k}\left\{z_i + \log{\alpha_i}\right\}\middle| z_\ell\right\} 
+    &amp;= \prod_{\ell'\neq\ell} \text{cdf}_{\text{shifted},\alpha_{\ell'}}(z_\ell + \log{\alpha_\ell}) \\
+    &amp;= \prod_{\ell'\neq\ell} e^{-e^{-(z_\ell + \log{\alpha_\ell} - \log{\alpha_{\ell'}})}} \end{align} \]</span></p>
+<p>From here it’s a calculus exercise to compute</p>
+<p><span class="math display">\[ \text{Pr}\left\{\ell=\text{arg}\max_{i=1..k}\left\{z_i + \log{\alpha_i}\right\}\right\}
+    = \int \prod_{\ell'\neq\ell} e^{-e^{-(z_\ell + \log{\alpha_\ell} - \log{\alpha_{\ell'}})}}\cdot\text{Gumbel}(\log{\alpha_\ell}, 1) dz_\ell \]</span></p>
+<p>which ends up being</p>
+<p><span class="math display">\[ \frac{1}{1 + \sum_{\ell'\neq\ell} e^{\log{\left(\frac{\alpha_\ell}{\alpha_{\ell'}}\right)}}} =
+    \frac{\alpha_\ell}{\sum_{\ell'} \alpha_{\ell'}} = \pi_\ell \]</span></p>
+<p>as desired.</p>
+<p>However, this sampler is <strong>not differentiable</strong> because of the <span class="math inline">\(\text{argmax}\)</span>. So we cannot use the Gumbel-max trick by itself as a backpropagatable reparameterization of the <span class="math inline">\(\text{Categorical}(\pi_1,...\pi_k)\)</span> distribution. The final trick is realizing that the $ can be <em>relaxed</em> as a softmax with temperature.</p>
+<p>We relax the <span class="math inline">\(\text{argmax}\)</span> to return probability vectors in the simplex <span class="math inline">\(\Delta^{k-1}\)</span>, and call the resulting <strong>Gumbel-softmax</strong> distribution a <span class="math inline">\(\text{Concrete}(\pi_1,...,\pi_k, \lambda)\)</span> distribution. To sample from a <span class="math inline">\(\text{Concrete}(\pi_1,...,\pi_k, \lambda)\)</span> random variable, we sample iid. <span class="math inline">\(z_i\sim\text{Gumbel}(0,1)\)</span> and set</p>
+<p><span class="math display">\[ x_j = \frac{\exp{\left((z_j + \log{\alpha_j}) / \lambda\right)}}{\sum_{i=1}^k \exp{((z_i + \log{\alpha_i}) / \lambda)}} \]</span></p>
+<p>The vector <span class="math inline">\(z=[x_1,...,x_k]\in\Delta^{k-1}\)</span> is hence a sample <span class="math inline">\(z\sim\text{Concrete}(\pi_1,...,\pi_k, \lambda)\)</span>.</p>
+<p>We note that as <span class="math inline">\(\lambda\to 0\)</span> (the <strong>temperature</strong>), the <span class="math inline">\(\text{softmax}_\lambda\rightsquigarrow\text{argmax}\)</span>. So this is indeed a continous relaxation of a discrete random variable. Amazingly, on the simplex <span class="math inline">\(\Delta^{k-1}\)</span> the pdf of <span class="math inline">\(\text{Concrete}(\pi_1,...,\pi_k,\lambda)\)</span> has a closed-form analytic density:</p>
+<p><span class="math display">\[ p_{\pi,\lambda}(x) = (k-1)!\lambda^{k-1}\prod_{j=1}^k\left(\frac{\alpha_j x_j^{-\lambda-1}}{\sum_{i=1}^k \alpha_i x_i^{-\lambda}}\right) \]</span></p>
+<p>A computational graph of the resulting reparameterizations can be found in the original paper of <a href="https://arxiv.org/abs/1611.00712">Maddison-Mnih-Teh</a>.</p>
+<p align="center">
+<img width="700" height="200" src="../images/gumbel-softmax.png">
+</p>
+<h3 id="variational-inference">variational inference</h3>
+<p>A canonical application of stochastic gradient estimators is in approximate inference of probabilistic latent variable models. Suppose we have such a model, described by a joint distribution <span class="math inline">\(p(x,z;\theta)\)</span>. Here <span class="math inline">\(x\)</span> is the set of observed variables, <span class="math inline">\(z\)</span> are latent variables, and <span class="math inline">\(\theta\)</span> is the collection of trainable parameters to the model. For instance, the model could be described by a collection of RNNs where the choice of neural network to apply is determined by a latent categorical variable.</p>
+<p>Our goal is two-fold: 1) determine the parameters <span class="math inline">\(\theta\)</span> of the model that best describes the data given, and 2) perform posterior inference over the data, that is, compute the distribution over latent variables <span class="math inline">\(p(z|x;\theta)\)</span>. These two objectives are intricately related– indeed, evaluating the log marginal likelihoods <span class="math inline">\(\log{p(x;\theta)}\)</span> is equivalent to computing the posterior</p>
+<p><span class="math display">\[ p(z|x;\theta) = \frac{p(x,z;\theta)}{p(x;\theta)} \]</span></p>
+<p>Let’s assume here that the joint <span class="math inline">\(p(x,z;\theta)\)</span> model is differentiable with respect to <span class="math inline">\(\theta\)</span>. Given a training dataset <span class="math inline">\(\mathcal{D}_\text{train}=\{x_i\}_{i=1..n}\)</span>, we are tasked with optimizing for <span class="math inline">\(\theta\)</span> by maximizing the log marginal</p>
+<p><span class="math display">\[ \text{arg}\max_\theta{L(\theta)} = \sum_{i=1}^N \log{p(x_i;\theta)} = \sum_{i=1}^N \log{\sum_z p(x_i,z;\theta)} \]</span></p>
+<p>We can iteratively update the parameters via gradient descent. It is an exercise to show that the gradient of this expression can be given by</p>
+<p><span class="math display">\[ \nabla_\theta L(\theta) = \sum_{i=1}^N \mathbf{E}_{z\sim p(z|x_i;\theta)}[\nabla_\theta\log{p(x_i,z;\theta)}] \]</span></p>
+<p>Here we see the intricate interrelationship between posterior inference and model training– the loss is a sum of expectations over the posterior. The key to this optimization process is the <em>computability</em> of the posterior. In the case where we can compute the posterior exactly given any <span class="math inline">\(\theta\)</span>, we can perform an iterative algorithm that converges to the ideal model parameters <span class="math inline">\(\theta_\text{MLE}\)</span>.</p>
+<p>First we initialize the parameters <span class="math inline">\(\theta^{(0)}\)</span> randomly. Suppose we are at the <span class="math inline">\(i\)</span>th step of the iteration, so we have parameters <span class="math inline">\(\theta^{(i)}\)</span> computed. By assumption, we can compute the exact posterior <span class="math inline">\(p(z|x;\theta^{(i)})\)</span>, so we turn our attention to the likelihood expression</p>
+<p><span class="math display">\[ Q(\theta, \theta^{(i)}) = \sum_{i=1}^N \mathbf{E}_{z\sim p(z|x;\theta^{(i)})}[\log{p(x_i,z;\theta)}] \]</span></p>
+<p><strong>Note:</strong> In this expression, the posterior under the expectation has fixed <span class="math inline">\(\theta\)</span>-parameters, while here the only optimizable parameter is the <span class="math inline">\(\theta\)</span> inside the log-joint. We find the next parameters <span class="math inline">\(\theta^{(i+1)}\)</span> by optimizing this expression</p>
+<p><span class="math display">\[ \theta^{(i+1)} = \text{arg}\max_\theta Q(\theta, \theta^{(i)}) \]</span></p>
+<p>We then repeat this until convergence of the <span class="math inline">\(\theta\)</span>. This is the famed <strong>expectation-maximization</strong> (EM) algorithm. We see that the gradient of <span class="math inline">\(Q(\theta, \theta^{(i)})\)</span> is given by</p>
+<p><span class="math display">\[ \nabla_\theta Q(\theta, \theta^{(i)}) = \sum_{i=1}^N \mathbf{E}_{z\sim p(z|x;\theta^{(i)})}[\nabla_\theta\log{p(x_i,z;\theta)}] \]</span></p>
+<p>which is, in the limit, the gradient expression above for <span class="math inline">\(\nabla_\theta L(\theta)\)</span>. We see that if we can compute the posteriors exactly, the EM algorithm converges to the right parameters: <span class="math inline">\(\theta^{(i)}\to\theta_\text{MLE}\)</span>.</p>
+<p>However, <strong>what if</strong> we <em>cannot</em> exactly compute the posterior <span class="math inline">\(p(z|x;\theta)\)</span>? The above algorithm doesn’t apply, and we need to appeal to other techniques for optimizing the log marginal likelihood. The idea is to approximate the posterior with a <strong>variational family</strong> of distributions <span class="math inline">\(q(z;\lambda)\)</span> parameterized by <span class="math inline">\(\lambda\)</span>. When <span class="math inline">\(q(z;\lambda)\simeq p(z|x;\theta)\)</span>, we can proceed with the EM algorithm above to optimize the log marginal. The power and flexibility of this approach comes from 1) the affinity <span class="math inline">\(\simeq\)</span> can be described in many ways, and hence as long as we can exactly express the family of posteriors <span class="math inline">\(q(z;\lambda)\)</span>, our posteriors <span class="math inline">\(p(z|x;\theta)\)</span> can be given in virtually any format we want, and 2) we can make our family of distributions as arbitrarily simple or complex as we want.</p>
+<p>However, just swapping out the exact posterior for <span class="math inline">\(q(z;\lambda)\)</span> in <span class="math inline">\(Q(\theta, \theta^{(i)})\)</span> above produces a bias. Could we compute this bias? Sure– though it is more convenient to directly reason about computing the log marginal <span class="math inline">\(\log{p(x;\theta)}\)</span> directly in terms of expectations over <span class="math inline">\(q(z;\lambda)\)</span>:</p>
+<p><span class="math display">\[ \log{p(x;\theta)} = \mathbf{E}_{z\sim q(z;\lambda)}\left[\log{\frac{p(x,z;\theta)}{q(z;\lambda)}}\right] 
+    + D_{\text{KL}}(q(z;\lambda)|| p(z|x;\theta)) \]</span></p>
+<p>Since the rightmost term is a KL-divergence, it is always non-negative. Calling the expectation term the <strong>evidence lower-bound objective</strong> (ELBO), we see that</p>
+<p><span class="math display">\[ \log{p(x;\theta)} \ge \text{ELBO}(\theta, \lambda; x) = \mathbf{E}_{z\sim q(z;\lambda)}\left[\log{\frac{p(x,z;\theta)}{q(z;\lambda)}}\right] \]</span></p>
+<p>is a lower bound for the log-marginal. If the variational family <span class="math inline">\(q(z;\lambda)\)</span> <em>contains</em> the posterior <span class="math inline">\(p(z|x;\theta)\)</span>, then we can optimize the ELBO (in <span class="math inline">\(\lambda\)</span>) such that maximizing the ELBO is equivalent to maximizing the log marginal. Otherwise, there will be a nontrivial gap that optimization will never cause to vanish. Nonetheless, with an expressive variational family, optimizing the ELBO can find good model parameters <span class="math inline">\(\theta\)</span> in the same iterative way as the EM algorithm above. This forms the basis of <strong>variational inference</strong> of probabilistic latent variable models.</p>
+<p>Key to this are the gradient ascent updates</p>
+<p><span class="math display">\[ \lambda^{(i+1)} \leftarrow \lambda^{(i)} + \eta_\lambda \nabla_\lambda \mathbf{E}_{z\sim q(z;\lambda)}\left[\log{\frac{p(x,z;\theta)}{q(z;\lambda)}}\right] \]</span></p>
+<p>and</p>
+<p><span class="math display">\[ \theta^{(i+1)} \leftarrow \theta^{(i)} + \eta_\theta \nabla_\theta \mathbf{E}_{z\sim q(z;\lambda)}\left[\log{p(x,z;\theta)}\right] \]</span></p>
+<p>for optimizing the ELBO above. In this <strong>stochastic variational inference</strong> update step, <span class="math inline">\(x\)</span> is randomly sampled from <span class="math inline">\(\mathcal{D}_\text{train}\)</span>, and computing the gradient of the first expectation often requires us to use the gradient estimators above.</p>
+<h3 id="closing">closing</h3>
+<p>To summarize, we presented the problem of producing low-variance stochastic gradient estimators of expectations over latent random variables. Given a graphical structure, we can use the score-function estimator (with control variates) or if we’re lucky, a reparameterization to a simpler distribution as estimators when the “propagation path” for the gradient is differentiable. If we’re blocked by a non-differentiable loss, we showed that we could “relax” the loss function to be approximately differentiable, up to a temperature scale.</p>
+<p>Finally, we described the prototypical use-case for stochastic gradient estimators: approximate variational inference of latent variable models. In the next post, we’ll put this to use in training a discrete variational autoencoder.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
