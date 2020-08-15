@@ -7,7 +7,7 @@ The central algorithm that makes modern deep learning (and all of machine learni
 
 However, a limitation of autodiff concerns nodes in the computational graph that do not represent a deterministic operation, but instead a conditional distribution on its parent nodes. For example, in a *variational autoencoder* the encoder takes the input to a probabilistic latent variable, whose samples provide the input to the subsequent decoder neural network. The loss function in this case is an expectation over all of the possible values of the stochastic latent node, and we expect for an end-to-end model to be trained via backpropagation in the same way as a normal deterministic autoencoder.
 
-In this post, we will review stochastic gradient estimators. My motivation for this and the next few blog posts is to understand how to perform Bayesian inference on probabilistic models of discrete counts data, which is a type of data I often deal with at Prognos.
+In this post, we will review stochastic gradient estimators. My motivation for this post is to understand how to perform Bayesian inference on probabilistic models of discrete counts data, which is a type of data I often deal with.
 
 
 ### stochastic gradients
@@ -22,9 +22,9 @@ $$ \text{Loss}_{\text{vae,rc}}(x, \theta, \phi) = \mathbf{E}_{z\sim q(z|x;\theta
 
 where both $p, q$ are neural networks of arbitrary complexity.
 
-The crux of the difficulty stems from the fact that since the latent variable the expectation is taken over depends on $\theta$, one cannot just swap the order of the expectation and the gradient operator $\nabla_\theta$. If one could bring $\nabla_\theta$ into the expectation, i.e. we have an expectation of gradients, we can perform Monte-Carlo estimation to form **stochastic gradient estimators**. That is, our goal is to find functions $\tilde{f}(z)$ such that in expectation,
+The crux of the difficulty stems from the fact that since the latent variable the expectation is taken over depends on $\theta$, one cannot just swap the order of the expectation and the gradient operator $\nabla_\theta$. If one could bring $\nabla_\theta$ into the expectation, i.e. we have an expectation of gradients, we can perform Monte-Carlo estimation to form **stochastic gradient estimators**. That is, our goal is to find functions $\tilde{f}$ such that in expectation,
 
-$$ \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] = \mathbf{E}_{\tilde{z}\sim\tilde{p}(z|\theta)}[\tilde{f}(z)] $$
+$$ \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] = \mathbf{E}_{\tilde{z}\sim\tilde{p}(z|\theta)}[\tilde{f}(\tilde{z})] $$
 
 The right-side can be approximated by Monte-Carlo sums over $\tilde{z}$-samples. Hence, our goal for the next sections is to find estimators of this gradient that are *unbiased*. Often this is the easy step: the hard thing is to find estimators with reasonable variance.
 
@@ -196,7 +196,7 @@ $$ \frac{1}{1 + \sum_{\ell'\neq\ell} e^{\log{\left(\frac{\alpha_\ell}{\alpha_{\e
 
 as desired. 
 
-However, this sampler is **not differentiable** because of the $\text{argmax}$. So we cannot use the Gumbel-max trick by itself as a backpropagatable reparameterization of the $\text{Categorical}(\pi_1,...\pi_k)$ distribution. The final trick is realizing that the $\text{argmax} can be *relaxed* as a softmax with temperature.
+However, this sampler is **not differentiable** because of the $\text{argmax}$. So we cannot use the Gumbel-max trick by itself as a backpropagatable reparameterization of the $\text{Categorical}(\pi_1,...\pi_k)$ distribution. The final trick is realizing that the $\text{argmax}$ can be *relaxed* as a softmax with temperature.
 
 We relax the $\text{argmax}$ to return probability vectors in the simplex $\Delta^{k-1}$, and call the resulting **Gumbel-softmax** distribution a $\text{Concrete}(\pi_1,...,\pi_k, \lambda)$ distribution. To sample from a $\text{Concrete}(\pi_1,...,\pi_k, \lambda)$ random variable, we sample iid. $z_i\sim\text{Gumbel}(0,1)$ and set
 
