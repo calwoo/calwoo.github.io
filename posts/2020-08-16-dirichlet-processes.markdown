@@ -227,7 +227,54 @@ The resulting $G\sim\text{DP}(G_0,\alpha)$ is a realization from the Dirichlet p
 For a Dirichlet process, after sampling $n$ iid samples the number of unique clusters we would have seen is of the order $\mathcal{O}(\alpha\log{n})$. However, for a Pitman-Yor process, we see that this grows as a **power law**, $\mathcal{O}(\alpha n^d)$. 
 
 
+### stochastic memoization
 
+Above we've described constructions to produce the weights of a discrete distribution that form a realization of the Dirichlet process
+
+$$ G = \sum_{i=1}^\infty \omega_i\delta_{x^{(i)}} \sim \text{DP}(G_0, \alpha) $$
+
+but it has the unwieldy implication that to sample from a Dirichlet process you need to construct the infinite sum all at once. But our code can't take that stress! While many computable generative models will truncate the sum or the stick-breaking process to a finite-memory stage, another way is to stare at the Chinese restaurant process--
+
+$$ z_n \sim \text{CRP}(\alpha;z_1,...,z_{n-1}) $$
+
+Note that this process has two features: 1) it's an iterative, sequential construction and 2) the sampling process changes after each sample is generated. This gives us a clue as to how to structure a generative story for the Dirichlet process-- we do this iteratively, *memoizing* previous realizations and storing it in the distribution's *closure*. This is the **stochastic memoization** process described by [Roy-Mansinghka-Goodman-Tenenbaum](http://danroy.org/papers/RoyManGooTen-ICMLNPB-2008.pdf). Put into place with the Dirichlet process:
+
+```python
+class DirichletProcess:
+    def __init__(self, G_0, alpha):
+        self.G_0 = G_0
+        self.alpha = alpha
+
+        self.memo = []
+        self.weights = []
+
+    def sample(self):
+        remaining_stick = 1 - sum(self.weights)
+        # determine which table to sit at
+        table_id = random.choice(range(0, len(self.weights) + 1), 
+                                 p=self.weights + [remaining_stick])
+        
+        # if table_id == len(self.weights), we create a new table
+        if table_id == len(self.weights):
+            new_table_loc = self.G_0.sample()
+            self.memo.append(new_table_loc)
+
+            # break a piece off the stick for new weight
+            new_piece = beta(1, self.alpha).sample()
+            new_weight = new_piece * remaining_stick
+            self.weights.append(new_weight)
+            return self.memo[-1]
+        else:
+            # return the memoized table location
+            return self.memo[table_id]
+```
+
+This is a stochastically memoized version of the Dirichlet process. 
+
+
+### closing
+
+This post was kinda messy hodgepodge of notes about Bayesian nonparametrics and specifically the Dirichlet process. There is a lot more to write about, such as exchangeability, hierarchical Dirichlet/Pitman-Yor processes, nonparametric LDA, etc. But maybe I'll push that off to a later date.
 
 
 

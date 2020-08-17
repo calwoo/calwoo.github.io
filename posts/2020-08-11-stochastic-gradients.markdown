@@ -28,7 +28,7 @@ $$ \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] = \mathbf{E}_{\tilde{z}\
 
 The right-side can be approximated by Monte-Carlo sums over $\tilde{z}$-samples. Hence, our goal for the next sections is to find estimators of this gradient that are *unbiased*. Often this is the easy step: the hard thing is to find estimators with reasonable variance.
 
-A quick **note**: A theorem of Robbins-Monroe guarantees that stochastic gradient descent with an unbiased gradient estimator will converge to a local optimum as long as the step sizes decay quadratically. Hence our estimators are actually useful for solving the problem at hand, which is optimizing complex models with latent variables using backpropagation.
+A quick **note**: A theorem of Robbins-Monro guarantees that stochastic gradient descent with an unbiased gradient estimator will converge to a local optimum as long as the step sizes decay quadratically. Hence our estimators are actually useful for solving the problem at hand, which is optimizing complex models with latent variables using backpropagation.
 
 
 ### score-function estimator
