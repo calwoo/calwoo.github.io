@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Dirichlet processes - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Dirichlet processes</h1>
+            <article>
+    <section class="header">
+        Posted on August 16, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>Suppose for instance that you wanted to perform a clustering of data into 2 partitions, say with a Gaussian mixture. Since we only have two clusters, we can do so with a Bayesian hierarchical model as such:</p>
+<p><span class="math display">\[ \begin{align} \pi &amp;\sim \text{Bernoulli}(p_\text{param}) \\
+    x_i|\pi &amp;\sim \text{Normal}(\mu_\pi, \sigma^2_\text{fixed}) \end{align} \]</span></p>
+<p>In this model, the <em>assignment</em> latent variable <span class="math inline">\(\pi\)</span> is sampled from a Bernoulli distribution (there are only 2 clusters), and the choice of assignment tells us which of the two Gaussians we should sample our datapoint from. The usual Bayesian inference procedures allow us to tune the generative model to more adeptly match a dataset that we pass in.</p>
+<p>However, there is a certain inflexibility in using an unconstrained parameter <span class="math inline">\(p_\text{param}\)</span> in the above model. It is a common modeling choice to impose a distributional restriction on the probability <span class="math inline">\(p\)</span>– in some sense, we want to <em>parameterize <span class="math inline">\(\text{Bernoulli}(p)\)</span></em>. The usual choice is to sample <span class="math inline">\(p\)</span> from a <strong>beta</strong> distribution, which turns our model into</p>
+<p><span class="math display">\[ \begin{align} p &amp;\sim \text{Beta}(\alpha, \beta) \\
+    \pi|p &amp;\sim \text{Bernoulli}(p) \\
+    x_i|\pi,p &amp;\sim \text{Normal}(\mu_\pi, \sigma^2_\text{fixed}) \end{align} \]</span></p>
+<p>Why did we choose the <strong>beta</strong> distribution over all the other distributions with support in <span class="math inline">\([0,1]\)</span>? We can go into heuristics like saying it’s a maximal entropy distribution or whatnot, but it’s better to just say we chose it because it’s <a href="https://en.wikipedia.org/wiki/Conjugate_prior">conjugate</a> to the Bernoulli distribution.</p>
+<p>For the purposes of variational inference, we are often interested in sampling efficiently from the beta distribution. A particularly nice way (that generalizes to the Dirichlet distribution below) is as follows: we sample <span class="math inline">\(v\sim\text{Beta}(\alpha, \beta)\)</span> by first drawing from independent Gamma distributions <span class="math inline">\(x\sim\text{Gamma}(\alpha,1)\)</span> and <span class="math inline">\(y\sim\text{Gamma}(\beta,1)\)</span> and setting <span class="math inline">\(v=x/(x+y)\)</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">def</span> beta_sample(a, b):</a>
+<a class="sourceLine" id="cb1-2" title="2">    x <span class="op">=</span> gamma(a, <span class="dv">1</span>).sample()</a>
+<a class="sourceLine" id="cb1-3" title="3">    y <span class="op">=</span> gamma(b, <span class="dv">1</span>).sample()</a>
+<a class="sourceLine" id="cb1-4" title="4">    v <span class="op">=</span> x <span class="op">/</span> (x <span class="op">+</span> y)</a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">return</span> v</a></code></pre></div>
+<p>The problem with this is that reparameterization gradients for the Gamma distribution can be fairly difficult to deal with, and can involve costly infinite series approximations. Another approach to inference with the beta distribution is to approximate it with the <strong>Kumaraswamy distribution</strong></p>
+<p><span class="math display">\[ \text{Kumaraswamy}(x; \alpha, \beta) = \alpha\beta\cdot x^{\alpha-1}(1-x^\alpha)^{\beta-1} \]</span></p>
+<p>with support on <span class="math inline">\((0, 1)\)</span>, <span class="math inline">\(\alpha,\beta &gt; 0\)</span>. Reparameterizing the Kumaraswarmy distribution is simple: it has a tractible inverse CDF, so inverse sampling is easy to do:</p>
+<p><span class="math display">\[ \text{cdf}^{-1}_{\alpha,\beta}(u) = (1-u^{\frac{1}{\beta}})^{\frac{1}{\alpha}} \]</span></p>
+<h3 id="number-of-clusters-2">number of clusters &gt; 2</h3>
+<p>Now suppose we have a clustering problem with more than 2 clusters. What changes in our Bayesian model? First off, since our assignment variables aren’t binary anymore, but instead sampled from <span class="math inline">\(\{1,...,K\}\)</span>, we exchange our Bernoulli distribution for a <strong>categorical</strong> distribution <span class="math inline">\(\text{Categorical}(q_1,...,q_K)\)</span>.</p>
+<p>What is <span class="math inline">\((q_1,...,q_K)\)</span> in this case? In this setting it is a <strong>discrete probability distribution</strong> over the terms <span class="math inline">\(\{1,...,K\}\)</span>, so in particular each <span class="math inline">\(q_j\ge 0\)</span> and <span class="math inline">\(\sum_{i=1..K} q_i = 1\)</span>. Geometrically, one could describe the distribution <span class="math inline">\((q_1,...,q_K)\)</span> as a point in the <span class="math inline">\((K-1)\)</span>-simplex</p>
+<p><span class="math display">\[ \Delta^{K-1}=\left\{(q_1,...,q_K)\middle| \sum_{i=1}^K q_i = 1, q_j \ge 0 \right\}\subset \mathbf{R}^K \]</span></p>
+<p>This shows that whatever the replacement for a beta distribution should be, it should be a <strong>prior over the simplex</strong>. The distribution we will use is the <strong>Dirichlet distribution</strong>, which turns our model into the multi-cluster hierarchical model</p>
+<p><span class="math display">\[ \begin{align} (q_1,...,q_K) &amp;\sim \text{Dirichlet}(\alpha_1,...,\alpha_K) \\
+    \pi|q &amp;\sim \text{Categorical}(q_1,...,q_K) \\
+    x_i|\pi,q &amp;\sim \text{Normal}(\mu_\pi, \sigma^2_\text{fixed}) \end{align} \]</span></p>
+<p>The Dirichlet process is a continuous distribution supported on the simplex <span class="math inline">\(\Delta^{K-1}\)</span>. It has the fairly simple probability density function</p>
+<p><span class="math display">\[ \text{Dirichlet}(q;\alpha_1,...,\alpha_K) = \frac{\Gamma(\alpha_0)}{\prod_{j=1}^K \Gamma(\alpha_j)} \prod_{j=1}^K q_j^{\alpha_j-1} \]</span></p>
+<p>where here, <span class="math inline">\(\alpha_0 = \sum_{j=1}^K \alpha_j\)</span>. This is a generalization of the beta distribution– indeed if <span class="math inline">\(K=2\)</span>, we have the density becomes</p>
+<p><span class="math display">\[ \text{Beta}(p;\alpha,\beta) = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)} p^{\alpha-1}(1-p)^{\beta-1} \]</span></p>
+<p>which is the density of the <span class="math inline">\(\text{Beta}(\alpha, \beta)\)</span> distribution. Analogously, the Dirichlet distribution is the conjugate prior to the categorical distribution, which makes inference somewhat easier.</p>
+<p>Now that we have a distribution with a density that allows us to compute log probabilities of, let’s turn our attention to <strong>sampling</strong> from the Dirichlet distribution. Interestingly, one of the most computationally efficient ways of sampling is similar to the Gamma-reparameterization above for the beta distribution: to sample <span class="math inline">\((q_1,...,q_K)\sim\text{Dirichlet}(\alpha_1,...,\alpha_K)\)</span>, first sample <span class="math inline">\(z_j\sim\text{Gamma}(\alpha_j,1)\)</span> for <span class="math inline">\(j=1,...,K\)</span> and then set <span class="math inline">\(q_i = z_i \left/ \middle(\sum_{j=1}^K z_j\right)\)</span>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">def</span> dirichlet_sample(alphas):</a>
+<a class="sourceLine" id="cb2-2" title="2">    zs <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="cf">for</span> alpha <span class="kw">in</span> alphas:</a>
+<a class="sourceLine" id="cb2-4" title="4">        z <span class="op">=</span> gamma(alpha, <span class="dv">1</span>).sample()</a>
+<a class="sourceLine" id="cb2-5" title="5">        zs.append(z)</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7">    qs <span class="op">=</span> [z <span class="op">/</span> <span class="bu">sum</span>(zs) <span class="cf">for</span> z <span class="kw">in</span> zs]</a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="cf">return</span> qs</a></code></pre></div>
+<p>Again, as with the gamma-reparameterization for the beta distribution, the difficulty in reparameterizating path-gradients for the Gamma distribution makes this fairly difficult to use, even though it is mathematically elegant.</p>
+<h3 id="pots-and-sticks">pots and sticks</h3>
+<p>Instead, we will turn to other sampling methods. We will describe two methods, both of which are important especially when <code>n_clusters</code> <span class="math inline">\(\to\infty\)</span> as we can generalize these to the nonparametric stochastic processes later on.</p>
+<p>The first method is known as <strong>Polya’s urn</strong>. Remember, our goal is to generate a sample from the Dirichlet distribution, <span class="math inline">\((q_1,...,q_K)\sim\text{Dirichlet}(\alpha_1,...,\alpha_K)\)</span>. Suppose we have an urn with <span class="math inline">\(\alpha_i\)</span> balls of color <span class="math inline">\(i\)</span> in it, for <span class="math inline">\(i=1,...,K\)</span> (suspend your senses for a bit, and believe the numbers have <a href="https://en.wikipedia.org/wiki/Synesthesia">color</a>). From this point on, we perform a simple action iteratively until we get tired of it: we draw a ball uniformly from the urn, and then return it to the urn with an additional ball of the same color. Then the desired sample is the limit of the histograms of the colored balls as a discrete probability distribution.</p>
+<p>Why would this even work? Restricting to the case <span class="math inline">\(K=2\)</span>, intuitively, this is just performing the posterior conjugation for the beta-binomial mixture model. The limiting histogram is then a marginalization over the resulting parameters, which gives the resulting sample. Details can usually be found in many probability textbooks.</p>
+<p>In code, this can be given by</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> polya_urn(initial_balls, n_steps<span class="op">=</span><span class="dv">5000</span>):</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="co"># initial_balls = [alpha_1,...,alpha_K]</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    K <span class="op">=</span> <span class="bu">len</span>(initial_balls)</a>
+<a class="sourceLine" id="cb3-4" title="4">    urn <span class="op">=</span> array(initial_balls)</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_steps):</a>
+<a class="sourceLine" id="cb3-6" title="6">        ps <span class="op">=</span> urn <span class="op">/</span> <span class="bu">sum</span>(urn)</a>
+<a class="sourceLine" id="cb3-7" title="7">        <span class="co"># choose a color ball</span></a>
+<a class="sourceLine" id="cb3-8" title="8">        color <span class="op">=</span> random.choice(<span class="bu">range</span>(K), p<span class="op">=</span>ps)</a>
+<a class="sourceLine" id="cb3-9" title="9">        <span class="co"># increase ball count</span></a>
+<a class="sourceLine" id="cb3-10" title="10">        urn[color] <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-11" title="11"></a>
+<a class="sourceLine" id="cb3-12" title="12">    q <span class="op">=</span> urn <span class="op">/</span> <span class="bu">sum</span>(urn)</a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="cf">return</span> q</a></code></pre></div>
+<p>Now let’s describe the second of our sampling methods, the <strong>stick-breaking</strong> approach. Intuitively, since we are sampling a sequence of numbers <span class="math inline">\((q_1,...,q_K)\)</span> such that <span class="math inline">\(\sum_{j=1}^K q_j = 1\)</span>, we can think of each <span class="math inline">\(q_i\)</span> as the length of the pieces of a unit-length stick broken in <span class="math inline">\(K\)</span> pieces. The trick is to figure out how to break the stick such that the length of the pieces are a sample from the Dirichlet distribution.</p>
+<p>Inductively, we assume that we can do this for the beta distribution: that is, we can sample from <span class="math inline">\(\text{Beta}(\alpha,\beta)\)</span> with impunity. Then to break a stick into <span class="math inline">\(K\)</span> pieces, we start by sampling <span class="math inline">\(q_1\sim\text{Beta}(\alpha_1,\sum_{j=2}^K \alpha_j)\)</span>. This represents the first break in the stick. Next, we simulate the break in the 2nd length of the stick by sampling <span class="math inline">\(u_2\sim\text{Beta}(\alpha_2,\sum_{j=3}^K \alpha_j)\)</span>. Scaling this to be in support <span class="math inline">\([0, 1-q_1]\)</span>, we let <span class="math inline">\(q_2=u_1(1-q_1)\)</span>.</p>
+<p>Repeating this process until the end, we get a sample <span class="math inline">\((q_1,...,q_K)\sim\text{Dirichlet}(\alpha_1,...,\alpha_K)\)</span>. To see that this works, it’s better to look at the code:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> stick_breaking(alphas):</a>
+<a class="sourceLine" id="cb4-2" title="2">    K <span class="op">=</span> <span class="bu">len</span>(alphas)</a>
+<a class="sourceLine" id="cb4-3" title="3">    us, qs <span class="op">=</span> [], []</a>
+<a class="sourceLine" id="cb4-4" title="4">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(K <span class="op">-</span> <span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb4-5" title="5">        u <span class="op">=</span> beta(alpha[i], <span class="bu">sum</span>(alpha[i<span class="op">+</span><span class="dv">1</span>:])).sample()</a>
+<a class="sourceLine" id="cb4-6" title="6">        <span class="cf">if</span> <span class="bu">len</span>(us) <span class="op">&gt;</span> <span class="dv">0</span>: </a>
+<a class="sourceLine" id="cb4-7" title="7">            q <span class="op">=</span> u <span class="op">*</span> prod(<span class="dv">1</span> <span class="op">-</span> us)</a>
+<a class="sourceLine" id="cb4-8" title="8">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb4-9" title="9">            q <span class="op">=</span> u</a>
+<a class="sourceLine" id="cb4-10" title="10">        </a>
+<a class="sourceLine" id="cb4-11" title="11">        qs.append(q)</a>
+<a class="sourceLine" id="cb4-12" title="12">        us.append(u)</a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14">    <span class="co"># last piece of stick</span></a>
+<a class="sourceLine" id="cb4-15" title="15">    qk <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> <span class="bu">sum</span>(qs)</a>
+<a class="sourceLine" id="cb4-16" title="16">    qs.append(qk)</a>
+<a class="sourceLine" id="cb4-17" title="17">    <span class="cf">assert</span> <span class="bu">sum</span>(qs) <span class="op">==</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb4-18" title="18">    <span class="cf">return</span> qs</a></code></pre></div>
+<p>This is a much better sampling process for 2 reasons: 1) this looks like the gamma-reparametrization above, which can be seen by expanding the beta distributions into gamma samplers, so it has attractive mathematical properties, and 2) although reparameterizing the beta is a pain, we can resort to the approximate posterior trick with Kumaraswarmy distributions to give a reparameterizable sampler. I have not seen this in the literature, but I would be very surprised if it doesn’t exist.</p>
+<h3 id="dirichlet-processes">dirichlet processes</h3>
+<p>The above assumed that we were performing clustering with a finite, fixed number of clusters <span class="math inline">\(K\)</span>. What if we don’t want this restriction? The field of <strong>Bayesian nonparametrics</strong> deals with models whose complexity grows as the number of data grows. Indeed, we would like a clustering algorithm that could <em>learn</em> the number of clusters needed for efficiently capturing a dataset.</p>
+<p>As with the above, we want a prior over the space of all <strong>infinite</strong> discrete distributions (note that here, we don’t restrict our sample space to be countably discrete. Indeed, it can be an arbitrary probability space– we only merely want to model convergent discrete measures on it). A distribution we will use here is the <strong>Dirichlet process</strong>, which is a distribution over the space of discrete probability measures on a probability space <span class="math inline">\(\Omega\)</span>,</p>
+<p><span class="math display">\[ \text{Prob}_\text{fin}(\Omega) = \left\{\text{discrete probability measures }\mu=\sum_{i=1}^\infty \omega_i\delta_{x^{(i)}}\text{ on }\Omega\right\} \]</span></p>
+<p>Note as a discrete probability measure, <span class="math inline">\(\sum_{i=1}^\infty \omega_i = 1\)</span>.</p>
+<p>Although we are in the business of forming a prior distribution over (discrete) distributions on a possible unbounded space, we do want to impose a weak boundedness condition on the resulting prior. As a consequence, the Dirichlet process is a function of two parameters: an existing <em>base distribution</em> <span class="math inline">\(G_0\)</span> over the sample space <span class="math inline">\(\Omega\)</span> and a <em>scaling parameter</em> <span class="math inline">\(\alpha\)</span>.</p>
+<p>We give a <strong>formal definition</strong> of the Dirichlet process, following <a href="https://projecteuclid.org/euclid.aos/1176342360">Ferguson</a>. A distribution over <span class="math inline">\(\text{Prob}_\text{fin}(\Omega)\)</span> is a Dirichlet process, <span class="math inline">\(\text{DP}(G_0,\alpha)\)</span>, if for any finite partition of <span class="math inline">\(\Omega\)</span>, given by <span class="math inline">\(A_1\cup\cdot\cdot\cdot\cup A_k = \Omega\)</span> and for samples <span class="math inline">\(G\sim\text{DP}(G_0,\alpha)\)</span>, the random vector <span class="math inline">\((G(A_1),...,G(A_k))\)</span> is distributed according to a Dirichlet distribution</p>
+<p><span class="math display">\[  (G(A_1),...,G(A_k))\sim\text{Dirichlet}(\alpha G_0(A_1),...,\alpha G_0(A_k)) \]</span></p>
+<p>How to parse this definition? First off, since <span class="math inline">\(G_0\)</span> is a distribution on <span class="math inline">\(\Omega\)</span>, we have <span class="math inline">\(\sum_{i=1}^k G_0(A_i) = 1\)</span>, and similarly for <span class="math inline">\(G\)</span>, as <span class="math inline">\(G\)</span> is a sample from a distribution over probability distributions. Secondly, even though for any given realization <span class="math inline">\(G\)</span>, <span class="math inline">\((G(A_1),..., G(A_k))\)</span> is a fixed vector, since <span class="math inline">\(G\)</span> is randomly varying (it’s sampled from <span class="math inline">\(\text{DP}(G_0,\alpha)\)</span>), this makes the vector <span class="math inline">\((G(A_1),..., G(A_k))\)</span> random as well. Third, this is a <em>non-constructive</em> definition, just like the definition of the <a href="https://en.wikipedia.org/wiki/Gaussian_process#Definition">Gaussian process</a>, so we will want to give more constructive definitions to work with it.</p>
+<p><strong>Note:</strong> in the situations before, our Dirichlet distributions acted as a prior over <em>cluster assignment probabilities</em>, where the actual cluster assignment is done via sampling from a <span class="math inline">\(\text{Categorical}(q_1,...,q_K)\)</span> distribution. In particular, a finite Dirichlet-Gaussian mixture model separates the assignment of clusters from the question of where the clusters are centered. Sampling from a Dirichlet process give however a <em>discrete probability measure</em>,</p>
+<p><span class="math display">\[ G = \sum_{i=1}^\infty \omega_i\delta_{x^{(i)}} \sim \text{DP}(G_0, \alpha) \]</span></p>
+<p>which already has encoded the information of the centers of each cluster (as the <span class="math inline">\(x^{(i)}\)</span>). A common thing to do is to take this sampled distribution and convolve it with another density function. This allows us to perform density estimation with the Dirichlet process samples.</p>
+<h3 id="infty-sticks-and-chinese-food"><span class="math inline">\(\infty\)</span>-sticks and chinese food</h3>
+<p>In this section we’re gonna describe the <strong>Chinese restaurant process</strong>. We’ll see that this process gives a way to sample from a Dirichlet process. To start, imagine a Chinese restaurant with (countably) infinite number of tables <span class="math inline">\(i=1,2,...\)</span>. This is a very popular restaurant, so a constant infinite stream of customers come in one-by-one and sit at some table.</p>
+<p>How do customers decide which table to sit at? Randomly, of course– but with rules: 1) the first customer always sits at the first table, <span class="math inline">\(z_1=1\)</span>. 2) After <span class="math inline">\(n-1\)</span> customers have been seated, the <span class="math inline">\(n\)</span>th customer either sits at a <strong>new table</strong> <span class="math inline">\(z_n\)</span> with probability <span class="math inline">\(\frac{\alpha}{n-1+\alpha}\)</span> or sits at an <strong>occupied table</strong> with probability <span class="math inline">\(\frac{c}{n-1+\alpha}\)</span> where <span class="math inline">\(c\)</span> is the number of people already sitting at that table. Here, <span class="math inline">\(\alpha\)</span> is a fixed scalar parameter.</p>
+<p>The above sampling process is described by the Chinese restaurant process</p>
+<p><span class="math display">\[ z_n \sim \text{CRP}(\alpha; z_1,...,z_{n-1}) \]</span></p>
+<p>which, described in code is:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> chinese_restaurant_process(n_customers, alpha):</a>
+<a class="sourceLine" id="cb5-2" title="2">    zs <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb5-3" title="3">    <span class="co"># rule 1: first customer always sits at first table</span></a>
+<a class="sourceLine" id="cb5-4" title="4">    zs.append(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_customers):</a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="co"># collect customer assignments into histogram</span></a>
+<a class="sourceLine" id="cb5-8" title="8">        hist <span class="op">=</span> collect_into_histogram(n_customers)</a>
+<a class="sourceLine" id="cb5-9" title="9">        </a>
+<a class="sourceLine" id="cb5-10" title="10">        cur_n_customers <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-11" title="11">        cur_n_tables <span class="op">=</span> <span class="bu">len</span>(zs)</a>
+<a class="sourceLine" id="cb5-12" title="12">        normalizing_factor <span class="op">=</span> cur_n_customers <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> alpha</a>
+<a class="sourceLine" id="cb5-13" title="13"></a>
+<a class="sourceLine" id="cb5-14" title="14">        hist.append(alpha)</a>
+<a class="sourceLine" id="cb5-15" title="15">        ps <span class="op">=</span> hist <span class="op">/</span> normalizing_factor</a>
+<a class="sourceLine" id="cb5-16" title="16"></a>
+<a class="sourceLine" id="cb5-17" title="17">        <span class="co"># rule 2: nth customer sits at new or old table with</span></a>
+<a class="sourceLine" id="cb5-18" title="18">        <span class="co"># above determined probabilities</span></a>
+<a class="sourceLine" id="cb5-19" title="19">        z <span class="op">=</span> random.choice(<span class="bu">range</span>(<span class="dv">1</span>, cur_n_tables <span class="op">+</span> <span class="dv">2</span>), p<span class="op">=</span>ps)</a>
+<a class="sourceLine" id="cb5-20" title="20">        zs.append(z)</a>
+<a class="sourceLine" id="cb5-21" title="21">    </a>
+<a class="sourceLine" id="cb5-22" title="22">    <span class="cf">return</span> zs</a></code></pre></div>
+<p>Why a Chinese restaurant? No idea. If I had to hazard a guess, it’s because the number of customers at a given table can grow unboundedly, which if you’ve ever walked into a Chinatown <em>dim sum</em> restaurant, seems accurate.</p>
+<p>How does this connect with the Dirichlet process? It turns out that the generative story</p>
+<p><span class="math display">\[ \begin{align} x^{(1)}, x^{(2)},... &amp;\sim G_0 \\
+    z_n &amp;\sim \text{CRP}(\alpha;z_1,...,z_{n-1}) \end{align} \]</span></p>
+<p>is equivalent to the Dirichlet process</p>
+<p><span class="math display">\[ \begin{align} G = \sum_{i=1}^\infty \omega_i\delta_{x^{(i)}} &amp;\sim \text{DP}(G_0, \alpha) \\
+    x^{(z_n)} &amp;\sim G \end{align} \]</span></p>
+<p>In some sense, the Chinese restaurant process decouples the Dirichlet process into an assignment phase and a density phase. As a consequence, this process doesn’t directly construct the discrete distributions <span class="math inline">\(G\sim\text{DP}(G_0,\alpha)\)</span>. We can adapt the <strong>stick-breaking</strong> construction for the Dirichlet distribution in previous sections to work for <span class="math inline">\(\infty\)</span>-many clusters.</p>
+<p>Unlike the finite stick-breaking construction for the Dirichlet distribution which is an iterative one, the construction for <span class="math inline">\(\infty\)</span>-many clusters can be more parallelizable. The construction can actually be described by the following generative model</p>
+<p><span class="math display">\[ \begin{align} x^{(1)}, x^{(2)},... &amp;\sim G_0 \\
+    v_1, v_2,... &amp;\sim \text{Beta}(1,\alpha) \\
+    \omega_j &amp;= v_j\prod_{i=1}^{j-1} (1-v_i) \\
+    G &amp;= \sum_{j=1}^\infty \omega_j \delta_{x^{(j)}}
+    \end{align} \]</span></p>
+<p>The resulting <span class="math inline">\(G\sim\text{DP}(G_0,\alpha)\)</span> is a realization from the Dirichlet process.</p>
+<p><strong>Remark:</strong> if in the above generative model we let <span class="math inline">\(0 \le d &lt; 1\)</span> be a <em>discount</em> parameter, and instead sample <span class="math inline">\(v_k\sim\text{Beta}(1-d,\alpha+kd)\)</span>, we get the <strong>Pitman-Yor process</strong>. If <span class="math inline">\(d=0\)</span>, this process degenerates to a Dirichlet process. What is the heuristic difference between these two? It comes down to the number of clusters that arise from the sampling process.</p>
+<p>For a Dirichlet process, after sampling <span class="math inline">\(n\)</span> iid samples the number of unique clusters we would have seen is of the order <span class="math inline">\(\mathcal{O}(\alpha\log{n})\)</span>. However, for a Pitman-Yor process, we see that this grows as a <strong>power law</strong>, <span class="math inline">\(\mathcal{O}(\alpha n^d)\)</span>.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
