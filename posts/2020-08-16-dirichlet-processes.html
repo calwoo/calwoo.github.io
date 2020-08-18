@@ -174,6 +174,42 @@
 <p>The resulting <span class="math inline">\(G\sim\text{DP}(G_0,\alpha)\)</span> is a realization from the Dirichlet process.</p>
 <p><strong>Remark:</strong> if in the above generative model we let <span class="math inline">\(0 \le d &lt; 1\)</span> be a <em>discount</em> parameter, and instead sample <span class="math inline">\(v_k\sim\text{Beta}(1-d,\alpha+kd)\)</span>, we get the <strong>Pitman-Yor process</strong>. If <span class="math inline">\(d=0\)</span>, this process degenerates to a Dirichlet process. What is the heuristic difference between these two? It comes down to the number of clusters that arise from the sampling process.</p>
 <p>For a Dirichlet process, after sampling <span class="math inline">\(n\)</span> iid samples the number of unique clusters we would have seen is of the order <span class="math inline">\(\mathcal{O}(\alpha\log{n})\)</span>. However, for a Pitman-Yor process, we see that this grows as a <strong>power law</strong>, <span class="math inline">\(\mathcal{O}(\alpha n^d)\)</span>.</p>
+<h3 id="stochastic-memoization">stochastic memoization</h3>
+<p>Above we’ve described constructions to produce the weights of a discrete distribution that form a realization of the Dirichlet process</p>
+<p><span class="math display">\[ G = \sum_{i=1}^\infty \omega_i\delta_{x^{(i)}} \sim \text{DP}(G_0, \alpha) \]</span></p>
+<p>but it has the unwieldy implication that to sample from a Dirichlet process you need to construct the infinite sum all at once. But our code can’t take that stress! While many computable generative models will truncate the sum or the stick-breaking process to a finite-memory stage, another way is to stare at the Chinese restaurant process–</p>
+<p><span class="math display">\[ z_n \sim \text{CRP}(\alpha;z_1,...,z_{n-1}) \]</span></p>
+<p>Note that this process has two features: 1) it’s an iterative, sequential construction and 2) the sampling process changes after each sample is generated. This gives us a clue as to how to structure a generative story for the Dirichlet process– we do this iteratively, <em>memoizing</em> previous realizations and storing it in the distribution’s <em>closure</em>. This is the <strong>stochastic memoization</strong> process described by <a href="http://danroy.org/papers/RoyManGooTen-ICMLNPB-2008.pdf">Roy-Mansinghka-Goodman-Tenenbaum</a>. Put into place with the Dirichlet process:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">class</span> DirichletProcess:</a>
+<a class="sourceLine" id="cb6-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, G_0, alpha):</a>
+<a class="sourceLine" id="cb6-3" title="3">        <span class="va">self</span>.G_0 <span class="op">=</span> G_0</a>
+<a class="sourceLine" id="cb6-4" title="4">        <span class="va">self</span>.alpha <span class="op">=</span> alpha</a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6">        <span class="va">self</span>.memo <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb6-7" title="7">        <span class="va">self</span>.weights <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb6-8" title="8"></a>
+<a class="sourceLine" id="cb6-9" title="9">    <span class="kw">def</span> sample(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb6-10" title="10">        remaining_stick <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> <span class="bu">sum</span>(<span class="va">self</span>.weights)</a>
+<a class="sourceLine" id="cb6-11" title="11">        <span class="co"># determine which table to sit at</span></a>
+<a class="sourceLine" id="cb6-12" title="12">        table_id <span class="op">=</span> random.choice(<span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(<span class="va">self</span>.weights) <span class="op">+</span> <span class="dv">1</span>), </a>
+<a class="sourceLine" id="cb6-13" title="13">                                 p<span class="op">=</span><span class="va">self</span>.weights <span class="op">+</span> [remaining_stick])</a>
+<a class="sourceLine" id="cb6-14" title="14">        </a>
+<a class="sourceLine" id="cb6-15" title="15">        <span class="co"># if table_id == len(self.weights), we create a new table</span></a>
+<a class="sourceLine" id="cb6-16" title="16">        <span class="cf">if</span> table_id <span class="op">==</span> <span class="bu">len</span>(<span class="va">self</span>.weights):</a>
+<a class="sourceLine" id="cb6-17" title="17">            new_table_loc <span class="op">=</span> <span class="va">self</span>.G_0.sample()</a>
+<a class="sourceLine" id="cb6-18" title="18">            <span class="va">self</span>.memo.append(new_table_loc)</a>
+<a class="sourceLine" id="cb6-19" title="19"></a>
+<a class="sourceLine" id="cb6-20" title="20">            <span class="co"># break a piece off the stick for new weight</span></a>
+<a class="sourceLine" id="cb6-21" title="21">            new_piece <span class="op">=</span> beta(<span class="dv">1</span>, <span class="va">self</span>.alpha).sample()</a>
+<a class="sourceLine" id="cb6-22" title="22">            new_weight <span class="op">=</span> new_piece <span class="op">*</span> remaining_stick</a>
+<a class="sourceLine" id="cb6-23" title="23">            <span class="va">self</span>.weights.append(new_weight)</a>
+<a class="sourceLine" id="cb6-24" title="24">            <span class="cf">return</span> <span class="va">self</span>.memo[<span class="op">-</span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb6-25" title="25">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb6-26" title="26">            <span class="co"># return the memoized table location</span></a>
+<a class="sourceLine" id="cb6-27" title="27">            <span class="cf">return</span> <span class="va">self</span>.memo[table_id]</a></code></pre></div>
+<p>This is a stochastically memoized version of the Dirichlet process.</p>
+<h3 id="closing">closing</h3>
+<p>This post was kinda messy hodgepodge of notes about Bayesian nonparametrics and specifically the Dirichlet process. There is a lot more to write about, such as exchangeability, hierarchical Dirichlet/Pitman-Yor processes, nonparametric LDA, etc. But maybe I’ll push that off to a later date.</p>
     </section>
 </article>
 
