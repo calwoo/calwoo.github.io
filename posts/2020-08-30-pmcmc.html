@@ -79,8 +79,9 @@
 <p><span class="math display">\[ a_1^{(i)} \sim \text{Categorical}(\omega^{(j)}_1\text{ for }j=1...N) \]</span></p>
 <p>where <span class="math inline">\(a_1\)</span> are the indices of the new resampled particles.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">    <span class="co"># resample particles</span></a>
-<a class="sourceLine" id="cb4-2" title="2">    resampled_idx <span class="op">=</span> random.choice(<span class="bu">range</span>(n_particles), size<span class="op">=</span>n_particles, p<span class="op">=</span>importance_weights)</a>
-<a class="sourceLine" id="cb4-3" title="3">    x[<span class="dv">1</span>] <span class="op">=</span> x[<span class="dv">1</span>, resampled_idx]</a></code></pre></div>
+<a class="sourceLine" id="cb4-2" title="2">    resampled_idx <span class="op">=</span> random.choice(<span class="bu">range</span>(n_particles), </a>
+<a class="sourceLine" id="cb4-3" title="3">                                  size<span class="op">=</span>n_particles, p<span class="op">=</span>importance_weights)</a>
+<a class="sourceLine" id="cb4-4" title="4">    x[<span class="dv">1</span>] <span class="op">=</span> x[<span class="dv">1</span>, resampled_idx]</a></code></pre></div>
 <p>Now we repeat this for each new time-step. We sample <span class="math inline">\(\widetilde{x}^{(i)}_2\sim p(x_2|x^{(i)}_1)\)</span> by <em>propagating</em> each particle, and compute importance weights as normal:</p>
 <p><span class="math display">\[ \widetilde{\omega}_2^{(i)} = \frac{p(\widetilde{x}^{(i)}_2|y_2)}{p(\widetilde{x}^{(i)}_2|x^{(i)}_1)} \propto p(y_2|\widetilde{x}^{(i)}_2) = g(\widetilde{x}^{(i)}_2, \theta_\text{obs}) \]</span></p>
 <p>We then normalize and resample.</p>
@@ -89,11 +90,62 @@
 <a class="sourceLine" id="cb5-3" title="3">        x[t] <span class="op">=</span> transition(x[t<span class="dv">-1</span>], p<span class="op">=</span>p)</a>
 <a class="sourceLine" id="cb5-4" title="4">        importance_weights <span class="op">=</span> normalize(obs_prob(ys[t], x[t]))</a>
 <a class="sourceLine" id="cb5-5" title="5">        <span class="co"># resample particles</span></a>
-<a class="sourceLine" id="cb5-6" title="6">        resampled_idx <span class="op">=</span> np.random.choice(<span class="bu">range</span>(n_particles), size<span class="op">=</span>n_particles, p<span class="op">=</span>importance_weights)</a>
-<a class="sourceLine" id="cb5-7" title="7">        x[t] <span class="op">=</span> x[t, resampled_idx]</a>
-<a class="sourceLine" id="cb5-8" title="8">        </a>
-<a class="sourceLine" id="cb5-9" title="9">    <span class="cf">return</span> x</a></code></pre></div>
-<p>This is the essence behind a particle filter!</p>
+<a class="sourceLine" id="cb5-6" title="6">        resampled_idx <span class="op">=</span> random.choice(<span class="bu">range</span>(n_particles), </a>
+<a class="sourceLine" id="cb5-7" title="7">                                      size<span class="op">=</span>n_particles, p<span class="op">=</span>importance_weights)</a>
+<a class="sourceLine" id="cb5-8" title="8">        x[t] <span class="op">=</span> x[t, resampled_idx]</a>
+<a class="sourceLine" id="cb5-9" title="9">        </a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="cf">return</span> x</a></code></pre></div>
+<p>This is the essence behind a particle filter! We will use this to provide the approximate likelihoods for more advanced particle MCMC methods, such as the particle Metropolis-Hastings algorithm.</p>
+<h3 id="metropolis-hastings-and-mcmc">metropolis-hastings and mcmc</h3>
+<p>Given a state space model above, ultimately our goal is to perform inference over latent states <strong>and</strong> parameters, <span class="math inline">\(p(x_{0:T}, \theta\mid y_{1:T})\)</span>. In the above particle filter method, we developed a way to approximate the marginal <span class="math inline">\(p(x_{0:T}\mid\theta, y_{1:T})\)</span>. So how can we compute the other marginal, the parameter inference <span class="math inline">\(p(\theta\mid y_{1:T})\)</span>? We can appeal to a standard MCMC method.</p>
+<p><strong>Note:</strong> Why not importance sampling? Probably because finding an appropriate proposal distribution <span class="math inline">\(q(\theta\mid y_{1:T})\)</span> that has thicker tails than <span class="math inline">\(p(\theta\mid y_{1:T})\)</span> is hard to determine and build.</p>
+<p>With that out of the way, let’s describe a basic MCMC method– the <strong>Metropolis-Hastings</strong> algorithm. The central idea of MCMC methods is to construct a <em>Markov chain</em> whose stationary distribution is the posterior distribution we want to sample from. That is, we want to perform a random walk in latent/parameter space such that after some time passes, the places visited by the walk will start to look like samples distributed according to the posterior.</p>
+<p>Formally, MCMC seeks to construct a <strong>transition kernel</strong> <span class="math inline">\(P_\text{MCMC}(x\to y)\)</span>, which describes the Markovian walk from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span> in parameter space. Such kernel has a consistency equation, given by Chapman-Kolmogorov:</p>
+<p><span class="math display">\[ P^{(2)}_\text{MCMC}(x\to z) = \int_y P_\text{MCMC}(x\to y) P_\text{MCMC}(y\to z) dy \]</span></p>
+<p>where the <span class="math inline">\((2)\)</span> denotes the 2-step transition kernel.</p>
+<p>By definition, a <strong>stationary distribution</strong> for a Markov kernel is a distribution <span class="math inline">\(\pi(x)\)</span> over the parameter space that is “fixed” by the kernel– that is,</p>
+<p><span class="math display">\[ \pi(z) = \int_y \pi(y) P_\text{MCMC}(y\to z) dy \]</span></p>
+<p>We see from the Chapman-Kolmogorov equation that <span class="math inline">\(P_\text{MCMC}(x\to -)\)</span> for any <span class="math inline">\(x\)</span> would be a close candidate, except that the step-size on each side is different. Under certain mathematical conditions (ergodicity), we can take limits, and show that for any initial point <span class="math inline">\(x\)</span>, the stationary distribution can be described as</p>
+<p><span class="math display">\[ \pi(z) = \lim_{n\to\infty} P_\text{MCMC}^{(n)}(x\to z) \]</span></p>
+<p>This shows the main point of MCMC– starting from any initial point, a random walk described by the kernel <span class="math inline">\(P_\text{MCMC}(x\to y)\)</span> eventually gives samples distributed according to the stationary distribution <span class="math inline">\(\pi(x)\)</span>.</p>
+<p>However, this is a fairly difficult condition to check, as often constructing <span class="math inline">\(P_\text{MCMC}(x\to z)\)</span> shows that it’s hard to get a grasp on its limiting properties. An easier condition to check is that of <strong>time-reversibility</strong>: <span class="math inline">\(\pi(x) P_\text{MCMC}(x\to y) = \pi(y) P_\text{MCMC}(y\to x)\)</span>. A distribution <span class="math inline">\(\pi\)</span> that satisfies this condition is thus the stationary distribution of the MCMC kernel.</p>
+<p><strong>Proof:</strong> This is an integral check, given by</p>
+<p><span class="math display">\[ \begin{align} \int_x \pi(x) P_\text{MCMC}(x\to y) dx &amp;= \int_x \pi(y) P_\text{MCMC}(y\to x) dx \\
+    &amp;= \pi(y) \end{align} \]</span></p>
+<p>Now, we describe Metropolis-Hastings. Remember, in this setting our goal is to sample from <span class="math inline">\(p(\theta\mid y_{1:T})\)</span>, so this is our stationary distribution. To define the MH kernel, we first start with a <strong>proposal distribution</strong> <span class="math inline">\(q(x\to y)\)</span>. If <span class="math inline">\(q\)</span> satisfies time-reversibility, then we are done, and <span class="math inline">\(q(x\to y)\)</span> is our desired kernel. Most likely, this is not the case.</p>
+<p>The trick of Metropolis-Hastings is to introduce an accept-reject step in the walk to correct for the bias. Let <span class="math inline">\(\alpha(x\to y)\)</span> be an <strong>acceptance probability</strong> of moving from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span>. We set our MH kernel to be <span class="math inline">\(P_\text{MH}(x\to y) = q(x\to y)\alpha(x\to y)\)</span>.</p>
+<p>What is <span class="math inline">\(\alpha(x\to y)\)</span>? We choose this probability so that time-reversibility is satisfied: Under the assumption that <span class="math inline">\(\alpha(x\to y) &lt; 1\)</span>,</p>
+<p><span class="math display">\[ \begin{align} \pi(x) P_\text{MH}(x\to y) &amp;= \pi(x) q(x\to y) \alpha(x\to y) \\
+    &amp;= \pi(y) q(y\to x) \alpha(y\to x) \\
+    &amp;= \pi(y) q(y\to x) \end{align} \]</span></p>
+<p>where <span class="math inline">\(\alpha(y\to x) = 1\)</span>. This implies ultimately that</p>
+<p><span class="math display">\[ \alpha(x\to y) = \min\left\{1, \frac{\pi(y)q(y\to x)}{\pi(x)q(x\to y)}\right\} \]</span></p>
+<p>This fully describes the Metropolis-Hastings algorithm. In (pseudo)code, it looks like:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> mh(likelihood, proposal, x_0, n_samples<span class="op">=</span><span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb6-2" title="2">    x <span class="op">=</span> np.zeros(n_samples)</a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="co"># initialize random walk</span></a>
+<a class="sourceLine" id="cb6-4" title="4">    x[<span class="dv">0</span>] <span class="op">=</span> x_0</a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6">    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, n_samples):</a>
+<a class="sourceLine" id="cb6-7" title="7">        <span class="co"># sample proposal</span></a>
+<a class="sourceLine" id="cb6-8" title="8">        p_sample <span class="op">=</span> proposal(x[t<span class="dv">-1</span>]).sample()</a>
+<a class="sourceLine" id="cb6-9" title="9">    </a>
+<a class="sourceLine" id="cb6-10" title="10">        <span class="co"># coin flip</span></a>
+<a class="sourceLine" id="cb6-11" title="11">        prob_y_to_x <span class="op">=</span> likelihood(p_sample) <span class="op">*</span> proposal(p_sample).log_prob(x[t<span class="dv">-1</span>]).exp()</a>
+<a class="sourceLine" id="cb6-12" title="12">        prob_x_to_y <span class="op">=</span> likelihood(x[t<span class="dv">-1</span>]) <span class="op">*</span> proposal(x[t<span class="dv">-1</span>]).log_prob(p_sample).exp()</a>
+<a class="sourceLine" id="cb6-13" title="13">        accept_prob <span class="op">=</span> <span class="bu">min</span>(<span class="dv">1</span>, prob_y_to_x <span class="op">/</span> prob_x_to_y)</a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15">        <span class="cf">if</span> random.rand() <span class="op">&lt;</span> accept_prob:</a>
+<a class="sourceLine" id="cb6-16" title="16">            x[t] <span class="op">=</span> p_sample</a>
+<a class="sourceLine" id="cb6-17" title="17">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb6-18" title="18">            x[t] <span class="op">=</span> x[t<span class="dv">-1</span>]</a>
+<a class="sourceLine" id="cb6-19" title="19">    </a>
+<a class="sourceLine" id="cb6-20" title="20">    <span class="cf">return</span> x</a></code></pre></div>
+<p>The key remark to make here is that the only place where the target distribution <span class="math inline">\(\pi(x)\)</span> appears is in the acceptance probability, where only a ratio appears. Hence, one upshot of the MH algorithm is that <span class="math inline">\(\pi(x)\)</span> doesn’t have to be <em>normalized</em>. This is a boon for Bayesian inference, where <span class="math inline">\(\pi(x)\)</span> can just be an unnormalized posterior, i.e. the likelihood and prior.</p>
+<h3 id="auxiliary-variables">auxiliary variables</h3>
+<p>However, what if the likelihood itself is hard to compute? In our situation we are trying to compute <span class="math inline">\(p(\theta\mid y_{1:T})\)</span> via Bayesian inference, so in the MH acceptance probability above we take as our <span class="math inline">\(\pi(\theta) = p(y_{1:T}\mid\theta)p(\theta)\)</span>. But we don’t know how to compute</p>
+<p><span class="math display">\[ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} \]</span></p>
+<p>exactly.</p>
     </section>
 </article>
 
