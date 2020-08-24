@@ -84,7 +84,8 @@ where $a_1$ are the indices of the new resampled particles.
 
 ```python
     # resample particles
-    resampled_idx = random.choice(range(n_particles), size=n_particles, p=importance_weights)
+    resampled_idx = random.choice(range(n_particles), 
+                                  size=n_particles, p=importance_weights)
     x[1] = x[1, resampled_idx]
 ```
 
@@ -100,13 +101,94 @@ We then normalize and resample.
         x[t] = transition(x[t-1], p=p)
         importance_weights = normalize(obs_prob(ys[t], x[t]))
         # resample particles
-        resampled_idx = np.random.choice(range(n_particles), size=n_particles, p=importance_weights)
+        resampled_idx = random.choice(range(n_particles), 
+                                      size=n_particles, p=importance_weights)
         x[t] = x[t, resampled_idx]
         
     return x
 ```
 
-This is the essence behind a particle filter! 
+This is the essence behind a particle filter! We will use this to provide the approximate likelihoods for more advanced particle MCMC methods, such as the particle Metropolis-Hastings algorithm.
 
 
+### metropolis-hastings and mcmc
+
+Given a state space model above, ultimately our goal is to perform inference over latent states **and** parameters, $p(x_{0:T}, \theta\mid y_{1:T})$. In the above particle filter method, we developed a way to approximate the marginal $p(x_{0:T}\mid\theta, y_{1:T})$. So how can we compute the other marginal, the parameter inference $p(\theta\mid y_{1:T})$? We can appeal to a standard MCMC method.
+
+**Note:** Why not importance sampling? Probably because finding an appropriate proposal distribution $q(\theta\mid y_{1:T})$ that has thicker tails than $p(\theta\mid y_{1:T})$ is hard to determine and build.
+
+With that out of the way, let's describe a basic MCMC method-- the **Metropolis-Hastings** algorithm. The central idea of MCMC methods is to construct a *Markov chain* whose stationary distribution is the posterior distribution we want to sample from. That is, we want to perform a random walk in latent/parameter space such that after some time passes, the places visited by the walk will start to look like samples distributed according to the posterior.
+
+Formally, MCMC seeks to construct a **transition kernel** $P_\text{MCMC}(x\to y)$, which describes the Markovian walk from $x$ to $y$ in parameter space. Such kernel has a consistency equation, given by Chapman-Kolmogorov:
+
+$$ P^{(2)}_\text{MCMC}(x\to z) = \int_y P_\text{MCMC}(x\to y) P_\text{MCMC}(y\to z) dy $$
+
+where the $(2)$ denotes the 2-step transition kernel.
+
+By definition, a **stationary distribution** for a Markov kernel is a distribution $\pi(x)$ over the parameter space that is "fixed" by the kernel-- that is,
+
+$$ \pi(z) = \int_y \pi(y) P_\text{MCMC}(y\to z) dy $$
+
+We see from the Chapman-Kolmogorov equation that $P_\text{MCMC}(x\to -)$ for any $x$ would be a close candidate, except that the step-size on each side is different. Under certain mathematical conditions (ergodicity), we can take limits, and show that for any initial point $x$, the stationary distribution can be described as 
+
+$$ \pi(z) = \lim_{n\to\infty} P_\text{MCMC}^{(n)}(x\to z) $$
+
+This shows the main point of MCMC-- starting from any initial point, a random walk described by the kernel $P_\text{MCMC}(x\to y)$ eventually gives samples distributed according to the stationary distribution $\pi(x)$. 
+
+However, this is a fairly difficult condition to check, as often constructing $P_\text{MCMC}(x\to z)$ shows that it's hard to get a grasp on its limiting properties. An easier condition to check is that of **time-reversibility**: $\pi(x) P_\text{MCMC}(x\to y) = \pi(y) P_\text{MCMC}(y\to x)$. A distribution $\pi$ that satisfies this condition is thus the stationary distribution of the MCMC kernel.
+
+**Proof:** This is an integral check, given by
+
+$$ \begin{align} \int_x \pi(x) P_\text{MCMC}(x\to y) dx &= \int_x \pi(y) P_\text{MCMC}(y\to x) dx \\
+    &= \pi(y) \end{align} $$
+
+Now, we describe Metropolis-Hastings. Remember, in this setting our goal is to sample from $p(\theta\mid y_{1:T})$, so this is our stationary distribution. To define the MH kernel, we first start with a **proposal distribution** $q(x\to y)$. If $q$ satisfies time-reversibility, then we are done, and $q(x\to y)$ is our desired kernel. Most likely, this is not the case.
+
+The trick of Metropolis-Hastings is to introduce an accept-reject step in the walk to correct for the bias. Let $\alpha(x\to y)$ be an **acceptance probability** of moving from $x$ to $y$. We set our MH kernel to be $P_\text{MH}(x\to y) = q(x\to y)\alpha(x\to y)$. 
+
+What is $\alpha(x\to y)$? We choose this probability so that time-reversibility is satisfied: Under the assumption that $\alpha(x\to y) < 1$,
+
+$$ \begin{align} \pi(x) P_\text{MH}(x\to y) &= \pi(x) q(x\to y) \alpha(x\to y) \\
+    &= \pi(y) q(y\to x) \alpha(y\to x) \\
+    &= \pi(y) q(y\to x) \end{align} $$
+
+where $\alpha(y\to x) = 1$. This implies ultimately that
+
+$$ \alpha(x\to y) = \min\left\{1, \frac{\pi(y)q(y\to x)}{\pi(x)q(x\to y)}\right\} $$
+
+This fully describes the Metropolis-Hastings algorithm. In (pseudo)code, it looks like:
+
+```python
+def mh(likelihood, proposal, x_0, n_samples=1000):
+    x = np.zeros(n_samples)
+    # initialize random walk
+    x[0] = x_0
+
+    for t in range(1, n_samples):
+        # sample proposal
+        p_sample = proposal(x[t-1]).sample()
+    
+        # coin flip
+        prob_y_to_x = likelihood(p_sample) * proposal(p_sample).log_prob(x[t-1]).exp()
+        prob_x_to_y = likelihood(x[t-1]) * proposal(x[t-1]).log_prob(p_sample).exp()
+        accept_prob = min(1, prob_y_to_x / prob_x_to_y)
+
+        if random.rand() < accept_prob:
+            x[t] = p_sample
+        else:
+            x[t] = x[t-1]
+    
+    return x
+```
+
+The key remark to make here is that the only place where the target distribution $\pi(x)$ appears is in the acceptance probability, where only a ratio appears. Hence, one upshot of the MH algorithm is that $\pi(x)$ doesn't have to be *normalized*. This is a boon for Bayesian inference, where $\pi(x)$ can just be an unnormalized posterior, i.e. the likelihood and prior.
+
+
+### auxiliary variables
+
+However, what if the likelihood itself is hard to compute? In our situation we are trying to compute $p(\theta\mid y_{1:T})$ via Bayesian inference, so in the MH acceptance probability above we take as our $\pi(\theta) = p(y_{1:T}\mid\theta)p(\theta)$. But we don't know how to compute
+
+$$ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} $$
+
+exactly. 
 
