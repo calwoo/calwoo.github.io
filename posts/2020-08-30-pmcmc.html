@@ -145,7 +145,57 @@
 <h3 id="auxiliary-variables">auxiliary variables</h3>
 <p>However, what if the likelihood itself is hard to compute? In our situation we are trying to compute <span class="math inline">\(p(\theta\mid y_{1:T})\)</span> via Bayesian inference, so in the MH acceptance probability above we take as our <span class="math inline">\(\pi(\theta) = p(y_{1:T}\mid\theta)p(\theta)\)</span>. But we don’t know how to compute</p>
 <p><span class="math display">\[ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} \]</span></p>
-<p>exactly.</p>
+<p>exactly. Instead, suppose that we have an approximation to the likelihood <span class="math inline">\(\widehat{z}\simeq p(y_{1:T}\mid\theta)\)</span>. What we will do is treat this as a random variable <span class="math inline">\(\widehat{z}\sim \psi(z\mid\theta, y_{1:T})\)</span> and append this as an <strong>auxiliary variable</strong> to the joint distribution. Our joint then becomes</p>
+<p><span class="math display">\[ \begin{align} \psi(\theta, z\mid y_{1:T}) &amp;= p(\theta\mid y_{1:T})\psi(z\mid\theta, y_{1:T}) \\
+    &amp;\propto p(y_{1:T}\mid\theta)p(\theta)\psi(z\mid\theta, y_{1:T}) \\
+    &amp;\simeq \widehat{z} p(\theta)\psi(z\mid\theta, y_{1:T}) \end{align} \]</span></p>
+<p>where we used our approximation to the likelihood <span class="math inline">\(\widehat{z}\)</span>. Here, the final term is our target distribution <span class="math inline">\(\pi(\theta, z\mid y_{1:T}) = \widehat{z} p(\theta)\psi(z\mid\theta, y_{1:T})\)</span>. This looks different from our real target <span class="math inline">\(p(\theta\mid y_{1:T})\)</span>, not to mention that we have an extra auxiliary variable <span class="math inline">\(z\)</span>.</p>
+<p>But it doesn’t matter! All that matters for <span class="math inline">\(\pi(\theta, z\mid y_{1:T})\)</span> is that its marginal for <span class="math inline">\(\theta\)</span> matches <span class="math inline">\(p(\theta\mid y_{1:T})\)</span>. In particular, we see that <span class="math inline">\(\widehat{z}\simeq p(y_{1:T}\mid\theta)\)</span> must be an <strong>unbiased</strong> estimator.</p>
+<p>From this, we have all the ingredients we need to perform Metropolis-Hastings. At each step of the random walk, we sample <em>both</em> <span class="math inline">\(\theta'\)</span> and <span class="math inline">\(z'\)</span>, and accept-or-reject based on the acceptance probability (which one can compute):</p>
+<p><span class="math display">\[ \alpha_\text{MH}(\theta', z') = \min\left\{1, \frac{z' p(\theta') q(\theta'\to\theta_\text{prev})}{z_\text{prev} p(\theta_\text{prev}) q(\theta_\text{prev}\to\theta')}\right\} \]</span></p>
+<p>Finally, the projection to the <span class="math inline">\(\theta\)</span>-walk gives the resulting MCMC samples.</p>
+<h3 id="particle-metropolis-hastings">particle metropolis-hastings</h3>
+<p>Okay, all that sounds good, but– what are we taking as our approximation <span class="math inline">\(\widehat{z}\simeq p(y_{1:T}\mid\theta)\)</span>? As an integral form, the likelihood we want is</p>
+<p><span class="math display">\[ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} \]</span></p>
+<p>An idea is to approximate this using a <strong>Monte Carlo estimate</strong>. Factorizing the integral even further,</p>
+<p><span class="math display">\[ p(y_{1:T}\mid\theta) = \prod_{i=1}^T \int_x p(y_t\mid x_t,\theta) p(x_t\mid\ y_{1:t-1}, \theta) dx_t \]</span></p>
+<p>we can perform the MC estimation sequentially, and then multiply the estimates together. Exploiting the sequential nature of the model often decreases the variance of the final estimator.</p>
+<p>But note that we already have an estimator for <span class="math inline">\(p(x_t\mid\ y_{1:t-1}, \theta)\)</span>– a <strong>particle filter</strong>! And in this situation, <span class="math inline">\(\omega_t\simeq p(y_t\mid x_t, \theta)\)</span> are the importance weights in the particle filter, so can ultimately produce likelihood estimators <span class="math inline">\(\widehat{z}\)</span> by performing a full run of a particle filter over the model and letting</p>
+<p><span class="math display">\[ \widehat{z} = \prod_{t=1}^T \left[\frac{1}{N}\sum^N_{i=1} \omega^{(i)}_t\right] \]</span></p>
+<p>Since the particle filter satisfies convergence guarentees, we see that <span class="math inline">\(\widehat{z}\)</span> is indeed an unbiased estimator of <span class="math inline">\(p(y_{1:T}\mid\theta)\)</span>. Combining this particle filter likelihood estimator with the Metropolis-Hastings method above, we get the <strong>particle Metropolis-Hastings algorithm</strong> for Bayesian parameter inference. In (pseudo)code this looks like:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">def</span> pmh(pf, obs, prior, proposal, x_0, n_samples<span class="op">=</span><span class="dv">1000</span>, n_particles<span class="op">=</span><span class="dv">100</span>):</a>
+<a class="sourceLine" id="cb7-2" title="2">    x <span class="op">=</span> np.zeros(n_samples)</a>
+<a class="sourceLine" id="cb7-3" title="3">    z <span class="op">=</span> np.zeros(n_samples)</a>
+<a class="sourceLine" id="cb7-4" title="4">    <span class="co"># initialize random walk</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    x[<span class="dv">0</span>] <span class="op">=</span> x_0</a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="co"># particle filter returns particles and weights for each time step</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    particles, weights <span class="op">=</span> pf(obs, theta<span class="op">=</span>x[<span class="dv">0</span>]).run(n_particles)</a>
+<a class="sourceLine" id="cb7-8" title="8">    z[<span class="dv">0</span>] <span class="op">=</span> prod(mean(weights, dim<span class="op">=</span><span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb7-9" title="9"></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(obs)):</a>
+<a class="sourceLine" id="cb7-11" title="11">        <span class="co"># sample proposal</span></a>
+<a class="sourceLine" id="cb7-12" title="12">        p_sample <span class="op">=</span> proposal(x[m<span class="dv">-1</span>]).sample()</a>
+<a class="sourceLine" id="cb7-13" title="13">        particles, weights <span class="op">=</span> pf(obs, theta<span class="op">=</span>p_sample).run(n_particles)</a>
+<a class="sourceLine" id="cb7-14" title="14">        z_sample <span class="op">=</span> prod(mean(weights, dim<span class="op">=</span><span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16">        <span class="co"># coin flip</span></a>
+<a class="sourceLine" id="cb7-17" title="17">        prob_y_to_x <span class="op">=</span> z_sample <span class="op">*</span> (prior.log_prob(p_sample) <span class="op">+</span> </a>
+<a class="sourceLine" id="cb7-18" title="18">                                  proposal(p_sample).log_prob(x[t<span class="dv">-1</span>])).exp()</a>
+<a class="sourceLine" id="cb7-19" title="19">        prob_x_to_y <span class="op">=</span> z[t<span class="dv">-1</span>] <span class="op">*</span> (prior.log_prob(x[t<span class="dv">-1</span>]) <span class="op">+</span> </a>
+<a class="sourceLine" id="cb7-20" title="20">                                proposal(x[t<span class="dv">-1</span>]).log_prob(p_sample)).exp()</a>
+<a class="sourceLine" id="cb7-21" title="21">        accept_prob <span class="op">=</span> <span class="bu">min</span>(<span class="dv">1</span>, prob_y_to_x <span class="op">/</span> prob_x_to_y)</a>
+<a class="sourceLine" id="cb7-22" title="22"></a>
+<a class="sourceLine" id="cb7-23" title="23">        <span class="cf">if</span> random.rand() <span class="op">&lt;</span> accept_prob:</a>
+<a class="sourceLine" id="cb7-24" title="24">            x[t] <span class="op">=</span> p_sample</a>
+<a class="sourceLine" id="cb7-25" title="25">            z[t] <span class="op">=</span> z_sample</a>
+<a class="sourceLine" id="cb7-26" title="26">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb7-27" title="27">            x[t] <span class="op">=</span> x[t<span class="dv">-1</span>]</a>
+<a class="sourceLine" id="cb7-28" title="28">            z[t] <span class="op">=</span> z[t<span class="dv">-1</span>]</a>
+<a class="sourceLine" id="cb7-29" title="29">    </a>
+<a class="sourceLine" id="cb7-30" title="30">    <span class="co"># project out z</span></a>
+<a class="sourceLine" id="cb7-31" title="31">    <span class="cf">return</span> x</a></code></pre></div>
+<h3 id="probabilistic-programming">probabilistic programming</h3>
+<p>If you think about it, a generative story for a joint distribution can be unraveled into a sequential model of states, and hence a version of particle MCMC methods apply here as well. In this way, the states <span class="math inline">\(x_t\)</span> refer to the total <strong>execution state</strong> of the program at that point in time, and observations <span class="math inline">\(y_t\)</span> correspond to the <code>observe</code> primitives in the PPL (i.e. conditioning statements).</p>
     </section>
 </article>
 
