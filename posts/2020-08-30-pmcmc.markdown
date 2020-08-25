@@ -190,5 +190,76 @@ However, what if the likelihood itself is hard to compute? In our situation we a
 
 $$ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} $$
 
-exactly. 
+exactly. Instead, suppose that we have an approximation to the likelihood $\widehat{z}\simeq p(y_{1:T}\mid\theta)$. What we will do is treat this as a random variable $\widehat{z}\sim \psi(z\mid\theta, y_{1:T})$ and append this as an **auxiliary variable** to the joint distribution. Our joint then becomes
 
+$$ \begin{align} \psi(\theta, z\mid y_{1:T}) &= p(\theta\mid y_{1:T})\psi(z\mid\theta, y_{1:T}) \\
+    &\propto p(y_{1:T}\mid\theta)p(\theta)\psi(z\mid\theta, y_{1:T}) \\
+    &\simeq \widehat{z} p(\theta)\psi(z\mid\theta, y_{1:T}) \end{align} $$
+
+where we used our approximation to the likelihood $\widehat{z}$. Here, the final term is our target distribution $\pi(\theta, z\mid y_{1:T}) = \widehat{z} p(\theta)\psi(z\mid\theta, y_{1:T})$. This looks different from our real target $p(\theta\mid y_{1:T})$, not to mention that we have an extra auxiliary variable $z$. 
+
+But it doesn't matter! All that matters for $\pi(\theta, z\mid y_{1:T})$ is that its marginal for $\theta$ matches $p(\theta\mid y_{1:T})$. In particular, we see that $\widehat{z}\simeq p(y_{1:T}\mid\theta)$ must be an **unbiased** estimator. 
+
+From this, we have all the ingredients we need to perform Metropolis-Hastings. At each step of the random walk, we sample *both* $\theta'$ and $z'$, and accept-or-reject based on the acceptance probability (which one can compute):
+
+$$ \alpha_\text{MH}(\theta', z') = \min\left\{1, \frac{z' p(\theta') q(\theta'\to\theta_\text{prev})}{z_\text{prev} p(\theta_\text{prev}) q(\theta_\text{prev}\to\theta')}\right\} $$
+
+Finally, the projection to the $\theta$-walk gives the resulting MCMC samples. 
+
+
+### particle metropolis-hastings
+
+Okay, all that sounds good, but-- what are we taking as our approximation $\widehat{z}\simeq p(y_{1:T}\mid\theta)$? As an integral form, the likelihood we want is
+
+$$ p(y_{1:T}\mid\theta) = \int_{x_{0:T}} p(y_{1:T}\mid x_{0:T},\theta) p(x_{0:T}\mid\theta) dx_{0:T} $$
+
+An idea is to approximate this using a **Monte Carlo estimate**. Factorizing the integral even further,
+
+$$ p(y_{1:T}\mid\theta) = \prod_{i=1}^T \int_x p(y_t\mid x_t,\theta) p(x_t\mid\ y_{1:t-1}, \theta) dx_t $$
+
+we can perform the MC estimation sequentially, and then multiply the estimates together. Exploiting the sequential nature of the model often decreases the variance of the final estimator. 
+
+But note that we already have an estimator for $p(x_t\mid\ y_{1:t-1}, \theta)$-- a **particle filter**! And in this situation, $\omega_t\simeq p(y_t\mid x_t, \theta)$ are the importance weights in the particle filter, so can ultimately produce likelihood estimators $\widehat{z}$ by performing a full run of a particle filter over the model and letting
+
+$$ \widehat{z} = \prod_{t=1}^T \left[\frac{1}{N}\sum^N_{i=1} \omega^{(i)}_t\right] $$
+
+Since the particle filter satisfies convergence guarentees, we see that $\widehat{z}$ is indeed an unbiased estimator of $p(y_{1:T}\mid\theta)$. Combining this particle filter likelihood estimator with the Metropolis-Hastings method above, we get the **particle Metropolis-Hastings algorithm** for Bayesian parameter inference. In (pseudo)code this looks like:
+
+```python
+def pmh(pf, obs, prior, proposal, x_0, n_samples=1000, n_particles=100):
+    x = np.zeros(n_samples)
+    z = np.zeros(n_samples)
+    # initialize random walk
+    x[0] = x_0
+    # particle filter returns particles and weights for each time step
+    particles, weights = pf(obs, theta=x[0]).run(n_particles)
+    z[0] = prod(mean(weights, dim=0))
+
+    for m in range(1, len(obs)):
+        # sample proposal
+        p_sample = proposal(x[m-1]).sample()
+        particles, weights = pf(obs, theta=p_sample).run(n_particles)
+        z_sample = prod(mean(weights, dim=0))
+
+        # coin flip
+        prob_y_to_x = z_sample * (prior.log_prob(p_sample) + 
+                                  proposal(p_sample).log_prob(x[t-1])).exp()
+        prob_x_to_y = z[t-1] * (prior.log_prob(x[t-1]) + 
+                                proposal(x[t-1]).log_prob(p_sample)).exp()
+        accept_prob = min(1, prob_y_to_x / prob_x_to_y)
+
+        if random.rand() < accept_prob:
+            x[t] = p_sample
+            z[t] = z_sample
+        else:
+            x[t] = x[t-1]
+            z[t] = z[t-1]
+    
+    # project out z
+    return x
+```
+
+
+### probabilistic programming
+
+If you think about it, a generative story for a joint distribution can be unraveled into a sequential model of states, and hence a version of particle MCMC methods apply here as well. In this way, the states $x_t$ refer to the total **execution state** of the program at that point in time, and observations $y_t$ correspond to the `observe` primitives in the PPL (i.e. conditioning statements). 
