@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Empirical inference in Pyro - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Empirical inference in Pyro</h1>
+            <article>
+    <section class="header">
+        Posted on August 27, 2020
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>Most probabilistic programming languages on the market tend to focus on a single inference algorithm as their bread and butter: Stan promulgated the use of Hamiltonian Monte Carlo for inference of complicated hierarchical models, <code>pyro</code>’s API focuses heavily on stochastic variational inference, etc. However, they usually expose many ways to implement other inference algorithms, usually by exploiting execution traces.</p>
+<p>Having a varied selection of inference algorithms to try out is advantagous– some algorithms are exact while others are merely approximate, some are slow to compute, while others are very fast. Also, many algorithms exploit dependency structures in the generative models which make them more robust to modality issues or exponential combinatorial explosions. In this blog post we will focus on trying to understand <code>pyro</code>’s importance sampling algorithms, eventually culminating on understanding the <code>pyro.infer.CSIS</code> module on inference compilation.</p>
+<h3 id="empirical">empirical</h3>
+<p>First we describe the <code>Empirical</code> distribution.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> itertools</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">from</span> abc <span class="im">import</span> abstractmethod</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">import</span> torch</a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="im">import</span> torch.nn <span class="im">as</span> nn</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="im">from</span> torch.distributions <span class="im">import</span> constraints</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="im">import</span> pyro</a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="im">import</span> pyro.poutine <span class="im">as</span> poutine</a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="im">import</span> pyro.distributions <span class="im">as</span> dist</a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="im">from</span> pyro.distributions.torch <span class="im">import</span> Categorical</a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="im">from</span> pyro.distributions.torch_distribution <span class="im">import</span> TorchDistribution</a></code></pre></div>
+<p>In essense, an empirical distribution (derived from a dataset <span class="math inline">\(\mathcal{D}\)</span>) is a histogram without buckets. Instead, points are “weighted” as a proxy of binning. Mathematically, an empirical distribution can be described by the measure</p>
+<p><span class="math display">\[ \mu_\text{emp}(\mathcal{D}) = \sum_{x\in\mathcal{D}} \omega_x\delta_x \]</span></p>
+<p>where <span class="math inline">\(\delta_x\)</span> is the Dirac measure with mass concentrated at the point <span class="math inline">\(x\)</span>.</p>
+<p>As with all distributions in modern PPLs, we just need to implement <code>sample</code> to sample a value from the empirical, and <code>log_prob</code> to retrieve the log weight of a value sampled from the distribution.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> Empirical(TorchDistribution):</a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, samples, log_weights):</a>
+<a class="sourceLine" id="cb2-3" title="3">        <span class="va">self</span>._samples <span class="op">=</span> samples</a>
+<a class="sourceLine" id="cb2-4" title="4">        <span class="va">self</span>._log_weights <span class="op">=</span> log_weights</a>
+<a class="sourceLine" id="cb2-5" title="5">        </a>
+<a class="sourceLine" id="cb2-6" title="6">        sample_shape, weight_shape <span class="op">=</span> samples.size(), log_weights.size()</a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="cf">assert</span> sample_shape <span class="op">&gt;=</span> weight_shape</a>
+<a class="sourceLine" id="cb2-8" title="8">        </a>
+<a class="sourceLine" id="cb2-9" title="9">        <span class="co"># the shape of the points are given by the remainder of sample_shape</span></a>
+<a class="sourceLine" id="cb2-10" title="10">        event_shape <span class="op">=</span> sample_shape[<span class="bu">len</span>(weight_shape):]</a>
+<a class="sourceLine" id="cb2-11" title="11">        </a>
+<a class="sourceLine" id="cb2-12" title="12">        <span class="co"># we will represent the measure by a categorical distribution</span></a>
+<a class="sourceLine" id="cb2-13" title="13">        <span class="va">self</span>._categorical <span class="op">=</span> Categorical(logits<span class="op">=</span><span class="va">self</span>._log_weights)</a>
+<a class="sourceLine" id="cb2-14" title="14">        <span class="bu">super</span>().<span class="fu">__init__</span>(batch_shape<span class="op">=</span>weight_shape[:<span class="op">-</span><span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb2-15" title="15">                         event_shape<span class="op">=</span>event_shape)</a>
+<a class="sourceLine" id="cb2-16" title="16">        </a>
+<a class="sourceLine" id="cb2-17" title="17">    <span class="kw">def</span> sample(<span class="va">self</span>, sample_shape<span class="op">=</span>torch.Size()):</a>
+<a class="sourceLine" id="cb2-18" title="18">        <span class="co"># sample idx from the categorical</span></a>
+<a class="sourceLine" id="cb2-19" title="19">        idx <span class="op">=</span> <span class="va">self</span>._categorical.sample(sample_shape)</a>
+<a class="sourceLine" id="cb2-20" title="20">        samples <span class="op">=</span> <span class="va">self</span>._samples.gather(<span class="dv">0</span>, idx)</a>
+<a class="sourceLine" id="cb2-21" title="21">        <span class="cf">return</span> samples.reshape(sample_shape <span class="op">+</span> samples.shape[<span class="dv">1</span>:])</a>
+<a class="sourceLine" id="cb2-22" title="22">    </a>
+<a class="sourceLine" id="cb2-23" title="23">    <span class="kw">def</span> log_prob(<span class="va">self</span>, value):</a>
+<a class="sourceLine" id="cb2-24" title="24">        <span class="co"># get the sample that matches value</span></a>
+<a class="sourceLine" id="cb2-25" title="25">        sel_mask <span class="op">=</span> <span class="va">self</span>._samples.eq(value)</a>
+<a class="sourceLine" id="cb2-26" title="26">        <span class="co"># get weights that correspond to sample using mask</span></a>
+<a class="sourceLine" id="cb2-27" title="27">        wgts <span class="op">=</span> (<span class="va">self</span>._categorical.probs <span class="op">*</span> sel_mask).<span class="bu">sum</span>(dim<span class="op">=-</span><span class="dv">1</span>).log()</a>
+<a class="sourceLine" id="cb2-28" title="28">        <span class="cf">return</span> wgts</a></code></pre></div>
+<p>If one needs a reminder about how tensor dimensions are used in probabilistic programming, I recommend taking a read of this <a href="https://ericmjl.github.io/blog/2019/5/29/reasoning-about-shapes-and-probability-distributions/">blog post</a> of Eric Ma.</p>
+<p>An <code>Empirical</code> distribution is ultimately a reification of a sampling distribution. Given samples from a normal distribution</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;</span> samples <span class="op">=</span> torch.randn(<span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="op">&gt;</span> log_wgts <span class="op">=</span> torch.ones(<span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="op">&gt;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="op">&gt;</span> emp <span class="op">=</span> Empirical(samples, log_wgts)</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="op">&gt;</span> emp_samples <span class="op">=</span> [emp.sample().detach().item() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>)]</a></code></pre></div>
+<p>we can get a visualization of our empirical distribution as the histogram</p>
+<p align="center">
+<img width="400" height="300" src="../images/emp_hist.png">
+</p>
+<h3 id="posterior-predictives">posterior predictives</h3>
+<p>The point of probabilistic programming is to make it easy to perform inference of latent variables and parameters in generative models. A PPL is equipped with a suite of inference algorithms that allow us to determine a <strong>posterior</strong> distribution over unobserved variables, given a <strong>prior</strong> model and a set of observations.</p>
+<p>In <code>pyro</code>, a prior on data is described by a <em>model</em>, such as:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> model(data):</a>
+<a class="sourceLine" id="cb4-2" title="2">    p <span class="op">=</span> pyro.sample(<span class="st">&quot;p&quot;</span>, dist.Beta(<span class="fl">2.0</span>, <span class="fl">2.0</span>))</a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="cf">with</span> pyro.plate(<span class="st">&quot;data&quot;</span>, <span class="bu">len</span>(data)):</a>
+<a class="sourceLine" id="cb4-4" title="4">        pyro.sample(<span class="st">&quot;obs&quot;</span>, dist.Bernoulli(p), obs<span class="op">=</span>data)</a></code></pre></div>
+<p>As a generative story, this model describes the prior</p>
+<p><span class="math display">\[ \begin{align} p &amp;\sim \text{Beta}(2, 2) \\
+  x_i | p &amp;\sim \text{Bernoulli}(p) \end{align} \]</span></p>
+<p>Now, given a dataset, say <span class="math inline">\(\mathcal{D}=\{1,0,1,1,1\}\)</span>, what is the posterior? That is, we want to compute the distribution over latents (here, it is <code>p</code>) that best describe the observed data <span class="math inline">\(\mathcal{D}\)</span>. This is the <strong>inference process</strong>. <code>pyro</code> is equipped with a number of such algorithms, but the one it is specially designed for is <strong>variational inference</strong>, in which we construct a <em>guide</em> <span class="math inline">\(q(z\mid x;\phi)\)</span> and use stochastic optimization on an information-theoretic bound to choose parameters <span class="math inline">\(\phi\)</span> that make the resulting guide a <em>good</em> approximation to the true posterior of the model.</p>
+<p>For example, a guide we can use for the above model is given by <span class="math inline">\(q(p\mid x;\alpha,\beta) =\text{Beta}(p\mid \alpha,\beta)\)</span>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> guide(data):</a>
+<a class="sourceLine" id="cb5-2" title="2">    a <span class="op">=</span> pyro.param(<span class="st">&quot;a&quot;</span>, torch.tensor(<span class="fl">1.0</span>), constraint<span class="op">=</span>constraints.positive)</a>
+<a class="sourceLine" id="cb5-3" title="3">    b <span class="op">=</span> pyro.param(<span class="st">&quot;b&quot;</span>, torch.tensor(<span class="fl">1.0</span>), constraint<span class="op">=</span>constraints.positive)</a>
+<a class="sourceLine" id="cb5-4" title="4">    pyro.sample(<span class="st">&quot;p&quot;</span>, dist.Beta(a, b))</a></code></pre></div>
+<p>Once we’ve performed the stochastic variational inference procedure and determined the best parameters <code>a</code> and <code>b</code> above, we get a guide function that performs as the “best” (that is, maximal entropy) approximation to the true posterior of the latent variables in the model. How do we get a grasp of this posterior as a distribution, though?</p>
+<p>Sample! In PPLs, we often are concerned with the space of <strong>execution traces</strong> that are produced by a generative story– that is, the sequence of all stochastic choices and conditions encountered during a single execution of the model. <code>pyro</code> captures the traces automatically in the background using an algebraic effects system called <code>poutine</code>. We described algebraic effect systems and their use in Pyro in previous posts on this blog.</p>
+<p>For example, to capture a single execution trace of the model, we just need to wrap the model in an <strong>effect handler</strong> <code>trace</code> that will keep a logged record of the execution of every <code>pyro.sample</code> site that gets activated in the program.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="op">&gt;</span> tr <span class="op">=</span> poutine.trace(model)</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="co"># to execute the model once, returning a single trace</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="op">&gt;</span> data <span class="op">=</span> torch.tensor([<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>]).<span class="bu">type</span>(torch.float32).view(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="op">&gt;</span> model_tr <span class="op">=</span> tr.get_trace(data)</a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="op">&gt;</span> model_tr.nodes</a>
+<a class="sourceLine" id="cb6-7" title="7">OrderedDict([(<span class="st">'_INPUT'</span>,</a>
+<a class="sourceLine" id="cb6-8" title="8">              {<span class="st">'name'</span>: <span class="st">'_INPUT'</span>,</a>
+<a class="sourceLine" id="cb6-9" title="9">               <span class="st">'type'</span>: <span class="st">'args'</span>,</a>
+<a class="sourceLine" id="cb6-10" title="10">               <span class="st">'args'</span>: (tensor([[<span class="fl">1.</span>],</a>
+<a class="sourceLine" id="cb6-11" title="11">                        [<span class="fl">0.</span>],</a>
+<a class="sourceLine" id="cb6-12" title="12">                        [<span class="fl">1.</span>],</a>
+<a class="sourceLine" id="cb6-13" title="13">                        [<span class="fl">1.</span>],</a>
+<a class="sourceLine" id="cb6-14" title="14">                        [<span class="fl">0.</span>]]),),</a>
+<a class="sourceLine" id="cb6-15" title="15">               <span class="st">'kwargs'</span>: {}}),</a>
+<a class="sourceLine" id="cb6-16" title="16">             (<span class="st">'p'</span>,</a>
+<a class="sourceLine" id="cb6-17" title="17">              {<span class="st">'type'</span>: <span class="st">'sample'</span>,</a>
+<a class="sourceLine" id="cb6-18" title="18">               <span class="st">'name'</span>: <span class="st">'p'</span>,</a>
+<a class="sourceLine" id="cb6-19" title="19">               <span class="st">'fn'</span>: Beta(),</a>
+<a class="sourceLine" id="cb6-20" title="20">               <span class="st">'is_observed'</span>: <span class="va">False</span>,</a>
+<a class="sourceLine" id="cb6-21" title="21">               <span class="st">'args'</span>: (),</a>
+<a class="sourceLine" id="cb6-22" title="22">               <span class="st">'kwargs'</span>: {},</a>
+<a class="sourceLine" id="cb6-23" title="23">               <span class="st">'value'</span>: tensor(<span class="fl">0.3828</span>),</a>
+<a class="sourceLine" id="cb6-24" title="24">               <span class="st">'infer'</span>: {},</a>
+<a class="sourceLine" id="cb6-25" title="25">               <span class="st">'scale'</span>: <span class="fl">1.0</span>,</a>
+<a class="sourceLine" id="cb6-26" title="26">               <span class="st">'mask'</span>: <span class="va">None</span>,</a>
+<a class="sourceLine" id="cb6-27" title="27">               <span class="st">'cond_indep_stack'</span>: (),</a>
+<a class="sourceLine" id="cb6-28" title="28">               <span class="st">'done'</span>: <span class="va">True</span>,</a>
+<a class="sourceLine" id="cb6-29" title="29">               <span class="st">'stop'</span>: <span class="va">False</span>,</a>
+<a class="sourceLine" id="cb6-30" title="30">               <span class="st">'continuation'</span>: <span class="va">None</span>}),</a>
+<a class="sourceLine" id="cb6-31" title="31">               ...</a></code></pre></div>
+<p>Given traces from the approximate posterior (guide), we can sample from the generative model with the latents tuned to their posterior distributional values by <code>replay</code>ing a trace of the guide in the model, and capturing the resulting values in a new trace.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> Predictor(nn.Module):</a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, guide):</a>
+<a class="sourceLine" id="cb7-3" title="3">        <span class="bu">super</span>(Predictor, <span class="va">self</span>).<span class="fu">__init__</span>()</a>
+<a class="sourceLine" id="cb7-4" title="4">        <span class="va">self</span>.model <span class="op">=</span> model</a>
+<a class="sourceLine" id="cb7-5" title="5">        <span class="va">self</span>.guide <span class="op">=</span> guide</a>
+<a class="sourceLine" id="cb7-6" title="6">        </a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="kw">def</span> forward(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb7-8" title="8">        samples <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb7-9" title="9">        <span class="co"># get an execution trace from the guide, to sample posterior values of latents</span></a>
+<a class="sourceLine" id="cb7-10" title="10">        guide_tr <span class="op">=</span> poutine.trace(<span class="va">self</span>.guide).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb7-11" title="11">        <span class="co"># run an execution of the model, while replacing all latent site </span></a>
+<a class="sourceLine" id="cb7-12" title="12">        <span class="co"># values with guide trace</span></a>
+<a class="sourceLine" id="cb7-13" title="13">        model_tr <span class="op">=</span> poutine.trace(</a>
+<a class="sourceLine" id="cb7-14" title="14">            poutine.replay(<span class="va">self</span>.model, guide_tr)).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb7-15" title="15">        </a>
+<a class="sourceLine" id="cb7-16" title="16">        <span class="cf">for</span> site <span class="kw">in</span> model_tr.stochastic_nodes:</a>
+<a class="sourceLine" id="cb7-17" title="17">            samples[site] <span class="op">=</span> model_tr.nodes[site][<span class="st">&quot;value&quot;</span>]</a>
+<a class="sourceLine" id="cb7-18" title="18">        <span class="cf">return</span> samples</a></code></pre></div>
+<p>Getting a joint-prediction involves just running the model</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="op">&gt;</span> predictions <span class="op">=</span> Predictor(model, guide)</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="op">&gt;</span> predictions(data)</a>
+<a class="sourceLine" id="cb8-3" title="3">{<span class="st">'p'</span>: tensor(<span class="fl">0.6442</span>, grad_fn<span class="op">=&lt;</span>SelectBackward<span class="op">&gt;</span>),</a>
+<a class="sourceLine" id="cb8-4" title="4"> <span class="st">'data'</span>: tensor([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>])}</a></code></pre></div>
+<p>Why is this called <code>Predictor</code>? Because this describes the <strong>posterior predictive distribution</strong>– it is a function that can actually produce <em>predictions</em> from the generative model, where the latents are now distributed according to the approximate posterior given by the guide.</p>
+<p>If we want to isolate the <strong>marginal</strong> distribution of a single sampling site (let’s say we only care about the posterior for <code>p</code>), we can sample a bunch of traces from the predictive and only extract the values corresponding to the site in question.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">class</span> VariationalMarginal(Empirical):</a>
+<a class="sourceLine" id="cb9-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, predictor, site, <span class="op">*</span>args, n_traces<span class="op">=</span><span class="dv">1000</span>, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb9-3" title="3">        <span class="va">self</span>.predictor <span class="op">=</span> predictor</a>
+<a class="sourceLine" id="cb9-4" title="4">        <span class="va">self</span>.site <span class="op">=</span> site</a>
+<a class="sourceLine" id="cb9-5" title="5">        <span class="va">self</span>.n_traces <span class="op">=</span> n_traces</a>
+<a class="sourceLine" id="cb9-6" title="6">        </a>
+<a class="sourceLine" id="cb9-7" title="7">        <span class="va">self</span>._samples <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb9-8" title="8">        <span class="va">self</span>._weights <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb9-9" title="9">        <span class="co"># generate samples and weights</span></a>
+<a class="sourceLine" id="cb9-10" title="10">        <span class="va">self</span>._generate(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb9-11" title="11">        </a>
+<a class="sourceLine" id="cb9-12" title="12">        <span class="co"># stack samples, weights</span></a>
+<a class="sourceLine" id="cb9-13" title="13">        <span class="va">self</span>._samples <span class="op">=</span> torch.stack(<span class="va">self</span>._samples, dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb9-14" title="14">        <span class="va">self</span>._weights <span class="op">=</span> torch.stack(<span class="va">self</span>._weights, dim<span class="op">=</span><span class="dv">0</span>).squeeze(<span class="op">-</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb9-15" title="15">        <span class="bu">super</span>(VariationalMarginal, <span class="va">self</span>).<span class="fu">__init__</span>(<span class="va">self</span>._samples, <span class="va">self</span>._weights)</a>
+<a class="sourceLine" id="cb9-16" title="16">        </a>
+<a class="sourceLine" id="cb9-17" title="17">    <span class="kw">def</span> _generate(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb9-18" title="18">        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.n_traces):</a>
+<a class="sourceLine" id="cb9-19" title="19">            sample <span class="op">=</span> <span class="va">self</span>.predictor(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb9-20" title="20">            <span class="co"># project predictive trace to site</span></a>
+<a class="sourceLine" id="cb9-21" title="21">            site_val <span class="op">=</span> sample[<span class="va">self</span>.site]</a>
+<a class="sourceLine" id="cb9-22" title="22">            <span class="va">self</span>._samples.append(site_val)</a>
+<a class="sourceLine" id="cb9-23" title="23">            <span class="va">self</span>._weights.append(torch.tensor([<span class="fl">1.0</span>]))</a></code></pre></div>
+<p>Running this is like the predictor above:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="op">&gt;</span> p_marginal <span class="op">=</span> VariationalMarginal(predictions, <span class="st">&quot;p&quot;</span>, data)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="op">&gt;</span> p_samples <span class="op">=</span> [p_marginal().detach().item() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>)]</a></code></pre></div>
+<p>Of course, we didn’t train the guide so the resulting histogram should look uniform, and overall very useless for us.</p>
+<h3 id="importance-sampling">importance sampling</h3>
+<p>Stochastic variational inference is one of the main ways to produce a good posterior distribution in <code>pyro</code>, but it isn’t the only way. Importance sampling is an inference method of computing the posterior, by using a guide as a <strong>proposal distribution</strong> for a Monte Carlo sampling of execution traces that <em>directly</em> come from the posterior.</p>
+<p>In this way, the importance sampler represents the posterior not as its own generative model, but as a collection of traces, which in <code>pyro</code> is formalized as the abstract <code>TracePosterior</code> class.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">class</span> TracePosterior:</a>
+<a class="sourceLine" id="cb11-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_traces):</a>
+<a class="sourceLine" id="cb11-3" title="3">        <span class="va">self</span>.n_traces <span class="op">=</span> n_traces</a>
+<a class="sourceLine" id="cb11-4" title="4">        <span class="va">self</span>.exec_traces <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb11-5" title="5">        <span class="va">self</span>.log_weights <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb11-6" title="6">        <span class="va">self</span>.chain_idx <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb11-7" title="7">        </a>
+<a class="sourceLine" id="cb11-8" title="8">    <span class="co"># generator over traces and weights</span></a>
+<a class="sourceLine" id="cb11-9" title="9">    <span class="at">@abstractmethod</span></a>
+<a class="sourceLine" id="cb11-10" title="10">    <span class="kw">def</span> _traces(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb11-11" title="11">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a>
+<a class="sourceLine" id="cb11-12" title="12">        </a>
+<a class="sourceLine" id="cb11-13" title="13">    <span class="kw">def</span> run(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb11-14" title="14">        <span class="cf">with</span> poutine.block():</a>
+<a class="sourceLine" id="cb11-15" title="15">            <span class="cf">for</span> i, (tr, log_wgt) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="va">self</span>._traces(<span class="op">*</span>args, <span class="op">**</span>kwargs)):</a>
+<a class="sourceLine" id="cb11-16" title="16">                <span class="va">self</span>.exec_traces.append(tr)</a>
+<a class="sourceLine" id="cb11-17" title="17">                <span class="va">self</span>.log_weights.append(log_wgt)</a>
+<a class="sourceLine" id="cb11-18" title="18">                <span class="va">self</span>.chain_idx.append(i)</a>
+<a class="sourceLine" id="cb11-19" title="19">                </a>
+<a class="sourceLine" id="cb11-20" title="20">        <span class="co"># represent trace sampler as categorical</span></a>
+<a class="sourceLine" id="cb11-21" title="21">        <span class="va">self</span>._categorical <span class="op">=</span> Categorical(logits<span class="op">=</span>torch.tensor(<span class="va">self</span>.log_weights))</a>
+<a class="sourceLine" id="cb11-22" title="22">        <span class="cf">return</span> <span class="va">self</span></a></code></pre></div>
+<p>An importance sampler (represented in the <code>Importance</code> class) is a <code>TracePosterior</code> in which the way we generate traces is via the importance sampling method, which we recall here.</p>
+<p>In importance sampling, our goal is to sample from a distribution <span class="math inline">\(x\sim p(x)\)</span> (here, <span class="math inline">\(p\)</span> is our <code>model</code> as prior). This may be difficult, so instead we sample from a <strong>proposal</strong> <span class="math inline">\(x\sim q(x)\)</span>. This may introduce a bias, so we attach a <em>weight</em> that acts as metadata denoting how confident the sampler is that it’s a sample from <span class="math inline">\(p\)</span>. So for example, for <span class="math inline">\(x\)</span> our weight would be</p>
+<p><span class="math display">\[ \omega_x = \frac{q(x)}{p(x)} \]</span></p>
+<p>Assuming a number of samples <span class="math inline">\(x_i\sim q(x)\)</span> for <span class="math inline">\(i=1..N\)</span>, the empirical distribution measure</p>
+<p><span class="math display">\[ \mu_\text{importance} = \sum_{i=1}^N \omega_i \delta_{x_i} \to p(x) \]</span></p>
+<p>To represent this in <code>pyro</code>, we simulate a trace from the guide (proposal) and compute the importance weight by replaying that trace in the model and computing log-joints (which is also provided in the computed execution traces).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">class</span> Importance(TracePosterior):</a>
+<a class="sourceLine" id="cb12-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, guide, n_samples<span class="op">=</span><span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb12-3" title="3">        <span class="bu">super</span>().<span class="fu">__init__</span>(n_traces<span class="op">=</span>n_samples)</a>
+<a class="sourceLine" id="cb12-4" title="4">        <span class="va">self</span>.model <span class="op">=</span> model</a>
+<a class="sourceLine" id="cb12-5" title="5">        <span class="va">self</span>.guide <span class="op">=</span> guide</a>
+<a class="sourceLine" id="cb12-6" title="6">        </a>
+<a class="sourceLine" id="cb12-7" title="7">    <span class="kw">def</span> _traces(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb12-8" title="8">        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.n_traces):</a>
+<a class="sourceLine" id="cb12-9" title="9">            <span class="co"># sample a trace from the proposal</span></a>
+<a class="sourceLine" id="cb12-10" title="10">            guide_tr <span class="op">=</span> poutine.trace(<span class="va">self</span>.guide).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb12-11" title="11">            <span class="co"># replay trace in model for importance weight</span></a>
+<a class="sourceLine" id="cb12-12" title="12">            model_tr <span class="op">=</span> poutine.trace(</a>
+<a class="sourceLine" id="cb12-13" title="13">                poutine.replay(<span class="va">self</span>.model, guide_tr)</a>
+<a class="sourceLine" id="cb12-14" title="14">            ).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb12-15" title="15">            </a>
+<a class="sourceLine" id="cb12-16" title="16">            <span class="co"># compute log importance weight by computing log-joints</span></a>
+<a class="sourceLine" id="cb12-17" title="17">            log_wgt <span class="op">=</span> model_tr.log_prob_sum() <span class="op">-</span> guide_tr.log_prob_sum()</a>
+<a class="sourceLine" id="cb12-18" title="18">            <span class="cf">yield</span> (guide_tr, log_wgt)</a></code></pre></div>
+<p>Running the importance sampler will load a collection of traces from the guide and assign importance weights to them.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="op">&gt;</span> importance_sampler <span class="op">=</span> Importance(model, guide, n_samples<span class="op">=</span><span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="op">&gt;</span> importance_sampler.run(data)</a></code></pre></div>
+<p>The resulting lines of code extracts the <code>p</code>-marginal distribution from the importance-weighted guide traces.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="co"># grab posterior values of p in execution traces</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="op">&gt;</span> is_p_marginal <span class="op">=</span> [tr.nodes[<span class="st">&quot;p&quot;</span>][<span class="st">&quot;value&quot;</span>] <span class="cf">for</span> tr <span class="kw">in</span> importance_sampler.exec_traces]</a>
+<a class="sourceLine" id="cb14-3" title="3"></a>
+<a class="sourceLine" id="cb14-4" title="4"><span class="op">&gt;</span> is_p_marginal_samples <span class="op">=</span> torch.stack(is_p_marginal, dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="op">&gt;</span> is_p_marginal_log_wgt <span class="op">=</span> torch.stack(importance_sampler.log_weights, dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb14-6" title="6"></a>
+<a class="sourceLine" id="cb14-7" title="7"><span class="co"># form empirical marginal</span></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="op">&gt;</span> emp_is_p_marg <span class="op">=</span> Empirical(is_p_marginal_samples, is_p_marginal_log_wgt)</a>
+<a class="sourceLine" id="cb14-9" title="9"><span class="op">&gt;</span> emp_samples <span class="op">=</span> [emp_is_p_marg().detach().item() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>)]</a></code></pre></div>
+<p>The empirical distribution of this marginal has the following histogram:</p>
+<p align="center">
+<img width="400" height="300" src="../images/importance_emp.png">
+</p>
+<p>Being that our prior is <span class="math inline">\(\text{Beta}(2, 2)\)</span> and we saw in our dataset 3 successes, 2 failures, the posterior should analytically be a <span class="math inline">\(\text{Beta}(5, 4)\)</span> with mean at <span class="math inline">\(5/9=0.555...\)</span>, which seems to agree with the marginal distribution above.</p>
+<h3 id="inference-compilation">inference compilation</h3>
+<p>Importance sampling gives an <strong>exact</strong> posterior, but suffers from a similar problem to variational inference: the choice of proposal distribution is a hard one to make, and greatly affects the quality of the posterior samples generated. For example, we often desire proposal distributions for importance sampling to have thicker tails than the target distribution, otherwise they don’t capture tail behavior well. This can be crucial, especially in high dimensions where probability mass tends to be concentrated away from the bulk.</p>
+<p>However, recent work in deep learning has shown that deep neural networks have the ability to expressively focus on high-density portions of generative models, effectively making them generalize well even in high dimensional settings. An obvious question that comes from this is: can we use deep neural nets to <strong>learn</strong> good proposal distributions for importance sampling? This is the idea behind <strong>inference compilation</strong>. For more details, see the <a href="https://arxiv.org/abs/1610.09900">paper</a> of Wood et al.</p>
+<p>In a nutshell, we wish to construct an expressive guide (proposal distribution) <span class="math inline">\(q(z\mid \text{NN}(x;\phi))\)</span> where <span class="math inline">\(\text{NN}(-;\phi)\)</span> is a neural network that takes in observations generated by the model and returns the parameters to a family of guides. This sounds like an amortized variational inference, but the main distinctions here are two-fold: 1) in variational inference, we are concerned with choosing parameters that minimize the KL divergence</p>
+<p><span class="math display">\[ \phi_\text{VI} = \text{arg}\max_{\phi} \text{D}_\text{KL}\left(q(z|\text{NN}(x;\phi))\mid p(z|x)\right) \]</span></p>
+<p>This loss encourages the proposal density to be narrow, fitting into a single <em>mode</em> in the true posterior. However, inference compilation tries to optimize the <strong>reverse KL</strong> divergence</p>
+<p><span class="math display">\[ \phi_\text{IC} = \text{arg}\max_{\phi} \text{D}_\text{KL}\left(p(z|x)\mid q(z|\text{NN}(x;\phi))\right) \]</span></p>
+<p>which encourages the proposal to be <strong>mean-seeking</strong>. This often induces the tail behavior that is desired for importance sampling. We want this to be minimized over many observations <span class="math inline">\(x\)</span>, so we truly set as our loss</p>
+<p><span class="math display">\[ \mathcal{L}(\phi) = \mathbf{E}_{p(x)} \text{D}_\text{KL}\left(p(z|x)\mid q(z|\text{NN}(x;\phi))\right)
+    \propto \mathbf{E}_{p(x,z)}\left[-\log{q(z|\text{NN}(x;\phi)}\right] \]</span></p>
+<p>And 2) we are still doing importance sampling, hence this is an <strong>exact</strong> inference method, not approximate like variational inference. Decoupled from the importance sampler, the learned proposal is <strong>not</strong> a good approximate posterior for the generative model.</p>
+<p>To implement inference compilation, we first note that we need to expose the observation sites on a model (because ultimately the amortized proposal is dependent on an observation to determine it’s parameters), and so we make the convention that models accept an <code>observations</code> argument that is a <em>mapping</em> of observation sites <span class="math inline">\(\to\)</span> values.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">def</span> model_ic(observations<span class="op">=</span>{<span class="st">&quot;data&quot;</span>: torch.tensor([<span class="fl">0.0</span>])}):</a>
+<a class="sourceLine" id="cb15-2" title="2">    p <span class="op">=</span> pyro.sample(<span class="st">&quot;p&quot;</span>, dist.Beta(<span class="fl">2.0</span>, <span class="fl">2.0</span>))</a>
+<a class="sourceLine" id="cb15-3" title="3">    <span class="cf">with</span> pyro.plate(<span class="st">&quot;data_plate&quot;</span>, <span class="bu">len</span>(observations[<span class="st">&quot;data&quot;</span>])):</a>
+<a class="sourceLine" id="cb15-4" title="4">        pyro.sample(<span class="st">&quot;data&quot;</span>, dist.Bernoulli(p), obs<span class="op">=</span>observations[<span class="st">&quot;data&quot;</span>])</a></code></pre></div>
+<p>We take as our guide a variational family of beta distributions, parameterized by a neural network.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">class</span> GuideIC(nn.Module):</a>
+<a class="sourceLine" id="cb16-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, hidden_dim<span class="op">=</span><span class="dv">4</span>):</a>
+<a class="sourceLine" id="cb16-3" title="3">        <span class="bu">super</span>(GuideIC, <span class="va">self</span>).<span class="fu">__init__</span>()</a>
+<a class="sourceLine" id="cb16-4" title="4">        <span class="va">self</span>.nnet <span class="op">=</span> nn.Sequential(</a>
+<a class="sourceLine" id="cb16-5" title="5">            nn.Linear(<span class="dv">1</span>, hidden_dim),</a>
+<a class="sourceLine" id="cb16-6" title="6">            nn.ReLU(),</a>
+<a class="sourceLine" id="cb16-7" title="7">            nn.Linear(hidden_dim, hidden_dim),</a>
+<a class="sourceLine" id="cb16-8" title="8">            nn.ReLU(),</a>
+<a class="sourceLine" id="cb16-9" title="9">            nn.Linear(hidden_dim, <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb16-10" title="10">        </a>
+<a class="sourceLine" id="cb16-11" title="11">    <span class="kw">def</span> forward(<span class="va">self</span>, observations<span class="op">=</span>{<span class="st">&quot;data&quot;</span>: torch.tensor([<span class="fl">0.0</span>])}):</a>
+<a class="sourceLine" id="cb16-12" title="12">        <span class="co"># wrap neural net parameters in pyro.param</span></a>
+<a class="sourceLine" id="cb16-13" title="13">        pyro.module(<span class="st">&quot;guide&quot;</span>, <span class="va">self</span>)</a>
+<a class="sourceLine" id="cb16-14" title="14">        </a>
+<a class="sourceLine" id="cb16-15" title="15">        <span class="co"># forward pass</span></a>
+<a class="sourceLine" id="cb16-16" title="16">        out <span class="op">=</span> <span class="va">self</span>.nnet(observations[<span class="st">&quot;data&quot;</span>]).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">2</span>).mean(dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb16-17" title="17">        a, b <span class="op">=</span> out[<span class="dv">0</span>], out[<span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb16-18" title="18">        </a>
+<a class="sourceLine" id="cb16-19" title="19">        <span class="co"># sample latent from beta</span></a>
+<a class="sourceLine" id="cb16-20" title="20">        pyro.sample(<span class="st">&quot;p&quot;</span>, dist.Beta(torch.exp(a), torch.exp(b)))</a>
+<a class="sourceLine" id="cb16-21" title="21">        <span class="cf">return</span> a, b</a></code></pre></div>
+<p>Inference compilation occurs in two stages: first we <strong>compile</strong> the inference network, teaching it to produce the right latent variable proposals for use in importance sampling. We do this by generating synthetic data from an execution of the model, and using the synthetic observation and latents as the training data for the guide network. We train the net to minimize the loss <span class="math inline">\(\mathcal{L}(\phi)\)</span> described above.</p>
+<p>The second stage is the importance sampling step, where we use our compiled inference network to generate importance samples for the posterior distribution, utilizing the true (non-synthetic) dataset we have for Bayesian inference.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">class</span> InferenceCompilation(Importance):</a>
+<a class="sourceLine" id="cb17-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, guide, optimizer,</a>
+<a class="sourceLine" id="cb17-3" title="3">                       n_samples<span class="op">=</span><span class="dv">1000</span>, training_batch_dim<span class="op">=</span><span class="dv">32</span>, </a>
+<a class="sourceLine" id="cb17-4" title="4">                       validation_batch_dim<span class="op">=</span><span class="dv">64</span>):</a>
+<a class="sourceLine" id="cb17-5" title="5">        <span class="bu">super</span>(InferenceCompilation, <span class="va">self</span>).<span class="fu">__init__</span>(model, guide, n_samples<span class="op">=</span>n_samples)</a>
+<a class="sourceLine" id="cb17-6" title="6">        <span class="va">self</span>.model <span class="op">=</span> model</a>
+<a class="sourceLine" id="cb17-7" title="7">        <span class="va">self</span>.guide <span class="op">=</span> guide</a>
+<a class="sourceLine" id="cb17-8" title="8">        <span class="va">self</span>.optimizer <span class="op">=</span> optimizer</a>
+<a class="sourceLine" id="cb17-9" title="9">        <span class="co"># batch size hyperparameters for compilation (training) step</span></a>
+<a class="sourceLine" id="cb17-10" title="10">        <span class="va">self</span>.train_batch_dim <span class="op">=</span> training_batch_dim</a>
+<a class="sourceLine" id="cb17-11" title="11">        <span class="va">self</span>.valid_batch_dim <span class="op">=</span> validation_batch_dim</a></code></pre></div>
+<p>Like the <code>SVI</code> class in <code>pyro</code>, training of the inference network proceeds through epoch <code>steps</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1">     <span class="kw">def</span> step(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb18-2" title="2">        <span class="co">&quot;&quot;&quot;Performs a single training step of the inference network (guide)&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb18-3" title="3">        </a>
+<a class="sourceLine" id="cb18-4" title="4">        <span class="co"># ensure only parameters are traced and captured-- same trick</span></a>
+<a class="sourceLine" id="cb18-5" title="5">        <span class="co"># as in the SVI class</span></a>
+<a class="sourceLine" id="cb18-6" title="6">        <span class="cf">with</span> poutine.trace() <span class="im">as</span> param_capture:</a>
+<a class="sourceLine" id="cb18-7" title="7">            <span class="cf">with</span> poutine.block(hide_fn<span class="op">=</span><span class="kw">lambda</span> msg: msg[<span class="st">&quot;type&quot;</span>] <span class="op">==</span> <span class="st">&quot;sample&quot;</span>):</a>
+<a class="sourceLine" id="cb18-8" title="8">                loss <span class="op">=</span> <span class="va">self</span>._loss(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb18-9" title="9">                </a>
+<a class="sourceLine" id="cb18-10" title="10">        <span class="co"># extract parameters from the trace</span></a>
+<a class="sourceLine" id="cb18-11" title="11">        params <span class="op">=</span> [param_site[<span class="st">&quot;value&quot;</span>].unconstrained() </a>
+<a class="sourceLine" id="cb18-12" title="12">                  <span class="cf">for</span> param_site <span class="kw">in</span> param_capture.trace.nodes.values()</a>
+<a class="sourceLine" id="cb18-13" title="13">                  <span class="cf">if</span> param_site[<span class="st">&quot;value&quot;</span>].grad <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>]</a>
+<a class="sourceLine" id="cb18-14" title="14">        <span class="va">self</span>.optimizer(params)</a>
+<a class="sourceLine" id="cb18-15" title="15">        </a>
+<a class="sourceLine" id="cb18-16" title="16">        <span class="co"># manually perform zero_grad</span></a>
+<a class="sourceLine" id="cb18-17" title="17">        <span class="cf">for</span> param <span class="kw">in</span> params:</a>
+<a class="sourceLine" id="cb18-18" title="18">            param.grad <span class="op">=</span> torch.zeros_like(param)</a>
+<a class="sourceLine" id="cb18-19" title="19">            </a>
+<a class="sourceLine" id="cb18-20" title="20">        <span class="cf">return</span> loss</a></code></pre></div>
+<p>The structure of this function looks similar to the <code>SVI.step()</code> function, where we use the same parameter capture trick as in the previous blog post. The work here is left in the implementation of the loss function. While in stochastic variational inference our loss function was the ELBO, here we wish to compute the averaged KL divergence</p>
+<p><span class="math display">\[ \mathcal{L}(\phi) = \mathbf{E}_{p(x,z)}\left[-\log{q(z|\text{NN}(x;\phi)}\right] \]</span></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">    <span class="kw">def</span> _loss(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a></code></pre></div>
+<p>Since the compilation of the inference network is separate from the actual inference of the model using our dataset, we need to produce a dataset to train our neural network guide with. Luckily, we have a way to produce an infinite number of latent variables and observations from the model– just run the model repeatedly and record traces!</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1">        <span class="co"># generate a synthetic batch of data</span></a>
+<a class="sourceLine" id="cb20-2" title="2">        train_batch <span class="op">=</span> (<span class="va">self</span>._get_joint_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb20-3" title="3">                       <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.train_batch_dim))</a></code></pre></div>
+<p>The function <code>_get_joint_trace</code> performs a run of the model and records it’s trace freely, without any conditioning involved.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1">    <span class="kw">def</span> _get_joint_trace(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb21-2" title="2">        <span class="co"># generate a trace of the full model, without conditioning</span></a>
+<a class="sourceLine" id="cb21-3" title="3">        unconditioned_model <span class="op">=</span> poutine.uncondition(<span class="va">self</span>.model)</a>
+<a class="sourceLine" id="cb21-4" title="4">        tr <span class="op">=</span> poutine.trace(unconditioned_model).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb21-5" title="5">        <span class="cf">return</span> tr</a></code></pre></div>
+<p>Given a trace of the model <span class="math display">\[(x,z)\sim p(x,z)\]</span> we need to “plug it into” the guide function <span class="math inline">\(q(z\mid\text{NN}(x;\phi))\)</span>. The action of plugging in the trace into the guide is effectively the <code>replay</code> effect handler, except we need to be a bit careful around observed nodes.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb22-1" title="1">    <span class="kw">def</span> _get_matched_trace(<span class="va">self</span>, model_tr, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb22-2" title="2">        <span class="co">&quot;&quot;&quot;This is effectively an enhanced poutine.replay handler,</span></a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="co">        except we also make sure that observed variables are also</span></a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="co">        matched between model and guide traces&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb22-5" title="5">        </a>
+<a class="sourceLine" id="cb22-6" title="6">        <span class="co"># set observed data for guide to be the same as that of model</span></a>
+<a class="sourceLine" id="cb22-7" title="7">        kwargs[<span class="st">&quot;observations&quot;</span>] <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb22-8" title="8">        </a>
+<a class="sourceLine" id="cb22-9" title="9">        <span class="cf">for</span> node <span class="kw">in</span> itertools.chain(model_tr.stochastic_nodes, model_tr.observation_nodes):</a>
+<a class="sourceLine" id="cb22-10" title="10">            <span class="cf">if</span> <span class="st">&quot;was_observed&quot;</span> <span class="kw">in</span> model_tr.nodes[node][<span class="st">&quot;infer&quot;</span>]:</a>
+<a class="sourceLine" id="cb22-11" title="11">                model_tr.nodes[node][<span class="st">&quot;is_observed&quot;</span>] <span class="op">=</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb22-12" title="12">                <span class="co"># set guide observations mapping</span></a>
+<a class="sourceLine" id="cb22-13" title="13">                kwargs[<span class="st">&quot;observations&quot;</span>][node] <span class="op">=</span> model_tr.nodes[node][<span class="st">&quot;value&quot;</span>]</a>
+<a class="sourceLine" id="cb22-14" title="14">    </a>
+<a class="sourceLine" id="cb22-15" title="15">        <span class="co"># replay the model trace in guide, with observed nodes set to values in model</span></a>
+<a class="sourceLine" id="cb22-16" title="16">        guide_tr <span class="op">=</span> poutine.trace(</a>
+<a class="sourceLine" id="cb22-17" title="17">            poutine.replay(<span class="va">self</span>.guide, model_tr)).get_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb22-18" title="18">        </a>
+<a class="sourceLine" id="cb22-19" title="19">        <span class="co"># remove subsampling sites (plates) from guide trace</span></a>
+<a class="sourceLine" id="cb22-20" title="20">        guide_tr <span class="op">=</span> poutine.util.prune_subsample_sites(guide_tr)</a>
+<a class="sourceLine" id="cb22-21" title="21">        <span class="cf">return</span> guide_tr</a></code></pre></div>
+<p>In our loss function, this is where we begin looping through the training batch we just synthesized</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb23-1" title="1">        <span class="co"># iterate through batch and accumulate loss</span></a>
+<a class="sourceLine" id="cb23-2" title="2">        loss <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb23-3" title="3">        <span class="cf">for</span> model_tr <span class="kw">in</span> train_batch:</a>
+<a class="sourceLine" id="cb23-4" title="4">            <span class="cf">with</span> poutine.trace(param_only<span class="op">=</span><span class="va">True</span>) <span class="im">as</span> pparam_capture:</a>
+<a class="sourceLine" id="cb23-5" title="5">                guide_tr <span class="op">=</span> <span class="va">self</span>._get_matched_trace(model_tr, <span class="op">*</span>args, <span class="op">**</span>kwargs)</a></code></pre></div>
+<p>The remainder of our loss function is clear– we compute the Monte Carlo estimate of the loss function above using <code>log_prob_sum()</code> of the guide trace, and manually backpropagate the gradients.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" title="1">            <span class="co"># now we have a model_tr (sample from p(x,z)) and a matched guide</span></a>
+<a class="sourceLine" id="cb24-2" title="2">            <span class="co"># trace (evaluation q(z|NN(x))), so compute loss</span></a>
+<a class="sourceLine" id="cb24-3" title="3">            tr_loss <span class="op">=</span> <span class="op">-</span>guide_tr.log_prob_sum() <span class="op">/</span> <span class="va">self</span>.train_batch_dim</a>
+<a class="sourceLine" id="cb24-4" title="4">            </a>
+<a class="sourceLine" id="cb24-5" title="5">            <span class="co"># backpropagate gradients manually</span></a>
+<a class="sourceLine" id="cb24-6" title="6">            guide_params <span class="op">=</span> [param_site[<span class="st">&quot;value&quot;</span>].unconstrained()</a>
+<a class="sourceLine" id="cb24-7" title="7">                            <span class="cf">for</span> param_site <span class="kw">in</span> pparam_capture.trace.nodes.values()]</a>
+<a class="sourceLine" id="cb24-8" title="8">            guide_grads <span class="op">=</span> torch.autograd.grad(tr_loss, guide_params, allow_unused<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-9" title="9">            </a>
+<a class="sourceLine" id="cb24-10" title="10">            <span class="cf">for</span> param, grad <span class="kw">in</span> <span class="bu">zip</span>(guide_params, guide_grads):</a>
+<a class="sourceLine" id="cb24-11" title="11">                param.grad <span class="op">=</span> grad <span class="cf">if</span> param.grad <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> param.grad <span class="op">+</span> grad</a>
+<a class="sourceLine" id="cb24-12" title="12">                </a>
+<a class="sourceLine" id="cb24-13" title="13">            <span class="co"># accumulate loss</span></a>
+<a class="sourceLine" id="cb24-14" title="14">            loss <span class="op">+=</span> tr_loss.item()</a>
+<a class="sourceLine" id="cb24-15" title="15">            </a>
+<a class="sourceLine" id="cb24-16" title="16">        <span class="cf">return</span> loss</a></code></pre></div>
+<p>For clarity, the full loss function is here:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" title="1">    <span class="kw">def</span> _loss(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs):</a>
+<a class="sourceLine" id="cb25-2" title="2">        <span class="co"># generate a synthetic batch of data</span></a>
+<a class="sourceLine" id="cb25-3" title="3">        train_batch <span class="op">=</span> (<span class="va">self</span>._get_joint_trace(<span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb25-4" title="4">                       <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.train_batch_dim))</a>
+<a class="sourceLine" id="cb25-5" title="5">        </a>
+<a class="sourceLine" id="cb25-6" title="6">            <span class="co"># iterate through batch and accumulate loss</span></a>
+<a class="sourceLine" id="cb25-7" title="7">            loss <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb25-8" title="8">            <span class="cf">for</span> model_tr <span class="kw">in</span> train_batch:</a>
+<a class="sourceLine" id="cb25-9" title="9">                <span class="cf">with</span> poutine.trace(param_only<span class="op">=</span><span class="va">True</span>) <span class="im">as</span> pparam_capture:</a>
+<a class="sourceLine" id="cb25-10" title="10">                    guide_tr <span class="op">=</span> <span class="va">self</span>._get_matched_trace(model_tr, <span class="op">*</span>args, <span class="op">**</span>kwargs)</a>
+<a class="sourceLine" id="cb25-11" title="11">                </a>
+<a class="sourceLine" id="cb25-12" title="12">            <span class="co"># now we have a model_tr (sample from p(x,z)) and a matched guide</span></a>
+<a class="sourceLine" id="cb25-13" title="13">            <span class="co"># trace (evaluation q(z|NN(x))), so compute loss</span></a>
+<a class="sourceLine" id="cb25-14" title="14">            tr_loss <span class="op">=</span> <span class="op">-</span>guide_tr.log_prob_sum() <span class="op">/</span> <span class="va">self</span>.train_batch_dim</a>
+<a class="sourceLine" id="cb25-15" title="15">            </a>
+<a class="sourceLine" id="cb25-16" title="16">            <span class="co"># backpropagate gradients manually</span></a>
+<a class="sourceLine" id="cb25-17" title="17">            guide_params <span class="op">=</span> [param_site[<span class="st">&quot;value&quot;</span>].unconstrained()</a>
+<a class="sourceLine" id="cb25-18" title="18">                            <span class="cf">for</span> param_site <span class="kw">in</span> pparam_capture.trace.nodes.values()]</a>
+<a class="sourceLine" id="cb25-19" title="19">            guide_grads <span class="op">=</span> torch.autograd.grad(tr_loss, guide_params, allow_unused<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb25-20" title="20">            </a>
+<a class="sourceLine" id="cb25-21" title="21">            <span class="cf">for</span> param, grad <span class="kw">in</span> <span class="bu">zip</span>(guide_params, guide_grads):</a>
+<a class="sourceLine" id="cb25-22" title="22">                param.grad <span class="op">=</span> grad <span class="cf">if</span> param.grad <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> param.grad <span class="op">+</span> grad</a>
+<a class="sourceLine" id="cb25-23" title="23">                </a>
+<a class="sourceLine" id="cb25-24" title="24">            <span class="co"># accumulate loss</span></a>
+<a class="sourceLine" id="cb25-25" title="25">            loss <span class="op">+=</span> tr_loss.item()</a>
+<a class="sourceLine" id="cb25-26" title="26">            </a>
+<a class="sourceLine" id="cb25-27" title="27">        <span class="cf">return</span> loss</a></code></pre></div>
+<p>Running the inference comes down to first compiling the inference network…</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1"><span class="op">&gt;</span> optimiser <span class="op">=</span> pyro.optim.Adam({<span class="st">'lr'</span>: <span class="fl">1e-3</span>})</a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="op">&gt;</span> guide_ic <span class="op">=</span> GuideIC(hidden_dim<span class="op">=</span><span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb26-3" title="3"></a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="op">&gt;</span> ic <span class="op">=</span> InferenceCompilation(model_ic, guide_ic, optimiser)</a>
+<a class="sourceLine" id="cb26-5" title="5"></a>
+<a class="sourceLine" id="cb26-6" title="6"><span class="op">&gt;</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</a>
+<a class="sourceLine" id="cb26-7" title="7"><span class="op">&gt;</span>     ic.step()</a></code></pre></div>
+<p>…and then running the importance sampler.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb27-1" title="1"><span class="op">&gt;</span> data <span class="op">=</span> torch.tensor([<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>]).<span class="bu">type</span>(torch.float32).view(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="op">&gt;</span> ic_posterior <span class="op">=</span> ic.run(observations<span class="op">=</span>{<span class="st">&quot;data&quot;</span>: data})</a></code></pre></div>
+<p>Again, computing the marginal posterior for <code>p</code> we get samples</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" title="1"><span class="co"># grab posterior values of p in execution traces</span></a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="op">&gt;</span> ic_p_marginal <span class="op">=</span> [tr.nodes[<span class="st">&quot;p&quot;</span>][<span class="st">&quot;value&quot;</span>] <span class="cf">for</span> tr <span class="kw">in</span> ic_posterior.exec_traces]</a>
+<a class="sourceLine" id="cb28-3" title="3"></a>
+<a class="sourceLine" id="cb28-4" title="4"><span class="op">&gt;</span> ic_p_marginal_samples <span class="op">=</span> torch.stack(ic_p_marginal, dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb28-5" title="5"><span class="op">&gt;</span> ic_p_marginal_log_wgt <span class="op">=</span> torch.stack(ic_posterior.log_weights, dim<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb28-6" title="6"></a>
+<a class="sourceLine" id="cb28-7" title="7"><span class="co"># form empirical marginal</span></a>
+<a class="sourceLine" id="cb28-8" title="8"><span class="op">&gt;</span> emp_ic_p_marg <span class="op">=</span> Empirical(ic_p_marginal_samples, ic_p_marginal_log_wgt)</a>
+<a class="sourceLine" id="cb28-9" title="9"><span class="op">&gt;</span> emp_samples <span class="op">=</span> [emp_ic_p_marg().detach().item() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>)]</a></code></pre></div>
+<p>and a similar looking histogram as pure importance sampling</p>
+<p align="center">
+<img width="400" height="300" src="../images/ic_emp.png">
+</p>
+<h3 id="closing">closing</h3>
+<p>If you’ve read the Pyro documentation you may have noticed that <code>Predictor</code>, <code>VariationalMarginal</code> and <code>InferenceCompilation</code> has different names. This is mostly because these are approximately-pedogogical implementations of the actual algorithms in Pyro. However, I hope that this post gives the reader a certain sense of power, knowing that it is actually fairly straightforward to implement these inference algorithms, and give them the confidence to try and implement their own as they see fit.</p>
+<p>The field of Bayesian inference and probabilistic programming is in flux constantly. Seemingly every week new inference algorithms are invented for a wider variety of models, and data scientists are often at the mercy of library maintainers for their favorite new algorithm to be implemented. Understanding the complexities behind probabilistic programming languages and how to deal with them helps to bridge that gap, and adds a powerful tool to the arsenal.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
