@@ -231,3 +231,4 @@ $$ \beta^2 > -\frac{4\log 2}{J^2} $$
 This is nonphysical, and corresponds to the fact that the replica symmetry ansatz is wrong! This leads to the startling realization that we have to **break** replica symmetry in order to get a physically-relevant solution.
 
 In the next post, we will describe Parisi's replica symmetry breaking solution to this problem.
+
