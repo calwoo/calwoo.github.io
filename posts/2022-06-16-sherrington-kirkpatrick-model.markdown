@@ -224,6 +224,9 @@ This always admits a solution given by $q=0$. In this case the free energy is gi
 
 $$ f_{RS}(\beta) = -\frac{\beta J^2}{4} - \frac{1}{\beta}\log 2 $$
 
+
+## negative entropy
+
 Since the entropy is given by $-\partial f/\partial\beta$, we have that the entropy is negative when
 
 $$ \beta^2 > -\frac{4\log 2}{J^2} $$
