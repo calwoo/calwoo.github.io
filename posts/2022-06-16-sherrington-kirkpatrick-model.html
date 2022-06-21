@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Sherrington-Kirkpatrick model and the replica method - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Sherrington-Kirkpatrick model and the replica method</h1>
+            <article>
+    <section class="header">
+        Posted on June 16, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>I’ve recently been in a craze of reading papers in machine learning that uses techniques from statistical mechanics. One of the motivating goals for these approaches is that “classical” theories of generalization in statistical learning, like those based on Vapnik-Chervonenkis dimension arguments, don’t adequetely capture what is going on in the deep learning space. Indeed, one of the fundamental issues with these capacity measures is that they capture <em>worst-case</em> performance phenomenology, which is sufficiently successful for many classical machine learning methods because there exist good bounds on generalization gaps.</p>
+<p>However, a shift in thinking was triggered after Zhang et al’s <a href="https://arxiv.org/abs/1611.03530">paper</a> “Understanding deep learning requires rethinking generalization”. In this paper, they show that for deep learning the generalization gap can be arbitrarily large by fitting large neural networks on unstructured random noise. Indeed, the generalization performance of a neural network cannot be attributed to the existence of a bounded generalization gap, as it can have arbitrarily large capacity to memorize a training set. But (large) neural networks <strong>do</strong> generalize, so something outside of these classical capacity measures have to have some say in this.</p>
+<p>The statistical mechanical approach is to understand the <em>typical</em>-case behavior directly. Much of this involves building small toy models amenable to exact analysis and then studying their statistical properties. I hope to have some blog posts in the future that explains some of these toy models that are relevant to machine learning.</p>
+<h3 id="spin-glasses">spin glasses</h3>
+<p>In this post, I will be going through the solution of a <strong>spin glass</strong> model, the Sherrington-Kirkpatrick model. In physics, a spin glass is a magnetic state of matter characterized by frustrated interactions. Individual spins that make up the magnetic material are in a state of disorder– both in their individual states and their couplings with other adjacent states. And unlike the energy surfaces that characterize ferromagnetic magnetic materials (such as those modeled by the Ising model), spin glass energy landscapes can have lots of metastable states and saddles. This reminds one of the loss surfaces of complex multilayer neural networks!</p>
+<p>Indeed, there is a long literature connecting neural network models with spin glasses. Studying small toy models for spin glasses can give insight into the structure of these loss surfaces (indeed, this has been done in some respect, such as in <a href="https://arxiv.org/abs/1412.0233">this paper</a> of Choromanska et al).</p>
+<h3 id="sherrington-kirkpatrick">sherrington-kirkpatrick</h3>
+<p>Models in statistical mechanics starts with its Hamiltonian, or energy function. For the Sherrington-Kirkpatrick model, we are working with an infinite-range Hamiltonian over <span class="math inline">\(N\)</span> spins <span class="math inline">\(s_i\)</span> given by</p>
+<p><span class="math display">\[ H=-\sum_{i,j} J_{ij}s_i s_j \]</span></p>
+<p>Here, <span class="math inline">\(J_{ij}\)</span> is the coupling interaction between the spins <span class="math inline">\(s_i\)</span> and <span class="math inline">\(s_j\)</span>. Here, we take the <span class="math inline">\(s_i\)</span> to be <strong>Ising spins</strong>, that is <span class="math inline">\(s_i\in\{-1, 1\}\)</span>. Since we are working with a spin glass, we assume that the coupling strengths <span class="math inline">\(J_{ij}\)</span> undergo <em>quenched disorder</em>, which is a fancy way of saying that they are also random, but their fluctuations occur at a time scale far larger than the time scale that the spins themselves undergo thermodynamic fluctuation. In this model, we take</p>
+<p><span class="math display">\[ J_{ij}\sim p(J_{ij})=\frac{1}{J}\sqrt{\frac{N}{2\pi}}\exp{\left[-NJ^2_{ij}/2J^2\right]} \]</span></p>
+<p>that is, the couplings are sampled from a normal distribution with zero mean and variance <span class="math inline">\(J^2/N\)</span>.</p>
+<p>Given a Hamiltonian, we build the partition function (given a sample realization of the interactions)</p>
+<p><span class="math display">\[ Z_J = \sum_{\{s_i\}}\exp(-\beta H[s]) \]</span></p>
+<p>and use it to compute the free energy as its logarithm. Since we are looking to understand the typical-case behavior of the spin glass, we will look at the expectation of the free energy over the quenched disorder <span class="math inline">\(\langle\log Z_J\rangle_J\)</span>. The reason why this expectation captures the typical behavior of the spin glass is because the free energy is a <em>self-averaging</em> quantity. Mathematically, this translate to a high-dimensional concentration of measure, in which the most probable states of the distribution and the expectation coincide.</p>
+<p>However, computing this expectation is hard! If the logarithm was outside of the expectation</p>
+<p><span class="math display">\[ \log \langle Z_J\rangle_J \]</span></p>
+<p>we’d have a much easier time. This is the <strong>annealed disorder</strong> computation, and is usually a high-temperature approximation to the true quenched computation we want to do.</p>
+<h3 id="replica-calculation">replica calculation</h3>
+<p>The standard tool to get around this is called the <strong>replica trick</strong>. It is based on the identity (given by Taylor expansion):</p>
+<p><span class="math display">\[ \langle\log Z_J\rangle_J = \lim_{n\to 0}\frac{1}{n}\log\langle Z^n_J\rangle_J \]</span></p>
+<p>This reduces the hard calculation of computing the quenched average of the free energy into the limit over annealed averages using <span class="math inline">\(n\)</span> <em>replicas</em> of the thermodynamic system involved. Note that this method is very nonrigorous– what does it even mean physically to work with a fraction of a replica? However, the statistical physics literature has used this technique to great success, producing exact results that align with numerical simulations, and so we will use this tool to study the Sherrington-Kirkpatrick model.</p>
+<p>It remains then to compute the average of the partition function of <span class="math inline">\(n\)</span> replicas</p>
+<p><span class="math display">\[ 
+\begin{align}
+\langle Z^n\rangle_J 
+&amp;= \int{\prod_{ij} p(J_{ij})dJ_{ij}\sum_{\{s^\alpha\}}\exp\left(\beta\sum_{ij}J_{ij}\sum_{\alpha=1}^n s_i^\alpha s_j^\alpha\right)} \\
+&amp;= \sum_{\{s^\alpha\}}\prod_{ij}\left\langle\exp\left(\beta J_{ij}\sum_{\alpha=1}^n s_i^\alpha s_j^\alpha\right)\right\rangle_{J_{ij}} \\
+&amp;= \sum_{\{s^\alpha\}}\prod_{ij}\exp\left(\frac{(\beta J)^2}{2N}\sum_{\alpha, \beta = 1}^n s_i^\alpha s_j^\alpha s_i^\beta s_j^\beta\right) \\
+&amp;= \sum_{\{s^\alpha\}}\exp\left[\frac{(\beta J)^2}{2N}\sum_{ij}\sum_{\alpha, \beta = 1}^n s_i^\alpha s_j^\alpha s_i^\beta s_j^\beta\right]
+\end{align}
+\]</span></p>
+<p>Going from equations <span class="math inline">\((2)\)</span> to <span class="math inline">\((3)\)</span> is really just a Gaussian integral, but the physicists have christened it as a <strong>Hubbard-Stratonovich transform</strong>,</p>
+<p><span class="math display">\[ \langle e^{zx} \rangle_z = \exp\left(\frac{1}{2}\sigma^2 x^2\right) \]</span></p>
+<p>where <span class="math inline">\(z\sim N(0,\sigma^2)\)</span>. Looking at the above sum, we see that when <span class="math inline">\(\alpha=\beta\)</span>, since we are dealing with Ising spins <span class="math inline">\(s_i^\alpha s_j^\alpha s_i^\beta s_j^\beta = 1\)</span>, and so <span class="math inline">\(\sum_{ij}\sum_{\alpha=\beta}s_i^\alpha s_j^\alpha s_i^\beta s_j^\beta = nN^2\)</span>. Hence, separating out the <span class="math inline">\(\alpha=\beta\)</span> terms we have</p>
+<p><span class="math display">\[
+\sum_{\{s^\alpha\}}\exp\left[\frac{(\beta J)^2}{2N}\sum_{ij}\sum_{\alpha, \beta = 1}^n s_i^\alpha s_j^\alpha s_i^\beta s_j^\beta\right]
+= \exp\left(\frac{1}{4}(\beta J)^2 nN\right)\sum_{\{s^\alpha\}}\exp\left[\frac{(\beta J)^2}{2N}\sum_{\alpha &lt; \beta} \left(\sum_i s_i^\alpha s_i^\beta\right)^2\right]
+\]</span></p>
+<p>We see that all our degrees of freedom <span class="math inline">\(s_i\)</span> across replicas are coupled together in a quadratic term in the exponential. Again, we will use a Hubbard-Stratonovich transform to decouple this quadratic term into a linear term, with the <em>cost</em> of introducing a Gaussian integral back into the mix. However, this is often fine because the concentration effects of Gaussian random variables will allow us other analytic tricks to compute the resulting integral. Using the transform in the form</p>
+<p><span class="math display">\[ e^{\lambda a^2/2} = \sqrt{\frac{\lambda}{2\pi}}\int_{\mathbf{R}} dx \exp\left[-\lambda\frac{x^2}{2} + a\lambda x\right] \]</span></p>
+<p>we can write:</p>
+<p><span class="math display">\[
+\langle Z^n\rangle_J
+= \exp\left(\frac{1}{4}(\beta J)^2 nN\right)\prod_{\alpha &lt; \beta}\left[\sqrt{\frac{N}{2\pi}}(\beta J)\int_{\mathbf{R}} dq_{\alpha\beta}\right]\exp\left(-N\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 + N\log \operatorname*{Tr} \exp[-H]\right)
+\]</span></p>
+<p>where <span class="math inline">\(H=(-\beta J)^2\sum_{\alpha &lt; \beta} q_{\alpha\beta} s^\alpha s^\beta\)</span> and the trace is over the <span class="math inline">\(n\)</span> Ising spins <span class="math inline">\(s^\alpha\)</span> for each replica. The <span class="math inline">\(q_{\alpha\beta}\)</span> form the components of a matrix, and this will be a central object of study in the remainder of the calculation.</p>
+<p>We are now interested in computing the <strong>free energy</strong> (which is really an effective energy function)</p>
+<p><span class="math display">\[ f(\beta) = \lim_{n\to 0} \lim_{N\to\infty} \left(-\frac{1}{\beta N n}\log\langle Z_J^n\rangle_J\right) \]</span></p>
+<p>where here we have used the replica trick to rewrite the quenched average in terms of the annealed one. In principle, we should be taking the thermodynamic limit (<span class="math inline">\(N\to\infty\)</span>) before the replica limit, but then the calculation we will do becomes impossible. We will instead just assume this is correct and carry on.</p>
+<p>In the thermodynamic limit we can treat the integral above as a saddle point calculation, also known as a <a href="https://en.wikipedia.org/wiki/Method_of_steepest_descent">method of steepest descent</a>. In the next section we’ll do a brief digression into the simplified steepest descent method we will use, called Laplace’s method.</p>
+<h2 id="laplaces-method">laplace’s method</h2>
+<p>Suppose our goal is to approximate an integral of the form</p>
+<p><span class="math display">\[ \int_a^b e^{Mf(x)} dx \]</span></p>
+<p>where <span class="math inline">\(f:\mathbf{R}\to\mathbf{R}\)</span> is a smooth function and <span class="math inline">\(M\)</span> sufficiently large. The intuition of the method is as follows: as <span class="math inline">\(M\)</span> increases in size, the fluctuations in the function near a global maximum increases while outside of it they fade away. Hence, the function becomes well approximated by a Gaussian centered on the extremum with increasingly larger variance.</p>
+<p>We can use this intuition to give a computation of the integral in the asymptotic limit. By Taylor expansion around the extremum <span class="math inline">\(x_0\)</span> of <span class="math inline">\(f\)</span>, we can write</p>
+<p><span class="math display">\[ f(x) \simeq f(x_0) + f'(x_0)(x-x_0) + \frac{1}{2}f''(x_0)(x-x_0)^2 \]</span></p>
+<p>As we are at an extremum, <span class="math inline">\(f'(x_0)=0\)</span>, and so we have approximated our integral as</p>
+<p><span class="math display">\[ \int_a^b e^{Mf(x)} dx \simeq e^{Mf(x_0)}\int_a^b \exp\left(-\frac{1}{2}M |f''(x_0)|(x-x_0)^2\right) \]</span></p>
+<p>Note that as <span class="math inline">\(M\)</span> is sufficiently large, the exponential quadratic <span class="math inline">\(e^{-Mz^2}\)</span> decays exponentially fast on the boundary, and so we can further approximate by letting the endpoints blow up towards infinity. Thus the approximating integral is Gaussian, and can be easily computed:</p>
+<p><span class="math display">\[ \int_a^b e^{Mf(x)} dx \simeq e^{Mf(x_0)}\sqrt{\frac{2\pi}{M |f''(x_0)|}} \]</span></p>
+<p>as <span class="math inline">\(M\to\infty\)</span>.</p>
+<p>Let’s apply Laplace’s method to our annealed average above. We want to compute the integrals</p>
+<p><span class="math display">\[ \prod_{\alpha &lt; \beta}\left[\sqrt{\frac{N}{2\pi}}(\beta J)\int_{\mathbf{R}} dq_{\alpha\beta}\right]\exp\left(-N\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 + N\log \operatorname*{Tr} \exp[-H]\right) \]</span></p>
+<p>which hinges on computing integrals of the form</p>
+<p><span class="math display">\[ \int_\mathbf{R} dq_{\alpha\beta} \exp\left[-N\left(\frac{(\beta J)^2}{2} q^2_{\alpha\beta} - \log\operatorname*{Tr}\exp[\beta J q_{\alpha\beta}s^\alpha s^\beta]\right)\right] \]</span></p>
+<p>In the thermodynamic limit (<span class="math inline">\(N\to\infty\)</span>), we use Laplace’s method to asymptotically express this integral as</p>
+<p><span class="math display">\[ e^{-Nf(\tilde{q})}\sqrt{\frac{2\pi}{N(\beta J)^2}} \]</span></p>
+<p>where <span class="math inline">\(f(\tilde{q})\)</span> is the function value on the extremum value of <span class="math inline">\(q_{\alpha\beta}\)</span>. Bundling up over all the <span class="math inline">\(\alpha,\beta\)</span>, we get that</p>
+<p><span class="math display">\[ 
+\begin{align}
+\langle Z^n\rangle_J
+&amp;= \exp\left(\frac{1}{4}(\beta J)^2 nN\right)\prod_{\alpha &lt; \beta}\left[\sqrt{\frac{N}{2\pi}}(\beta J)\int_{\mathbf{R}} dq_{\alpha\beta}\right]\exp\left(-N\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 + N\log \operatorname*{Tr} \exp[-H]\right) \\
+&amp;= \exp\left(-N\operatorname*{extr}_q{\mathcal{S}[q]}\right)
+\end{align}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[ \mathcal{S}[q] = -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 - \log\operatorname*{Tr} \exp[-H] \]</span></p>
+<p>is the <em>effective action</em>, and the saddle point extremum is taken over all matrices <span class="math inline">\(q\)</span>. We obtain the expression for the free energy</p>
+<p><span class="math display">\[ f(\beta) = \lim_{n\to 0}\frac{1}{\beta n}\operatorname*{extr}_q{\mathcal{S}[q]} \]</span></p>
+<p>Why did we say <em>extremum</em> as opposed to minimum? The replica method is weird because of the limit <span class="math inline">\(n\to 0\)</span>, which doesn’t really make sense in an optimization standpoint. Since the size of the matrix <span class="math inline">\(q\)</span> is dependent on number of replicas <span class="math inline">\(n\)</span>, what does it mean for the dimensions to go to <span class="math inline">\(0\)</span>? To talk about what kind of extremum, we must talk about the eigenvalues of the Hessian, but what does it mean to have <span class="math inline">\(1/3\)</span> eigenvalues?</p>
+<p>Before we get to this, consider the minimum of the effective action. Differentiating with respect to <span class="math inline">\(q_{\alpha\beta}\)</span> and setting to <span class="math inline">\(0\)</span> gives</p>
+<p><span class="math display">\[ q_{\alpha\beta} = \frac{\operatorname*{Tr}{s^\alpha s^\beta e^{-H}}}{\operatorname*{Tr}{e^{-H}}} = \langle s^\alpha s^\beta\rangle_H \]</span></p>
+<p>where the average is over the Gibbs distribution described by <span class="math inline">\(H\)</span>. This is a <em>self-consistency equation</em> for the order parameter <em>q</em>. At this point we have to realize that it is futile to perform the minimization of the effective action with a generic <span class="math inline">\(n\)</span>-by-<span class="math inline">\(n\)</span> symmetric matrix, and so we are forced to take a specific parameterization of a family of such matrices as an <strong>ansatz</strong>.</p>
+<h2 id="replica-symmetry">replica symmetry</h2>
+<p>What kind of parameterizations are we looking for? Note that the effective energy <span class="math inline">\(\mathcal{S}[q]\)</span> is independent under permutations of the replicas. Consider the toy example of a function of two variables <span class="math inline">\(f(x,y)\)</span> that is symmetric</p>
+<p><span class="math display">\[ f(x,y) = f(y,x) \]</span></p>
+<p>and consider an extremum <span class="math inline">\((x_0, y_0)\)</span> of <span class="math inline">\(f\)</span>.</p>
+<p>There are two possibilities for this extremum. The first is that <span class="math inline">\(x_0=y_0\)</span>. Then clearly the extremum itself is invariant under the action of the exchange group, and so we have found geometrically a single energy valley (extremum pit) of the function.</p>
+<p>The other is that <span class="math inline">\(x_0 \neq y_0\)</span>. Then necessarily <span class="math inline">\((x_0, y_0)\)</span> and <span class="math inline">\((y_0, x_0)\)</span> are both extrema, and so in this situation we have multiple energy valleys for us to fall into.</p>
+<p>As a first choice, we pick the easiest ansatz, one in which the matrix <span class="math inline">\(q\)</span> is itself invariant to the permutation group on replicas. This leads to the <strong>replica symmetry solution</strong></p>
+<p><span class="math display">\[ q_{\alpha\beta} = q - q\delta_{\alpha\beta} \]</span></p>
+<p>where off-diagonal elements take a constant value <span class="math inline">\(q\)</span> and otherwise <span class="math inline">\(0\)</span> (I apologize for overloading the symbol <span class="math inline">\(q\)</span> but it’s clear which is which). Plugging this ansatz in our effective action yields</p>
+<p><span class="math display">\[
+\begin{align}
+\mathcal{S}[q]
+&amp;= -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 - \log\operatorname*{Tr} \exp[-H] \\
+&amp;= -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\frac{n(n-1)}{2}q^2-\log\sum_{\{s^\alpha\}}\exp\left[-\frac{(\beta J)^2}{2} \left(q\left(\sum_\alpha s^\alpha\right)^2 - qn\right)\right]
+\end{align}
+\]</span></p>
+<p>For that squared term we use another Hubbard-Stratonovich transform to decouple the replicas, giving us</p>
+<p><span class="math display">\[ -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\frac{n(n-1)}{2}q^2-\log\sum_{\{s^\alpha\}} \exp\left[\frac{(\beta J)^2 qn}{2}\right]\int_\mathbf{R} Dz \exp\left(\beta J\sqrt{q}z\sum_\alpha s^\alpha\right) \]</span></p>
+<p>where <span class="math inline">\(Dz=\frac{dz}{\sqrt{2\pi}}e^{-z^2/2}\)</span> is the standard Gaussian measure. Note that this decouples the sum of replicas into independent components, which we can calculate analytically</p>
+<p><span class="math display">\[
+\begin{align}
+\sum_{\{s^\alpha\}}\exp\left(\beta J\sqrt{q}\sum_\alpha s^\alpha\right)
+&amp;= \prod_\alpha\sum_{\{s^\alpha\}} \exp\left(\beta J\sqrt{q}z s^\alpha\right) \\
+&amp;= \prod_\alpha 2\cosh(\beta J\sqrt{q}z) \\
+&amp;= (2\cosh(\beta J \sqrt{q}z))^n
+\end{align}
+\]</span></p>
+<p>To make this analytically more tractable, we Taylor expand the power expression as <span class="math inline">\(a^n\simeq 1 + n\log{a}+\mathcal{O}(n^2)\)</span>, so that our effective action becomes</p>
+<p><span class="math display">\[
+\begin{align}
+\mathcal{S}[q]
+&amp;= -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\frac{n(n-1)}{2}q-\log\sum_{\{s^\alpha\}} \exp\left[\frac{(\beta J)^2 qn}{2}\right]\int_\mathbf{R} Dz \exp\left(\beta J\sqrt{q}z\sum_\alpha s^\alpha\right) \\
+&amp;\simeq -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\frac{n(n-1)}{2}q - \frac{(\beta J)^2 qn}{2} - \log\left(1+n\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z)\right) \\
+&amp;\simeq -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\frac{n(n-1)}{2}q - \frac{(\beta J)^2 qn}{2}-n\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z))
+\end{align}
+\]</span></p>
+<p>Dividing out by <span class="math inline">\(\beta n\)</span> and taking the <span class="math inline">\(n\to 0\)</span> limit, we have</p>
+<p><span class="math display">\[ \lim_{n\to 0} \frac{1}{\beta n}\mathcal{S}[q] =
+-\frac{\beta J^2}{4}(1-q)^2-\frac{1}{\beta}\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z))
+\]</span></p>
+<p>The extremum of this object is our free energy, and by a simple computation is attained the self-consistency equation for the parameter <span class="math inline">\(q\)</span></p>
+<p><span class="math display">\[ q = \int_\mathbf{R} Dz \tanh^2(\beta J \sqrt{q}z) \]</span></p>
+<p>This always admits a solution given by <span class="math inline">\(q=0\)</span>. In this case the free energy is given by</p>
+<p><span class="math display">\[ f_{RS}(\beta) = -\frac{\beta J^2}{4} - \frac{1}{\beta}\log 2 \]</span></p>
+<h2 id="negative-entropy">negative entropy</h2>
+<p>Since the entropy is given by <span class="math inline">\(-\partial f/\partial\beta\)</span>, we have that the entropy is negative when</p>
+<p><span class="math display">\[ \beta^2 &gt; -\frac{4\log 2}{J^2} \]</span></p>
+<p>This is nonphysical, and corresponds to the fact that the replica symmetry ansatz is wrong! This leads to the startling realization that we have to <strong>break</strong> replica symmetry in order to get a physically-relevant solution.</p>
+<p>In the next post, we will describe Parisi’s replica symmetry breaking solution to this problem.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
