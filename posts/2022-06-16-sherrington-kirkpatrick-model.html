@@ -166,6 +166,40 @@
 <h2 id="negative-entropy">negative entropy</h2>
 <p>Since the entropy is given by <span class="math inline">\(-\partial f/\partial\beta\)</span>, we have that the entropy is negative when</p>
 <p><span class="math display">\[ \beta^2 &gt; -\frac{4\log 2}{J^2} \]</span></p>
+<p>In fact, we can try and calculate the entropy in zero temperature analytically. First we derive the low-temperature form of the order parameter <span class="math inline">\(q\)</span>. Note that <span class="math inline">\(q\to 1\)</span> as <span class="math inline">\(\beta\to\infty\)</span> (recall that <span class="math inline">\(\beta=1/T\)</span> for temperature <span class="math inline">\(T\)</span>).</p>
+<p>Hence we can take as approximation <span class="math inline">\(q\simeq 1-aT\)</span> in the low-temperature regime, for some <span class="math inline">\(a&gt;0\)</span>. The self-consistency equation for <span class="math inline">\(q\)</span> gives</p>
+<p><span class="math display">\[
+\begin{align}
+1 - aT
+&amp;= \int Dz\tanh^2(\beta J\sqrt{1-aT} z) \\
+&amp;= 1 - \int Dz \operatorname{sech}^2(\beta J\sqrt{1-aT} z) \\
+&amp;\to 1 - \int Dz \operatorname{sech}^2(\beta J z)
+\end{align}
+\]</span></p>
+<p>as <span class="math inline">\(q\to 1\)</span>, and so as <span class="math inline">\(\beta\to\infty\)</span>,</p>
+<p><span class="math display">\[
+\begin{align}
+\int Dz \operatorname{sech}^2(\beta J z)
+&amp;= \frac{1}{\beta J}\int Dz\frac{d}{dz}\tanh(\beta J z) \\
+&amp;\to \frac{1}{\beta J}\int Dz \frac{d}{dz}(2\theta(z)-1) \\
+&amp;= \frac{2}{\beta J}\int Dz \delta(z) \\
+&amp;= \sqrt{\frac{2}{\pi}}\frac{T}{J}
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\theta(z)\)</span> is the Heaviside step function. Thus <span class="math inline">\(a=\sqrt{\frac{2}{\pi}}\frac{1}{J}\)</span>. Plugging this into the free energy:</p>
+<p><span class="math display">\[ f(\beta) = -\frac{\beta J^2}{4}(1-q)^2-\frac{1}{\beta}\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z)) \]</span></p>
+<p>in the first term we find a contribution of <span class="math inline">\(-T/2\pi\)</span>. The second term’s integral can be easily written as</p>
+<p><span class="math display">\[ 2\int_0^\infty Dz\left\{\beta J \sqrt{q}z + \log(1 + e^{-2\beta J\sqrt{q}z})\right\} \]</span></p>
+<p>Taking a Taylor approximation <span class="math inline">\(\sqrt{q}\simeq 1 - aT/2\)</span>, we can evaluate the term to give</p>
+<p><span class="math display">\[ \frac{2\beta J(1-aT/2)}{\sqrt{2\pi}} + 2\int_0^\infty Dz e^{2\beta J\sqrt{q}z} \]</span></p>
+<p>where the last integral can be computed analytically. However, we will note that it is <span class="math inline">\(\mathcal{O}(T^2)\)</span>. We check this by first seeing that</p>
+<p><span class="math display">\[ \lim_{T\to 0+} \int_0^\infty Dz e^{-2\beta J\sqrt{q}z} = \int_0^\infty Dz \lim_{\beta\to\infty} e^{-2\beta J z} = 0 \]</span></p>
+<p>So the integral is at least <span class="math inline">\(\mathcal{O}(T)\)</span>. Taking the integral with respect to <span class="math inline">\(T\)</span> of this integral gives</p>
+<p><span class="math display">\[ \int_0^\infty Dz e^{2\beta J \sqrt{q}z}\cdot\left[-2J\left(-\frac{1}{T^2}\sqrt{1-aT}-\frac{a}{2T\sqrt{1-aT}}\right)\right] \]</span></p>
+<p>As <span class="math inline">\(T\to 0+\)</span>, the exponential dominates and so we note that this expression converges to 0. This proves the claim. Hence this term does not contribute to the entropy.</p>
+<p>Combining these contributions we get that in the low-temperature limit, the free energy asymptotically behaves as</p>
+<p><span class="math display">\[ f \simeq -\sqrt{\frac{2}{\pi}}J + \frac{T}{2\pi} \]</span></p>
+<p>and so the zero-temperature entropy has the fun value <span class="math inline">\(-1/2\pi\)</span>.</p>
 <p>This is nonphysical, and corresponds to the fact that the replica symmetry ansatz is wrong! This leads to the startling realization that we have to <strong>break</strong> replica symmetry in order to get a physically-relevant solution.</p>
 <p>In the next post, we will describe Parisi’s replica symmetry breaking solution to this problem.</p>
     </section>
