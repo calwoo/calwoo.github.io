@@ -231,6 +231,59 @@ Since the entropy is given by $-\partial f/\partial\beta$, we have that the entr
 
 $$ \beta^2 > -\frac{4\log 2}{J^2} $$
 
+In fact, we can try and calculate the entropy in zero temperature analytically. First we derive the low-temperature form of the order parameter $q$. Note that $q\to 1$ as $\beta\to\infty$ (recall that $\beta=1/T$ for temperature $T$). 
+
+Hence we can take as approximation $q\simeq 1-aT$ in the low-temperature regime, for some $a>0$. The self-consistency equation for $q$ gives
+
+$$
+\begin{align}
+1 - aT
+&= \int Dz\tanh^2(\beta J\sqrt{1-aT} z) \\
+&= 1 - \int Dz \operatorname{sech}^2(\beta J\sqrt{1-aT} z) \\
+&\to 1 - \int Dz \operatorname{sech}^2(\beta J z)
+\end{align}
+$$
+
+as $q\to 1$, and so as $\beta\to\infty$,
+
+$$
+\begin{align}
+\int Dz \operatorname{sech}^2(\beta J z)
+&= \frac{1}{\beta J}\int Dz\frac{d}{dz}\tanh(\beta J z) \\
+&\to \frac{1}{\beta J}\int Dz \frac{d}{dz}(2\theta(z)-1) \\
+&= \frac{2}{\beta J}\int Dz \delta(z) \\
+&= \sqrt{\frac{2}{\pi}}\frac{T}{J}
+\end{align}
+$$
+
+where $\theta(z)$ is the Heaviside step function. Thus $a=\sqrt{\frac{2}{\pi}}\frac{1}{J}$. Plugging this into the free energy:
+
+$$ f(\beta) = -\frac{\beta J^2}{4}(1-q)^2-\frac{1}{\beta}\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z)) $$
+
+in the first term we find a contribution of $-T/2\pi$. The second term's integral can be easily written as
+
+$$ 2\int_0^\infty Dz\left\{\beta J \sqrt{q}z + \log(1 + e^{-2\beta J\sqrt{q}z})\right\} $$
+
+Taking a Taylor approximation $\sqrt{q}\simeq 1 - aT/2$, we can evaluate the term to give
+
+$$ \frac{2\beta J(1-aT/2)}{\sqrt{2\pi}} + 2\int_0^\infty Dz e^{2\beta J\sqrt{q}z} $$
+
+where the last integral can be computed analytically. However, we will note that it is $\mathcal{O}(T^2)$. We check this by first seeing that
+
+$$ \lim_{T\to 0+} \int_0^\infty Dz e^{-2\beta J\sqrt{q}z} = \int_0^\infty Dz \lim_{\beta\to\infty} e^{-2\beta J z} = 0 $$
+
+So the integral is at least $\mathcal{O}(T)$. Taking the integral with respect to $T$ of this integral gives
+
+$$ \int_0^\infty Dz e^{2\beta J \sqrt{q}z}\cdot\left[-2J\left(-\frac{1}{T^2}\sqrt{1-aT}-\frac{a}{2T\sqrt{1-aT}}\right)\right] $$
+
+As $T\to 0+$, the exponential dominates and so we note that this expression converges to 0. This proves the claim. Hence this term does not contribute to the entropy.
+
+Combining these contributions we get that in the low-temperature limit, the free energy asymptotically behaves as
+
+$$ f \simeq -\sqrt{\frac{2}{\pi}}J + \frac{T}{2\pi} $$
+
+and so the zero-temperature entropy has the fun value $-1/2\pi$.
+
 This is nonphysical, and corresponds to the fact that the replica symmetry ansatz is wrong! This leads to the startling realization that we have to **break** replica symmetry in order to get a physically-relevant solution.
 
 In the next post, we will describe Parisi's replica symmetry breaking solution to this problem.
