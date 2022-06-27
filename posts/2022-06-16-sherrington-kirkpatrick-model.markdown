@@ -3,7 +3,6 @@ title: Sherrington-Kirkpatrick model and the replica method
 author: Calvin
 ---
 
-**Note: This blog post is still a rough draft. Read on with caution.**
 
 I've recently been in a craze of reading papers in machine learning that uses techniques from statistical mechanics. One of the motivating goals for these approaches is that "classical" theories of generalization in statistical learning, like those based on Vapnik-Chervonenkis dimension arguments, don't adequetely capture what is going on in the deep learning space. Indeed, one of the fundamental issues with these capacity measures is that they capture *worst-case* performance phenomenology, which is sufficiently successful for many classical machine learning methods because there exist good bounds on generalization gaps.
 
