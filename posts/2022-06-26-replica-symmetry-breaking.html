@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Replica symmetry breaking - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Replica symmetry breaking</h1>
+            <article>
+    <section class="header">
+        Posted on June 26, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In the previous post we’ve written about the replica symmetric solution to the Sherrington-Kirkpatrick model of mean field spin glasses. To briefly summarize, in order to compute statistical quantities of interest, we need to compute the <strong>free energy</strong> from the Hamiltonian of the model:</p>
+<p><span class="math display">\[ f(\beta) = \lim_{n\to 0}\frac{1}{\beta n}\operatorname*{extr}_q{\mathcal{S}[q]} \]</span></p>
+<p>where</p>
+<p><span class="math display">\[ \mathcal{S}[q] = -\frac{(\beta J)^2 n}{4}+\frac{(\beta J)^2}{2}\sum_{\alpha &lt; \beta} q_{\alpha\beta}^2 - \log\operatorname*{Tr} \exp[-H] \]</span></p>
+<p>is the <em>effective action</em>, and the saddle point extremum is taken over all matrices <span class="math inline">\(q\)</span>. Here <span class="math inline">\(H=(-\beta J)^2\sum_{\alpha &lt; \beta} q_{\alpha\beta} s^\alpha s^\beta\)</span> and the trace is over the <span class="math inline">\(n\)</span> Ising spins <span class="math inline">\(s^\alpha\)</span> for each replica. There are two remarks to make about this expression. The first is the realization that computing the extremum over all matrices <span class="math inline">\(q=\{q_{\alpha\beta}\}\)</span> is extremely difficult to do. So difficult in fact, that we usually resort to taking the extremum saddle point over specific <em>parameterizations</em> of subspaces of matrices, such as the <strong>replica symmetric ansatz</strong> used in the previous post. This parameterization restricts our computation to matrices of the form <span class="math inline">\(q_{\alpha\beta}=q_0\)</span> for some fixed value <span class="math inline">\(q_0\)</span> (with the boundary condition <span class="math inline">\(q_{\alpha\alpha}=1\)</span> for each replica <span class="math inline">\(\alpha\)</span>).</p>
+<p>However, even though we could compute an analytic form the free energy from this, the resulting free energy gave physically uninteresting results, such as negative entropy in the low temperature regime. Thus this lead to the realization that we would need to break the replica symmetry and look at other parameterizations in matrix space in order to find the right saddle points that extremize the free energy computation.</p>
+<h2 id="extrema-as-nto-0">extrema as <span class="math inline">\(n\to 0\)</span></h2>
+<p>The second remark is really a question: why are we looking for general <em>extrema</em> of the effective energy <span class="math inline">\(\mathcal{S}[q]\)</span>? Why not a <em>maximum</em>, which is actually the right thing we need for a saddle point calculation? Recall that the free energy is really an integral over matrix space <span class="math inline">\(q\)</span> of a rapidly decaying exponential. We are hence asymptotically approximating this integral via a saddle point expansion.</p>
+<p>This is really an artifact of the <span class="math inline">\(n\to 0\)</span> limit that is crucial to the replica method. We give an toy example due to <a href="https://web.stanford.edu/~montanar/RESEARCH/book.html">Mei-Montanari</a>: consider the toy quantity</p>
+<p><span class="math display">\[ Z_{\text{toy}}(n)=(2\pi/N)^{n(n-1)/4} \]</span></p>
+<p>where <span class="math inline">\(n\)</span> is a real number. When <span class="math inline">\(n\)</span> is an integer, and using the integral identity</p>
+<p><span class="math display">\[ \sqrt{\frac{2\pi}{N}} = \int_\mathbf{R} e^{-\frac{N}{2}z^2} dz \]</span></p>
+<p>we get the integral representation</p>
+<p><span class="math display">\[ Z_{\text{toy}}(n) = \int \prod_{(\alpha\beta)} dQ_{\alpha\beta} \exp\left(-\frac{N}{2}\sum_{(\alpha\beta)} Q^2_{\alpha\beta}\right)\equiv \int \prod_{(\alpha\beta)} dQ_{\alpha\beta} \exp(Ng(Q)) \]</span></p>
+<p>where <span class="math inline">\((\alpha\beta)\)</span> runs over all unordered pairs of indices <span class="math inline">\(\alpha,\beta\in\{1,...,n\}\)</span> with <span class="math inline">\(\alpha\neq\beta\)</span>. The above integral is in a form that can be evaluated via the saddle point method, and so we are looking for the matrix <span class="math inline">\(Q^*\)</span> that maximizes <span class="math inline">\(g(Q)\)</span>.</p>
+<p>Making the replica symmetric assumption, <span class="math inline">\(Q^*_{\alpha\beta}=q_0\)</span> for <span class="math inline">\(\alpha\neq\beta\)</span>, we get that <span class="math inline">\(g(Q^*)=-n(n-1)q_0^2/4\)</span>. Since we are seeking a maximum, we find that <span class="math inline">\(q_0=0\)</span>, which yields <span class="math inline">\(Z_{\text{toy}}(n)=1\)</span>. <strong>However</strong>, when <span class="math inline">\(n &lt; 1\)</span>, <span class="math inline">\(q_0=0\)</span> corresponds to a <em>minimum</em> of <span class="math inline">\(g(Q^*)\)</span>, rather than a maximum! Note the second derivative of <span class="math inline">\(g(Q^*)\)</span> with respect to <span class="math inline">\(q_0\)</span> is given by</p>
+<p><span class="math display">\[ g''(Q^*) = -\frac{1}{2}n(n-1) \]</span></p>
+<p>which is positive for <span class="math inline">\(n&lt;1\)</span>! While annoying, this is an unavoidable aspect of the replica method. As a consequence, we will often be concerned with the stability of the saddle points we discover using the various replica symmetry breaking ansatz we choose.</p>
+<h2 id="rsb">1RSB</h2>
+<p>In this section we will discuss Parisi’s replica symmetry breaking ansatz for the SK model. His strategy was to break the replica symmetry in a recursive fashion, each time expanding the space of matrices described by the ansatz, while still controlling the analytic solutions of free energies that can be extracted from this framework. In this framework, we can consider the replica symmetric solution to be the <em>0-step</em> replica symmetry breaking solution, or 0RSB.</p>
+<p>In the 0RSB solution, we regard the matrix <span class="math inline">\(q_{\alpha\beta}\)</span> in the integral regime to be of the form</p>
+<p><span class="math display">\[
+\begin{pmatrix}
+0 &amp;   &amp;   &amp;  &amp;   &amp;   \\
+  &amp; 0 &amp;   &amp;  &amp; q &amp;   \\
+  &amp;   &amp; 0 &amp;  &amp;   &amp;   \\
+  &amp; &amp; &amp; 0 &amp; &amp; \\
+  &amp; q &amp; &amp; &amp; 0 &amp; \\
+  &amp; &amp; &amp; &amp; &amp; 0
+\end{pmatrix}
+\]</span></p>
+<p>where the off-diagonal elements are a fixed value <span class="math inline">\(q\)</span>. In the effective action, this allows for the computation of the last term analytically, as</p>
+<p><span class="math display">\[
+\begin{align}
+H &amp;= (-\beta J)^2\sum_{\alpha &lt; \beta} q_{\alpha\beta} s^\alpha s^\beta \\
+&amp;= \frac{\beta^2 J^2}{2}q\left[\left(\sum_\alpha s^\alpha\right)^2 - n\right]
+\end{align}
+\]</span></p>
+<p>and so by utilizing the Hubbard-Stratonovich transform we get that</p>
+<p><span class="math display">\[
+\begin{align}
+\operatorname*{Tr}_s \exp[-H]
+&amp;= \operatorname*{Tr}_s \exp\left(-\frac{\beta^2 J^2}{2}q\left[\left(\sum_\alpha s^\alpha\right)^2 - n\right]\right) \\
+&amp;= \exp\left[\frac{(\beta J)^2 qn}{2}\right] \operatorname*{Tr}_s \int_\mathbf{R} Dz \exp\left(\beta J\sqrt{q} z \sum_\alpha s^\alpha\right)
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(Dz=\frac{dz}{\sqrt{2\pi}}e^{-z^2/2}\)</span> is the standard Gaussian measure. Note that this decouples the sum of replicas into independent components, which we can calculate analytically</p>
+<p><span class="math display">\[
+\begin{align}
+\sum_{\{s^\alpha\}}\exp\left(\beta J\sqrt{q}\sum_\alpha s^\alpha\right)
+&amp;= \prod_\alpha\sum_{\{s^\alpha\}} \exp\left(\beta J\sqrt{q}z s^\alpha\right) \\
+&amp;= \prod_\alpha 2\cosh(\beta J\sqrt{q}z) \\
+&amp;= (2\cosh(\beta J \sqrt{q}z))^n
+\end{align}
+\]</span></p>
+<p>As in the last post, this leads to the analytical expression for the <span class="math inline">\(n\to 0\)</span> limit of the effective action,</p>
+<p><span class="math display">\[ \lim_{n\to 0} \frac{1}{\beta n}\mathcal{S}[q] =
+-\frac{\beta J^2}{4}(1-q)^2-\frac{1}{\beta}\int_\mathbf{R}Dz \log(2\cosh(\beta J \sqrt{q}z))
+\]</span></p>
+<p>The extremum of this object is our free energy, and by a simple computation is attained the self-consistency equation for the parameter <span class="math inline">\(q\)</span></p>
+<p><span class="math display">\[ q = \int_\mathbf{R} Dz \tanh^2(\beta J \sqrt{q}z) \]</span></p>
+<p>We repeat these calculations because these will be the same steps we take in the higher-step replica symmetry breaking solutions. The <strong>first-step replica symmetry breaking</strong> (1RSB) solution introduces an additional free parameter in our parametrization. For integer <span class="math inline">\(n\)</span>, let <span class="math inline">\(m_1\le n\)</span> be a positive integer. We divide the replicas <span class="math inline">\(\alpha=1,...,n\)</span> into <span class="math inline">\(n/m_1\)</span> blocks and consider a block matrix where off-diagonal blocks have a constant value <span class="math inline">\(q_0\)</span> and diagonal blocks <em>recursively</em> look like the 0RSB ansatz:</p>
+<p><span class="math display">\[
+\left[
+\begin{array}{ccc|ccc|ccc}
+0 &amp;&amp; q_1 &amp;&amp;&amp;&amp;&amp;&amp; \\
+&amp;0&amp;&amp;&amp;q_0&amp;&amp;&amp;q_0\\
+q_1&amp;&amp;0\\\hline
+\\
+&amp;q_0&amp;&amp;&amp;\ddots&amp;&amp;&amp;q_0\\
+\\\hline
+&amp;&amp;&amp;&amp;&amp;&amp;0&amp;&amp;q_1\\
+&amp;q_0&amp;&amp;&amp;q_0&amp;&amp;&amp;0\\
+&amp;&amp;&amp;&amp;&amp;&amp;q_1&amp;&amp;0\\
+\end{array}
+\right]
+\]</span></p>
+<p>Here <span class="math inline">\(q_1\)</span> is the parameter of the diagonal 0RSB blocks. As in the 0RSB (replica symmetric) parameterization, this allows us to combinatorially express the Ising term in the effective energy as</p>
+<p><span class="math display">\[
+\beta^2 J^2\sum_{\alpha &lt; \beta} q_{\alpha\beta} s^\alpha s^\beta
+= \frac{\beta^2 J^2}{2}\left\{q_0\left(\sum^n_\alpha s^\alpha\right)^2 + (q_1 - q_0)\sum_{\text{block}}^{n/m_1}\left(\sum_{\alpha\in\text{block}}^{m_1} s^\alpha\right)^2   - nq_1 \right\}
+\]</span></p>
+<p>where <span class="math inline">\(\text{block}\)</span> ranges over the <span class="math inline">\(n/m_1\)</span> blocks the replicas <span class="math inline">\(\alpha\)</span> have been separated into. Computing the trace,</p>
+<p><span class="math display">\[
+\begin{align}
+\operatorname*{Tr}_s \exp[-H]
+&amp;= \exp\left[\frac{\beta^2 J^2 n q_1}{2}\right]\operatorname*{Tr}_s
+\int Dz_0 \exp\left(\beta J\sqrt{q_0} z_0 \sum_\alpha^n s^\alpha\right)
+\prod_{\text{block}}^{n/m_1} \int Dz_{1,\text{block}} \exp\left(\beta J\sqrt{q_1-q_0} z_{1,\text{block}} \sum_{\alpha\in\text{block}}^{m_1} s^\alpha\right) \\
+&amp;= \exp\left[\frac{\beta^2 J^2 n q_1}{2}\right]\int Dz_0\left\{\int Dz_1 [2\cosh(\beta J\sqrt{q_0}z_0 + \beta J\sqrt{q_1-q_0}z_1)]^{m_1}\right\}^{n/m_1}
+\end{align}
+\]</span></p>
+<p>Again, using the asymptotic expansion of the power expression as <span class="math inline">\(a^n\simeq 1 + n\log{a}+\mathcal{O}(n^2)\)</span>,</p>
+<p><span class="math display">\[
+\operatorname*{Tr}_s \exp[-H] \simeq 1 + \frac{n}{m_1}\int Dz_0\log\int Dz_1 [2\cosh(\beta J\sqrt{q_0}z_0 + \beta J\sqrt{q_1-q_0}z_1)]^{m_1}
+\]</span></p>
+<p>Finally, the quadratic term of the effective energy,</p>
+<p><span class="math display">\[
+\sum_{\alpha &lt; \beta} q^2_{\alpha\beta} = \frac{1}{2}\left\{n^2q_0^2 + \frac{n}{m_1}m_1^2(q_1^2-q_0^2)-nq_1^2\right\}
+\]</span></p>
+<p>gives the expression for the <span class="math inline">\(n\to 0\)</span> limit of the effective energy</p>
+<p><span class="math display">\[ 
+\begin{align}
+\lim_{n\to 0} \frac{1}{\beta n}\mathcal{S}[q] 
+&amp;= \frac{(\beta J)^2}{4}\left((m_1-1)q_1^2-m_1q_0^2-1\right)-\frac{1}{n}\log\left\{1 + \frac{n}{m_1}\int Dz_0\log\int Dz_1 [2\cosh(\beta J\sqrt{q_0}z_0 + \beta J\sqrt{q_1-q_0}z_1)]^{m_1}\right\} \\
+&amp;\simeq\frac{(\beta J)^2}{4}\left((m_1-1)q_1^2-m_1q_0^2+2q_1-1\right)-\frac{1}{m_1}\int Dz_0\log\int Dz_1 [2\cosh(\beta J\sqrt{q_0}z_0 + \beta J\sqrt{q_1-q_0}z_1)]^{m_1}
+\end{align}
+\]</span></p>
+<p>Extremizing this over the free parameters <span class="math inline">\(q_0, q_1\)</span> of the 1RSB solution gives self-consistent equations, which is left to the reader to extract. We note that while this is an expansion of the space of matrices to look for a saddle point, the saddle points found here are still unstable, and so we need to keep looking towards larger and larger spaces.</p>
+<h2 id="krsb">kRSB</h2>
+<p>To get to the higher step replica symmetry breaking solutions, we recurse: the parameterization of the kRSB solution is again given by choosing an integer <span class="math inline">\(m_k\le n\)</span> and splitting up the replicas <span class="math inline">\(\alpha\)</span> into <span class="math inline">\(m_k\)</span> blocks. We then form block matrices where off-diagonal blocks assume constant values <span class="math inline">\(q_0\)</span>, while diagonal blocks recursively implement the <span class="math inline">\((k-1)\)</span>-RSB solution with free parameters <span class="math inline">\(q_1,...,q_{k-1}\)</span>:</p>
+<p align="center">
+<img width="700" height="200" src="../images/2rsb.png">
+</p>
+<p>In the <span class="math inline">\(k\to\infty\)</span> limit, the free parameters <span class="math inline">\(q_k\)</span> form a continuous function <span class="math inline">\(q(x)\)</span>, which then is used to comprise the full RSB solution of Parisi. We won’t dwell further on this, and instead try to look at an interesting consequence of this replica symmetry breaking ansatz.</p>
+<h2 id="ultrametricity">ultrametricity</h2>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
