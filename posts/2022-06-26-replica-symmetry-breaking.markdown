@@ -176,3 +176,49 @@ In the $k\to\infty$ limit, the free parameters $q_k$ form a continuous function 
 
 ## ultrametricity
 
+A question that pops to mind is "what is replica symmetry breaking physically"? Recall that the $n$ replicas were introduced in the replica method in order to compute the quenched average $\langle\log Z_J\rangle_J$, and that the starting partition function $\langle Z^n\rangle$ was invariant to the permutation action of the symmetric group $\Sigma_n$.
+
+In this way, we can interpret the permutation symmetry to mean that the replicas are all "equal". However, breaking the symmetry means to some extent that some replicas are more "important" than others! This introduces a hierarchy among the replicas. What then is the structure of this hierarchy? And what does it translate to in our free energy surface?
+
+Consider two replicas, $\alpha, \beta$ of the model (that is, the interactions are fixed for both $J^\alpha_{ij}=J^\beta_{ij}$, but the spin configurations may differ via thermal fluctuations). The **overlap** between the two is defined as the quantity
+
+$$ q_{\alpha\beta} = \frac{1}{N}\sum_{i}^N s_i^\alpha s_i^\beta $$
+
+i.e. the empirical correlation between spin sites of the two replicas. Given the constraints imposed by the interaction couplings $J$, we expect that a meaningful order parameter for the two replicas can arise by looking at the probability distribution of the overlap
+
+$$ P_J(q) = \operatorname{Tr}_{s^a, s^b}\left[\frac{e^{-\beta\sum_{ij}J_{ij}s^a_i s^a_j}e^{-\beta\sum_{ij}J_{ij}s^b_i s^b_j}}{Z_J^2} \delta\left(\frac{1}{N}\sum_{i}^N s_i^a s_i^b - q\right) \right] $$
+
+This distribution depends on the frustrated couplings, and so we want to understand the *typical* behavior by looking at the quenched average $\langle P_J(q)\rangle_J$.
+
+While complicated, this can be simplified using a modified replica argument. Notice that the main difficulty in the average is the fact that the random interactions $J_{ij}$ appear in both the numerator and denominator $Z_J^2$. Multiplying numerator and deominator both by $Z_J^{n-2}$ and letting $n\to 0$, we can eliminate the $Z_J$-terms as the denominator now tends to 1. Then we have
+
+$$ \langle P_J(q)\rangle_J = \lim_{n\to 0} \left\langle\operatorname{Tr}_{s^\alpha}\left[\prod_\alpha e^{-\beta \mathcal{H}[s^\alpha]}\delta\left(\frac{1}{N}\sum_{i}^N s_i^a s_i^b - q\right) \right]\right\rangle_J $$
+
+By the same kind of replica calculation done in the previous post, we see that this integral is asymptotically dominated in the thermodynamic ($N\to\infty$) limit by the contributions from all saddle points. This ultimately leads to
+
+$$  \langle P_J(q)\rangle_J = \lim_{n\to 0}\sum_{Q}\delta(Q_{ab} - q) $$
+
+where the sum is over all saddle points of the above action. **However**, by permutation symmetry of the replicas, given any saddle point, we get another by permuting the replica indices. Hence equivalently, we can consider one matrix $Q_{ab}$ and average over all the rows and columns:
+
+$$ \langle P_J(q)\rangle_J = \lim_{n\to 0}\frac{1}{n(n-1)}\sum_{a\neq b} \delta(Q_{ab} - q) $$
+
+**Upshot:** The replica symmetry breaking ansatz shows that the energy surface of a spin glass has many valleys, that in the thermodynamic limit become closed off from one another as their energy barriers become too high. In essence, replica symmetry breaking *is* ergodicity breaking.
+
+We close this post by giving another example of the complexity of the energy surfaces of spin glasses. Consider three replicas, and consider the distribution of mutual overlaps:
+
+$$ P_J(q_{12}, q_{23}, q_{31}) = 
+\operatorname{Tr}_{s^1, s^2, s^3}\left[\frac{e^{-\beta[\mathcal{H}[s^1] + \mathcal{H}[s^2] + \mathcal{H}[s^3]]}}{Z^3_J}\delta\left(\frac{1}{N}\sum_{i}^N s_i^1 s_i^2 - q_{12}\right)\delta\left(\frac{1}{N}\sum_{i}^N s_i^2 s_i^3 - q_{23}\right)\delta\left(\frac{1}{N}\sum_{i}^N s_i^3 s_i^1 - q_{31}\right)\right] $$
+
+By the same argument, we find that
+
+$$ \langle P_J(q_{12}, q_{23}, q_{31})\rangle_J =
+\lim_{n\to 0}\frac{1}{n(n-1)(n-2)}\sum_{a\neq b, b\neq c, c\neq a}
+\delta(Q_{ab}-q_{12})\delta(Q_{bc}-q_{23})\delta(Q_{ca}-q_{31}) $$
+
+When $Q_{ab}$ satisfies a kRSB solution scheme, we see that the entries of the matrix must follow a certain structure according to this probability distribution. Suppose for three replicas $a, b, c$, we have that $Q_{ab}=q_1, Q_{bc}=q_2, Q_{ac}=q_3$. Then if $q_1 > q_2\ge q_3$, we **must** have that $q_2 = q_3$!
+
+To see this, note that because $q_1\neq q_2$, $a$ and $c$ must be in different blocks according to the RSB scheme. Analogously, $b$ and $c$ must be in different blocks. But this means that $Q_{ac}$ and $Q_{bc}$ reside in off-diagonal blocks, as $Q_{\alpha\beta}$ is in a diagonal block by definition when $\alpha,\beta$ are in the same replica block by RSB. As all entries of off-diagonal blocks in the RSB scheme are the same, we have that $q_2=q_3$.
+
+This endows the space of overlaps a property called **ultrametricity**, and is a mathematical structure appearing in many guises, usually whenever a hierarchical structure can be found.
+
+There should be a fascinating connection between this replica symmetry breaking ultrametric structure and the canonical ultrametric structure of interest in mathematics, namely the one on the $p$-adic numbers, but that will have to wait for another post...
