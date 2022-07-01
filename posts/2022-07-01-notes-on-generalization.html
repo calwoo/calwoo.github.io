@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Notes on generalization theory - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Notes on generalization theory</h1>
+            <article>
+    <section class="header">
+        Posted on July  1, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In the past couple of posts I’ve talked about some mathematical techniques from statistical mechanics to deal with various forms of disordered systems. These systems arise in machine learning as well, especially in the guise of neural networks: we can think of the spin sites to be inputs of the network, and the interaction couplings are synaptic weights corresponding to the parameters of the network. In the Bayesian neural network setting, all such weights are initialized randomly from some prior distribution, and so we are in a disordered system reminiscent of a spin glass.</p>
+<p>I want to focus in this post on a few papers I’m reading on applying these techniques to get results on generalization performance of various neural network architectures.</p>
+<h2 id="stat-mech-of-parity-machines">stat mech of parity machines</h2>
+<p>The first <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.65.2312">paper</a> is the 1990 paper of Barkai et al. “Statistical mechanics of a multilayered neural network”. Previous work of Gardner, Derrida, and others studied the problem of determining the maximal capacity of perceptrons– that is, the measure of the perfect retrieval ability of a perceptron network in the high-dimensional limit.</p>
+<p>However, the computational capabilities of a perceptron (a zero hidden-layer network) is limited because of its inability to solve non-linearly separable classification problems. Hence we would like to do a similar kind of analysis for multilayer networks.</p>
+<p>This paper addresses the problem for simple <strong>parity machines</strong>, and does a study on the information capacity <em>per synapse/weight</em>, as opposed to just the entire network.</p>
+<p align="center">
+<img src="../images/two-layer-parity-machine.png">
+</p>
+<p>A parity machine has an architecture given by the diagram above. It consists of <span class="math inline">\(N\)</span> binary input units, a single hidden layer with <span class="math inline">\(K\)</span> <em>continuous</em> units, and a single binary output. Unlike a fully connected feedforward network, we split the input units into <span class="math inline">\(K\)</span> distinct sets, and connect each set of inputs to a single hidden unit.</p>
+<p>Written out, denote the input configuration as <span class="math inline">\(\{s_i\}_{i=1,...,N}\)</span> where <span class="math inline">\(s_i=\pm 1\)</span>. The <span class="math inline">\(\ell\)</span>-th hidden unit state is computed by</p>
+<p><span class="math display">\[ h_\ell = \sum_{i=N(\ell-1)/K + 1}^{N\ell/K} J_i s_i \]</span></p>
+<p>which feeds to the binary output</p>
+<p><span class="math display">\[ o = \operatorname{sgn}\left(\prod_{\ell=1}^K h_\ell\right) \]</span></p>
+<p>This sign of the product gives rise to the name parity machine for the network. This paper addresses the capacity of this network to memorize input patterns. Consider <span class="math inline">\(P\)</span> patterns <span class="math inline">\(\xi_i^\mu=\pm 1\)</span> for <span class="math inline">\(i=1,...,N\)</span> and <span class="math inline">\(\mu=1,...,P\)</span>, with desired outputs <span class="math inline">\(y^\mu=\pm 1\)</span>. We will be considering <strong>random patterns</strong>, so that each component of the input and outputs are sampled with equal probability from <span class="math inline">\(\pm 1\)</span>.</p>
+<p><strong>Goal:</strong> calculate as a function of <span class="math inline">\(K\)</span> the maximal number of patterns <span class="math inline">\(P_c\)</span> that can be memorized by the network in the high-dimensional limit <span class="math inline">\(N\to\infty\)</span>.</p>
+<p><a href="https://iopscience.iop.org/article/10.1088/0305-4470/21/1/030">Gardner’s</a> method for studying this is to consider the volume in weight space occupied by networks with perfect retrieval of the given input patterns:</p>
+<p><span class="math display">\[ V = \int_\mathbf{R}\prod_i^N dJ_i \prod_\ell\delta\left(\sum_{i=N(\ell-1)/K + 1}^{N\ell/K} J_i^2 - N/K\right)\prod_\mu \theta\left(y^\mu\prod_\ell\left[\sum_{i=N(\ell-1)/K + 1}^{N\ell/K} J_i \xi_i^\mu\right]\right) \]</span></p>
+<p>By the replica method, we want to compute the typical quenched quantity <span class="math inline">\(\langle \log{V}\rangle\)</span> where the average is over random input and output patterns. By performing a computation similar to the ones done in the previous blog posts (and almost line-by-line the computation done by Gardner), one gets under the replica symmetry ansatz the saddle point equation</p>
+<p><span class="math display">\[ \langle \log{V}\rangle = \operatorname*{extr}_q\left\{
+\frac{1}{2}\ln(1-q)+\frac{q}{2(1-q)}+\alpha\int_\mathbf{R}\prod_\ell Dt_\ell\log\left[\operatorname{Tr}_{\tau_\ell}\prod_\ell H(Q\tau_\ell t_\ell)\theta\left(\prod_\ell\tau_\ell\right)\right]
+\right\}
+\]</span></p>
+<p>where <span class="math inline">\(\alpha=P/N\)</span> (standard high-dimensional limit quantity), <span class="math inline">\(Q=\sqrt{q/(1-q)}\)</span>, <span class="math inline">\(Dt\)</span> is the Gaussian measure, <span class="math inline">\(H(x)=\int_x^\infty Dx\)</span>, and <span class="math inline">\(q\)</span> is the extremum. The only true parameter here is <span class="math inline">\(\alpha\)</span>, and through this analytical formulation of the volume, the authors determine different regimes for <span class="math inline">\(\alpha\)</span> in which different saddle points <span class="math inline">\(q\)</span> arises.</p>
+<p>Since the <span class="math inline">\(q\)</span> arises in the replica method as an order parameter for the replica symmetry (<span class="math inline">\(q_{\alpha\beta}\)</span> is the correlation function between synaptic weights), we see that the maximum value it attains <span class="math inline">\(q=1\)</span> will be realizable as a saddle point above when <span class="math inline">\(\alpha\)</span> reaches its maximal capacity value <span class="math inline">\(\alpha_c\)</span>.</p>
+<p>This is intuitive, as <span class="math inline">\(q_{\alpha\beta}\)</span> measures the <em>overlap</em> between different weight vectors in the space described by the volume <span class="math inline">\(V\)</span>. When <span class="math inline">\(q=1\)</span>, the weight vectors must on average all be the same, which means the volume <span class="math inline">\(V\)</span> collapsed to <span class="math inline">\(V=0\)</span>, which means above this <span class="math inline">\(\alpha_c\)</span>, there are no parity machines that can fully memorize the patterns.</p>
+<p>An interesting observation the authors make is that for <span class="math inline">\(K\ge 2\)</span> there is a nontrivial stretch of <span class="math inline">\(\alpha\)</span> (from <span class="math inline">\(0&lt;\alpha&lt;\alpha_0\)</span>) that no correlations are built between different solutions in weight space. This is not the case for perceptrons (the <span class="math inline">\(K=1\)</span> case)! They remark that this is due to the <strong>representation learning</strong> being done in the hidden layer, which along with the gauge symmetries of the parity machine allows for ergodicity to not be broken in weight space in this low-<span class="math inline">\(\alpha\)</span> regime.</p>
+<p>Unlike the case of the perceptron, for large number of hidden units <span class="math inline">\(K\)</span>, the RS solution is unstable, and so the authors turn to the 1RSB solution for the overlap to continue studying. This allows them to get to an expression for the large <span class="math inline">\(K\)</span> critial capacity</p>
+<p><span class="math display">\[ \alpha_c(K) \simeq \frac{\log{K}}{\log{2}} \]</span></p>
+<h2 id="symmetries-and-ergodicity">symmetries and ergodicity</h2>
+<p>This <a href="https://iopscience.iop.org/article/10.1209/0295-5075/20/5/015">paper</a> by Hansel et al. isn’t very long, but one of the results in here is actually quite cool. They work with the parity machine, as above, but with <span class="math inline">\(K=2\)</span> hidden units.</p>
+<p>Working in the standard student-teacher setup for statistical mechanical analysis of supervised learning, they try and study the generalization error of student networks that perfectly memorize a training set. They show that there is an <span class="math inline">\(\alpha_*\)</span> (recall that <span class="math inline">\(\alpha\)</span> is a measure of the size of the training set relative to the dimensionality of the input) such that for <span class="math inline">\(\alpha &lt; \alpha_*\)</span>, student networks exhibit rote memorization <em>without generalization</em>.</p>
+<p>They then make an interesting remark: the existence of this phase is a consequence of the <strong>inversion symmetry</strong> of the weight space. Since we have 2 hidden weights, given a set of weights <span class="math inline">\(J\)</span> for a student network, the inversion symmetry states that the network with weights <span class="math inline">\(-J\)</span> has the same training loss, and also belong to the same ergodic component of weight space.</p>
+<p>At the value <span class="math inline">\(\alpha_*\)</span>, the symmetry is broken and the networks defined by <span class="math inline">\(J\)</span> and <span class="math inline">\(-J\)</span> no longer belong to the same ergodic compnent. This symmetry breaking is what gives rise to generalization behavior in the student networks. The authors then also give evidence that this <span class="math inline">\(\alpha_*\)</span> is at least the maximal capacity of the <span class="math inline">\(K=2\)</span>-parity machine, <span class="math inline">\(\alpha_c(2)\)</span>!</p>
+<p>However, as of yet, I have no idea how to understand the breaking of ergodicity in connection to the breaking of this inversion symmetry. Maybe other readings can elucidate this for me?</p>
+<p><strong>Added note</strong>: Actually, ergodicity breaking isn’t terribly hard to understand. The free energy integral calculation is (via the saddle point approximation) dominated by the sum of the values at saddle points. But note that each distinct saddle point forms a valley in the free energy surface over state space. In the thermodynamic limit (<span class="math inline">\(N\to\infty\)</span>), these valleys are separated by infinitely large barriers that disallow states in one valley to visit another through thermal fluctuations. This breaks ergodicity.</p>
+<h2 id="more-learning-curves-for-parity-machines">more learning curves for parity machines</h2>
+<p>There is this <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.72.2113">paper</a> by Manfred Opper, about generalization in parity machines. Here they extend the analysis of Hansel et al. above to <span class="math inline">\(K&gt;2\)</span>, and show that there are <span class="math inline">\(\alpha\)</span>-cutoffs for each <span class="math inline">\(K\)</span> that below which generalization cannot occur.</p>
+<p>Interestingly, this paper addresses the question of generalization of “deep” neural networks by a comparison to the standard-of-the-time, <strong>Vapnik-Chervonenkis</strong> theory.</p>
+<p>As Opper reviews, we define the VC dimension <span class="math inline">\(d_{\text{VC}}\)</span> to be the size of the largest <em>set</em> of input patterns, for which all of the possible <span class="math inline">\(2^{d_{\text{VC}}}\)</span> combinations of binary output labelings can be learned by the network. This gives a unnormalized measure of “maximal capacity” for the network. This differs from the capacity <span class="math inline">\(\alpha_c\)</span> from above in that in the definition of VC dimension we are asking that <strong>all</strong> possible labelings can be learned, while <span class="math inline">\(\alpha_c\)</span> asks if it is possible for the network to learn <em>at least one</em> such labeling.</p>
+<p>Remarkably, the <a href="https://en.wikipedia.org/wiki/Sauer%E2%80%93Shelah_lemma">Sauer-Shelah lemma</a> gives an upper bound on the number of output combinations that can be learned based on <span class="math inline">\(d_\text{VC}\)</span>. As a consequence, in the thermodynamic limit <span class="math inline">\(N\to\infty\)</span>, if the number of input patterns <span class="math inline">\(m\)</span> exceeds <span class="math inline">\(2d_\text{VC}\)</span> then we effectively cannot learn the entire dataset. As a consequence,</p>
+<p><span class="math display">\[ \alpha_c &lt; 2d_\text{VC}/N \]</span></p>
+<p>giving a relation between maximal capacity and the VC dimension.</p>
+<p>The question Opper asks is “is the VC dimension <span class="math inline">\(d_\text{VC}\)</span> really the main relevant parameter that determines the shape of the learning curve?” As before, we can use the replica method to compute the generalization performance of a <span class="math inline">\(K&gt;2\)</span>-parity machine. They end up computing generalization curves for various <span class="math inline">\(K\)</span>, as depicted in this diagram:</p>
+<p align="center">
+<img width="60%" height="60%" src="../images/opper-generalization-curves.png">
+</p>
+<p>Here, the non-cutoff parts of the graph follow the generalization error</p>
+<p><span class="math display">\[ \epsilon_G \simeq 0.62\alpha^{-1} \]</span></p>
+<p>which shows that the generalization error is independent of the VC dimension! This is sorta a display of the failure of Vapnik-Chervonenkis theory to explain the generalization mysteries of deep networks. The other fun thing they show is that for <span class="math inline">\(K\ge 2\)</span> there is always a threshold <span class="math inline">\(\alpha_0(K)\)</span> for which generalization does not occur below it. This is again in contrast to the perceptron!</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
