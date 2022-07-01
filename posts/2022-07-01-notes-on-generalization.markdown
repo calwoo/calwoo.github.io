@@ -101,3 +101,18 @@ Here, the non-cutoff parts of the graph follow the generalization error
 $$ \epsilon_G \simeq 0.62\alpha^{-1} $$
 
 which shows that the generalization error is independent of the VC dimension! This is sorta a display of the failure of Vapnik-Chervonenkis theory to explain the generalization mysteries of deep networks. The other fun thing they show is that for $K\ge 2$ there is always a threshold $\alpha_0(K)$ for which generalization does not occur below it. This is again in contrast to the perceptron! 
+
+
+## broken symmetries in committee machines
+
+The last [paper](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.45.4146) I want to talk about is another Barkai et al. paper (this time with Haim Sompolinsky), "Broken symmetries in multilayered perceptrons". Here, they are working instead with (possibly fully-connected) **committee machines**. The difference from a parity machine is that the final binary output is a *majority vote* from the binary hidden unit outputs, as opposed to a parity multiplication.
+
+In this work, they study the weight space of the multilayer networks via the lens of spontaneous symmetry breaking phenomena. In such a scheme, the weight space "fractures" into disjoint components that each has *less* symmetry than the total weight space as a whole. 
+
+The standard kind of symmetry breaking found in these "spin-glass" analogues is that of replica symmetry breaking. The RSB ansatz gives a description of the dominating saddle point in the free energy calculation of the system. For kRSB where $k>0$, a permutation of the replica indices does *not* necessarily lead to the same saddle point $Q^*_{\alpha\beta}$. 
+
+Hence, permuting the replicas give rise to other saddle points, all with the same free energy, and hence give multiple free energy valleys in the energy surface over state space. Since in the thermodynamic limit the barriers between such valleys are impassable, we get a breaking of ergodicity-- a state trapped in one energy valley cannot over arbitrarily long time escape it.
+
+In the case of a fully-connected committee machine, there is another kind of symmetry in weight space. Given any permutation of the hidden units, we get another point in weight space *with the same training error*. Hence this **permutation symmetry** may possibly be broken in some $\alpha$-regimes.
+
+Indeed, the authors find that for large $\alpha$, weights in weight space corresponding to permutations of the hidden units might become trapped in different energy valleys, breaking this symmetry. This was found empirically by investigating the values of specific order parameters designed to capture the connectedness of weight space under this symmetry. This breaking of the gauge symmetry might be extended to modern deep learning architectures, where such local symmetries abound, for example in large transformer models and CNNs.
