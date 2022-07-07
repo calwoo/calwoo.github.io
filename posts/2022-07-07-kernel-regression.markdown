@@ -35,9 +35,9 @@ $$ \mathcal{F}_\text{poly} = \left\{f:\mathbf{R}^d\to\mathbf{R} : f(x)=g(x, x^{\
 
 where $\otimes$ is the ordinary vector tensor product.
 
-Recall that over a fixed compact support $\mathcal{C}$, elementary functional analysis tells us that polynomials are dense in the function space $L^2(\mathcal{C})$, and so $\mathcal{F}_\text{poly}$ for large $k$ can approximate pretty much any function we want. So why not use it? The issue is that for large feature dimensions $d$, and moderate $k$, the dimensionality of the linear regression to be solved in very high. At first count, the dimension of the polynomial embedding $x\mapsto (x, x^{\otimes 2}, ..., x^{\otimes k})$ is
+Recall that over a fixed compact support $\mathcal{C}$, elementary functional analysis tells us that polynomials are dense in the function space $L^2(\mathcal{C})$, and so $\mathcal{F}_\text{poly}$ for large $k$ can approximate pretty much any function we want. So why not use it? The issue is that for large feature dimensions $d$, and moderate $k$, the dimensionality of the linear regression to be solved in very high. At first count, the dimension of the polynomial embedding $x\mapsto (1, x, x^{\otimes 2}, ..., x^{\otimes k})$ is
 
-$$ d + d^2 + ... + d^k = \frac{d^{k+1} - 1}{d - 1} $$
+$$ 1 + d + d^2 + ... + d^k = \frac{d^{k+1} - 1}{d - 1} $$
 
 How do we then efficiently perform regression with such large embedded feature spaces? Let's shift our perspective a bit. Consider an *arbitrary* feature embedding into some Hilbert space (recall this is a complete vector space with an inner product, roughly) $\phi: \mathbf{R}^d\to\mathcal{H}$, where $\mathcal{H}$ can be of arbitrarily large dimension (even $\infty$!).
 
