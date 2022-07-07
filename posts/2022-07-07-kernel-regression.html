@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Neural network Gaussian process kernels - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Neural network Gaussian process kernels</h1>
+            <article>
+    <section class="header">
+        Posted on July  7, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In the beginning, most machine learning specialists learn about <em>linear methods</em>, like linear regression or its more flexible sibling, kernel regression. However, it is often discussed that such methods have expressivity limits and require heavy feature engineering to make things work out right. But deep learning could save us! Automatic feature engineering! Custom architectures to capture inductive biases! Double descent behavior!</p>
+<p>However, the tradeoff of using these deep neural networks is the massive number of hyperparameters and tricks necessary to train the model. Often selecting a model architecture is the easiest part– the choice of optimizer, weight initializations, validation criterion etc. is enough to make anyone’s head spin. Is there a way to get the best of both worlds– the expressivity of neural networks with the ease of training of kernel methods?</p>
+<p>In his PhD thesis, <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.446.9306&amp;rep=rep1&amp;type=pdf">Neal</a> showed an equivalence between certain 2-layer infinitely-wide Bayesian neural networks and kernel regression with a specific kernel. Indeed, this reduces the complexity of training such beasts to a kernel regression problem, which is often easier. In this post, we will describe this equivalence and show that it leads to good baselines for such models, without much hyperparameter tuning necessary.</p>
+<h2 id="kernel-regression">kernel regression</h2>
+<p>In this section we’ll give a review of kernel regression. Let <span class="math inline">\(\mathcal{D}=\{(x_i, y_i)\}_{i=1,...,n}\)</span> be a dataset where <span class="math inline">\(x_i\in\mathbf{R}^d\)</span> and <span class="math inline">\(y_i\)</span> is some scalar values. In the regression problem, we are tasked with finding a “best fit” candidate in a class of functions <span class="math inline">\(\mathcal{F}\)</span> for the dataset <span class="math inline">\(\mathcal{D}\)</span>, where “best” is determined by finding the minimizer of a loss function</p>
+<p><span class="math display">\[ f_* = \operatorname*{argmin}_{f\in\mathcal{F}}\mathcal{L}(f, \mathcal{D}) \]</span></p>
+<p>Here <span class="math inline">\(\mathcal{L}(f, \mathcal{D})\)</span> can be given by something like mean squared error</p>
+<p><span class="math display">\[ \mathcal{L}(f, \mathcal{D}) = \frac{1}{|\mathcal{D}|}\sum_{(x,y)\in\mathcal{D}} \left(f(x) - y\right)^2 \]</span></p>
+<p>Much of the complexity of the regression problem can be found in the choice of function class <span class="math inline">\(\mathcal{F}\)</span>. In the <strong>linear regression</strong> problem, we take <span class="math inline">\(\mathcal{F}\)</span> to be the class of linear functions (which for simplicity, we will not consider affine functions):</p>
+<p><span class="math display">\[ \mathcal{F} = \left\{f:\mathbf{R}^d\to\mathbf{R} : f(x)=wx, w\in\mathbf{R}^{1\times d}\right\} \]</span></p>
+<p>In many complex datasets, this ansatz is generally very restrictive– it is rarely the case that there is an effectively linear relationship between the current features and labels in the data. However, by introducing interactions between the (independent) features we can increase the expressiveness of the resulting function class.</p>
+<p>One simple way to introduce interactions is through polynomial relationships. This leads to <strong>polynomial regression</strong>, and the expanded function class can be written as</p>
+<p><span class="math display">\[ \mathcal{F}_\text{poly} = \left\{f:\mathbf{R}^d\to\mathbf{R} : f(x)=g(x, x^{\otimes 2}, ..., x^{\otimes k}), g\text{ linear}\right\} \]</span></p>
+<p>where <span class="math inline">\(\otimes\)</span> is the ordinary vector tensor product.</p>
+<p>Recall that over a fixed compact support <span class="math inline">\(\mathcal{C}\)</span>, elementary functional analysis tells us that polynomials are dense in the function space <span class="math inline">\(L^2(\mathcal{C})\)</span>, and so <span class="math inline">\(\mathcal{F}_\text{poly}\)</span> for large <span class="math inline">\(k\)</span> can approximate pretty much any function we want. So why not use it? The issue is that for large feature dimensions <span class="math inline">\(d\)</span>, and moderate <span class="math inline">\(k\)</span>, the dimensionality of the linear regression to be solved in very high. At first count, the dimension of the polynomial embedding <span class="math inline">\(x\mapsto (x, x^{\otimes 2}, ..., x^{\otimes k})\)</span> is</p>
+<p><span class="math display">\[ d + d^2 + ... + d^k = \frac{d^{k+1} - 1}{d - 1} \]</span></p>
+<p>How do we then efficiently perform regression with such large embedded feature spaces? Let’s shift our perspective a bit. Consider an <em>arbitrary</em> feature embedding into some Hilbert space (recall this is a complete vector space with an inner product, roughly) <span class="math inline">\(\phi: \mathbf{R}^d\to\mathcal{H}\)</span>, where <span class="math inline">\(\mathcal{H}\)</span> can be of arbitrarily large dimension (even <span class="math inline">\(\infty\)</span>!).</p>
+<p>Just like in the polynomial interaction space, we consider <span class="math inline">\(\mathcal{H}\)</span> to be a <strong>space of interactions</strong>, and try and perform linear regression on this space directly. So our class of functions is given by</p>
+<p><span class="math display">\[ \mathcal{F}_\phi = \left\{f:\mathbf{R}^d\to\mathbf{R}: f(x)=\langle w,\phi(x)\rangle_\mathcal{H}, w\in\mathcal{H}
+\right\} \]</span></p>
+<p>This ansatz is a generalization of <span class="math inline">\(\mathcal{F}_\text{poly}\)</span>, but still for now has the same issues as the naive polynomial regression– how do we choose our feature space, and how do we perform the linear regression effectively?</p>
+<p>Recall that here our loss function is given by mean squared error</p>
+<p><span class="math display">\[ \mathcal{L}(w, \mathcal{D}) = \frac{1}{|\mathcal{D}|}\sum_{(x,y)\in\mathcal{D}} \left(\langle w, \phi(x)\rangle_\mathcal{H} - y\right)^2 \]</span></p>
+<p>The solve the linear regression, we seek a <span class="math inline">\(w\in\mathcal{H}\)</span> that minimizes this loss over the dataset. The <a href="https://en.wikipedia.org/wiki/Representer_theorem">representer theorem</a> (which is really an exercise in orthogonality and the triangle inequality) shows that the optimal <span class="math inline">\(w\)</span> lies in the span of the embedded feature vectors <span class="math inline">\(w^*\in\operatorname{span}\langle\phi(x_1),...,\phi(x_n)\rangle\)</span>– that is,</p>
+<p><span class="math display">\[ w^* = \sum_{i=1}^n \alpha_i\phi(x_i) \]</span></p>
+<p>for some coefficients <span class="math inline">\(\alpha_i\in\mathbf{R}\)</span>. Rewriting our loss, we have <span class="math inline">\(\mathcal{L}(w,\mathcal{D})\)</span> becomes</p>
+<p><span class="math display">\[ \mathcal{L}(\alpha, \mathcal{D}) = \frac{1}{|\mathcal{D}|}\sum_{(x, y)\in\mathcal{D}} \left(\sum_{i=1}^n \alpha_i\langle \phi(x_i), \phi(x)\rangle_\mathcal{H} - y\right)^2 \]</span></p>
+<p>We have reduced our linear regression over a potentially infinite-dimensional <span class="math inline">\(w\)</span> in <span class="math inline">\(\mathcal{H}\)</span> to a finite-dimensional search for the right <span class="math inline">\(\alpha\)</span>! The loss function depends only on the values <span class="math inline">\(\langle \phi(x_i), \phi(x)\rangle_\mathcal{H}\)</span>. Such values are so important that we give the resulting function <span class="math inline">\(K(x,x')=\langle \phi(x), \phi(x')\rangle_\mathcal{H}\)</span> a name: a <strong>kernel</strong>.</p>
+<p>Kernels are far more compact representations of the feature embeddings above, and they capture all the information we need in regression problems of the (infinite)-dimensional feature spaces we use in a finite amount of space. For the rest of this post, we will restrict our kernels to the <strong>positive semidefinite</strong> ones: a kernel function <span class="math inline">\(K\)</span> is positive semidefinite if for any dataset <span class="math inline">\(\mathcal{D}\)</span> and coefficients <span class="math inline">\(c_i\in\mathbf{R}\)</span>,</p>
+<p><span class="math display">\[ \sum_{i=1}^n\sum_{j=1}^n c_i c_j K(x_i, x_j) \ge 0 \]</span></p>
+<p>In particular, for the kernel considered above, we note that</p>
+<p><span class="math display">\[
+\begin{align*}
+\sum_{i=1}^n\sum_{j=1}^n c_i c_j K(x_i, x_j)
+&amp;= \sum_{i=1}^n\sum_{j=1}^n c_i c_j \langle \phi(x_i), \phi(x_j)\rangle_\mathcal{H} \\
+&amp;= \sum_{i=1}^n\sum_{j=1}^n \left\langle c_i\phi(x_i), c_j\phi(x_j)\right\rangle_\mathcal{H} \\
+&amp;= \left\langle \sum_{i=1}^n c_i\phi(x_i), \sum_{j=1}^n c_j\phi(x_j)\right\rangle_\mathcal{H} \\
+&amp;= \left\| \sum_{i=1}^n c_i\phi(x_i) \right\|^2\\
+&amp;\ge 0
+\end{align*}
+\]</span></p>
+<p>so <span class="math inline">\(K\)</span> is positive semidefinite.</p>
+<p>We use kernels as a compact representation of “infinite” feature engineering. Two useful kernels in many kernel-based methods are the Gaussian (or RBF) kernel</p>
+<p><span class="math display">\[ K(x,\tilde{x}) = \exp(-L\|x-\tilde{x}\|_2^2) \]</span></p>
+<p>(which in python is given by)</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">def</span> gaussian_kernel(x, y, L<span class="op">=</span><span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb1-2" title="2">    <span class="cf">return</span> np.exp(<span class="op">-</span>L<span class="op">*</span>np.<span class="bu">sum</span>((x<span class="op">-</span>y)<span class="op">**</span><span class="dv">2</span>))</a></code></pre></div>
+<p>and the Laplace (or L1) kernel</p>
+<p><span class="math display">\[ K(x,\tilde{x}) = \exp(-L\|x-\tilde{x}\|_2) \]</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">def</span> laplace_kernel(x, y, L<span class="op">=</span><span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="cf">return</span> np.exp(<span class="op">-</span>L<span class="op">*</span>np.sqrt(np.<span class="bu">sum</span>((x<span class="op">-</span>y)<span class="op">**</span><span class="dv">2</span>)))</a></code></pre></div>
+<p>Given a kernel <span class="math inline">\(K\)</span>, we can solve the <strong>kernel regression</strong> problem using the same pseudoinverse technique as with classical linear regression. Algorithmically, the concrete steps for a dataset <span class="math inline">\(\mathcal{D}\)</span> and kernel <span class="math inline">\(K\)</span> is:</p>
+<ol type="1">
+<li>Define the matrix <span class="math inline">\(\hat{K}\in\mathbf{R}^{n\times n}\)</span> by <span class="math inline">\(\hat{K}_{ij}=K(x_i, x_j)\)</span>.</li>
+<li>Solve <span class="math inline">\(\alpha\hat{K}=y\)</span> for <span class="math inline">\(\alpha\)</span>: <span class="math inline">\(\alpha=y\hat{K}^{-1}\)</span>.</li>
+<li>Define the kernel regressor as <span class="math inline">\(\hat{f}(x)=y\hat{K}^{-1}K(X, x)\)</span> where <span class="math inline">\(K(X,x)\in\mathbf{R}^n\)</span> defined by <span class="math inline">\(K(X, x)_i = K(x_i, x)\)</span>.</li>
+</ol>
+<p>A naive python implementation is as such:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> kernel_reg(X, y, kernel, X_t, y_t):</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="co"># compute gram matrix K_ij = K(x_i, x_j)</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    n <span class="op">=</span> X.size(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb3-4" title="4">    K_hat <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</a>
+<a class="sourceLine" id="cb3-6" title="6">        K_hat_row <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb3-7" title="7">        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(n):</a>
+<a class="sourceLine" id="cb3-8" title="8">            Kxixj <span class="op">=</span> kernel(X.t()[i], X.t()[j])</a>
+<a class="sourceLine" id="cb3-9" title="9">            K_hat_row.append(Kxixj)</a>
+<a class="sourceLine" id="cb3-10" title="10">        K_hat.append(K_hat_row)</a>
+<a class="sourceLine" id="cb3-11" title="11">    K_hat <span class="op">=</span> np.array(K_hat)</a>
+<a class="sourceLine" id="cb3-12" title="12">    </a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="co"># use pseudoinverse to solve for alpha</span></a>
+<a class="sourceLine" id="cb3-14" title="14">    alpha <span class="op">=</span> y <span class="op">@</span> np.linalg.pinv(K_hat)</a>
+<a class="sourceLine" id="cb3-15" title="15">    </a>
+<a class="sourceLine" id="cb3-16" title="16">    <span class="co"># for new samples, prediction is f(x) = alpha*K(X, x)</span></a>
+<a class="sourceLine" id="cb3-17" title="17">    predictions <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb3-18" title="18">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(X_t.size(<span class="dv">1</span>)):</a>
+<a class="sourceLine" id="cb3-19" title="19">        x <span class="op">=</span> X_t.t()[i]</a>
+<a class="sourceLine" id="cb3-20" title="20">        KXx <span class="op">=</span> np.zeros(n)</a>
+<a class="sourceLine" id="cb3-21" title="21">        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n):</a>
+<a class="sourceLine" id="cb3-22" title="22">            KXx[k] <span class="op">=</span> ntk_kernel(X.t()[k], x)</a>
+<a class="sourceLine" id="cb3-23" title="23">        fx <span class="op">=</span> np.<span class="bu">sum</span>(alpha.detach().numpy() <span class="op">*</span> KXx)</a>
+<a class="sourceLine" id="cb3-24" title="24">        predictions.append(fx)</a>
+<a class="sourceLine" id="cb3-25" title="25">    <span class="cf">return</span> predictions</a></code></pre></div>
+<p>Note that unlike in the neural network setting, solving kernel regression is a convex optimization problem! In this sense, training is a much easier situation. Also, because it’s still a “linear regression” problem, we have some semblance of interpretability (though there is much to be desired in that case).</p>
+<h2 id="wide-neural-networks">wide neural networks</h2>
+<p>The limiting factor of kernel regression is often the choice of kernel itself. While common kernels like the RBF kernel utilize theoretically <span class="math inline">\(\infty\)</span>-dimensional feature space, they still lack the expressivity of the full range of deep learning architectures and the inductive biases they build upon.</p>
+<p>Therefore it is an interesting problem to relate neural network regression to the kernel regression setting. As a simplified scenario, we will consider in this section 1-hidden layer Bayesian neural networks.</p>
+<p>Let <span class="math inline">\(f:\mathbf{R}^d\to\mathbf{R}\)</span> be a <strong>1-hidden layer neural network</strong> given by</p>
+<p><span class="math display">\[ f(x) = \frac{1}{\sqrt{k}}A\phi(Bx) \]</span></p>
+<p>where <span class="math inline">\(k\)</span> is the number of hidden units in the hidden layer, <span class="math inline">\(A\in\mathbf{R}^{1\times k}, B\in\mathbf{R}^{k\times d}\)</span> are weight matrices, and <span class="math inline">\(\phi\)</span> is a elementwise (nonlinear) activation function. To relate this to kernel regression, we need a feature space (and mapping) from which we can do linear regression in.</p>
+<p><strong>Key idea:</strong> If we freeze the parameters <span class="math inline">\(B\)</span>, and just update <span class="math inline">\(A\)</span> in our training, we get a kernel regression! Here we take as feature mapping</p>
+<p><span class="math display">\[ \psi: x\mapsto\frac{1}{\sqrt{k}}\phi(Bx) \]</span></p>
+<p>and so we get a kernel <span class="math inline">\(K(x,\tilde{x})=\frac{1}{k}\left\langle \phi(Bx), \phi(B\tilde{x})\right\rangle\)</span>. Since the weights <span class="math inline">\(B\)</span> are frozen, we have reduced training <span class="math inline">\(f\)</span> to a linear regression problem with this feature map!</p>
+<p>Note that the factor of <span class="math inline">\(1/\sqrt{k}\)</span> is there in the definition of <span class="math inline">\(f\)</span> in order to make sure <span class="math inline">\(K(x,\tilde{x})\)</span> is of order <span class="math inline">\(\mathcal{O}(1)\)</span>. Since we are working with Bayesian neural networks, we should have a prior on our weight space. Suppose elementwise <span class="math inline">\(B_{ij}\sim N(0,1)\)</span> iid. Then every realization of <span class="math inline">\(B\)</span> gives rise to a function <span class="math inline">\(f\)</span> in function space– in this way a Bayesian neural net gives rise to a <strong>distribution over functions</strong>.</p>
+<p>Could we make sense of this distribution? The most familiar such distribution over function space is the <strong>Gaussian process</strong>. Such stochastic processes are defined via a mean function <span class="math inline">\(m(x)\)</span> and a positive semidefinite covariance function <span class="math inline">\(k(x,x')\)</span></p>
+<p><span class="math display">\[ f \sim \mathcal{GP}(m, k) \]</span></p>
+<p>and the property: for any finite subset <span class="math inline">\(X=\{x_1,...,x_n\}\)</span> of <span class="math inline">\(\mathbf{R}^d\)</span>, the marginal distribution</p>
+<p><span class="math display">\[ f(x_1),...,f(x_n)\sim N(m(X), k(X,X)) \]</span></p>
+<p>where <span class="math inline">\(\Sigma=k(X,X)\)</span> is the covariance matrix built from <span class="math inline">\(k\)</span>, <span class="math inline">\(k(X,X)_{ij} = k(x_i, x_j)\)</span>. Can we relate the Bayesian neural network above to a Gaussian process?</p>
+<p>Let’s look at the situation of a single point <span class="math inline">\(x\)</span>. Then for the Bayesian neural network to be a Gaussian process we need to have that</p>
+<p><span class="math display">\[ f(x) \sim N(m, \sigma^2_x) \]</span></p>
+<p>for some <span class="math inline">\(m, \sigma_x^2\)</span>. But writing this out, we see that</p>
+<p><span class="math display">\[ f(x) = \frac{1}{\sqrt{k}}\sum_{i=1}^k a_i\phi(B_{i,:}x) \]</span></p>
+<p>where <span class="math inline">\(B_{i,:}\)</span> is the <span class="math inline">\(i^{th}\)</span> row of the weight matrix <span class="math inline">\(B\)</span>. In Radford Neal’s analysis he studies the full Bayesian neural network where <span class="math inline">\(a_i\sim N(0, \sigma_a^2)\)</span> is left to vary randomly. Since we are working towards the kernel regression regime, we will instead study the distribution on the level of the hidden layers.</p>
+<p><span class="math display">\[ f_{\text{hidden}}(x) = \frac{1}{\sqrt{k}}\sum_{i=1}^k \phi(B_{i,:}x) \]</span></p>
+<p>Here we see that <span class="math inline">\(f_\text{hidden}(x)\)</span> is definitely <strong>not</strong> Gaussian distributed as the frozen weights <span class="math inline">\(B\)</span> vary, due to the nonlinearity <span class="math inline">\(\phi\)</span> shifting around the distribution of each <span class="math inline">\(\phi(B_{i,:}x)\)</span>. However, if we allow the width of the hidden layer to blow up <span class="math inline">\(k\to\infty\)</span>, by the central limit theorem we see that <span class="math inline">\(f_\text{hidden}(x)\)</span> does become Gaussian!</p>
+<p>The <strong>main theorem</strong> here is that in the infinite-width limit, the hidden layer Bayesian neural networks <span class="math inline">\(f_\text{hidden}\)</span> become a Gaussian process! This the <strong>neural network Gaussian process</strong> (NNGP):</p>
+<p><span class="math display">\[ f_\text{hidden} \sim \mathcal{GP}(0, \Sigma) \]</span></p>
+<p>Here the covariance kernel is given by</p>
+<p><span class="math display">\[ \Sigma(x,\tilde{x}) = \lim_{k\to\infty}\frac{1}{k}\left\langle \phi(Bx), \phi(B\tilde{x})\right\rangle \]</span></p>
+<p>The <strong>upshot</strong> is that training an infinitely wide 1-hidden layer neural network with all by the last layer frozen is <em>equivalent</em> to kernel regression on the corresponding NNGP kernel.</p>
+<h2 id="dual-activations">dual activations</h2>
+<p>Note that the definition of the kernel involves a realization of the weight matrix <span class="math inline">\(B\)</span>, despite the fact that in the resulting NNGP is a distribution over hidden layer functions induced by this distribution on weights! This leads one to wonder if there is a way to rewrite this kernel that removes the explicit dependency on a realization.</p>
+<p>In fact, we can give a <em>computable</em> expression for the covariance kernel that only depends on the nonlinear activation function. To see this, go back to the definition of the kernel explicitly and the use the law of large numbers to rewrite (in probability)</p>
+<p><span class="math display">\[
+\begin{align*} 
+\Sigma(x,\tilde{x}) &amp;= \lim_{k\to\infty}\frac{1}{k}\sum_{i=1}^k \phi(B_{i,:}x)\phi(B_{i,:}\tilde{x}) \\
+&amp;\to \mathbf{E}_{w\sim N(0, I_{d\times d})}\left[\phi(w^Tx)\phi(w^T\tilde{x})\right]
+\end{align*}
+\]</span></p>
+<p>Performing a change of variables <span class="math inline">\((u,v)=(w^Tx, w^T\tilde{x})\)</span> and noting that <span class="math inline">\(\mathbf{E}[u]=\mathbf{E}[v]=0\)</span> and that <span class="math inline">\(\operatorname{cov}(u,v)=\operatorname{Tr}(\tilde{x}x^T)=x^T\tilde{x}\)</span> (via the expectation of quadratic forms computation), we have that</p>
+<p><span class="math display">\[ \mathbf{E}_{w\sim N(0, I_{d\times d})}\left[\phi(w^Tx)\phi(w^T\tilde{x})\right]
+= \mathbf{E}_{(u,v)\sim N(0, \Lambda)}\left[\phi(u)\phi(v)\right] \]</span></p>
+<p>where the covariance structure <span class="math inline">\(\Lambda\)</span> is given by</p>
+<p><span class="math display">\[  \Lambda = 
+\begin{pmatrix}
+\|x\|_2^2 &amp; x^T\tilde{x} \\
+x^T\tilde{x} &amp; \|\tilde{x}\|^2_2
+\end{pmatrix}
+\]</span></p>
+<p>There are a number of activation functions for which the corresponding NNGP kernel has a closed form expression. These include the ReLU, leaky ReLU, GeLU, sine, cosine, erf, etc.</p>
+<p>As a contrived first example, suppose we are in the setting of <em>complex-valued</em> neural networks, and consider the activation function <span class="math inline">\(\phi(z)=e^{iz}\)</span>. Then in the <span class="math inline">\(\infty\)</span>-width limit, the NNGP kernel is given by</p>
+<p><span class="math display">\[
+\begin{align*}
+\Sigma(x,\tilde{x}) &amp;= \mathbf{E}_{w\sim N(0, I_{d\times d})}\left[\phi(w^Tx)\phi(w^T\tilde{x})\right] \\
+&amp;= \mathbf{E}_{w\sim N(0, I_{d\times d})}\left[e^{i(w^Tx-w^T\tilde{x})}\right] \\
+&amp;= \prod_{j=1}^d \mathbf{E}_{w_j\sim N(0,1)}\left[e^{iw_j(x_j-\tilde{x}_j)}\right] \\
+&amp;= \prod_{j=1}^d \frac{1}{\sqrt{2\pi}}\int_\mathbf{R} e^{iw_j(x_j-\tilde{x}_j)}e^{-w_j^2/2} dw_j \\
+&amp;= \prod_{j=1}^d e^{-\frac{(x_j-\tilde{x}_j)^2}{2}} \\
+&amp;= e^{-\frac{1}{2}\|x-\tilde{x}\|^2_2}
+\end{align*}
+\]</span></p>
+<p>which is the Gaussian kernel. In general it is not particularly easy to complex closed form expressions for these kernels. A framework for simplifying these computations come from <strong>dual activations</strong>. For a given activation function <span class="math inline">\(\phi:\mathbf{R}\to\mathbf{R}\)</span>, the dual activation <span class="math inline">\(\check{\phi}:[-1,1]\to\mathbf{R}\)</span> is the NNGP evaluated on the unit sphere</p>
+<p><span class="math display">\[ \check{\phi}(\xi)=\mathbf{E}_{(u,v)\sim N(0,\Lambda)}[\phi(u)\phi(v)] \]</span></p>
+<p>with covariance structure <span class="math inline">\(\Lambda\)</span> given by</p>
+<p><span class="math display">\[  \Lambda = 
+\begin{pmatrix}
+1 &amp; \xi \\
+\xi &amp; 1
+\end{pmatrix}
+\]</span></p>
+<p>The theory of dual activations is expanded upon in this <a href="https://research.google/pubs/pub45553/">paper</a> by Daniely et al., but some relevant properties are:</p>
+<ul>
+<li>Differentiation commutes with duals, i.e. <span class="math inline">\(\check{\phi}' = \widecheck{\phi'}\)</span>.</li>
+<li><span class="math inline">\(\check{\phi}(1)=\|\phi\|_2\)</span>, where <span class="math inline">\(\|-\|_2\)</span> is the Gaussian 2-norm.</li>
+<li><span class="math inline">\(\widecheck{(a\phi)}=a^2\check{\phi}\)</span> for <span class="math inline">\(a&gt;0\)</span>.</li>
+</ul>
+<p>We can use this to compute the dual activation (and hence the NNGP corresponding to) a ReLU. As ReLU is the integration of the step function <span class="math inline">\(\phi(x)=\mathbf{1}_{x&gt;0}\)</span>, we will first compute this dual activation. Expanding the expection, we get that</p>
+<p><span class="math display">\[ \check{\phi}(\xi) =
+\frac{1}{2\pi\sqrt{1-\xi^2}}\int_\mathbf{R}\int_\mathbf{R}\mathbf{1}_{u&gt;0}\mathbf{1}_{v&gt;0}\exp\left(-\frac{u^2+v^2-2uv\xi}{2(1-\xi^2)}\right) du dv \]</span></p>
+<p>After an absurd amount of calculus, one gets the closed form expression</p>
+<p><span class="math display">\[ \check{\phi}(\xi) = \frac{1}{2\pi}(\pi - \arccos(\xi)) \]</span></p>
+<p>Integrating this we get the dual activation of the ReLU <span class="math inline">\(\psi(x)=\max(0,x)\)</span>:</p>
+<p><span class="math display">\[ \check{\psi}(\xi) = \frac{1}{2\pi}(\xi(\pi-\arccos(\xi)) + \sqrt{1-\xi^2}) \]</span></p>
+<h2 id="experiment">experiment</h2>
+<p>Hence for a 1-hidden layer Bayesian neural network with ReLU activation, training the last layer is equivalent to kernel regression with the NNGP kernel given by</p>
+<p><span class="math display">\[ \Sigma(x, \tilde{x}) = \frac{1}{2\pi}(x^T\tilde{x}(\pi-\arccos(x^T\tilde{x})) + \sqrt{1-(x^T\tilde{x})^2}) \]</span></p>
+<p>As a quick PyTorch experiment, we can build such a 1-hidden layer neural network with the last layer unfrozen and train it with various growing <span class="math inline">\(k\)</span>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> torch</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> torch.nn <span class="im">as</span> nn</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="co"># build 1-hidden layer neural network</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="kw">class</span> NeuralNet(nn.Module):</a>
+<a class="sourceLine" id="cb4-7" title="7">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d<span class="op">=</span><span class="dv">200</span>, k<span class="op">=</span><span class="dv">64</span>):</a>
+<a class="sourceLine" id="cb4-8" title="8">        <span class="bu">super</span>().<span class="fu">__init__</span>()</a>
+<a class="sourceLine" id="cb4-9" title="9">        <span class="va">self</span>.k <span class="op">=</span> k</a>
+<a class="sourceLine" id="cb4-10" title="10">        <span class="va">self</span>.B <span class="op">=</span> nn.Linear(d, k)</a>
+<a class="sourceLine" id="cb4-11" title="11">        <span class="va">self</span>.A <span class="op">=</span> nn.Linear(k, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb4-12" title="12">        </a>
+<a class="sourceLine" id="cb4-13" title="13">        <span class="co"># initialize B~N(0,1)</span></a>
+<a class="sourceLine" id="cb4-14" title="14">        <span class="va">self</span>.B.bias.data.fill_(<span class="fl">0.0</span>)</a>
+<a class="sourceLine" id="cb4-15" title="15">        torch.nn.init.normal_(<span class="va">self</span>.B.weight, mean<span class="op">=</span><span class="fl">0.0</span>, std<span class="op">=</span><span class="fl">1.0</span>)</a>
+<a class="sourceLine" id="cb4-16" title="16">        </a>
+<a class="sourceLine" id="cb4-17" title="17">        <span class="co"># freeze first layer</span></a>
+<a class="sourceLine" id="cb4-18" title="18">        <span class="cf">for</span> param <span class="kw">in</span> <span class="va">self</span>.B.parameters():</a>
+<a class="sourceLine" id="cb4-19" title="19">            param.requires_grad <span class="op">=</span> <span class="va">False</span></a>
+<a class="sourceLine" id="cb4-20" title="20">        </a>
+<a class="sourceLine" id="cb4-21" title="21">    <span class="kw">def</span> forward(<span class="va">self</span>, x):</a>
+<a class="sourceLine" id="cb4-22" title="22">        x <span class="op">=</span> <span class="va">self</span>.B(x)</a>
+<a class="sourceLine" id="cb4-23" title="23">        x <span class="op">=</span> np.sqrt(<span class="fl">2.0</span>) <span class="op">*</span> F.relu(x)</a>
+<a class="sourceLine" id="cb4-24" title="24">        x <span class="op">=</span> <span class="va">self</span>.A(x) <span class="op">/</span> np.sqrt(<span class="va">self</span>.k)</a>
+<a class="sourceLine" id="cb4-25" title="25">        <span class="cf">return</span> x</a></code></pre></div>
+<p>Here the factor of <span class="math inline">\(\sqrt{2}\)</span> in the <code>forward</code> function is to normalize the Gaussian 2-norm of the dual activation so that <span class="math inline">\(\check{\psi}(1)=1\)</span>.</p>
+<p>We compare the performance (on a synthetic train/test dataset) to the kernel regression solution on the NNGP for this infinitely wide neural network, given by the kernel above</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> relu_nngp(xi):</a>
+<a class="sourceLine" id="cb5-2" title="2">    term_1 <span class="op">=</span> xi <span class="op">*</span> (np.pi <span class="op">-</span> np.arccos(xi))</a>
+<a class="sourceLine" id="cb5-3" title="3">    term_2 <span class="op">=</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> xi<span class="op">**</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> np.pi <span class="op">*</span> (term_1 <span class="op">+</span> term_2)</a></code></pre></div>
+<p>(the factor of 2 is gone because of the normalization done in the <code>forward</code> function). A plot of the resulting performance is given by</p>
+<p align="center">
+<img width="70%" height="70%" src="../images/nngp-vs-k.png">
+</p>
+<p>On the <span class="math inline">\(x\)</span>-axis is the width of the network <span class="math inline">\(k\)</span>, and the <span class="math inline">\(y\)</span>-axis gives the test MSE. We see that the NNGP performs as a sufficiently good baseline for the experiment, despite the fact that we are not performing a neural network training– we are merely doing kernel regression on a closed form kernel!</p>
+<p>In the next post, we will expand this analysis to deeper neural networks, by showing how these dual activations <em>compose</em>. We will also unfreeze the weights and allow for these infinitely wide deep neural networks to be fully trained by gradient descent. In the course of trying to understand the training dynamics, we will end up talking about the <strong>neural tangent kernel</strong>.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
