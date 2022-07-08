@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>The neural tangent kernel - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>The neural tangent kernel</h1>
+            <article>
+    <section class="header">
+        Posted on July 10, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In the previous post, we showed that training the last layer of an infinitely wide 1-hidden layer neural network is equivalent to kernel regression with the NNGP kernel. We will generalize this to training <em>all</em> layers of an infinitely wide neural network by introducing the <strong>neural tangent kernel</strong>.</p>
+<p>We proceed in 3 steps:</p>
+<ol type="1">
+<li>Approximate a neural network via <em>linearization</em>.</li>
+<li>Show that training the linearization is equivalent to kernel regression using the neural tangent kernel (NTK).</li>
+<li>The previous two steps worked with the linearization, and holds without taking width limits. We will show that as the number of hidden units <span class="math inline">\(k\to\infty\)</span>, training the linearization approximates training all layers of the <em>original</em> neural network.</li>
+</ol>
+<p>The upshot of all this will be our <strong>main theorem</strong>: training an infinitely wide Bayesian neural network via gradient descent is equivalent to kernel regression with the NTK.</p>
+<h2 id="linearization">linearization</h2>
+<p>In the previous post, we typically considered our neural networks as <em>functions</em> <span class="math inline">\(f:\mathbf{R}^d\to\mathbf{R}\)</span> in some function space, sending input vectors to outputs. An example of such is a 1-hidden layer neural network</p>
+<p><span class="math display">\[ f(x) = \frac{1}{\sqrt{k}}A\phi(Bx) \]</span></p>
+<p>where <span class="math inline">\(k\)</span> is the number of hidden units in the hidden layer, <span class="math inline">\(A\in\mathbf{R}^{1\times k}, B\in\mathbf{R}^{k\times d}\)</span> are weight matrices, and <span class="math inline">\(\phi\)</span> is a elementwise (nonlinear) activation function.</p>
+<p>This was fine before, because we were considering networks with fixed weights <span class="math inline">\(A\)</span> and treating it as a strict linear regressor. But now we want to consider the networks as <em>trainable</em> objects, which requires us to perform gradient descent in weight space. Hence in our representation of <span class="math inline">\(f\)</span> we include parameters, <span class="math inline">\(f:\mathbf{R}^p\times\mathbf{R}^d\to\mathbf{R}\)</span>, where</p>
+<p><span class="math display">\[ f(w; x) = \frac{1}{\sqrt{k}}A\phi(Bx) \]</span></p>
+<p>Here <span class="math inline">\(w\)</span> is shorthand for all the parameters of <span class="math inline">\(f\)</span> above, which in concatenated form is</p>
+<p><span class="math display">\[ w = \begin{bmatrix}
+A_{11} &amp; A_{12} &amp; \cdot\cdot\cdot &amp; A_{1k} &amp; B_{11} &amp; B_{12} &amp; \cdot\cdot\cdot &amp; B_{21} &amp; \cdot\cdot\cdot &amp; B_{kd}
+\end{bmatrix} \in \mathbf{R}^{k+kd}
+\]</span></p>
+<p>Since we want to focus in on the behavior of a neural network in a local neighborhood of its parameters (given fixed input), we fix a dataset sample <span class="math inline">\(x\)</span> and consider the <em>function of weights</em> <span class="math inline">\(f_x:\mathbf{R}^p\to\mathbf{R}\)</span> given by <span class="math inline">\(f_x(w)=f(w;x)\)</span>.</p>
+<p>We will <strong>approximate</strong> <span class="math inline">\(f_x(w)\)</span> around a neighborhood of its initialization <span class="math inline">\(w^{(0)}\)</span> by performing a first-order Taylor series expansion:</p>
+<p><span class="math display">\[ \tilde{f}_x(w) = f(w^{(0)}; x) + \nabla f_x(w^{(0)})^T(w-w^{(0)}) \]</span></p>
+<p>This is called the <strong>linearization</strong> of the neural network about <span class="math inline">\(w^{(0)}\)</span>. Note that this is a linear model! As a result, training the linearization <span class="math inline">\(\tilde{f}(w):\mathbf{R}^d\to\mathbf{R}\)</span> given by <span class="math inline">\(\tilde{f}(w)(x)=\tilde{f}_x(w)\)</span> is equivalent to solving a linear regression problem in the feature space given by applying the feature mapping</p>
+<p><span class="math display">\[  \psi: x\mapsto \nabla f_x(w^{(0)}) \]</span></p>
+<p>to the inputs.</p>
+<p>As we have seen in the previous post, this is <em>exactly</em> kernel regression using the induced kernel from the feature map</p>
+<p><span class="math display">\[ K_\text{NTK}(x,\tilde{x}) = \left\langle \nabla f_x(w^{(0)}), \nabla f_{\tilde{x}}(w^{(0)})\right\rangle \]</span></p>
+<p>This is the <strong>neural tangent kernel</strong> (NTK). This equivalence between training the linearized neural network and kernel regression with this kernel was first given by this <a href="https://arxiv.org/abs/1806.07572">paper</a> by Jacot et al.</p>
+<p>In python, we can naively express this as</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> torch</a>
+<a class="sourceLine" id="cb1-2" title="2">optimizer <span class="op">=</span> torch.optim.SGD(nnet.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">def</span> ntk_kernel(nnet, x1, x2):</a>
+<a class="sourceLine" id="cb1-5" title="5">    optimizer.zero_grad()</a>
+<a class="sourceLine" id="cb1-6" title="6">    nnet(x1).backward()</a>
+<a class="sourceLine" id="cb1-7" title="7">    fx1_grads <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</a>
+<a class="sourceLine" id="cb1-9" title="9">        fx1_grads.append(param.grad.clone())</a>
+<a class="sourceLine" id="cb1-10" title="10">        </a>
+<a class="sourceLine" id="cb1-11" title="11">    optimizer.zero_grad()</a>
+<a class="sourceLine" id="cb1-12" title="12">    nnet(x2).backward()</a>
+<a class="sourceLine" id="cb1-13" title="13">    fx2_grads <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</a>
+<a class="sourceLine" id="cb1-15" title="15">        fx2_grads.append(param.grad.clone())</a>
+<a class="sourceLine" id="cb1-16" title="16">        </a>
+<a class="sourceLine" id="cb1-17" title="17">    ker_val <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-18" title="18">    <span class="cf">for</span> grad1, grad2 <span class="kw">in</span> <span class="bu">zip</span>(fx1_grads, fx2_grads):</a>
+<a class="sourceLine" id="cb1-19" title="19">        ker_val <span class="op">+=</span> (grad1 <span class="op">*</span> grad2).<span class="bu">sum</span>()</a>
+<a class="sourceLine" id="cb1-20" title="20">    <span class="cf">return</span> ker_val.numpy().item()</a></code></pre></div>
+<h2 id="infinite-width">infinite width</h2>
+<p>While this is nice, the NTK looks too general of an object to be useful. In particular, we would like it if there was an effective way to compute this explicitly for different neural networks of interest. As a warmup, we will go through the derivation of the neural tangent kernel for our 1-hidden layer neural network.</p>
+<p>Explicitly, for an input <span class="math inline">\(x\)</span> we can write the function output <span class="math inline">\(f(w;x)\)</span> as</p>
+<p><span class="math display">\[ f(w;x)=\frac{1}{\sqrt{k}}\sum_{i=1}^k A_{1i}\phi(B_{i,:}x) \]</span></p>
+<p>where <span class="math inline">\(B_{i,:}\)</span> is the <span class="math inline">\(i^{th}\)</span> row of <span class="math inline">\(B\in\mathbf{R}^{k\times d}\)</span>. Then we want to compute the gradient</p>
+<p><span class="math display">\[ \nabla f_x(w^{(0)}) = \begin{bmatrix}
+\frac{\partial f_x}{\partial A_{11}} &amp; \frac{\partial f_x}{\partial A_{12}} &amp; \cdot\cdot\cdot &amp; \frac{\partial f_x}{\partial A_{1k}} &amp; \frac{\partial f_x}{\partial B_{11}} &amp; \cdot\cdot\cdot &amp; \frac{\partial f_x}{\partial B_{kd}}
+\end{bmatrix}^T
+\]</span></p>
+<p>Taking derivatives, we see that</p>
+<p><span class="math display">\[ \frac{\partial f_x}{\partial A_{1i}} = \frac{1}{\sqrt{k}}\phi(B_{i,:}x) \]</span></p>
+<p>and</p>
+<p><span class="math display">\[ \frac{\partial f_x}{\partial B_{ij}} = \frac{1}{\sqrt{k}}A_{1i}\phi'(B_{i,:}x)x_j \]</span></p>
+<p>Hence by writing out the inner product sum, the NTK for this 1-hidden layer neural network is given by</p>
+<p><span class="math display">\[
+\begin{align*}
+K_\text{NTK}(x,\tilde{x}) &amp;= \frac{1}{k}\sum_{i=1}^k \phi(B_{i,:}x)\phi(B_{i,:}\tilde{x}) + \frac{1}{k}\sum_{i=1}^k\sum_{j=1}^d A_{1i}^2\phi'(B_{i,:}x)\phi'(B_{i,:}\tilde{x})x_j\tilde{x}_j \\
+&amp;= \frac{1}{k}\sum_{i=1}^k \phi(B_{i,:}x)\phi(B_{i,:}\tilde{x}) + \frac{x^T\tilde{x}}{k}\sum_{i=1}^k A_{1i}^2\phi'(B_{i,:}x)\phi'(B_{i,:}\tilde{x})
+\end{align*}
+\]</span></p>
+<p>We note from this expression an interesting <em>compositional</em> structure: the first term looks like the finite-width NNGP from the previous post! The second term is a <strong>correction term</strong>, coming from the fact that we’re training the first layer weights as well.</p>
+<p>This suggests that in the infinite-width limit, we can write the NTK in terms of the dual activations we introduced previously. Recall that if we work with a Bayesian 1-hidden layer neural network, with weights sampled from a unit Gaussian, <span class="math inline">\(A_{1i}, B_{ij}\sim N(0,1)\)</span> iid, and with <span class="math inline">\(x,\tilde{x}\in S^{d-1}\)</span> be on the unit sphere (i.e. they have vector norm 1), then the NNGP term approaches the dual activation value</p>
+<p><span class="math display">\[ \frac{1}{k}\sum_{i=1}^k \phi(B_{i,:}x)\phi(B_{i,:}\tilde{x}) \to \check{\phi}(x^T\tilde{x}) \]</span></p>
+<p>In particular, from the NTK above we can apply the same central limit theorem trick as <span class="math inline">\(k\to\infty\)</span> to get the <strong>infinite-width NTK</strong></p>
+<p><span class="math display">\[ K_{\text{NTK},\infty}(x, \tilde{x}) = \check{\phi}(x^T\tilde{x}) + \check{\phi}'(x^T\tilde{x})x^T\tilde{x} \]</span></p>
+<p>where <span class="math inline">\(\check{\phi}\)</span> is the dual activation of <span class="math inline">\(\phi\)</span>. Note that the <span class="math inline">\(A_{1i}\)</span>’s vanish in expectation because the variance of the <span class="math inline">\(A_{1i}\)</span>’s is 1. For example, if <span class="math inline">\(\phi(x) = \sqrt{2}\max(0, x)\)</span> is the normalized ReLU function, the resulting NTK of the <span class="math inline">\(\infty\)</span>-width 1-hidden layer neural network with this activation function is given by</p>
+<p><span class="math display">\[ K_{\text{NTK},\infty}(x, \tilde{x}) = \frac{1}{\pi}\left(\xi(\pi-\arccos(\xi)) + \sqrt{1-\xi^2}\right) + \frac{\xi}{\pi}(\pi-\arccos(\xi)) \]</span></p>
+<p>where <span class="math inline">\(\xi=x^T\tilde{x}\)</span> when <span class="math inline">\(x,\tilde{x}\)</span> both have unit norm.</p>
+<h2 id="compositionality">compositionality</h2>
+<p>We have seen in this situation that the NTK can be written compositionally from the NNGP with dual activations of <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\phi'\)</span>. This leads us to believe that we can extend to this general deep (fully-connected) neural networks via a similar inductive strategy.</p>
+<p>In this section we now derive an expression for the neural tangent kernel of an infinitely wide neural network with <span class="math inline">\(L\)</span> hidden layers. We write such a <span class="math inline">\(L\)</span>-hidden layer neural network</p>
+<p><span class="math display">\[ f^{(L)}_x:\mathbf{R}^p\to\mathbf{R} \]</span></p>
+<p>in a similar way as the 1-hidden layer one:</p>
+<p><span class="math display">\[ f^{(L)}_x(w) = w^{(L+1)}\frac{1}{\sqrt{k_L}}\phi\left(w^{(L)}\frac{1}{\sqrt{k_{L-1}}}\phi\left(\cdot\cdot\cdot w^{(2)}\frac{1}{\sqrt{k_1}}\phi\left(w^{(1)}x\right)\cdot\cdot\cdot\right)\right) \]</span></p>
+<p>where <span class="math inline">\(w^{(i)}\in\mathbf{R}^{k_i\times k_{i-1}}\)</span>, <span class="math inline">\(k_0=d, k_{L+1}=1\)</span> and <span class="math inline">\(\phi\)</span> is a fixed elementwise (nonlinear) activation function. We can recursively write this as</p>
+<p><span class="math display">\[
+\begin{cases}
+    h^{(j)}(x)=\frac{1}{\sqrt{k_j}}\phi(w^{(j)}h^{(j-1)}(x)) &amp; \text{for } j &gt; 0\\
+    h^{(0)}(x) = x
+\end{cases}
+\]</span></p>
+<p>with end case <span class="math inline">\(f^{(L)}_x(w)=w^{(L+1)}h^{(L)}(x)\)</span>.</p>
+<p>The NTK, given by</p>
+<p><span class="math display">\[ K^{(L)}_\text{NTK}(x, \tilde{x}) = \left\langle \nabla f^{(L)}_x(w^{(0)}), \nabla f^{(L)}_{\tilde{x}}(w^{(0)})\right\rangle \]</span></p>
+<p>simplifies dramatically in the <span class="math inline">\(\infty\)</span>-width limit. The <strong>main theorem</strong> is as follows:</p>
+<p>Suppose all weights <span class="math inline">\(w_i\sim N(0,1)\)</span> iid, <span class="math inline">\(x,\tilde{x}\)</span> are inputs of unit norm, and that the activation <span class="math inline">\(\phi\)</span> is normalized with respect to the Gaussian 2-norm (so that <span class="math inline">\(\check{\phi}(1)=1\)</span>). Then as <span class="math inline">\(k_1,k_2,...,k_L\to\infty\)</span> (in that order), the NNGP <span class="math inline">\(\Sigma^{(L)}\)</span> and NTK <span class="math inline">\(K^{(L)}_{\text{NTK},\infty}\)</span> are given recursively by</p>
+<p><span class="math display">\[ \Sigma^{(L)}(x,\tilde{x})=\check{\phi}(\Sigma^{(L-1)}(x,\tilde{x})) \]</span></p>
+<p>and</p>
+<p><span class="math display">\[ K^{(L)}_{\text{NTK},\infty}(x,\tilde{x})=\Sigma^{(L)}(x,\tilde{x})+\check{\phi}'\left(\Sigma^{(L-1)}(x,\tilde{x})\right)K^{(L-1)}_{\text{NTK},\infty}(x,\tilde{x}) \]</span></p>
+<p>with base cases <span class="math inline">\(\Sigma^{(0)}(x,\tilde{x}) = x^T\tilde{x}\)</span> and <span class="math inline">\(K^{(0)}_{\text{NTK},\infty}(x,\tilde{x})=x^T\tilde{x}\)</span>.</p>
+<p>We prove this by induction: for the base case <span class="math inline">\((L=1)\)</span>, we have a 1-hidden layer neural network and the formulas read</p>
+<p><span class="math display">\[ \Sigma^{(1)}(x,\tilde{x})=\check{\phi}(x^T\tilde{x}) \\
+K^{(1)}_{\text{NTK},\infty}(x,\tilde{x}) = \check{\phi}(x^T\tilde{x}) + \check{\phi}'(x^T\tilde{x})x^T\tilde{x} \]</span></p>
+<p>But these are exactly the formulas for the <span class="math inline">\(\infty\)</span>-width NTK and NNGP from before. In mathematical induction, we now assume true for up to <span class="math inline">\((L-1)\)</span>-hidden layer neural networks, and attempt to prove the formula for the <span class="math inline">\(L\)</span>-hidden layer NN case.</p>
+<p>Starting with the NNGP, by definition</p>
+<p><span class="math display">\[
+\begin{align*}
+\Sigma^{(L)}(x,\tilde{x}) &amp;= \lim_{k_L\to\infty}\left\langle h^{(L)}(x), h^{(L)}(x)\right\rangle \\
+&amp;= \lim_{k_L\to\infty}\frac{1}{k_L}\left\langle \phi\left(w^{(L)}h^{(L-1)}(x)\right), \phi\left(w^{(L)}h^{(L-1)}(\tilde{x})\right)\right\rangle \\
+&amp;= \lim_{k_L\to\infty}\frac{1}{k_L}\sum_{i=1}^{k_L} \phi\left(w_{i,:}^{(L)}h^{(L-1)}(x)\right)\phi\left(w_{i,:}^{(L)}h^{(L-1)}(\tilde{x})\right) \\
+&amp;= \mathbf{E}_{w\sim N(0,1)}\left[\phi\left(w^Th^{(L-1)}(x)\right)\phi\left(w^Th^{(L-1)}(\tilde{x})\right)\right] \\
+&amp;= \mathbf{E}_{(u,v)\sim N(0,\Lambda^{(L-1)})}\left[\phi(u)\phi(v)\right]
+\end{align*}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[ \Lambda^{(L-1)} =
+\begin{pmatrix}
+\Sigma^{(L-1)}(x,x) &amp; \Sigma^{(L-1)}(x,\tilde{x}) \\ 
+\Sigma^{(L-1)}(\tilde{x},x) &amp; \Sigma^{(L-1)}(\tilde{x},\tilde{x})
+\end{pmatrix}
+\]</span></p>
+<p>as <span class="math inline">\(h^{(L-1)}\)</span> is a Gaussian process with covariance <span class="math inline">\(\Lambda^{(L-1)}\)</span> by induction. As <span class="math inline">\(\check{\phi}(1)=1\)</span>, we have <span class="math inline">\(\Sigma^{(L-1)}(x,x)=1\)</span> for <span class="math inline">\(x\in S^{d-1}\)</span>. Hence</p>
+<p><span class="math display">\[ \Sigma^{(L)}(x,\tilde{x}) = \check{\phi}\left(\Sigma^{(L-1)}(x,\tilde{x})\right) \]</span></p>
+<p>as desired. By a similar argument, the NTK induction can be proved as well. <span class="math inline">\(\square\)</span></p>
+<h2 id="slow-learning">slow learning</h2>
+<p>To complete our program on the neural tangent kernel, we must show that the original neural network is close to its linearization through training in the infinite width limit. How does one show a function is linear (at least in a small neighborhood of an initialization)? The usual strategy is to show that the quadratic term in the Taylor expansion (i.e. the Hessian) vanishes.</p>
+<p>We won’t prove this statement, instead deferring to this <a href="https://arxiv.org/abs/1812.07956">paper</a> for the details.</p>
+<h2 id="experiments">experiments</h2>
+<p>This section is just an excuse for me to play around with Google’s <code>neural-tangents</code> library.</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
