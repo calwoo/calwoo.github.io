@@ -184,7 +184,7 @@ $$ f_{\text{hidden}}(x) = \frac{1}{\sqrt{k}}\sum_{i=1}^k \phi(B_{i,:}x) $$
 
 Here we see that $f_\text{hidden}(x)$ is definitely **not** Gaussian distributed as the frozen weights $B$ vary, due to the nonlinearity $\phi$ shifting around the distribution of each $\phi(B_{i,:}x)$. However, if we allow the width of the hidden layer to blow up $k\to\infty$, by the central limit theorem we see that $f_\text{hidden}(x)$ does become Gaussian!
 
-The **main theorem** here is that in the infinite-width limit, the hidden layer Bayesian neural networks $f_\text{hidden}$ become a Gaussian process! This the **neural network Gaussian process** (NNGP):
+The **main theorem** here is that in the infinite-width limit, the hidden layer Bayesian neural networks $f_\text{hidden}$ become a Gaussian process! This is the **neural network Gaussian process** (NNGP):
 
 $$ f_\text{hidden} \sim \mathcal{GP}(0, \Sigma) $$
 
