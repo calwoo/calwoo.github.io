@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Recursion and fixed points - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Recursion and fixed points</h1>
+            <article>
+    <section class="header">
+        Posted on December 21, 2022
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p>I haven’t written in awhile, but I have a few posts stored up. But of course, I get distracted a lot, so this is going to be a short post about recursion in the lambda calculus. It also gives me an excuse to just review the lambda calculus in general!</p>
+<h2 id="lambda-calculus">lambda calculus</h2>
+<p>The <strong>lambda calculus</strong> is a mathematical theory of computation, in which all computation is done using <span class="math inline">\(\lambda\)</span>-functions. A <span class="math inline">\(\lambda\)</span>-function is a pretty restrictive form of function– they are single argument functions that always return a single thing. For example, we can have</p>
+<pre><code>λx.3x+1  # represents \x -&gt; 3*x + 1</code></pre>
+<p>where the comment describes a Haskell lambda.</p>
+<p>The single argument isn’t too much of a restriction, by the way. We can extend to (finite) multiple arguments by <strong>currying</strong>:</p>
+<pre><code>λx.λy.3xy+x-1</code></pre>
+<p>which is equivalently in Python given by</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> f(x, y):</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co"># same as</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">def</span> f(x):</a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="kw">def</span> g(y):</a>
+<a class="sourceLine" id="cb3-7" title="7">        <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="cf">return</span> g</a></code></pre></div>
+<p>As <span class="math inline">\(\lambda\)</span>-functions are indeed functions, we can apply them on other expressions like</p>
+<pre><code>[λx.3x+1] 7</code></pre>
+<p>which would give 22. This all looks dandy, except that in the lambda calculus, we really only have functions (well, plus variable bindings and evaluations). So an expression like <code>λx.3x+1</code> will require us to figure out some things, like what the symbols <code>3</code> and <code>+</code> mean in this theory of computation.</p>
+<p>How would you, for example, model the natural numbers <span class="math inline">\(\mathbf{N}\)</span> in the <span class="math inline">\(\lambda\)</span>-calculus? <a href="https://en.wikipedia.org/wiki/Alonzo_Church">Alonzo Church</a> thought about these <em>encodings</em> a lot in the <span class="math inline">\(\lambda\)</span>-calculus, and his solution is an elegant one. I don’t know of a good way to motivate this definition from first principles– it’s better to just stare at the definition and stew in it.</p>
+<p>To start, we let the numeral <span class="math inline">\(1\)</span> to be defined as the <span class="math inline">\(\lambda\)</span>-function</p>
+<pre><code>1 = λf.λx.f(x)</code></pre>
+<p>In the <span class="math inline">\(\lambda\)</span>-calculus, we don’t really have much. The only thing we have is functions and function applications. So for counting, we might as well count the number of function applications we have towards a single input. This motivates the other <strong>Church numerals</strong></p>
+<pre><code>2 = λf.λx.f(f(x))
+3 = λf.λx.f(f(f(x)))
+...
+n = λf.λx.f(...f(x))  # where function is applied n times</code></pre>
+<p>We also can define <span class="math inline">\(0\)</span> as <code>0 = λf.λx.x</code>, having no function applications. An alternative way to generate the Church numerals is to start with something like the base numeral <span class="math inline">\(0\)</span> given above and applying the <strong>successor function</strong> <code>succ</code>, given as</p>
+<pre><code>succ = λg.λf.λx.f(g(f)(x))</code></pre>
+<p>The successor function is just function application at it’s core. For example, we can see that</p>
+<pre><code>succ(2) = succ(λa.λy.a(a(y)))
+        = λf.λx.f([λa.λy.a(a(y))] f x)
+        = λf.λx.f(f(f(x)))
+        = 3</code></pre>
+<p>If we really want to call these things numbers, we better have a way to do stuff with them. One thing you want to do with numbers is add them. How do we define <code>+</code>? Since we’ve reduced the natural numbers to repeated function application, addition is then relatively easy– just apply the function even more times. For example, if you have 2 and 3, which means you applied a function twice and three times, then applying them in sequence just means you applied it 5 times, which is the sum <code>2 + 3 == 5</code>.</p>
+<p>Formalizing, we can create the <span class="math inline">\(\lambda\)</span>-function</p>
+<pre><code>add = λn.λm.n(succ)(m)</code></pre>
+<p>Roughly translated, we apply the successor function <span class="math inline">\(n\)</span> times, starting with <span class="math inline">\(m\)</span>. As an example, we can try</p>
+<pre><code>add(2)(3) = [λn.λm.n(succ)(m)] 2 3
+          = 2(succ)(3)
+          = [λf.λx.f(f(x))] succ 3
+          = succ(succ(3))
+          = succ(4)
+          = 5</code></pre>
+<p>where we did the analysis for <code>succ</code> before.</p>
+<p>Okay, cute! Multiplication is then another easy hop from here– instead of applying <code>succ</code> <span class="math inline">\(n\)</span> times, we apply <span class="math inline">\(add(m)\)</span> (which is again a function).</p>
+<pre><code>mult = λn.λm.n(add(m))(0)</code></pre>
+<p>For example, we can compute</p>
+<pre><code>mult(2)(3) = [λn.λm.n(add(m))(0)] 2 3
+           = 2(add(3))(0)
+           = [λf.λx.f(f(x))] add(3) 0
+           = add(3)(add(3)(0))
+           = add(3)(3)
+           = 6</code></pre>
+<p>For sanity’s sake, we can explicitly write out</p>
+<pre><code>mult(x)(0) = [λn.λm.n(add(m))(0)] x 0
+           = x(add(0))(0)
+           = [λf.λx.f(...f(x))] add(0) 0
+           = add(0)(... add(0)(0))
+           = add(0)(... 0)
+           = 0
+
+mult(0)(x) = [λn.λm.n(add(m))(0)] 0 x
+           = 0(add(x))(0)
+           = [λf.λy.y] add(x) 0
+           = 0</code></pre>
+<p>Whew! Now we’ve finally defined the <span class="math inline">\(\lambda\)</span>-function <code>λx.3x+1</code>. We note that in the above, we have been using <a href="https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B1-conversion">alpha</a> and <a href="https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B2-reduction_2">beta</a> reductions liberally. Anyway, the <span class="math inline">\(\lambda\)</span>-calculus is incredible expressive, and can provably do everything a Turing machine can do (leading to the <a href="https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis">Church-Turing thesis</a>).</p>
+<p>So for example, we can do <strong>recursion</strong>.</p>
+<h2 id="recursion">recursion</h2>
+<p>Let’s look at an example of a recursive function, the factorial:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">def</span> fact(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</a>
+<a class="sourceLine" id="cb14-2" title="2">    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb14-3" title="3">        <span class="cf">return</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb14-4" title="4">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb14-5" title="5">        <span class="cf">return</span> n <span class="op">*</span> fact(n <span class="op">-</span> <span class="dv">1</span>)</a></code></pre></div>
+<p>A key feature of this definition is that it refers to the function itself in the definition. This self-reference requires us to give the function a <em>name</em>, which isn’t something we can do in the standard <span class="math inline">\(\lambda\)</span>-calculus. <span class="math inline">\(\lambda\)</span>-functions are <em>anonymous</em>, hence it’s difficult to write a recursive function this way.</p>
+<p>However, if we step back and think about our goal, we might have a path forward. We want to construct a function <code>fact</code> in the <span class="math inline">\(\lambda\)</span>-calculus in such a way that <code>fact</code> is a “definitionally a function of itself”. That is, there is some other lambda <code>g</code>, such that we can express <code>fact</code> as</p>
+<pre><code>fact = g(fact)</code></pre>
+<p>We see that the <code>fact</code> <span class="math inline">\(\lambda\)</span>-function is hence a <strong>fixed point</strong> of the <span class="math inline">\(\lambda\)</span>-function <code>g</code>! In this way, we have converted our question of defining a recursive function (that may require self-reference) into a question of computing the fixed points of <span class="math inline">\(\lambda\)</span>-functions.</p>
+<p>So now just need a way to compute the fixed points of <span class="math inline">\(\lambda\)</span>-functions. Our goal is to divine a higher-order function</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">fix ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a</a></code></pre></div>
+<p>such that for any function <code>f</code>, we have <code>fix f = f (fix f)</code>– that is, <code>fix</code> takes a function and returns a fixed point of the function. Haskell is kinda cheating when we define this, by the way– you can write</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1">fix f <span class="fu">=</span> <span class="kw">let</span> {x <span class="fu">=</span> f x} <span class="kw">in</span> x</a></code></pre></div>
+<p>and just let lazy evaluation semantics take hold to make sure you don’t cause a horrific stack overflow.</p>
+<p>But in the standard <span class="math inline">\(\lambda\)</span>-calculus we can’t get off this easily. To begin with, lets try to express the simplest recursive function</p>
+<pre><code>loop = loop</code></pre>
+<p>Here, loop is the true self-referential function. Indeed, in Python</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">def</span> loop(x):</a>
+<a class="sourceLine" id="cb19-2" title="2">    <span class="cf">return</span> loop(x)</a></code></pre></div>
+<p>How would we write this in the <span class="math inline">\(\lambda\)</span>-calculus? Brace yourself for some magic:</p>
+<pre><code>loop = (λx.x x) (λx.x x)</code></pre>
+<p>If we sit back and expand it out in terms of the function application and <span class="math inline">\(\beta\)</span>-reduction rules, we see that indeed this does give <code>loop = loop</code> by definition.</p>
+<p>From here, it’s a little logical leap to get to our implementation of <code>fix f</code>: we want to loop, but when we do, we want to apply our function <code>f</code>. This is because, in analogy to the fixed point theorems we find in mathematics all the time, we often get a fixed point of a function by infinitely applying the function to an input. In our case it looks like</p>
+<pre><code>fix f = f (fix f)
+      = f (f (fix f))
+      = f (f ... f (fix f))</code></pre>
+<p>So we do the same magic as <code>loop</code>, except now we add an <code>f</code> when we perform the loop:</p>
+<pre><code>fix = λf.(λx.f (x x)) (λx.f (x x))</code></pre>
+<p>This implementation of <code>fix</code> is also known as the <strong>Y combinator</strong> (yes, just like <a href="https://www.ycombinator.com/">that</a> Y-combinator). This is an awesome definition, but we should at least verifies that it gives us a fixed point!</p>
+<pre><code>fix f = [λg.(λx.g (x x)) (λx.g (x x))] f
+      = (λx.f (x x)) (λx.f (x x))
+      = f ((λx.f (x x)) (λx.f (x x)))
+      = f ([λg.(λx.g (x x)) (λx.g (x x))] f)
+      = f (fix f)</code></pre>
+<p>This is pretty incredible. To turn out <code>fact</code> into a <span class="math inline">\(\lambda\)</span>-function then, we need to express <code>fact</code> then as the fixed point of an associated <span class="math inline">\(\lambda\)</span>-function. Taking the <span class="math inline">\(\lambda\)</span></p>
+<pre><code>λr.λx.if x == 0 then 1 else r(x - 1) * x</code></pre>
+<p>we have that</p>
+<pre><code>fact = fix λr.λx.if x == 0 then 1 else r(x - 1) * x</code></pre>
+<p>In python, we can write the above as</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1"><span class="co"># the Y combinator</span></a>
+<a class="sourceLine" id="cb26-2" title="2">fix <span class="op">=</span> <span class="kw">lambda</span> f: (<span class="kw">lambda</span> x: f(x(x)))(<span class="kw">lambda</span> x: f(x(x)))</a>
+<a class="sourceLine" id="cb26-3" title="3"></a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="co"># the associated recursion lambda for fact</span></a>
+<a class="sourceLine" id="cb26-5" title="5">g <span class="op">=</span> <span class="kw">lambda</span> r: (<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> r(x <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> x)</a>
+<a class="sourceLine" id="cb26-6" title="6"></a>
+<a class="sourceLine" id="cb26-7" title="7"><span class="co"># the factorial</span></a>
+<a class="sourceLine" id="cb26-8" title="8">fact <span class="op">=</span> fix(g)</a></code></pre></div>
+<p>Testing, we see in the interpreter</p>
+<pre><code>&gt; fact(9)
+RecursionError: maximum recursion depth exceeded</code></pre>
+<p>Whoops! Python eagerly evaluates those function calls, leading to a burst stack. The usual way to get around this is by passing in a <em>thunk</em>, giving</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" title="1">fix_thunk <span class="op">=</span> <span class="kw">lambda</span> f: <span class="op">\</span></a>
+<a class="sourceLine" id="cb28-2" title="2">    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))<span class="op">\</span></a>
+<a class="sourceLine" id="cb28-3" title="3">    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))</a>
+<a class="sourceLine" id="cb28-4" title="4"></a>
+<a class="sourceLine" id="cb28-5" title="5">fact_thunk <span class="op">=</span> fix_thunk(g)</a></code></pre></div>
+<p>Then, in fact, we get finally a running computation:</p>
+<pre><code>&gt; fact_thunk(9)
+362880</code></pre>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
