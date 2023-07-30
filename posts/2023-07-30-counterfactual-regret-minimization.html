@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Counterfactual regret minimization - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Counterfactual regret minimization</h1>
+            <article>
+    <section class="header">
+        Posted on July 30, 2023
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p>For the past few days I’ve been wanting to learn about modern game-playing AIs, and what are the main techniques out there powering them. I remember years ago when I started reading computer science books about heuristic search techniques and programming a Tic-Tac-Toe AI using various tree search algorithms. I was fairly interested in reinforcement learning for awhile, read about MCTS and DeepMind’s successes with AlphaGo, but then I got busy with other stuff and ended up not reading much on it afterwards.</p>
+<p>Recently I’ve started to get back into reading about reinforcement learning for <em>imperfect information games</em> (games in which each player has private information about the state of the game that they do not share with each other). It turns out that many of these techniques require a fair amount of background in game theory and their solution concepts, so I figured I’d write some notes on the topic.</p>
+<p>In this post, which should be the first of at least 2 more, we will give a brief overview of the definitions and concepts from classical game theory that we need, restricting ourselves to two-player zero-sum games. Then we’ll introduce the optimization idea of regret minimization, and give an overview of counterfactual regret minimization, an efficient implementation of regret minimization for imperfect information games.</p>
+<h3 id="game-theory">game theory</h3>
+<p>In this section we will give an brief introduction to some game-theoretic concepts, rushing to introduce the central concept of a Nash equilibrium of a normal-form game.</p>
+<p>First, we should define what we mean by a <strong>normal form game</strong>. We will be considering games where there are multiple <em>agents</em> (say, <span class="math inline">\(n\)</span> of them), and where each agent can take a certain action <span class="math inline">\(a_i\)</span> from it’s <em>action space</em> <span class="math inline">\(A_i\)</span>. In these games, all agents perform their action simultaneously, with the actions of the other agents not influencing immediately each other. In this way, the game’s outcome is determined by the single <em>action profile</em> <span class="math display">\[ a = (a_1, ..., a_n) \in A = A_1 \times ... \times A_n \]</span> What would cause an agent to take a particular action over others? In this setting we assume each agent is equipped with a <em>utility function</em> <span class="math inline">\(u_i: A\rightarrow \mathbb{R}\)</span> that effectively gives the payoff that each action profile gives to the <span class="math inline">\(i\)</span>th agent. It is then a fair assumption that the goal of an agent is to maximize their payoff.</p>
+<p>It can be convenient (especially in low-dimensions) to represent a normal-form game as a <span class="math inline">\(n\)</span>-dimensional matrix of payoffs. For example, a canonical example is the prisoner’s dilemma problem</p>
+<pre><code>           SILENT     CONFESS
+        -----------------------
+SILENT  | (-1, -1) | (-5, 0)  |
+CONFESS | (0, -5)  | (-3, -3) |
+        -----------------------</code></pre>
+<p>Here, the rows denote the action of the first player, while the columns are the action of the second player. For example, if player 1 confesses and player 2 stays silent, the entry <span class="math inline">\((0, -5)\)</span> means player 1 gets a payoff of 0 and player 2 gets a payoff of -5.</p>
+<p>We mention that we are most interested at the moment in <strong>zero-sum games</strong>, which are a particular class of two player normal-form games in which the sum of the payoffs of the agents is always 0, regardless of the action profile. Zero-sum games encapsulates games in which “one player’s loss is another’s gain”.</p>
+<h3 id="pareto-optimality">pareto optimality</h3>
+<p>How an agent chooses an action from its action space in a game is called it’s <strong>strategy</strong>. It could select a single action and play it, which is called a <strong>pure strategy</strong>. However, it is convenient if an agent can choose among many different actions, where the action to play is sampled from a probability distribution. The choice of a distribution over actions is called a <strong>mixed strategy</strong>.</p>
+<p>In a normal-form game, each agent takes a strategy <span class="math inline">\(s_i\)</span>, which collectively forms a <em>strategy profile</em> <span class="math inline">\(s=(s_1,...,s_n)\)</span>. We can extend each agent’s utility function to a function on strategy profiles <span class="math inline">\(u_i(s_1,...,s_n)\)</span> by defining it as the expected utility marginalized over the joint distribution of action profiles.</p>
+<p>Since the goal of every agent is to maximize their utility, this induces a strict partial ordering on the set of (mixed) strategy profiles: a profile <span class="math inline">\(s\)</span> <strong>Pareto dominates</strong> another strategy profile <span class="math inline">\(s'\)</span> if for all agents <span class="math inline">\(i\)</span>, <span class="math inline">\(u_i(s) \ge u_i(s'\)</span>), and there exists an agent <span class="math inline">\(j\)</span> in which <span class="math inline">\(u_j(s) &gt; u_j(s')\)</span>. In other words, in a Pareto dominated strategy profile some player can be made better off without making any other player worse off. The optima of this partial ordering are called <strong>Pareto optimal</strong> strategies.</p>
+<p>A few observations about Pareto optimality: first, every game has at least one Pareto optimal strategy. In fact, we can always find a Pareto optimal strategy composed of pure strategies for each agent– for example, for agent <span class="math inline">\(1\)</span>, we can consider the set of pure strategy profiles with the highest payoff for them (there may be multiple action profiles with the same payoff). Then for agent <span class="math inline">\(2\)</span>, we choose the subset of that set that has the highest payoff for them, etc. The resulting pure strategy profiles are all Pareto optimal. Second, in a zero-sum game, all strategy profiles are Pareto optimal.</p>
+<h3 id="nash-equilibrium">nash equilibrium</h3>
+<p>For each agent <span class="math inline">\(i\)</span>, let <span class="math inline">\(s_i\)</span> denote a (mixed) strategy the agent could take, and <span class="math inline">\(s_{-i}=(s_1,...,s_{i-1}, s_{i+1},...,s_n)\)</span> a strategy profile without agent <span class="math inline">\(i\)</span> considered. That is, we are isolating agent <span class="math inline">\(i\)</span>’s strategy from a full strategy profile <span class="math inline">\(s=(s_i, s_{-i})\)</span> for the game.</p>
+<p>If agent <span class="math inline">\(i\)</span> knew the strategy profile <span class="math inline">\(s_{-i}\)</span> of the other agents, it could choose the strategy <span class="math inline">\(s^*_i\)</span> that would be benefit itself. That is, for any other strategy <span class="math inline">\(s'_i\)</span>, <span class="math display">\[ u_i(s^*_i, s_{-i}) \ge u_i(s'_i, s_{-i}) \]</span> We call <span class="math inline">\(s^*_i\)</span> the <strong>best response</strong> of agent <span class="math inline">\(i\)</span> to the other’s strategy <span class="math inline">\(s_{-i}\)</span>.</p>
+<p>If the other agents knew of each other’s strategies, they would all be continually trying to change their strategies in order to implement the best responses to one another. Iteratively, they may eventually reach a stable state– they may reach a strategy profile <span class="math inline">\(s=(s_1,...,s_n)\)</span> in which for all agents <span class="math inline">\(i\)</span>, <span class="math inline">\(s_i\)</span> is a best response to the remainder <span class="math inline">\(s_{-i}\)</span>. This is a <strong>Nash equilibrium</strong>. Note that equilibria may not be unique.</p>
+<p>Since we’re working with zero-sum games, there are a couple of properties Nash equilibria enjoy that we will use. For one, in zero-sum games the Nash equilibria are <em>interchangable</em>: if <span class="math inline">\(s=(s_1, s_2)\)</span> is a Nash equilibrium and <span class="math inline">\(s' = (s'_1, s'_2)\)</span> is another, then <span class="math inline">\((s_1, s'_2)\)</span> and <span class="math inline">\((s'_1, s_2)\)</span> are both Nash equilibria.</p>
+<p><strong>Proof:</strong> Recall in a zero-sum game, we have for any strategy profile <span class="math inline">\(s\)</span>, <span class="math inline">\(u_1(s) + u_2(s) = 0\)</span>. We can see then that <span class="math display">\[ u_1(s_1, s_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2) \le u_1(s'_1, s'_2) \]</span> By symmetry, we get <span class="math inline">\(u_1(s_1, s_2) \ge u_1(s'_1, s'_2)\)</span>, and so <span class="math inline">\(u_i(s_1, s_2) = u_i(s'_1, s'_2)\)</span>.</p>
+<p>Consider the profile <span class="math inline">\((s_1, s'_2)\)</span>, and let <span class="math inline">\(s''_1\)</span> be another strategy that agent <span class="math inline">\(1\)</span> could take. Using the above equality we can see <span class="math display">\[ u_1(s''_1, s'_2) \le u_1(s'_1, s'_2) = -u_2(s'_1, s'_2) \]</span> since <span class="math inline">\((s'_1, s'_2)\)</span> is a Nash equilibrium. By the above, <span class="math inline">\(u_2(s'_1, s'_2) = u_2(s_1, s_2)\)</span> so <span class="math display">\[ -u_2(s'_1, s'_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2)\]</span> Combining with above, we see that <span class="math inline">\(s_1\)</span> is the best response for agent <span class="math inline">\(1\)</span> for the strategy <span class="math inline">\(s'_2\)</span> of agent <span class="math inline">\(2\)</span>. A symmetric argument for a strategy <span class="math inline">\(s''_2\)</span> taken by agent <span class="math inline">\(2\)</span> shows that <span class="math inline">\((s_1, s'_2)\)</span> is a Nash equilibrium. The case for <span class="math inline">\((s'_1, s_2)\)</span> follows similarly. <span class="math inline">\(\square\)</span></p>
+<p>The second property is one that we proved in the proof above: in a zero-sum game, the expected payoff to each player is the same for every Nash equilibrium.</p>
+<h3 id="computing-equilibria">computing equilibria</h3>
+<p>Let’s restrict for now to the case of two-player zero-sum games. How would we compute the Nash equilibria of such a game? We first introduce the <em>maxmin</em> strategy for an agent.</p>
+<p>Suppose we have a conservative agent– they would want to maximize their expected utility regardless of what the other agents do. In particular, they would seek a strategy that maximizes their expected utility in the <em>worst case scenario</em> that the other agents act to minimize their payoff. This is the <strong>maxmin strategy</strong> <span class="math display">\[ \underline{s}_i = \arg\max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> The payoff from this strategy is the <strong>maxmin value</strong> <span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> Analogously, an agent could seek a strategy to maximally punish the payoffs of their opponents, regardless of the damage to themselves. This leads to the <strong>minmax strategy</strong> and value <span class="math display">\[ \overline{v}_i = \min_{s_i}\max_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> Note that in general, <span class="math inline">\(\underline{v}_i \le \overline{v}_i\)</span>. However, when we’re in a finite two-player zero-sum game, we can prove something even stronger. Let <span class="math inline">\((s^*_i, s^*_{-i})\)</span> be a Nash equilibrium and <span class="math inline">\(v^*_i\)</span> be the expected utility of agent <span class="math inline">\(i\)</span> in this equilibrium.</p>
+<p>First, we observe that <span class="math inline">\(v^*_i \ge \underline{v_i}\)</span>. This is because if <span class="math inline">\(v^*_i &lt; \underline{v}_i\)</span> then agent <span class="math inline">\(i\)</span> could gain greater utility by using their maxmin strategy instead, which is a contradiction to <span class="math inline">\(s^*\)</span> being a Nash equilibrium. In an equilibrium, all agents acts according to their best response to the other’s strategies: <span class="math display">\[ v^*_{-i} = \max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \]</span> As we’re in a zero-sum game, <span class="math inline">\(v^*_i = -v^*_{-i}\)</span> and <span class="math inline">\(u_i=-u_{-i}\)</span>, so <span class="math display">\[ \begin{aligned} v^*_i &amp;= -v^*_{-i} \\ &amp;= -\max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \\
+&amp;= \min_{s_{-i}}{-u_{-i}(s^*_i, s_{-i})} \\
+&amp;= \min_{s_{-i}}{u_i(s^*_i, s_{-i})}
+\end{aligned}
+\]</span> By definition then, <span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \ge \min_{s_{-i}}{u_i(s^*_i, s_{-i})} = v^*_i \]</span> Hence <span class="math inline">\(\underline{v}_i = v^*_i\)</span> and so our maxmin strategy is actually a Nash equilibrium! This is the <strong>minimax theorem</strong> proven by von Neumann in 1928.</p>
+<p>In general, computing the Nash equilibria of a general normal-form game is computationally difficult (even from a complexity theory standpoint)! More precisely, a few years ago Babichenko-Rubinstein <a href="https://arxiv.org/abs/1608.06580">show</a> that there is no guaranteed method for players to find even an approximate Nash equilibrium unless they tell each other almost everything about their preferences.</p>
+<p>We instead focus on a different solution type that is more computationally efficient, the <strong>correlated equilibria</strong>, which is a strict generalization of Nash equilibrium. It helps to start with an example:</p>
+<pre><code>        STOP         GO
+     -------------------------
+STOP | (0, 0) |    (0, 1)    |
+GO   | (1, 0) | (-100, -100) |
+     -------------------------</code></pre>
+<p>In this <strong>traffic light game</strong>, each player has two actions– stop or go. It’s clear that there are two pure-strategy Nash equilibria, the off-diagonals <code>(GO, STOP)</code> and <code>(STOP, GO)</code>. However, these are not ideal, as only one person benefits in either situation.</p>
+<p>Let’s try and compute a mixed strategy Nash equilibrium for this game. Let the strategy of the first player be <span class="math inline">\(\sigma=(p, 1-p)\)</span> where <span class="math inline">\(p\)</span> is the probability of <code>GO</code>. How do we choose <span class="math inline">\(p\)</span>? It should be chosen such that if player 2 plays with a best response, player 1 plays in such a way that player 2 is indifferent between their actions, that is</p>
+<p><span class="math display">\[  u_2(\sigma, \text{GO}) = u_2(\sigma, \text{STOP}) \]</span></p>
+<p>If this were to not hold, e.g. <span class="math inline">\(u_2(\sigma, \text{GO}) &gt; u_2(\sigma, \text{STOP})\)</span>, then player 2 would have a better time choosing <code>GO</code> more often, contradicting that they play with a best response. Computing out the expected utilities, we have</p>
+<p><span class="math display">\[ 1\cdot (1-p) - 100p = 0 \]</span></p>
+<p>which implies <span class="math inline">\(p = 1/101\)</span>. Hence in a mixed Nash equilibrium, both players go at a traffic stop with absurdly low probability! This is obviously very unideal.</p>
+<p>Luckily, this isn’t how traffic stops at intersections work in the real world. In this game-theoretic setting, each mixed strategy that goes into a Nash equilibrium gives a probability distribution over actions for each player– however, each action ends up choosing their action independently, without any communication between them. In real-life, we have <em>traffic lights</em>, which act as a signal to both players which suggests their action. This <em>correlates</em> the action of each player without fixing them to a single pure strategy.</p>
+<p>This gives us the idea of a <strong>correlated equilibrium</strong>: a distribution <span class="math inline">\(\mathcal{D}\)</span> over action profiles <span class="math inline">\(A\)</span> is a correlated equilbrium if for each player <span class="math inline">\(i\)</span> and action <span class="math inline">\(a^*_i\)</span>, we have</p>
+<p><span class="math display">\[ \mathbf{E}_{a\sim\mathcal{D}}[u_i(a)] \ge \mathbf{E}_{a\sim\mathcal{D}}[u_i(a^*_i, a_{-i})|a_i] \]</span></p>
+<p>that is, after a profile <span class="math inline">\(a\)</span> is drawn, playing <span class="math inline">\(a_i\)</span> is a best response for player <span class="math inline">\(i\)</span> conditioned on seeing <span class="math inline">\(a_i\)</span>, given that everyone else will play according to <span class="math inline">\(a\)</span>. In the traffic light game, conditioned on seeing <code>STOP</code>, a player knows the other player sees <code>GO</code> so their best response is to <code>STOP</code>, and vice versa.</p>
+<p>Correlated equilibria generalize Nash equilibrium– any Nash equilibrium is a correlated one, in the case that each player’s actions are drawn from independent distributions, i.e.</p>
+<p><span class="math display">\[ \Pr(a|\sigma) = \prod_{i\in N} \Pr(a_i|\sigma) \]</span></p>
+<p>Despite looking as complex the definition of a Nash equilibrium, correlated equilibria are much more tractable to compute: they can be computed using no-regret learning, i.e. regret minimization. We discuss this next.</p>
+<h3 id="regret-minimization">regret minimization</h3>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
