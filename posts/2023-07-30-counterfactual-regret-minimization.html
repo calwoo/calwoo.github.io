@@ -90,6 +90,116 @@ GO   | (1, 0) | (-100, -100) |
 <p><span class="math display">\[ \Pr(a|\sigma) = \prod_{i\in N} \Pr(a_i|\sigma) \]</span></p>
 <p>Despite looking as complex the definition of a Nash equilibrium, correlated equilibria are much more tractable to compute: they can be computed using no-regret learning, i.e. regret minimization. We discuss this next.</p>
 <h3 id="regret-minimization">regret minimization</h3>
+<p>In this section we give the basics of regret minimization, treating it initially from the perspective of online optimization. Let <span class="math inline">\(\mathcal{X}\)</span> be a space of strategies for a given agent. We consider decision processes in which at time <span class="math inline">\(t=1,2,...\)</span> the agent (player) will play an action <span class="math inline">\(x_t\in\mathcal{X}\)</span>, receive “feedback” from the environment (the game, other players, etc) and then use it to formulate a response <span class="math inline">\(x_{t+1}\in\mathcal{X}\)</span>.</p>
+<p>Given <span class="math inline">\(\mathcal{X}\)</span> and a set <span class="math inline">\(\Phi\)</span> of linear transforms <span class="math inline">\(\phi:\mathcal{X}\rightarrow\mathcal{X}\)</span>, a <strong><span class="math inline">\(\Phi\)</span>-regret minimizer</strong> for <span class="math inline">\(\mathcal{X}\)</span> is a model for a decision maker that repeatedly interacts with the environment via the API</p>
+<ul>
+<li><code>NextStrategy</code> which outputs a strategy <span class="math inline">\(x_t\in\mathcal{X}\)</span> at decision time <span class="math inline">\(t\)</span>.</li>
+<li><code>ObserveUtility</code>(<span class="math inline">\(\ell^t\)</span>) which updates the decision-making process of the agent, in the form of a linear utility function (or vector) <span class="math inline">\(\ell^t:\mathcal{X}\rightarrow\mathbf{R}\)</span>.</li>
+</ul>
+<p>The quality metric of our minimizer is given by <strong>cumulative <span class="math inline">\(\Phi\)</span>-regret</strong></p>
+<p><span class="math display">\[ R^T_\Phi = \max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\ell^t(\hat{\phi}(x_t))-\ell^t(x_t)\right)\right\} \]</span></p>
+<p>where the interior term <span class="math inline">\(\ell^t(\hat{\phi}(x_t))-\ell^t(x_t)\)</span> is the <em>regret</em> at time <span class="math inline">\(t\)</span> of not changing our strategy by <span class="math inline">\(\hat{\phi}\)</span>. The <strong>goal</strong> of a <span class="math inline">\(\Phi\)</span>-regret minimizer is to guarantee its <span class="math inline">\(\Phi\)</span>-regret grows <strong>asymptotically sublinearly</strong> as <span class="math inline">\(T\rightarrow\infty\)</span>.</p>
+<p>Intuitively, the class <span class="math inline">\(\Phi\)</span> of functions constraints the kind of “regret” we can feel– a function <span class="math inline">\(\phi\in\Phi\)</span> tells us how we could have hypothetically swapped out our choice of action for a more optimal one, and the regret measures how much better that choice could have been for our decision. In this way, we want to <em>minimize</em> our regret by more often choosing optimal actions.</p>
+<p>For an example of a class <span class="math inline">\(\Phi\)</span>, we can take <span class="math inline">\(\Phi=\{\text{all linear maps }\mathcal{X}\rightarrow\mathcal{X}\}\)</span>. Then the notion of <span class="math inline">\(\Phi\)</span>-regret is called <strong>swap regret</strong>. Intuitively, it is the measure of how much a player can improve by switching any action we choose to the best decision possible in hindsight.</p>
+<p><strong>Note:</strong> If we restrict our choice of <span class="math inline">\(\Phi\)</span> to be <span class="math inline">\(\Phi=\{\phi_{a\rightarrow b}\}_{a,b\in\mathcal{X}}\)</span> where</p>
+<p><span class="math display">\[  
+\begin{equation}
+    \phi_{a\rightarrow b}(x) = 
+    \begin{cases}
+        x &amp; \text{if } x\neq a\\
+        b &amp; \text{if } x=a
+    \end{cases}
+\end{equation}
+\]</span></p>
+<p>then we get the closely related concept of <strong>internal regret</strong>.</p>
+<p>A very special case of <span class="math inline">\(\Phi\)</span>-regret comes when <span class="math inline">\(\Phi\)</span> is the set of constant functions.</p>
+<p><strong>Defn:</strong> (Regret minimizer) An <strong>external regret minimizer</strong> for <span class="math inline">\(\mathcal{X}\)</span> is a <span class="math inline">\(\Phi^{\text{const}}\)</span>-regret minimizer for</p>
+<p><span class="math display">\[ \Phi^{\text{const}} = \left\{\phi_{\hat{x}}: x\mapsto \hat{x}\right\}_{\hat{x}\in\mathcal{X}} \]</span></p>
+<p>The <span class="math inline">\(\Phi^{\text{const}}\)</span>-regret is just called <strong>external regret</strong></p>
+<p><span class="math display">\[ R^T = \max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T\left(\ell^t(\hat{x}) - \ell^t(x_t)\right)\right\} \]</span></p>
+<p>Regret minimizers are useful in helping us find best responses in various game-theoretic settings. Suppose we’re playing an <span class="math inline">\(n\)</span>-player game where players <span class="math inline">\(1,...,n-1\)</span> play stochastically, i.e. at each time <span class="math inline">\(t\)</span>, we get a strategy <span class="math inline">\(x^{(i)}_t\in\mathcal{X}^{(i)}\)</span> with</p>
+<p><span class="math display">\[ \mathbf{E}[x^{(i)}_t] = \bar{x}^{(i)}\in\mathcal{X}^{(i)} \]</span></p>
+<p>We let player <span class="math inline">\(n\)</span> picks strategies according to an algorithm that guarantees sublinear external regret (i.e. via a <span class="math inline">\(\Phi^{\text{const}}\)</span>-regret minimizer), where the utility function is given by the multilinear payoff functional</p>
+<p><span class="math display">\[ \ell^t(x^{(n)}) = u_n(x^{(1)}_t, x^{(2)}_t,..., x^{(n-1)}_t, x^{(n)}) \]</span></p>
+<p>The <em>claim</em> is that the average of player <span class="math inline">\(n\)</span>’s strategies converges to the best response to <span class="math inline">\(\bar{x}^{(1)},...,\bar{x}^{(n-1)}\)</span>:</p>
+<p><span class="math display">\[ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \argmax_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} \]</span></p>
+<p>To see this, note that by multilinearity,</p>
+<p><span class="math display">\[
+\begin{align*}
+    R^T &amp;= \max_{\hat{x}\in\mathcal{X}^{(n)}}\left\{\sum_{t=1}^T\left(u_n(x^{(1)}_t,...,\hat{x})-u_n(x^{(1)}_t,...,x^{(n)}_t)\right)\right\} \\
+        &amp;= \max_{\hat{x}\in\mathcal{X}^{(n)}}\left\{\sum_{t=1}^T u_n(x^{(1)}_t,...,\hat{x}-x^{(n)}_t)\right\}
+\end{align*}
+\]</span></p>
+<p>and as <span class="math inline">\(\frac{R^T}{T}\to 0\)</span> by sublinearity of regret, this proves that <span class="math inline">\(\frac{1}{T}\sum_{t=1}^T x_t^{(n)}\to\hat{x}\)</span>.</p>
+<p>Our main use of regret minimization is to compute (correlated) equilibria. Let’s restrict to the case of two-person zero-sum games. Given strategies <span class="math inline">\(x\in\mathcal{X}\subset\mathbf{R}^n, y\in\mathcal{Y}\subset\mathbf{R}^m\)</span> and a linear payoff matrix <span class="math inline">\(A\in\operatorname{Mat}_{n,m}\)</span> for player 1, the <strong>utility</strong> of player 1 is given by <span class="math inline">\(x^\top A y\)</span>.</p>
+<p>We seek a Nash equilibrium, which we have prove is a minimax solution</p>
+<p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top A y \]</span></p>
+<p>i.e. we want to use regret minimization to compute a bilinear saddle point.</p>
+<p><strong>Rmk:</strong> In two-player zero-sum games, regret minimization processes will converge to Nash equilibria, since in this situation there are no extra correlated equilibria. This intuitively makes sense since zero-sum games are purely adversarial and there is no “gain” from cooperation in these situations. For some extended thoughts on this, see this <a href="https://www.kellogg.northwestern.edu/research/math/papers/45.pdf">paper</a> of Rosenthal.</p>
+<p>To compute these equilibria, we create a regret minimizer <span class="math inline">\(\mathcal{R}_\mathcal{X}, \mathcal{R}_\mathcal{Y}\)</span> per player with utility functions</p>
+<p><span class="math display">\[
+\begin{align*}
+    \ell^t_\mathcal{X} &amp;: x\mapsto (Ay_t)^\top x \\
+    \ell^t_\mathcal{Y} &amp;: y\mapsto -(A^\top x_t)^\top y_t
+\end{align*}
+\]</span></p>
+<p>where <span class="math inline">\(x_t, y_t\)</span> are strategies generated by the regret minimizers at time <span class="math inline">\(t\)</span>. This idea is called <strong>self-play</strong>.</p>
+<p>Let <span class="math inline">\(\gamma\)</span> be the <strong>saddle point gap</strong></p>
+<p><span class="math display">\[ 
+\begin{align*}
+    \gamma(x,y) &amp;= \left(\max_{\hat{x}\in\mathcal{X}} \hat{x}^\top Ay - x^\top Ay\right) + \left(x^\top Ay - \min_{\hat{y}\in\mathcal{Y}} x^\top A\hat{y}\right) \\
+    &amp;= \max_{\hat{x}\in\mathcal{X}} \hat{x}^\top Ay - \min_{\hat{y}\in\mathcal{Y}} x^\top A\hat{y}
+\end{align*}    
+\]</span></p>
+<p>where the left term is the best response payoff to <span class="math inline">\(t\)</span> and right right term is the best response payoff to <span class="math inline">\(x\)</span> (both in the perspective of player 1). If <span class="math inline">\(\gamma(x,y)=0\)</span> then the strategy profile <span class="math inline">\(\sigma=(x,y)\)</span> is a Nash equilibrium.</p>
+<p><strong>Thm:</strong> As <span class="math inline">\(T\to\infty\)</span>, the average strategies <span class="math inline">\(\bar{x}=\frac{1}{T}\sum_{t=1}^T x_t\)</span> and <span class="math inline">\(\bar{y}=\frac{1}{T}\sum_{t=1}^T y_t\)</span> approaches a Nash equilibrium.</p>
+<p><em>Proof:</em> By definition, we can write</p>
+<p><span class="math display">\[
+\begin{align*}
+    \frac{1}{T}\left(R^T_\mathcal{X} + R^T_\mathcal{Y}\right)
+    &amp;= \frac{1}{T}\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T\left(\ell_\mathcal{X}^t(\hat{x})-\ell_\mathcal{X}^t(x_t)\right)\right\}
+        + \frac{1}{T}\max_{\hat{y}\in\mathcal{Y}}\left\{\sum_{t=1}^T\left(\ell_\mathcal{Y}^t(\hat{Y})-\ell_\mathcal{Y}^t(y_t)\right)\right\} \\
+    &amp;= \frac{1}{T}\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T \ell^t_\mathcal{X}(\hat{x})\right\}
+        + \frac{1}{T}\max_{\hat{y}\in\mathcal{Y}}\left\{\sum_{t=1}^T \ell^t_\mathcal{Y}(\hat{y})\right\}
+\end{align*}
+\]</span></p>
+<p>as <span class="math inline">\(\ell^t_\mathcal{X}(x_t) + \ell_\mathcal{Y}^t(y_t) = (Ay_t)^\top x_t - (A^\top x_t)^\top y_t = 0\)</span>. Continuing,</p>
+<p><span class="math display">\[
+\begin{align*}
+    &amp;= \frac{1}{T}\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T \hat{x}^\top Ay_t\right\}
+        + \frac{1}{T}\max_{\hat{y}\in\mathcal{Y}}\left\{\sum_{t=1}^T (-x_t^\top A\hat{y} \right\} \\
+    &amp;= \max_{\hat{x}\in\mathcal{X}}\hat{x}^\top A\bar{y} - \min_{\hat{y}\in\mathcal{Y}} \bar{x}^\top A\hat{y} \\
+    &amp;= \gamma(\bar{x}, \bar{y})
+\end{align*}
+\]</span></p>
+<p>By sublinearity of the regret minimizers, <span class="math inline">\(\frac{R^T_\mathcal{X}+R^T_\mathcal{Y}}{T}\to 0\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="minimax-via-regret">minimax via regret</h3>
+<p>In this section, we get another glimpse into the power of regret minimizers in optimization problems by reproving the minimax theorem. We first start with the easy part– note that since</p>
+<p><span class="math display">\[ \min_{y\in\mathcal{Y}} x^\top Ay \le x^\top Ay \]</span></p>
+<p>we get automatically that applying <span class="math inline">\(\max_{x\in\mathcal{X}}\)</span> on both sides is also true. Since the right side is then still a function of <span class="math inline">\(y\)</span>, we can minimize it and get</p>
+<p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \le \min_{y\in\mathcal{Y}}\max_{x\in\mathcal{X}} x^\top Ay \]</span></p>
+<p>This is <strong>weak duality</strong>.</p>
+<p>To prove the minimax theorem, we need to prove the inequality in the other direction. As in the previous regret learning situation, we play a repeated game between a regret minimizer an the environment: <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> chooses a strategy <span class="math inline">\(x_t\in\mathcal{X}\)</span> and the environment plays <span class="math inline">\(y_t\in\mathcal{Y}\)</span> such that <span class="math inline">\(y_t\)</span> is a best response:</p>
+<p><span class="math display">\[ y_t \in\argmin_{y\in\mathcal{Y}} x_t^\top Ay \]</span></p>
+<p>The utility function observed by <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> at each time <span class="math inline">\(t\)</span> is given by</p>
+<p><span class="math display">\[ \ell^t_\mathcal{X}: x\mapsto x^\top Ay_t \]</span></p>
+<p>We assume that <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> gives sublinear regret in the worst case. Let <span class="math inline">\(\bar{x}^T=\frac{1}{T}\sum_{t=1}^T x_t\)</span> and <span class="math inline">\(\bar{y}^T=\frac{1}{T}\sum_{t=1}^T y_t\)</span> be the average strategies up to time <span class="math inline">\(T\)</span>. For all <span class="math inline">\(t\)</span>,</p>
+<p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \ge \frac{1}{T}\min_{y\in\mathcal{Y}}\sum_{t=1}^T x_t^\top Ay \text{ as each } \min_{y\in\mathcal{Y}} x^\top_t Ay\le \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \]</span></p>
+<p>As each <span class="math inline">\(y_t\)</span> is the best response of the environment to the strategy <span class="math inline">\(x_t\)</span>, we have</p>
+<p><span class="math display">\[ \min_{y\in\mathcal{Y}} x_t^\top Ay = x^\top_t Ay_t \]</span></p>
+<p>so that</p>
+<p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \ge \frac{1}{T}\min_{y\in\mathcal{Y}}\sum_{t=1}^T x_t^\top Ay \ge \frac{1}{T}\sum_{t=1}^T x^\top_t Ay_t \]</span></p>
+<p>By definition of regret <span class="math inline">\(R^T_\mathcal{X}=\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T\left(\hat{x}^\top Ay_t-x^\top_t Ay_t\right)\right\}\)</span> so</p>
+<p><span class="math display">\[
+\begin{align*}
+    \frac{1}{T}\sum_{t=1}^T x_t^\top Ay_t &amp;\ge \frac{1}{T}\max_{\hat{x}\in\mathcal{X}}\sum_{t=1}^T \hat{x}^\top Ay_t - \frac{R^T_\mathcal{X}}{T} \\
+    &amp;\ge \min_{y\in\mathcal{Y}}\max_{x\in\mathcal{X}} x^\top Ay - \frac{R^T_\mathcal{X}}{T}
+\end{align*}
+\]</span></p>
+<p>By sublinearity, <span class="math inline">\(\frac{R^T_\mathcal{X}}{T}\to 0\)</span>, so we see that</p>
+<p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \ge \min_{y\in\mathcal{Y}}\max_{x\in\mathcal{X}} x^\top Ay \]</span></p>
+<p>This proves minimax.</p>
+<h3 id="regret-matching">regret matching</h3>
     </section>
 </article>
 
