@@ -301,3 +301,239 @@ This proves minimax.
 
 ### regret matching
 
+In order to perform regret minimization, we require computable algorithms to generate decisions with sublinear regret guarantees, i.e. regret minimizers for domain sets $\mathcal{X}$. A fundamental no-regret algorithm is given by **regret matching**, which gives a sublinear regret minimizer for probability simplices
+
+$$ \Delta^n = \left\{(x_1,...,x_n)\in\mathbf{R}^n_{\ge 0} : x_1 +...+ x_n = 1\right\} $$
+
+which model one-shot decision processes (such as agent actions in normal-form games).
+
+Remember that a regret minimizer for $\Delta^n$ is given by
+
+* `NextElement` outputting an element $x_t\in\Delta^n$, and
+* `ObserveUtility`($\ell^t$) computes environment feedback on this action $x_t$ given a linear utility vector $\ell^t\in\mathbf{R}^n$ that evaluates how good $x_t$ was. Note that we are overloading notation here, as $\ell^t$ is really a function
+
+$$ \ell^t:\Delta^n\to\mathbf{R}\text{ given by } x\mapsto\langle\ell^t, x\rangle $$
+
+This minimizer $\mathcal{R}$ should have its cumulative regret
+
+$$ R^T = \max_{\hat{x}\in\Delta^n}\left\{ \sum_{t=1}^T\left(\langle\ell^t,\hat{x}\rangle - \langle\ell^t,x_t\rangle\right)\right\} $$
+
+grow sublinearly as $T\to\infty$, regardless of the utility vectors $\ell^t$ chosen by the environment.
+
+We describe the regret matching algorithm, along with a Python implementation. Recall that to implement a regret minimizer, we need to complete a specific API:
+
+```python
+import numpy as np
+
+class RegretMinimizer:
+    @abstractmethod
+    def next_strategy(self) -> np.ndarray:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def observe_utility(self, utility_vec: np.ndarray):
+        raise NotImplementedError
+```
+
+Regret matching will be a specific instance of a regret minimizer. Such decision-generating agents have some internal state that allows it to update its strategies over time (i.e. learning). At time 0, for regret matching we set a cumulative *regret* vector $r_0\in\mathbf{R}^n$ to $\mathbf{0}$ and we set an initial (uniform) strategy $x_0=\left(\frac{1}{n},...,\frac{1}{n}\right)\in\mathbf{R}^n$ where $n$ here is the number of actions $|\mathcal{X}|$ the agent following this strategy can make.
+
+```python
+class RegretMatcher(RegretMinimizer):
+    def __init__(self, num_actions):
+        self.num_actions = num_actions
+        self.regret_sum = np.zeros(num_actions)
+        self.current_strategy = np.zeros(num_actions)
+        self.last_strategy = np.zeros(num_actions)
+```
+
+Suppose at time $t$ we are given a strategy $x_t\in\mathbf{R}^n$. How do we update our regret vector $r_{t-1}$ to $r_t$ and use it to generate the next strategy? The intuition behind regret matching is that we should choose the actions that we regret not having chosen in the past more often. 
+
+Given $r_{t-1}$, let $\theta_t = [r_{t-1}]^+$ to be the vector gotten by setting any negative terms in the vector to 0. In this sense, negative regret is useless to us, since we don't want to disincentivize choosing an action that already is giving us benefits. However, $\theta_t$ may no longer be in $\Delta^n$, but we can force it by normalizing. So we take as our next strategy
+
+$$ x_t = \frac{\theta_t}{\|\theta_t\|_1} $$
+
+In code,
+
+```python
+    def next_strategy(self) -> np.ndarray:
+        regrets = np.copy(self.regret_sum)
+        regrets[regrets < 0] = 0
+        normalizing_sum = np.sum(regrets)
+        if normalizing_sum > 0:
+            strategy = regrets / normalizing_sum
+        else:
+            # default to uniform
+            strategy = np.repeat(1 / self.num_actions, self.num_actions)
+
+        self.current_strategy = strategy
+        self.strategy_sum += strategy
+        return strategy
+```
+
+Given a feedback vector $\ell^t$, we want to now update our internal state in order to generate better strategies. Often, we can interpret our feedback utility vector from the environment as
+
+$$ \ell^t_a = \text{the payoff gotten if we purely chose action a} $$
+
+Consider the term
+
+$$ \alpha_t = \ell^t - \langle\ell^t, x_t\rangle \mathbf{1} $$
+
+where $\mathbf{1}$ is the vector $(1,...,1)\in\mathbf{R}^n$. Interpreting $\langle\ell^t, x_t\rangle$ as the expected utility of $x_t$, we can interpret the vector $\alpha_t$ as
+
+$$ \alpha_{t,a} = \text{the regret of not purely choosing action a} $$
+
+To update our cumulative regret, we fold this into the mix: $r_t = r_{t-1} + \alpha_t$.
+
+```python
+    def observe_utility(self, utility_vector: np.ndarray):
+        expected_utility = np.dot(utility_vector, self.current_strategy)
+        regrets = utility_vector - expected_utility
+        self.regret_sum += regrets
+```
+
+Performing this iterative gives the regret matching algorithm.
+
+**Rmk:** If we take $r_t=[r_{t-1}+\alpha_t]^+$ instead, we get the $\text{regret matching}^+$ algorithm.
+
+### composition and swap-regret*
+
+**This section could be skipped on a first reading!**
+
+Now that we have a regret minimizer for $\Delta^n$, can we build regret minimizers for other spaces? Since we can hope to build up our spaces as compositions of probability simplices, if we had rules to combine regret minimizers for certain algebraic operations we could generically build regret minimizers for a whole range of domain spaces $\mathcal{X}$.
+
+Suppose $\mathcal{R}_\mathcal{X}$, $\mathcal{R}_\mathcal{Y}$ are regret minimizers for $\mathcal{X}$ and $\mathcal{Y}$ respectively. Trivially, we get a regret minimizer for $\mathcal{X}\times\mathcal{Y}$ by
+
+```python
+class Product(RegretMinimizer):
+    def __init__(self, r_x: RegretMinimizer, r_y: RegretMinimizer):
+        self.r_x, self.r_y = r_x, r_y
+
+    def next_strategy(self) -> np.ndarray:
+        x_t = self.r_x.next_strategy()
+        y_t = self.r_y.next_strategy()
+        return np.concatenate([x_t, y_t], axis=0)
+
+    def observe_utility(self, utility_vector: np.ndarray):
+        num_actions_x = self.r_x.num_actions
+        self.r_x.observe_utility(utility_vector[:num_actions_x])
+        self.r_y.observe_utility(utility_vector[num_actions_x:])
+```
+
+It is clear that
+
+$$  R^T_{\mathcal{X}\times\mathcal{Y}} = R^T_\mathcal{X} + R^T_\mathcal{Y} $$
+
+so if $\mathcal{R}_\mathcal{X}$, $\mathcal{R}_\mathcal{Y}$ have sublinear regret, so does $\mathcal{R}_{\mathcal{X}\times\mathcal{Y}}$. 
+
+Less trivially, consider the algebraic operation given by the convex hull $\operatorname{conv}(\mathcal{X}, \mathcal{Y})$. Here we are assuming that $\mathcal{X},\mathcal{Y}\subset\mathbf{R}^n$. Along with regret minimizers $\mathcal{R}_\mathcal{X}$, $\mathcal{R}_\mathcal{Y}$, we also need a regret minimizer for the simplex $\Delta^2$ (which we can luckily use the regret matching algorithm above)!
+
+Then we get a regret minimizer for $\operatorname{conv}(\mathcal{X}, \mathcal{Y})$ via
+
+```python
+class ConvexHull(RegretMinimizer):
+    def __init__(self, r_x: RegretMinimizer, r_y: RegretMinimizer):
+        self.r_x, self.r_y = r_x, r_y
+        self.r_simplex = RegretMatcher(2)
+
+    def next_strategy(self) -> np.ndarray:
+        x_t = self.r_x.next_strategy()
+        y_t = self.r_y.next_strategy()
+        p1_t, p2_t = self.r_simplex.next_strategy()
+        return p1_t * x_t + p2_t * y_t
+
+    def observe_utility(self, utility_vector: np.ndarray):
+        self.r_x.observe_utility(utility_vector)
+        self.r_y.observe_utility(utility_vector)
+        utility_augmented_vec = np.array([
+            np.dot(utility_vector, self.r_x.current_strategy),
+            np.dot(utility_vector, self.r_y.current_strategy)
+        ])
+        self.r_simplex.observe_utility(utility_augmented_vec)
+```
+
+How does the cumulative regret grow in this case? By definition,
+
+$$
+\begin{align*}
+R^T &= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\mathcal{Y}}\left\{
+            \sum_{t=1}^T\hat{\lambda}_1(\ell^+)^\top\hat{x}+\hat{\lambda}_2(\ell^+)^\top\hat{y}
+        \right\} - \left(
+            \sum_{t=1}^T\lambda_1^t(\ell^+)^\top x_t + \lambda_2^t(\ell^+)^\top y_t\right) \\
+    &= \max_{\hat{\lambda}\in\Delta^2}\left\{
+        \hat{\lambda}_1\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{x}\right\}
+        + \hat{\lambda}_2\max_{\hat{y}\in\mathcal{Y}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{y}\right\}\right\}
+        - \left(\sum_{t=1}^T\lambda_1^t(\ell^+)^\top x_t + \lambda_2^t(\ell^+)^\top y_t\right)
+\end{align*}
+$$
+
+as all components $\hat{\lambda}_1, \hat{\lambda}_2$ are nonnegative. Also,
+
+$$ \max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{x}\right\} = R^T_\mathcal{X} + \sum_{t=1}^T(\ell^+)^\top x_t $$
+
+and similarly for the other inner term. So
+
+$$ R^T = \max_{\hat{\lambda}\in\Delta^2}\left\{
+    \left(\sum_{t=1}^T \hat{\lambda}_1(\ell^+)^\top x_t + \hat{\lambda}_2(\ell^+)^\top y_t\right) 
+        + \hat{\lambda}_1 R^T_\mathcal{X} + \hat{\lambda}_2 R^T_\mathcal{Y} \right\}
+        - \left(\sum_{t=1}^T\lambda^t_1(\ell^+)^\top x_t + \lambda^t_2(\ell^+)^\top y_t\right) $$
+
+As for $(\hat{\lambda}_1, \hat{\lambda}_2)\in\Delta^2$, we have trivially
+
+$$ \hat{\lambda}_1 R^T_\mathcal{X} + \hat{\lambda}_2 R^T_\mathcal{Y} \le \max\{R^T_\mathcal{X}, R^T_\mathcal{Y}\} $$
+
+which implies
+
+$$ R^T \le R^T_{\Delta} + \max\{R^T_\mathcal{X}, R^T_\mathcal{Y}\} $$
+
+Hence if $R^T_\mathcal{X}, R^T_\mathcal{Y}, R^T_{\Delta}$ grow sublinearly, so does $R^T$.
+
+We close this section with the construction of a no-swap regret learning algorithm for the simplex $\Delta^n$. In the literature, a lot of research is focused on creating external regret minimizers. However, in the previous section we gave a definition of $\Phi$-regret minimization for general $\Phi$. How can we construct no-$\Phi$ regret learners generically?
+
+In 2008, a [paper](https://www.cs.cmu.edu/~ggordon/gordon-greenwald-marks-icml-phi-regret.pdf) by Gordon et al. gives a way to construct a $\Phi$-regret minimizer for $\mathcal{X}$ from a regret minimizer over the set of functions $\phi\in\Phi$.
+
+**Theorem** (Gordon et al.): Let $\mathcal{R}$ be a *deterministic* regret minimizer over $\Phi$ with sublinear cumulative regret, and assume each $\phi\in\Phi$ has a fixed point, $\phi(x)=x\in\mathcal{X}$. Then a $\Phi$-regret minimizer $\mathcal{R}_\Phi$ can be constructed from $\mathcal{R}$ as:
+
+```python
+class PhiRegretLearner(RegretMinimizer):
+    def __init__(self, regret_learner: RegretMinimizer):
+        self.regret_learner = regret_learner
+        self.last_fixpoint = None
+
+    def next_strategy(self) -> np.ndarray:
+        # since regret_learner is a regret minimizer over \Phi
+        phi_t = self.regret_learner.next_strategy()
+        # get fixed point
+        x_t = fixpoint(phi_t)
+        self.last_fixpoint = x_t
+        return x_t
+
+    def observe_utility(self, utility_vec: np.ndarray):
+        x_t = self.last_fixpoint
+        def _linear_utility_functional(phi):
+            return np.dot(utility_vec, phi(x_t))
+        self.regret_learner.observe_utility(_linear_utility_functional)
+```
+
+where we assume `fixpoint` is a function that can deterministically get a fixed point of the function $phi\in\Phi$. Furthermore, $R^T=R^T_\Phi$, so $\mathcal{R}_\Phi$ has sublinear regret.
+
+*Proof*: For a sequence $\phi_1,\phi_2,...$ output by $\mathcal{R}$ with utilities $\phi\mapsto\langle\ell^1,\phi(x_1)\rangle,\phi\mapsto\langle\ell^2,\phi(x_2)\rangle,...$ we have 
+
+$$ R^T=\max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\langle\ell^t,\hat{\phi}(x_t)\rangle-\langle\ell^t,\phi_t(x_t)\rangle\right)\right\} $$
+
+As $\phi_t(x_t)=x_t$, we get
+
+$$ R^T = \max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\langle\ell^t,\hat{\phi}(x_t)\rangle-\langle\ell^t,x_t\rangle\right)\right\} $$
+
+which is exactly $R^T_\Phi$. $\square$.
+
+As an application of this theorem, we will construct a no-swap regret learner for $\Delta^n$. Recall that swap regret learning is the same as $\Phi^\text{all}$-regret minimization, where
+
+$$ \Phi^\text{all} = \left\{\text{all linear functions }\Delta^n\to\Delta^n\right\} $$
+
+for $\Delta^n = \left\{(x_1,...,x_n)\in\mathbf{R}^n_{\ge 0} : x_1 +...+ x_n = 1\right\}$. Note that a linear map $f:\mathbf{R}^n\to\mathbf{R}^n$ restricts to a map $\Delta^n\to\Delta^n$ if it sends the basis vectors $\{e_1,...,e_n\}$ to $\{v_1,...,v_n\}\subset\Delta^n$. But $v_i\in\Delta^n$ implies that the matrix $M$ formed by the $v_i$'s concatenated together as column vectors is **(column)-stochastic**, i.e. columns sum to 1 and is nonnegative.
+
+So in this case, $f(x)=Mx$ where $M$ is stochastic, so we can describe for the probability simplex case that
+
+$$ \Phi^\text{all} = \left\{M\in\mathbf{R}^{n\times n}_{\ge 0}: M\text{ is column-stochastic}\right\} $$
+
+
