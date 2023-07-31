@@ -200,6 +200,164 @@ GO   | (1, 0) | (-100, -100) |
 <p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \ge \min_{y\in\mathcal{Y}}\max_{x\in\mathcal{X}} x^\top Ay \]</span></p>
 <p>This proves minimax.</p>
 <h3 id="regret-matching">regret matching</h3>
+<p>In order to perform regret minimization, we require computable algorithms to generate decisions with sublinear regret guarantees, i.e. regret minimizers for domain sets <span class="math inline">\(\mathcal{X}\)</span>. A fundamental no-regret algorithm is given by <strong>regret matching</strong>, which gives a sublinear regret minimizer for probability simplices</p>
+<p><span class="math display">\[ \Delta^n = \left\{(x_1,...,x_n)\in\mathbf{R}^n_{\ge 0} : x_1 +...+ x_n = 1\right\} \]</span></p>
+<p>which model one-shot decision processes (such as agent actions in normal-form games).</p>
+<p>Remember that a regret minimizer for <span class="math inline">\(\Delta^n\)</span> is given by</p>
+<ul>
+<li><code>NextElement</code> outputting an element <span class="math inline">\(x_t\in\Delta^n\)</span>, and</li>
+<li><code>ObserveUtility</code>(<span class="math inline">\(\ell^t\)</span>) computes environment feedback on this action <span class="math inline">\(x_t\)</span> given a linear utility vector <span class="math inline">\(\ell^t\in\mathbf{R}^n\)</span> that evaluates how good <span class="math inline">\(x_t\)</span> was. Note that we are overloading notation here, as <span class="math inline">\(\ell^t\)</span> is really a function</li>
+</ul>
+<p><span class="math display">\[ \ell^t:\Delta^n\to\mathbf{R}\text{ given by } x\mapsto\langle\ell^t, x\rangle \]</span></p>
+<p>This minimizer <span class="math inline">\(\mathcal{R}\)</span> should have its cumulative regret</p>
+<p><span class="math display">\[ R^T = \max_{\hat{x}\in\Delta^n}\left\{ \sum_{t=1}^T\left(\langle\ell^t,\hat{x}\rangle - \langle\ell^t,x_t\rangle\right)\right\} \]</span></p>
+<p>grow sublinearly as <span class="math inline">\(T\to\infty\)</span>, regardless of the utility vectors <span class="math inline">\(\ell^t\)</span> chosen by the environment.</p>
+<p>We describe the regret matching algorithm, along with a Python implementation. Recall that to implement a regret minimizer, we need to complete a specific API:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">class</span> RegretMinimizer:</a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="at">@abstractmethod</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb3-6" title="6">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    </a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="at">@abstractmethod</span></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</a>
+<a class="sourceLine" id="cb3-10" title="10">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a></code></pre></div>
+<p>Regret matching will be a specific instance of a regret minimizer. Such decision-generating agents have some internal state that allows it to update its strategies over time (i.e. learning). At time 0, for regret matching we set a cumulative <em>regret</em> vector <span class="math inline">\(r_0\in\mathbf{R}^n\)</span> to <span class="math inline">\(\mathbf{0}\)</span> and we set an initial (uniform) strategy <span class="math inline">\(x_0=\left(\frac{1}{n},...,\frac{1}{n}\right)\in\mathbf{R}^n\)</span> where <span class="math inline">\(n\)</span> here is the number of actions <span class="math inline">\(|\mathcal{X}|\)</span> the agent following this strategy can make.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> RegretMatcher(RegretMinimizer):</a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions):</a>
+<a class="sourceLine" id="cb4-3" title="3">        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</a>
+<a class="sourceLine" id="cb4-4" title="4">        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(num_actions)</a>
+<a class="sourceLine" id="cb4-5" title="5">        <span class="va">self</span>.current_strategy <span class="op">=</span> np.zeros(num_actions)</a>
+<a class="sourceLine" id="cb4-6" title="6">        <span class="va">self</span>.last_strategy <span class="op">=</span> np.zeros(num_actions)</a></code></pre></div>
+<p>Suppose at time <span class="math inline">\(t\)</span> we are given a strategy <span class="math inline">\(x_t\in\mathbf{R}^n\)</span>. How do we update our regret vector <span class="math inline">\(r_{t-1}\)</span> to <span class="math inline">\(r_t\)</span> and use it to generate the next strategy? The intuition behind regret matching is that we should choose the actions that we regret not having chosen in the past more often.</p>
+<p>Given <span class="math inline">\(r_{t-1}\)</span>, let <span class="math inline">\(\theta_t = [r_{t-1}]^+\)</span> to be the vector gotten by setting any negative terms in the vector to 0. In this sense, negative regret is useless to us, since we don’t want to disincentivize choosing an action that already is giving us benefits. However, <span class="math inline">\(\theta_t\)</span> may no longer be in <span class="math inline">\(\Delta^n\)</span>, but we can force it by normalizing. So we take as our next strategy</p>
+<p><span class="math display">\[ x_t = \frac{\theta_t}{\|\theta_t\|_1} \]</span></p>
+<p>In code,</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb5-2" title="2">        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</a>
+<a class="sourceLine" id="cb5-3" title="3">        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-4" title="4">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</a>
+<a class="sourceLine" id="cb5-5" title="5">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb5-6" title="6">            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb5-8" title="8">            <span class="co"># default to uniform</span></a>
+<a class="sourceLine" id="cb5-9" title="9">            strategy <span class="op">=</span> np.repeat(<span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.num_actions, <span class="va">self</span>.num_actions)</a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11">        <span class="va">self</span>.current_strategy <span class="op">=</span> strategy</a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="va">self</span>.strategy_sum <span class="op">+=</span> strategy</a>
+<a class="sourceLine" id="cb5-13" title="13">        <span class="cf">return</span> strategy</a></code></pre></div>
+<p>Given a feedback vector <span class="math inline">\(\ell^t\)</span>, we want to now update our internal state in order to generate better strategies. Often, we can interpret our feedback utility vector from the environment as</p>
+<p><span class="math display">\[ \ell^t_a = \text{the payoff gotten if we purely chose action a} \]</span></p>
+<p>Consider the term</p>
+<p><span class="math display">\[ \alpha_t = \ell^t - \langle\ell^t, x_t\rangle \mathbf{1} \]</span></p>
+<p>where <span class="math inline">\(\mathbf{1}\)</span> is the vector <span class="math inline">\((1,...,1)\in\mathbf{R}^n\)</span>. Interpreting <span class="math inline">\(\langle\ell^t, x_t\rangle\)</span> as the expected utility of <span class="math inline">\(x_t\)</span>, we can interpret the vector <span class="math inline">\(\alpha_t\)</span> as</p>
+<p><span class="math display">\[ \alpha_{t,a} = \text{the regret of not purely choosing action a} \]</span></p>
+<p>To update our cumulative regret, we fold this into the mix: <span class="math inline">\(r_t = r_{t-1} + \alpha_t\)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
+<a class="sourceLine" id="cb6-2" title="2">        expected_utility <span class="op">=</span> np.dot(utility_vector, <span class="va">self</span>.current_strategy)</a>
+<a class="sourceLine" id="cb6-3" title="3">        regrets <span class="op">=</span> utility_vector <span class="op">-</span> expected_utility</a>
+<a class="sourceLine" id="cb6-4" title="4">        <span class="va">self</span>.regret_sum <span class="op">+=</span> regrets</a></code></pre></div>
+<p>Performing this iterative gives the regret matching algorithm.</p>
+<p><strong>Rmk:</strong> If we take <span class="math inline">\(r_t=[r_{t-1}+\alpha_t]^+\)</span> instead, we get the <span class="math inline">\(\text{regret matching}^+\)</span> algorithm.</p>
+<h3 id="composition-and-swap-regret">composition and swap-regret*</h3>
+<p><strong>This section could be skipped on a first reading!</strong></p>
+<p>Now that we have a regret minimizer for <span class="math inline">\(\Delta^n\)</span>, can we build regret minimizers for other spaces? Since we can hope to build up our spaces as compositions of probability simplices, if we had rules to combine regret minimizers for certain algebraic operations we could generically build regret minimizers for a whole range of domain spaces <span class="math inline">\(\mathcal{X}\)</span>.</p>
+<p>Suppose <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span> are regret minimizers for <span class="math inline">\(\mathcal{X}\)</span> and <span class="math inline">\(\mathcal{Y}\)</span> respectively. Trivially, we get a regret minimizer for <span class="math inline">\(\mathcal{X}\times\mathcal{Y}\)</span> by</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> Product(RegretMinimizer):</a>
+<a class="sourceLine" id="cb7-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</a>
+<a class="sourceLine" id="cb7-3" title="3">        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb7-6" title="6">        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</a>
+<a class="sourceLine" id="cb7-7" title="7">        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</a>
+<a class="sourceLine" id="cb7-8" title="8">        <span class="cf">return</span> np.concatenate([x_t, y_t], axis<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb7-9" title="9"></a>
+<a class="sourceLine" id="cb7-10" title="10">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
+<a class="sourceLine" id="cb7-11" title="11">        num_actions_x <span class="op">=</span> <span class="va">self</span>.r_x.num_actions</a>
+<a class="sourceLine" id="cb7-12" title="12">        <span class="va">self</span>.r_x.observe_utility(utility_vector[:num_actions_x])</a>
+<a class="sourceLine" id="cb7-13" title="13">        <span class="va">self</span>.r_y.observe_utility(utility_vector[num_actions_x:])</a></code></pre></div>
+<p>It is clear that</p>
+<p><span class="math display">\[  R^T_{\mathcal{X}\times\mathcal{Y}} = R^T_\mathcal{X} + R^T_\mathcal{Y} \]</span></p>
+<p>so if <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span> have sublinear regret, so does <span class="math inline">\(\mathcal{R}_{\mathcal{X}\times\mathcal{Y}}\)</span>.</p>
+<p>Less trivially, consider the algebraic operation given by the convex hull <span class="math inline">\(\operatorname{conv}(\mathcal{X}, \mathcal{Y})\)</span>. Here we are assuming that <span class="math inline">\(\mathcal{X},\mathcal{Y}\subset\mathbf{R}^n\)</span>. Along with regret minimizers <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span>, we also need a regret minimizer for the simplex <span class="math inline">\(\Delta^2\)</span> (which we can luckily use the regret matching algorithm above)!</p>
+<p>Then we get a regret minimizer for <span class="math inline">\(\operatorname{conv}(\mathcal{X}, \mathcal{Y})\)</span> via</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">class</span> ConvexHull(RegretMinimizer):</a>
+<a class="sourceLine" id="cb8-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</a>
+<a class="sourceLine" id="cb8-3" title="3">        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</a>
+<a class="sourceLine" id="cb8-4" title="4">        <span class="va">self</span>.r_simplex <span class="op">=</span> RegretMatcher(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb8-5" title="5"></a>
+<a class="sourceLine" id="cb8-6" title="6">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb8-7" title="7">        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</a>
+<a class="sourceLine" id="cb8-8" title="8">        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</a>
+<a class="sourceLine" id="cb8-9" title="9">        p1_t, p2_t <span class="op">=</span> <span class="va">self</span>.r_simplex.next_strategy()</a>
+<a class="sourceLine" id="cb8-10" title="10">        <span class="cf">return</span> p1_t <span class="op">*</span> x_t <span class="op">+</span> p2_t <span class="op">*</span> y_t</a>
+<a class="sourceLine" id="cb8-11" title="11"></a>
+<a class="sourceLine" id="cb8-12" title="12">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
+<a class="sourceLine" id="cb8-13" title="13">        <span class="va">self</span>.r_x.observe_utility(utility_vector)</a>
+<a class="sourceLine" id="cb8-14" title="14">        <span class="va">self</span>.r_y.observe_utility(utility_vector)</a>
+<a class="sourceLine" id="cb8-15" title="15">        utility_augmented_vec <span class="op">=</span> np.array([</a>
+<a class="sourceLine" id="cb8-16" title="16">            np.dot(utility_vector, <span class="va">self</span>.r_x.current_strategy),</a>
+<a class="sourceLine" id="cb8-17" title="17">            np.dot(utility_vector, <span class="va">self</span>.r_y.current_strategy)</a>
+<a class="sourceLine" id="cb8-18" title="18">        ])</a>
+<a class="sourceLine" id="cb8-19" title="19">        <span class="va">self</span>.r_simplex.observe_utility(utility_augmented_vec)</a></code></pre></div>
+<p>How does the cumulative regret grow in this case? By definition,</p>
+<p><span class="math display">\[
+\begin{align*}
+R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\mathcal{Y}}\left\{
+            \sum_{t=1}^T\hat{\lambda}_1(\ell^+)^\top\hat{x}+\hat{\lambda}_2(\ell^+)^\top\hat{y}
+        \right\} - \left(
+            \sum_{t=1}^T\lambda_1^t(\ell^+)^\top x_t + \lambda_2^t(\ell^+)^\top y_t\right) \\
+    &amp;= \max_{\hat{\lambda}\in\Delta^2}\left\{
+        \hat{\lambda}_1\max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{x}\right\}
+        + \hat{\lambda}_2\max_{\hat{y}\in\mathcal{Y}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{y}\right\}\right\}
+        - \left(\sum_{t=1}^T\lambda_1^t(\ell^+)^\top x_t + \lambda_2^t(\ell^+)^\top y_t\right)
+\end{align*}
+\]</span></p>
+<p>as all components <span class="math inline">\(\hat{\lambda}_1, \hat{\lambda}_2\)</span> are nonnegative. Also,</p>
+<p><span class="math display">\[ \max_{\hat{x}\in\mathcal{X}}\left\{\sum_{t=1}^T(\ell^+)^\top\hat{x}\right\} = R^T_\mathcal{X} + \sum_{t=1}^T(\ell^+)^\top x_t \]</span></p>
+<p>and similarly for the other inner term. So</p>
+<p><span class="math display">\[ R^T = \max_{\hat{\lambda}\in\Delta^2}\left\{
+    \left(\sum_{t=1}^T \hat{\lambda}_1(\ell^+)^\top x_t + \hat{\lambda}_2(\ell^+)^\top y_t\right) 
+        + \hat{\lambda}_1 R^T_\mathcal{X} + \hat{\lambda}_2 R^T_\mathcal{Y} \right\}
+        - \left(\sum_{t=1}^T\lambda^t_1(\ell^+)^\top x_t + \lambda^t_2(\ell^+)^\top y_t\right) \]</span></p>
+<p>As for <span class="math inline">\((\hat{\lambda}_1, \hat{\lambda}_2)\in\Delta^2\)</span>, we have trivially</p>
+<p><span class="math display">\[ \hat{\lambda}_1 R^T_\mathcal{X} + \hat{\lambda}_2 R^T_\mathcal{Y} \le \max\{R^T_\mathcal{X}, R^T_\mathcal{Y}\} \]</span></p>
+<p>which implies</p>
+<p><span class="math display">\[ R^T \le R^T_{\Delta} + \max\{R^T_\mathcal{X}, R^T_\mathcal{Y}\} \]</span></p>
+<p>Hence if <span class="math inline">\(R^T_\mathcal{X}, R^T_\mathcal{Y}, R^T_{\Delta}\)</span> grow sublinearly, so does <span class="math inline">\(R^T\)</span>.</p>
+<p>We close this section with the construction of a no-swap regret learning algorithm for the simplex <span class="math inline">\(\Delta^n\)</span>. In the literature, a lot of research is focused on creating external regret minimizers. However, in the previous section we gave a definition of <span class="math inline">\(\Phi\)</span>-regret minimization for general <span class="math inline">\(\Phi\)</span>. How can we construct no-<span class="math inline">\(\Phi\)</span> regret learners generically?</p>
+<p>In 2008, a <a href="https://www.cs.cmu.edu/~ggordon/gordon-greenwald-marks-icml-phi-regret.pdf">paper</a> by Gordon et al. gives a way to construct a <span class="math inline">\(\Phi\)</span>-regret minimizer for <span class="math inline">\(\mathcal{X}\)</span> from a regret minimizer over the set of functions <span class="math inline">\(\phi\in\Phi\)</span>.</p>
+<p><strong>Theorem</strong> (Gordon et al.): Let <span class="math inline">\(\mathcal{R}\)</span> be a <em>deterministic</em> regret minimizer over <span class="math inline">\(\Phi\)</span> with sublinear cumulative regret, and assume each <span class="math inline">\(\phi\in\Phi\)</span> has a fixed point, <span class="math inline">\(\phi(x)=x\in\mathcal{X}\)</span>. Then a <span class="math inline">\(\Phi\)</span>-regret minimizer <span class="math inline">\(\mathcal{R}_\Phi\)</span> can be constructed from <span class="math inline">\(\mathcal{R}\)</span> as:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">class</span> PhiRegretLearner(RegretMinimizer):</a>
+<a class="sourceLine" id="cb9-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, regret_learner: RegretMinimizer):</a>
+<a class="sourceLine" id="cb9-3" title="3">        <span class="va">self</span>.regret_learner <span class="op">=</span> regret_learner</a>
+<a class="sourceLine" id="cb9-4" title="4">        <span class="va">self</span>.last_fixpoint <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb9-7" title="7">        <span class="co"># since regret_learner is a regret minimizer over \Phi</span></a>
+<a class="sourceLine" id="cb9-8" title="8">        phi_t <span class="op">=</span> <span class="va">self</span>.regret_learner.next_strategy()</a>
+<a class="sourceLine" id="cb9-9" title="9">        <span class="co"># get fixed point</span></a>
+<a class="sourceLine" id="cb9-10" title="10">        x_t <span class="op">=</span> fixpoint(phi_t)</a>
+<a class="sourceLine" id="cb9-11" title="11">        <span class="va">self</span>.last_fixpoint <span class="op">=</span> x_t</a>
+<a class="sourceLine" id="cb9-12" title="12">        <span class="cf">return</span> x_t</a>
+<a class="sourceLine" id="cb9-13" title="13"></a>
+<a class="sourceLine" id="cb9-14" title="14">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</a>
+<a class="sourceLine" id="cb9-15" title="15">        x_t <span class="op">=</span> <span class="va">self</span>.last_fixpoint</a>
+<a class="sourceLine" id="cb9-16" title="16">        <span class="kw">def</span> _linear_utility_functional(phi):</a>
+<a class="sourceLine" id="cb9-17" title="17">            <span class="cf">return</span> np.dot(utility_vec, phi(x_t))</a>
+<a class="sourceLine" id="cb9-18" title="18">        <span class="va">self</span>.regret_learner.observe_utility(_linear_utility_functional)</a></code></pre></div>
+<p>where we assume <code>fixpoint</code> is a function that can deterministically get a fixed point of the function <span class="math inline">\(phi\in\Phi\)</span>. Furthermore, <span class="math inline">\(R^T=R^T_\Phi\)</span>, so <span class="math inline">\(\mathcal{R}_\Phi\)</span> has sublinear regret.</p>
+<p><em>Proof</em>: For a sequence <span class="math inline">\(\phi_1,\phi_2,...\)</span> output by <span class="math inline">\(\mathcal{R}\)</span> with utilities <span class="math inline">\(\phi\mapsto\langle\ell^1,\phi(x_1)\rangle,\phi\mapsto\langle\ell^2,\phi(x_2)\rangle,...\)</span> we have</p>
+<p><span class="math display">\[ R^T=\max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\langle\ell^t,\hat{\phi}(x_t)\rangle-\langle\ell^t,\phi_t(x_t)\rangle\right)\right\} \]</span></p>
+<p>As <span class="math inline">\(\phi_t(x_t)=x_t\)</span>, we get</p>
+<p><span class="math display">\[ R^T = \max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\langle\ell^t,\hat{\phi}(x_t)\rangle-\langle\ell^t,x_t\rangle\right)\right\} \]</span></p>
+<p>which is exactly <span class="math inline">\(R^T_\Phi\)</span>. <span class="math inline">\(\square\)</span>.</p>
+<p>As an application of this theorem, we will construct a no-swap regret learner for <span class="math inline">\(\Delta^n\)</span>. Recall that swap regret learning is the same as <span class="math inline">\(\Phi^\text{all}\)</span>-regret minimization, where</p>
+<p><span class="math display">\[ \Phi^\text{all} = \left\{\text{all linear functions }\Delta^n\to\Delta^n\right\} \]</span></p>
+<p>for <span class="math inline">\(\Delta^n = \left\{(x_1,...,x_n)\in\mathbf{R}^n_{\ge 0} : x_1 +...+ x_n = 1\right\}\)</span>. Note that a linear map <span class="math inline">\(f:\mathbf{R}^n\to\mathbf{R}^n\)</span> restricts to a map <span class="math inline">\(\Delta^n\to\Delta^n\)</span> if it sends the basis vectors <span class="math inline">\(\{e_1,...,e_n\}\)</span> to <span class="math inline">\(\{v_1,...,v_n\}\subset\Delta^n\)</span>. But <span class="math inline">\(v_i\in\Delta^n\)</span> implies that the matrix <span class="math inline">\(M\)</span> formed by the <span class="math inline">\(v_i\)</span>’s concatenated together as column vectors is <strong>(column)-stochastic</strong>, i.e. columns sum to 1 and is nonnegative.</p>
+<p>So in this case, <span class="math inline">\(f(x)=Mx\)</span> where <span class="math inline">\(M\)</span> is stochastic, so we can describe for the probability simplex case that</p>
+<p><span class="math display">\[ \Phi^\text{all} = \left\{M\in\mathbf{R}^{n\times n}_{\ge 0}: M\text{ is column-stochastic}\right\} \]</span></p>
     </section>
 </article>
 
