@@ -339,7 +339,7 @@ Regret matching will be a specific instance of a regret minimizer. Such decision
 
 ```python
 class RegretMatcher(RegretMinimizer):
-    def __init__(self, num_actions):
+    def __init__(self, num_actions: int):
         self.num_actions = num_actions
         self.regret_sum = np.zeros(num_actions)
         self.current_strategy = np.zeros(num_actions)
@@ -536,4 +536,303 @@ So in this case, $f(x)=Mx$ where $M$ is stochastic, so we can describe for the p
 
 $$ \Phi^\text{all} = \left\{M\in\mathbf{R}^{n\times n}_{\ge 0}: M\text{ is column-stochastic}\right\} $$
 
+Note that since each column in $M$ can be considered independently (we're not claiming that $f$ sends $\{e_1,...,e_n\}$ to linearly independent images) we have $\Phi^\text{all}\simeq\Delta^n\times\cdot\cdot\cdot\times\Delta^n$ where the product is taken $n$ times. We can get a regret minimizer for $\Phi^\text{all}$ then as an algebraic composition of $n$ regret matchers $\mathcal{R}_{\Delta^n}$, where theoretically
 
+$$ R^{\text{ext},T}_\Phi = n R^T_{\Delta^n} \le n\Omega\sqrt{T} $$
+
+for some constant $\Omega$. Therefore, $R^{\text{ext},T}_\Phi$ is sublinear.
+
+Following Gordon et al., to use the theorem we need each $M\in\Phi^\text{all}$ to have a fixed point. But $M:\Delta^n\to\Delta^n$ **must** have one by the [Brouwer fixed point theorem](https://en.wikipedia.org/wiki/Brouwer_fixed-point_theorem). Hence the theorem gives a $\Phi^\text{all}$-regret minimizer, i.e. a no-swap regret learner $\mathcal{R}_\Phi$ for $\Delta^n$:
+
+```python
+class SwapRegretMinimizer(RegretMinimizer):
+    def __init__(self, num_actions: int):
+        self.num_actions = num_actions
+        self.current_strategy = None
+        self.regret_matchers = [
+            RegretMatcher(num_actions)
+            for _ in range(num_actions)
+        ]
+
+    def next_strategy(self) -> np.ndarray:
+        simplex_vectors = []
+        for i in range(self.num_actions):
+            v_i = self.regret_matchers[i].next_strategy()
+            simplex_vectors.append(v_i)
+        # concat to form stochastic matrix
+        M = np.column_stack(simplex_vectors)
+        # get fixed point
+        x_t = fixpoint(M)
+        self.current_strategy = x_t
+        return x_t
+
+    def observe_utility(self, utility_vector: np.ndarray):
+        for i in range(self.num_actions):
+            simplex_util_vec = self.current_strategy[i] * utility_vector
+            self.regret_matchers[i].observe_utility(simplex_util_vec)
+```
+
+This algorithm agrees with the one presented by [Blum-Mansour](https://www.jmlr.org/papers/volume8/blum07a/blum07a.pdf).
+
+### counterfactual regret minimization
+
+We will now try to compute Nash equilibria of imperfect information zero-sum games in extensive form. At this point, the post is getting pretty long and I still think the [wikipedia](https://en.wikipedia.org/wiki/Extensive-form_game) page on extensive-form games is pretty good for defining the key terms.
+
+The main thing to keep in mind is that in imperfect information games, each player can be "occupying" multiple nodes simultaneously in a single turn, which represents their *uncertainty* of the stochastic state their opponent is in (e.g., what cards they are holding in a card game). Because of that, an "equivalence class" of nodes with respect to this uncertainty is an **information set**, and at any of the nodes in a given information set, we will have the same strategy (since at an information set, the player has no other information that can inform them which specific node they are at within that information set in the game tree).
+
+The main idea of counterfactual regret minimization is to consider the problem of regret minimization over the entire tree to be decomposed into a sequence of regret matching algorithms over each information set independently. We will then propagate probabilities and generated strategies down the tree, and propagate utility vectors and payoffs from each terminal state upwards to tune the internal states of our regret matchers.
+
+To illustrate the algorithm, we will implement it in the context of the game [Kuhn poker](https://en.wikipedia.org/wiki/Kuhn_poker), a simple example of an imperfect-information two-player zero-sum game. The presentation here follows and annotates the one of [Neller-Lanctot](http://modelai.gettysburg.edu/2013/cfr/cfr.pdf).
+
+<p align="center">
+  <img width="560" height="300" src="../images/kuhn-poker.png">
+</p>
+
+We start off by giving a minimal description of our game tree for Kuhn Poker. As we will build the information sets dynamically, we just need to have a mapping `node_set` from information sets to our "information nodes", which are regret minimizers for histories terminating at that information set.
+
+```python
+# kuhn poker definitions
+PASS = 0
+BET = 1
+NUM_ACTIONS = 2
+CARDS = ["J", "Q", "K"]
+
+node_map = {}
+```
+
+Counterfactual regret minimization assigns to every information set of the game an independent regret matcher, which we call an `InformationNode`. The purpose of this node is to produce (mixed) strategies for which action to pursue at the current information set, and to learn from its regrets to produce ever more optimal strategies.
+
+Although a true regret minimizer has an `observe_utility` method, we omit it and couple it more with the `cfr` function below in this implementation.
+
+```python
+class InformationNode:
+    info_set: str
+    
+    def __init__(self):
+        self.regret_sum = np.zeros(NUM_ACTIONS)
+        self.strategy = np.zeros(NUM_ACTIONS)
+        self.strategy_sum = np.zeros(NUM_ACTIONS)
+    
+    def get_strategy(self, realization_weight: float, threshold: float = 0.001) -> np.ndarray:
+        regrets = np.copy(self.regret_sum)
+        regrets[regrets < 0] = 0
+        normalizing_sum = np.sum(regrets)
+        
+        if normalizing_sum > 0:
+            strategy = regrets / normalizing_sum
+        else:
+            strategy = np.repeat(1.0 / NUM_ACTIONS, NUM_ACTIONS)
+            
+        # thresholding for stability
+        strategy[strategy < threshold] = 0
+        strategy /= np.sum(strategy)
+            
+        self.strategy = strategy
+        self.strategy_sum += realization_weight * strategy
+        return strategy
+    
+    def get_average_strategy(self) -> np.ndarray:
+        normalizing_sum = np.sum(self.strategy_sum)
+        if normalizing_sum > 0:
+            average_strategy = self.strategy_sum / normalizing_sum
+        else:
+            average_strategy = np.repeat(1.0 / NUM_ACTIONS, NUM_ACTIONS)
+        return average_strategy
+```
+
+Now we implement the CFR algorithm. The type of this function is given by
+
+```python
+def cfr(cards: list[str], history: str, p0: float, p1: float) -> float
+```
+
+(where here, `cards` is only a dependency because we are shuffling the cards via Fisher-Yates per training iteration, and then our handout of cards to each player is just via indexing).
+
+Parameters:
+* `history` is a string representation of the information set we are currently at. For example, we will represent player 1's information set of having a King and the player 0 already applying a bet to be `Kb`, while something like `Qpb` is an information set for player 0 where they are holding a Q, they passed and an opponent raised a bet.
+* `p0` is the probability that player 0 reaches `history` under the strategy profile $\sigma$. Mathematically this is represented by $\pi_0^\sigma(h)$ where $h$ is the `history`.
+* `p1` is the analogous probability for player 1, $\pi_1^\sigma(h)$.
+
+The function `cfr` returns the expected utility of the subgame of the game starting from the given `history`:
+
+$$ \operatorname{cfr}(\mathcal{C}, h, \pi^\sigma_0(h), \pi^\sigma_1(h)) = \sum_{z\in Z} \pi^\sigma(h, z)u_0(z) $$
+
+where $Z$ is the set of all terminal game histories, $\pi^\sigma(h, z)$ the probability of reaching $z$ from $h$ given the strategy profile $\sigma$, and $u_0$ is the terminal utility function for player 0.
+
+**Note:** In the literature, this is denoted $u_0(\sigma, I)$, where $I$ is an information set represented by this history $h$.
+
+This is important, and crucial for the recursion later on. Each training run will start the recursive process by making a call to `cfr(cards, "", 1, 1)`, where `history=""` means we are asking about the expected utility of the **entire** game.
+
+Since Kuhn Poker is very simple, from the `history` string we can determine which player's turn it is via
+
+```python
+players = len(history)
+player = plays % 2
+opponent = 1 - player
+```
+
+Since `cfr` is recursively defined by performing a walk along the game tree, we need to satisfy our base case by giving the terminal utility function $u_0(z)$.
+
+```python
+def better_card(player_card: str, opponent_card: str) -> bool:
+    values = {"J": 0, "Q": 1, "K": 2}
+    player_val, opponent_val = values[player_card], values[opponent_card]
+    return player_val > opponent_val
+
+def terminal_utility(history: str, player_card: str, opponent_card: str) -> (bool, float):
+    terminal_pass = history[-1] == 'p'
+    double_bet = history[-2:] == "bb"
+    is_player_card_higher = better_card(player_card, opponent_card)
+
+    if terminal_pass:
+        if history == "pp":
+            return True, 1 if is_player_card_higher else -1
+        else:
+            return True, 1
+    elif double_bet:
+        return True, 2 if is_player_card_higher else -2
+    else:
+        return False, 0
+```
+
+In our `cfr` function we return our terminal utilities as a base case:
+
+```python
+player_card = cards[player]
+opponent_card = cards[opponent]
+
+if plays > 1:
+    terminate, util = terminal_utility(history, player_card, opponent_card)
+    if terminate:
+        return util
+```
+
+If we're not in a terminal history, then we must be in an information set. We then grab the information node from the `node_set` mapping, or instantiate it if it doesn't exist.
+
+```python
+info_set = str(player_card) + history
+node = node_map.get(info_set)
+if node is None:
+    node = InformationNode()
+    node.info_set = info_set
+    node_map[info_set] = node
+```
+
+Here, the `info_set` is the string representation of the information set for the player (which includes which card they are holding).
+
+Now we reach the recursive `cfr` call for computing the expected utility $u_0(\sigma, I)$. Note that we can break down the expected utility at an information set into a weighted sum over utilities of "one-step-over" information sets
+
+$$ u_0(\sigma, I) = \sum_{a\in A(I)} \sigma(I)(a)u_0(\sigma, I\rightarrow a) $$
+
+where $a\in A(I)$ is an action in the set of actions at information set $I$, $\sigma(I)(a)$ is the probability of action $a$ taken in the strategy for information set $I$, and $I\rightarrow a$ the next information set reached when action $a$ is applied.
+
+In code:
+
+```python
+strategy = node.get_strategy(p0 if player == 0 else p1)
+util = np.zeros(NUM_ACTIONS)
+node_util = 0
+for a in range(NUM_ACTIONS):
+    next_history = history + ('p' if a == 0 else 'b')
+    if player == 0:
+        util[a] = -cfr(cards, next_history, p0 * strategy[a], p1)
+    else:
+        util[a] = -cfr(cards, next_history, p0, p1 * strategy[a])
+    node_util += strategy[a] * util[a]
+```
+
+Here, `strategy` is represented above by $\sigma(I)$, `util` is a vector where the `a`th entry is given by $u_0(\sigma, I\rightarrow a)$ and `node_util` is our final $u_0(\sigma, I)$. We note a slight subtlety comes in passing in the probability of reaching our history $\pi_i^\sigma(h)$ is being passed into `get_strategy` and ultimately multiplied by the distribution generated by the regret matcher. This is because $\sigma(I)(a)$ is the probability of the action $a$, unconditioned on whether we're at information set $I$! So it has to take the probability to getting to $I$ into account.
+
+The `node_util` that we get is the expected utility for the subgame that we want. However, counterfactual regret minimization is also an algorithm for training the regret matchers to produce better strategies, so we must also have a mechanism for generating a new strategy at each information set by factoring in the utilities passed backwards from each terminal node.
+
+The mechanism $cfr$ uses is that of **counterfactual regret**. Define $\pi_{-i}^\sigma(h)$ to be the **counterfactual reach probability**, the probability of reaching history $h$ with strategy profile $\sigma$ where we treat player $i$'s actions to reach $I$ with probability 1. That is, $\pi^\sigma_{-i}(h)$ is the product 
+
+$$ \pi^\sigma_{-i}(h) = \prod_{j\neq i} \pi^\sigma_{j}(h) $$
+
+Then the counterfactual regret of not taking action $a$ at information set $I$ is given by
+
+$$ r(h, a) = \pi^\sigma_{-i}(I) \left(u_i(\sigma, I\rightarrow a) - u_i(\sigma, I)\right) $$
+
+In our implementation this is given by
+
+```python
+regret = util - node_util
+counterfactual_reach_prob = p1 if player == 0 else p0
+node.regret_sum += counterfactual_reach_prob * regret
+```
+
+In totality,
+
+```python
+def cfr(cards: list[int], history: str, p0: float, p1: float) -> float:
+    plays = len(history)
+    player = plays % 2
+    opponent = 1 - player
+    
+    # terminal payoff
+    player_card = cards[player]
+    opponent_card = cards[opponent]
+
+    if plays > 1:
+        terminate, util = terminal_utility(history, player_card, opponent_card)
+        if terminate:
+            return util
+        
+    info_set = str(player_card) + history
+    node = node_map.get(info_set)
+    if node is None:
+        node = InformationNode()
+        node.info_set = info_set
+        node_map[info_set] = node
+        
+    # recursive call to cfr with more history
+    # get strategy for information set
+    strategy = node.get_strategy(p0 if player == 0 else p1)
+    util = np.zeros(NUM_ACTIONS)
+    node_util = 0
+    for a in range(NUM_ACTIONS):
+        next_history = history + ('p' if a == 0 else 'b')
+        if player == 0:
+            util[a] = -cfr(cards, next_history, p0 * strategy[a], p1)
+        else:
+            util[a] = -cfr(cards, next_history, p0, p1 * strategy[a])
+        node_util += strategy[a] * util[a]
+        
+    # counterfactual regrets
+    regret = util - node_util
+    counterfactual_reach_prob = p1 if player == 0 else p0
+    node.regret_sum += counterfactual_reach_prob * regret
+    node_map[info_set] = node
+
+    return node_util
+```
+
+To train our regret minimizers, we run an iteration loop via
+
+```python
+def train(iterations: int):
+    util = 0
+    for i in range(iterations):
+        # fisher-yates shuffle
+        for c1 in range(len(CARDS) - 1, 0, -1):
+            c2 = random.randint(a=0, b=c1)
+            CARDS[c1], CARDS[c2] = CARDS[c2], CARDS[c1]
+
+        util += cfr(CARDS, "", 1, 1)
+
+    avg_game_value = util / iterations
+    return avg_game_value
+```
+
+If we run this for Kuhn poker, we get
+
+```bash
+> train(100000)
+-0.05834981887437761
+```
+
+So we get an average game value of $\simeq -0.05$, which is the theoretical value for the game at Nash equilibrium.
+
+### conclusion
+
+I should write a conclusion here.
