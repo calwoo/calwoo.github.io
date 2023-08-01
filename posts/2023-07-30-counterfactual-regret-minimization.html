@@ -225,7 +225,7 @@ GO   | (1, 0) | (-100, -100) |
 <a class="sourceLine" id="cb3-10" title="10">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a></code></pre></div>
 <p>Regret matching will be a specific instance of a regret minimizer. Such decision-generating agents have some internal state that allows it to update its strategies over time (i.e. learning). At time 0, for regret matching we set a cumulative <em>regret</em> vector <span class="math inline">\(r_0\in\mathbf{R}^n\)</span> to <span class="math inline">\(\mathbf{0}\)</span> and we set an initial (uniform) strategy <span class="math inline">\(x_0=\left(\frac{1}{n},...,\frac{1}{n}\right)\in\mathbf{R}^n\)</span> where <span class="math inline">\(n\)</span> here is the number of actions <span class="math inline">\(|\mathcal{X}|\)</span> the agent following this strategy can make.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> RegretMatcher(RegretMinimizer):</a>
-<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions):</a>
+<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</a>
 <a class="sourceLine" id="cb4-3" title="3">        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</a>
 <a class="sourceLine" id="cb4-4" title="4">        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(num_actions)</a>
 <a class="sourceLine" id="cb4-5" title="5">        <span class="va">self</span>.current_strategy <span class="op">=</span> np.zeros(num_actions)</a>
@@ -358,6 +358,221 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <p>for <span class="math inline">\(\Delta^n = \left\{(x_1,...,x_n)\in\mathbf{R}^n_{\ge 0} : x_1 +...+ x_n = 1\right\}\)</span>. Note that a linear map <span class="math inline">\(f:\mathbf{R}^n\to\mathbf{R}^n\)</span> restricts to a map <span class="math inline">\(\Delta^n\to\Delta^n\)</span> if it sends the basis vectors <span class="math inline">\(\{e_1,...,e_n\}\)</span> to <span class="math inline">\(\{v_1,...,v_n\}\subset\Delta^n\)</span>. But <span class="math inline">\(v_i\in\Delta^n\)</span> implies that the matrix <span class="math inline">\(M\)</span> formed by the <span class="math inline">\(v_i\)</span>’s concatenated together as column vectors is <strong>(column)-stochastic</strong>, i.e. columns sum to 1 and is nonnegative.</p>
 <p>So in this case, <span class="math inline">\(f(x)=Mx\)</span> where <span class="math inline">\(M\)</span> is stochastic, so we can describe for the probability simplex case that</p>
 <p><span class="math display">\[ \Phi^\text{all} = \left\{M\in\mathbf{R}^{n\times n}_{\ge 0}: M\text{ is column-stochastic}\right\} \]</span></p>
+<p>Note that since each column in <span class="math inline">\(M\)</span> can be considered independently (we’re not claiming that <span class="math inline">\(f\)</span> sends <span class="math inline">\(\{e_1,...,e_n\}\)</span> to linearly independent images) we have <span class="math inline">\(\Phi^\text{all}\simeq\Delta^n\times\cdot\cdot\cdot\times\Delta^n\)</span> where the product is taken <span class="math inline">\(n\)</span> times. We can get a regret minimizer for <span class="math inline">\(\Phi^\text{all}\)</span> then as an algebraic composition of <span class="math inline">\(n\)</span> regret matchers <span class="math inline">\(\mathcal{R}_{\Delta^n}\)</span>, where theoretically</p>
+<p><span class="math display">\[ R^{\text{ext},T}_\Phi = n R^T_{\Delta^n} \le n\Omega\sqrt{T} \]</span></p>
+<p>for some constant <span class="math inline">\(\Omega\)</span>. Therefore, <span class="math inline">\(R^{\text{ext},T}_\Phi\)</span> is sublinear.</p>
+<p>Following Gordon et al., to use the theorem we need each <span class="math inline">\(M\in\Phi^\text{all}\)</span> to have a fixed point. But <span class="math inline">\(M:\Delta^n\to\Delta^n\)</span> <strong>must</strong> have one by the <a href="https://en.wikipedia.org/wiki/Brouwer_fixed-point_theorem">Brouwer fixed point theorem</a>. Hence the theorem gives a <span class="math inline">\(\Phi^\text{all}\)</span>-regret minimizer, i.e. a no-swap regret learner <span class="math inline">\(\mathcal{R}_\Phi\)</span> for <span class="math inline">\(\Delta^n\)</span>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">class</span> SwapRegretMinimizer(RegretMinimizer):</a>
+<a class="sourceLine" id="cb10-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</a>
+<a class="sourceLine" id="cb10-3" title="3">        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</a>
+<a class="sourceLine" id="cb10-4" title="4">        <span class="va">self</span>.current_strategy <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb10-5" title="5">        <span class="va">self</span>.regret_matchers <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb10-6" title="6">            RegretMatcher(num_actions)</a>
+<a class="sourceLine" id="cb10-7" title="7">            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_actions)</a>
+<a class="sourceLine" id="cb10-8" title="8">        ]</a>
+<a class="sourceLine" id="cb10-9" title="9"></a>
+<a class="sourceLine" id="cb10-10" title="10">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb10-11" title="11">        simplex_vectors <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb10-12" title="12">        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</a>
+<a class="sourceLine" id="cb10-13" title="13">            v_i <span class="op">=</span> <span class="va">self</span>.regret_matchers[i].next_strategy()</a>
+<a class="sourceLine" id="cb10-14" title="14">            simplex_vectors.append(v_i)</a>
+<a class="sourceLine" id="cb10-15" title="15">        <span class="co"># concat to form stochastic matrix</span></a>
+<a class="sourceLine" id="cb10-16" title="16">        M <span class="op">=</span> np.column_stack(simplex_vectors)</a>
+<a class="sourceLine" id="cb10-17" title="17">        <span class="co"># get fixed point</span></a>
+<a class="sourceLine" id="cb10-18" title="18">        x_t <span class="op">=</span> fixpoint(M)</a>
+<a class="sourceLine" id="cb10-19" title="19">        <span class="va">self</span>.current_strategy <span class="op">=</span> x_t</a>
+<a class="sourceLine" id="cb10-20" title="20">        <span class="cf">return</span> x_t</a>
+<a class="sourceLine" id="cb10-21" title="21"></a>
+<a class="sourceLine" id="cb10-22" title="22">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
+<a class="sourceLine" id="cb10-23" title="23">        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</a>
+<a class="sourceLine" id="cb10-24" title="24">            simplex_util_vec <span class="op">=</span> <span class="va">self</span>.current_strategy[i] <span class="op">*</span> utility_vector</a>
+<a class="sourceLine" id="cb10-25" title="25">            <span class="va">self</span>.regret_matchers[i].observe_utility(simplex_util_vec)</a></code></pre></div>
+<p>This algorithm agrees with the one presented by <a href="https://www.jmlr.org/papers/volume8/blum07a/blum07a.pdf">Blum-Mansour</a>.</p>
+<h3 id="counterfactual-regret-minimization">counterfactual regret minimization</h3>
+<p>We will now try to compute Nash equilibria of imperfect information zero-sum games in extensive form. At this point, the post is getting pretty long and I still think the <a href="https://en.wikipedia.org/wiki/Extensive-form_game">wikipedia</a> page on extensive-form games is pretty good for defining the key terms.</p>
+<p>The main thing to keep in mind is that in imperfect information games, each player can be “occupying” multiple nodes simultaneously in a single turn, which represents their <em>uncertainty</em> of the stochastic state their opponent is in (e.g., what cards they are holding in a card game). Because of that, an “equivalence class” of nodes with respect to this uncertainty is an <strong>information set</strong>, and at any of the nodes in a given information set, we will have the same strategy (since at an information set, the player has no other information that can inform them which specific node they are at within that information set in the game tree).</p>
+<p>The main idea of counterfactual regret minimization is to consider the problem of regret minimization over the entire tree to be decomposed into a sequence of regret matching algorithms over each information set independently. We will then propagate probabilities and generated strategies down the tree, and propagate utility vectors and payoffs from each terminal state upwards to tune the internal states of our regret matchers.</p>
+<p>To illustrate the algorithm, we will implement it in the context of the game <a href="https://en.wikipedia.org/wiki/Kuhn_poker">Kuhn poker</a>, a simple example of an imperfect-information two-player zero-sum game. The presentation here follows and annotates the one of <a href="http://modelai.gettysburg.edu/2013/cfr/cfr.pdf">Neller-Lanctot</a>.</p>
+<p align="center">
+<img width="560" height="300" src="../images/kuhn-poker.png">
+</p>
+<p>We start off by giving a minimal description of our game tree for Kuhn Poker. As we will build the information sets dynamically, we just need to have a mapping <code>node_set</code> from information sets to our “information nodes”, which are regret minimizers for histories terminating at that information set.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># kuhn poker definitions</span></a>
+<a class="sourceLine" id="cb11-2" title="2">PASS <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb11-3" title="3">BET <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb11-4" title="4">NUM_ACTIONS <span class="op">=</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb11-5" title="5">CARDS <span class="op">=</span> [<span class="st">&quot;J&quot;</span>, <span class="st">&quot;Q&quot;</span>, <span class="st">&quot;K&quot;</span>]</a>
+<a class="sourceLine" id="cb11-6" title="6"></a>
+<a class="sourceLine" id="cb11-7" title="7">node_map <span class="op">=</span> {}</a></code></pre></div>
+<p>Counterfactual regret minimization assigns to every information set of the game an independent regret matcher, which we call an <code>InformationNode</code>. The purpose of this node is to produce (mixed) strategies for which action to pursue at the current information set, and to learn from its regrets to produce ever more optimal strategies.</p>
+<p>Although a true regret minimizer has an <code>observe_utility</code> method, we omit it and couple it more with the <code>cfr</code> function below in this implementation.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">class</span> InformationNode:</a>
+<a class="sourceLine" id="cb12-2" title="2">    info_set: <span class="bu">str</span></a>
+<a class="sourceLine" id="cb12-3" title="3">    </a>
+<a class="sourceLine" id="cb12-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb12-5" title="5">        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb12-6" title="6">        <span class="va">self</span>.strategy <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb12-7" title="7">        <span class="va">self</span>.strategy_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb12-8" title="8">    </a>
+<a class="sourceLine" id="cb12-9" title="9">    <span class="kw">def</span> get_strategy(<span class="va">self</span>, realization_weight: <span class="bu">float</span>, threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.001</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb12-10" title="10">        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</a>
+<a class="sourceLine" id="cb12-11" title="11">        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb12-12" title="12">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</a>
+<a class="sourceLine" id="cb12-13" title="13">        </a>
+<a class="sourceLine" id="cb12-14" title="14">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb12-15" title="15">            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</a>
+<a class="sourceLine" id="cb12-16" title="16">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb12-17" title="17">            strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb12-18" title="18">            </a>
+<a class="sourceLine" id="cb12-19" title="19">        <span class="co"># thresholding for stability</span></a>
+<a class="sourceLine" id="cb12-20" title="20">        strategy[strategy <span class="op">&lt;</span> threshold] <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb12-21" title="21">        strategy <span class="op">/=</span> np.<span class="bu">sum</span>(strategy)</a>
+<a class="sourceLine" id="cb12-22" title="22">            </a>
+<a class="sourceLine" id="cb12-23" title="23">        <span class="va">self</span>.strategy <span class="op">=</span> strategy</a>
+<a class="sourceLine" id="cb12-24" title="24">        <span class="va">self</span>.strategy_sum <span class="op">+=</span> realization_weight <span class="op">*</span> strategy</a>
+<a class="sourceLine" id="cb12-25" title="25">        <span class="cf">return</span> strategy</a>
+<a class="sourceLine" id="cb12-26" title="26">    </a>
+<a class="sourceLine" id="cb12-27" title="27">    <span class="kw">def</span> get_average_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb12-28" title="28">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.strategy_sum)</a>
+<a class="sourceLine" id="cb12-29" title="29">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb12-30" title="30">            average_strategy <span class="op">=</span> <span class="va">self</span>.strategy_sum <span class="op">/</span> normalizing_sum</a>
+<a class="sourceLine" id="cb12-31" title="31">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb12-32" title="32">            average_strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb12-33" title="33">        <span class="cf">return</span> average_strategy</a></code></pre></div>
+<p>Now we implement the CFR algorithm. The type of this function is given by</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">str</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span></a></code></pre></div>
+<p>(where here, <code>cards</code> is only a dependency because we are shuffling the cards via Fisher-Yates per training iteration, and then our handout of cards to each player is just via indexing).</p>
+<p>Parameters: * <code>history</code> is a string representation of the information set we are currently at. For example, we will represent player 1’s information set of having a King and the player 0 already applying a bet to be <code>Kb</code>, while something like <code>Qpb</code> is an information set for player 0 where they are holding a Q, they passed and an opponent raised a bet. * <code>p0</code> is the probability that player 0 reaches <code>history</code> under the strategy profile <span class="math inline">\(\sigma\)</span>. Mathematically this is represented by <span class="math inline">\(\pi_0^\sigma(h)\)</span> where <span class="math inline">\(h\)</span> is the <code>history</code>. * <code>p1</code> is the analogous probability for player 1, <span class="math inline">\(\pi_1^\sigma(h)\)</span>.</p>
+<p>The function <code>cfr</code> returns the expected utility of the subgame of the game starting from the given <code>history</code>:</p>
+<p><span class="math display">\[ \operatorname{cfr}(\mathcal{C}, h, \pi^\sigma_0(h), \pi^\sigma_1(h)) = \sum_{z\in Z} \pi^\sigma(h, z)u_0(z) \]</span></p>
+<p>where <span class="math inline">\(Z\)</span> is the set of all terminal game histories, <span class="math inline">\(\pi^\sigma(h, z)\)</span> the probability of reaching <span class="math inline">\(z\)</span> from <span class="math inline">\(h\)</span> given the strategy profile <span class="math inline">\(\sigma\)</span>, and <span class="math inline">\(u_0\)</span> is the terminal utility function for player 0.</p>
+<p><strong>Note:</strong> In the literature, this is denoted <span class="math inline">\(u_0(\sigma, I)\)</span>, where <span class="math inline">\(I\)</span> is an information set represented by this history <span class="math inline">\(h\)</span>.</p>
+<p>This is important, and crucial for the recursion later on. Each training run will start the recursive process by making a call to <code>cfr(cards, &quot;&quot;, 1, 1)</code>, where <code>history=&quot;&quot;</code> means we are asking about the expected utility of the <strong>entire</strong> game.</p>
+<p>Since Kuhn Poker is very simple, from the <code>history</code> string we can determine which player’s turn it is via</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">players <span class="op">=</span> <span class="bu">len</span>(history)</a>
+<a class="sourceLine" id="cb14-2" title="2">player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb14-3" title="3">opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</a></code></pre></div>
+<p>Since <code>cfr</code> is recursively defined by performing a walk along the game tree, we need to satisfy our base case by giving the terminal utility function <span class="math inline">\(u_0(z)\)</span>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">def</span> better_card(player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</a>
+<a class="sourceLine" id="cb15-2" title="2">    values <span class="op">=</span> {<span class="st">&quot;J&quot;</span>: <span class="dv">0</span>, <span class="st">&quot;Q&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;K&quot;</span>: <span class="dv">2</span>}</a>
+<a class="sourceLine" id="cb15-3" title="3">    player_val, opponent_val <span class="op">=</span> values[player_card], values[opponent_card]</a>
+<a class="sourceLine" id="cb15-4" title="4">    <span class="cf">return</span> player_val <span class="op">&gt;</span> opponent_val</a>
+<a class="sourceLine" id="cb15-5" title="5"></a>
+<a class="sourceLine" id="cb15-6" title="6"><span class="kw">def</span> terminal_utility(history: <span class="bu">str</span>, player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> (<span class="bu">bool</span>, <span class="bu">float</span>):</a>
+<a class="sourceLine" id="cb15-7" title="7">    terminal_pass <span class="op">=</span> history[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="st">'p'</span></a>
+<a class="sourceLine" id="cb15-8" title="8">    double_bet <span class="op">=</span> history[<span class="op">-</span><span class="dv">2</span>:] <span class="op">==</span> <span class="st">&quot;bb&quot;</span></a>
+<a class="sourceLine" id="cb15-9" title="9">    is_player_card_higher <span class="op">=</span> better_card(player_card, opponent_card)</a>
+<a class="sourceLine" id="cb15-10" title="10"></a>
+<a class="sourceLine" id="cb15-11" title="11">    <span class="cf">if</span> terminal_pass:</a>
+<a class="sourceLine" id="cb15-12" title="12">        <span class="cf">if</span> history <span class="op">==</span> <span class="st">&quot;pp&quot;</span>:</a>
+<a class="sourceLine" id="cb15-13" title="13">            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="dv">-1</span></a>
+<a class="sourceLine" id="cb15-14" title="14">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb15-15" title="15">            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span></a>
+<a class="sourceLine" id="cb15-16" title="16">    <span class="cf">elif</span> double_bet:</a>
+<a class="sourceLine" id="cb15-17" title="17">        <span class="cf">return</span> <span class="va">True</span>, <span class="dv">2</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="dv">-2</span></a>
+<a class="sourceLine" id="cb15-18" title="18">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb15-19" title="19">        <span class="cf">return</span> <span class="va">False</span>, <span class="dv">0</span></a></code></pre></div>
+<p>In our <code>cfr</code> function we return our terminal utilities as a base case:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1">player_card <span class="op">=</span> cards[player]</a>
+<a class="sourceLine" id="cb16-2" title="2">opponent_card <span class="op">=</span> cards[opponent]</a>
+<a class="sourceLine" id="cb16-3" title="3"></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb16-5" title="5">    terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</a>
+<a class="sourceLine" id="cb16-6" title="6">    <span class="cf">if</span> terminate:</a>
+<a class="sourceLine" id="cb16-7" title="7">        <span class="cf">return</span> util</a></code></pre></div>
+<p>If we’re not in a terminal history, then we must be in an information set. We then grab the information node from the <code>node_set</code> mapping, or instantiate it if it doesn’t exist.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1">info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</a>
+<a class="sourceLine" id="cb17-2" title="2">node <span class="op">=</span> node_map.get(info_set)</a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb17-4" title="4">    node <span class="op">=</span> InformationNode()</a>
+<a class="sourceLine" id="cb17-5" title="5">    node.info_set <span class="op">=</span> info_set</a>
+<a class="sourceLine" id="cb17-6" title="6">    node_map[info_set] <span class="op">=</span> node</a></code></pre></div>
+<p>Here, the <code>info_set</code> is the string representation of the information set for the player (which includes which card they are holding).</p>
+<p>Now we reach the recursive <code>cfr</code> call for computing the expected utility <span class="math inline">\(u_0(\sigma, I)\)</span>. Note that we can break down the expected utility at an information set into a weighted sum over utilities of “one-step-over” information sets</p>
+<p><span class="math display">\[ u_0(\sigma, I) = \sum_{a\in A(I)} \sigma(I)(a)u_0(\sigma, I\rightarrow a) \]</span></p>
+<p>where <span class="math inline">\(a\in A(I)\)</span> is an action in the set of actions at information set <span class="math inline">\(I\)</span>, <span class="math inline">\(\sigma(I)(a)\)</span> is the probability of action <span class="math inline">\(a\)</span> taken in the strategy for information set <span class="math inline">\(I\)</span>, and <span class="math inline">\(I\rightarrow a\)</span> the next information set reached when action <span class="math inline">\(a\)</span> is applied.</p>
+<p>In code:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1">strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</a>
+<a class="sourceLine" id="cb18-2" title="2">util <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb18-3" title="3">node_util <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</a>
+<a class="sourceLine" id="cb18-5" title="5">    next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</a>
+<a class="sourceLine" id="cb18-6" title="6">    <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb18-7" title="7">        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</a>
+<a class="sourceLine" id="cb18-8" title="8">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb18-9" title="9">        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</a>
+<a class="sourceLine" id="cb18-10" title="10">    node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</a></code></pre></div>
+<p>Here, <code>strategy</code> is represented above by <span class="math inline">\(\sigma(I)\)</span>, <code>util</code> is a vector where the <code>a</code>th entry is given by <span class="math inline">\(u_0(\sigma, I\rightarrow a)\)</span> and <code>node_util</code> is our final <span class="math inline">\(u_0(\sigma, I)\)</span>. We note a slight subtlety comes in passing in the probability of reaching our history <span class="math inline">\(\pi_i^\sigma(h)\)</span> is being passed into <code>get_strategy</code> and ultimately multiplied by the distribution generated by the regret matcher. This is because <span class="math inline">\(\sigma(I)(a)\)</span> is the probability of the action <span class="math inline">\(a\)</span>, unconditioned on whether we’re at information set <span class="math inline">\(I\)</span>! So it has to take the probability to getting to <span class="math inline">\(I\)</span> into account.</p>
+<p>The <code>node_util</code> that we get is the expected utility for the subgame that we want. However, counterfactual regret minimization is also an algorithm for training the regret matchers to produce better strategies, so we must also have a mechanism for generating a new strategy at each information set by factoring in the utilities passed backwards from each terminal node.</p>
+<p>The mechanism <span class="math inline">\(cfr\)</span> uses is that of <strong>counterfactual regret</strong>. Define <span class="math inline">\(\pi_{-i}^\sigma(h)\)</span> to be the <strong>counterfactual reach probability</strong>, the probability of reaching history <span class="math inline">\(h\)</span> with strategy profile <span class="math inline">\(\sigma\)</span> where we treat player <span class="math inline">\(i\)</span>’s actions to reach <span class="math inline">\(I\)</span> with probability 1. That is, <span class="math inline">\(\pi^\sigma_{-i}(h)\)</span> is the product</p>
+<p><span class="math display">\[ \pi^\sigma_{-i}(h) = \prod_{j\neq i} \pi^\sigma_{j}(h) \]</span></p>
+<p>Then the counterfactual regret of not taking action <span class="math inline">\(a\)</span> at information set <span class="math inline">\(I\)</span> is given by</p>
+<p><span class="math display">\[ r(h, a) = \pi^\sigma_{-i}(I) \left(u_i(\sigma, I\rightarrow a) - u_i(\sigma, I)\right) \]</span></p>
+<p>In our implementation this is given by</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">regret <span class="op">=</span> util <span class="op">-</span> node_util</a>
+<a class="sourceLine" id="cb19-2" title="2">counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</a>
+<a class="sourceLine" id="cb19-3" title="3">node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</a></code></pre></div>
+<p>In totality,</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">int</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</a>
+<a class="sourceLine" id="cb20-2" title="2">    plays <span class="op">=</span> <span class="bu">len</span>(history)</a>
+<a class="sourceLine" id="cb20-3" title="3">    player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb20-4" title="4">    opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</a>
+<a class="sourceLine" id="cb20-5" title="5">    </a>
+<a class="sourceLine" id="cb20-6" title="6">    <span class="co"># terminal payoff</span></a>
+<a class="sourceLine" id="cb20-7" title="7">    player_card <span class="op">=</span> cards[player]</a>
+<a class="sourceLine" id="cb20-8" title="8">    opponent_card <span class="op">=</span> cards[opponent]</a>
+<a class="sourceLine" id="cb20-9" title="9"></a>
+<a class="sourceLine" id="cb20-10" title="10">    <span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb20-11" title="11">        terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</a>
+<a class="sourceLine" id="cb20-12" title="12">        <span class="cf">if</span> terminate:</a>
+<a class="sourceLine" id="cb20-13" title="13">            <span class="cf">return</span> util</a>
+<a class="sourceLine" id="cb20-14" title="14">        </a>
+<a class="sourceLine" id="cb20-15" title="15">    info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</a>
+<a class="sourceLine" id="cb20-16" title="16">    node <span class="op">=</span> node_map.get(info_set)</a>
+<a class="sourceLine" id="cb20-17" title="17">    <span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb20-18" title="18">        node <span class="op">=</span> InformationNode()</a>
+<a class="sourceLine" id="cb20-19" title="19">        node.info_set <span class="op">=</span> info_set</a>
+<a class="sourceLine" id="cb20-20" title="20">        node_map[info_set] <span class="op">=</span> node</a>
+<a class="sourceLine" id="cb20-21" title="21">        </a>
+<a class="sourceLine" id="cb20-22" title="22">    <span class="co"># recursive call to cfr with more history</span></a>
+<a class="sourceLine" id="cb20-23" title="23">    <span class="co"># get strategy for information set</span></a>
+<a class="sourceLine" id="cb20-24" title="24">    strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</a>
+<a class="sourceLine" id="cb20-25" title="25">    util <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
+<a class="sourceLine" id="cb20-26" title="26">    node_util <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb20-27" title="27">    <span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</a>
+<a class="sourceLine" id="cb20-28" title="28">        next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</a>
+<a class="sourceLine" id="cb20-29" title="29">        <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb20-30" title="30">            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</a>
+<a class="sourceLine" id="cb20-31" title="31">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb20-32" title="32">            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</a>
+<a class="sourceLine" id="cb20-33" title="33">        node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</a>
+<a class="sourceLine" id="cb20-34" title="34">        </a>
+<a class="sourceLine" id="cb20-35" title="35">    <span class="co"># counterfactual regrets</span></a>
+<a class="sourceLine" id="cb20-36" title="36">    regret <span class="op">=</span> util <span class="op">-</span> node_util</a>
+<a class="sourceLine" id="cb20-37" title="37">    counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</a>
+<a class="sourceLine" id="cb20-38" title="38">    node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</a>
+<a class="sourceLine" id="cb20-39" title="39">    node_map[info_set] <span class="op">=</span> node</a>
+<a class="sourceLine" id="cb20-40" title="40"></a>
+<a class="sourceLine" id="cb20-41" title="41">    <span class="cf">return</span> node_util</a></code></pre></div>
+<p>To train our regret minimizers, we run an iteration loop via</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">def</span> train(iterations: <span class="bu">int</span>):</a>
+<a class="sourceLine" id="cb21-2" title="2">    util <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb21-3" title="3">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(iterations):</a>
+<a class="sourceLine" id="cb21-4" title="4">        <span class="co"># fisher-yates shuffle</span></a>
+<a class="sourceLine" id="cb21-5" title="5">        <span class="cf">for</span> c1 <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(CARDS) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">-1</span>):</a>
+<a class="sourceLine" id="cb21-6" title="6">            c2 <span class="op">=</span> random.randint(a<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span>c1)</a>
+<a class="sourceLine" id="cb21-7" title="7">            CARDS[c1], CARDS[c2] <span class="op">=</span> CARDS[c2], CARDS[c1]</a>
+<a class="sourceLine" id="cb21-8" title="8"></a>
+<a class="sourceLine" id="cb21-9" title="9">        util <span class="op">+=</span> cfr(CARDS, <span class="st">&quot;&quot;</span>, <span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb21-10" title="10"></a>
+<a class="sourceLine" id="cb21-11" title="11">    avg_game_value <span class="op">=</span> util <span class="op">/</span> iterations</a>
+<a class="sourceLine" id="cb21-12" title="12">    <span class="cf">return</span> avg_game_value</a></code></pre></div>
+<p>If we run this for Kuhn poker, we get</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="op">&gt;</span> <span class="ex">train</span>(100000)</a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="ex">-0.05834981887437761</span></a></code></pre></div>
+<p>So we get an average game value of <span class="math inline">\(\simeq -0.05\)</span>, which is the theoretical value for the game at Nash equilibrium.</p>
+<h3 id="conclusion">conclusion</h3>
+<p>I should write a conclusion here.</p>
     </section>
 </article>
 
