@@ -1,0 +1,40 @@
+---
+title: Online learning and FoReL
+author: Calvin
+---
+
+**Note: This blog post is still a rough draft. Read on with caution.**
+
+In part 2 of our unthemed dive into the reinforcement learning literature, we will be taking a look at online (convex) optimization and some reinforcement learning algorithms that came out of it, applied to imperfect-information zero-sum games.
+
+The last post focused on counterfactual regret minimization, which was also an online algorithm for choosing the optimal strategies for an agent. The success of counterfactual regret minimization came from its strong theoretical guarantees of sublinear regret growth, along with its generality. As such, it seems fitting to start with a general overview of the ideas behind online optimization and see what other ideas came out of it that could be fruitful for future AIs.
+
+### online learning
+
+In machine learning, online learning is the process of continuously adapting and making decisions from streams of information: at each point in a time $t$, an online learning algorithm is given an informational signal $x_t$ from a space $\mathcal{X}$, and decides on an action $a_t\in\mathcal{A}$ to perform. After their decision, the environment/opponent chooses a loss function $\ell^t$ and causes the agent to suffer a loss $\ell^t(x_t, a_t)$. The algorithm learns from this loss and updates its processes for the next time.
+
+```python
+for _ in range(num_timesteps):
+    signal_t = env.receive_signal()
+    action_t = learner.decide(signal_t)
+    loss_t = env.receive_loss()
+    loss = loss_t(signal_t, action_t)
+    learner.suffer(loss)
+```
+
+The goal of the learner is to minimize their **regret**
+
+$$ R^T = \max_{a^*\in\mathcal{A}}\left\{\sum_{t=1}^T\ell^t(x_t, a^*)\right\} - \sum_{t=1}^T\ell^t(x_t, a_t) $$
+
+We call such an online learning setting **learnable** if we can achieve sublinear regret in $T$. 
+
+A special case that we will focus on is the setting of **online convex optimization**. Here, we receive **no** signals $x_t$ from the environment, and instead our "actions" will be points in a convex domain $a_t\in\mathcal{K}$. The loss here will be given by an arbitrary convex function $f_t$, and so the goal of our convex optimizer is to minimize the regret term
+
+$$ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=1}^T f_t(a_t) $$
+
+Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.
+
+### convexity primer
+
+First, we give a brief primer to notions of convexity in mathematics. 
+
