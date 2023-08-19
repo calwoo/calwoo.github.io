@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Online learning and FoReL - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../archive.html">Archive</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>Online learning and FoReL</h1>
+            <article>
+    <section class="header">
+        Posted on August 16, 2023
+        
+            by Calvin
+        
+    </section>
+    <section>
+        <p><strong>Note: This blog post is still a rough draft. Read on with caution.</strong></p>
+<p>In part 2 of our unthemed dive into the reinforcement learning literature, we will be taking a look at online (convex) optimization and some reinforcement learning algorithms that came out of it, applied to imperfect-information zero-sum games.</p>
+<p>The last post focused on counterfactual regret minimization, which was also an online algorithm for choosing the optimal strategies for an agent. The success of counterfactual regret minimization came from its strong theoretical guarantees of sublinear regret growth, along with its generality. As such, it seems fitting to start with a general overview of the ideas behind online optimization and see what other ideas came out of it that could be fruitful for future AIs.</p>
+<h3 id="online-learning">online learning</h3>
+<p>In machine learning, online learning is the process of continuously adapting and making decisions from streams of information: at each point in a time <span class="math inline">\(t\)</span>, an online learning algorithm is given an informational signal <span class="math inline">\(x_t\)</span> from a space <span class="math inline">\(\mathcal{X}\)</span>, and decides on an action <span class="math inline">\(a_t\in\mathcal{A}\)</span> to perform. After their decision, the environment/opponent chooses a loss function <span class="math inline">\(\ell^t\)</span> and causes the agent to suffer a loss <span class="math inline">\(\ell^t(x_t, a_t)\)</span>. The algorithm learns from this loss and updates its processes for the next time.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</a>
+<a class="sourceLine" id="cb1-2" title="2">    signal_t <span class="op">=</span> env.receive_signal()</a>
+<a class="sourceLine" id="cb1-3" title="3">    action_t <span class="op">=</span> learner.decide(signal_t)</a>
+<a class="sourceLine" id="cb1-4" title="4">    loss_t <span class="op">=</span> env.receive_loss()</a>
+<a class="sourceLine" id="cb1-5" title="5">    loss <span class="op">=</span> loss_t(signal_t, action_t)</a>
+<a class="sourceLine" id="cb1-6" title="6">    learner.suffer(loss)</a></code></pre></div>
+<p>The goal of the learner is to minimize their <strong>regret</strong></p>
+<p><span class="math display">\[ R^T = \max_{a^*\in\mathcal{A}}\left\{\sum_{t=1}^T\ell^t(x_t, a^*)\right\} - \sum_{t=1}^T\ell^t(x_t, a_t) \]</span></p>
+<p>We call such an online learning setting <strong>learnable</strong> if we can achieve sublinear regret in <span class="math inline">\(T\)</span>.</p>
+<p>Let us give a vibe for the field with an example. Consider the <span class="math inline">\(n\)</span>-<em>expert opinion</em> setting, where we at each time step we are trying to perform a binary action, i.e. <span class="math inline">\(a_t\in\mathcal{A}=\{0, 1\}\)</span>. To inform us on what action to take, we listen to <span class="math inline">\(n\)</span> “experts”, which in our setting is a vector of 0’s and 1’s <span class="math inline">\(x_t\in\mathcal{X}=\{0,1\}^n\)</span>. After the learner takes their binary action, the true answer in <span class="math inline">\(\{0,1\}\)</span> is revealed and the loss is given by the 0-1 loss</p>
+<p><span class="math display">\[  
+\begin{equation}
+    \ell^t(x_t, a_t) = 
+    \begin{cases}
+        1 &amp; \text{if } a_t\text{ is correct answer}\\
+        0 &amp; \text{otherwise}
+    \end{cases}
+\end{equation}
+\]</span></p>
+<p>We can then see that the regret <span class="math inline">\(R^T\)</span> is merely the <strong>number of mistakes</strong> made by the learner after <span class="math inline">\(T\)</span> attempts.</p>
+<p>In this <a href="https://www.sciencedirect.com/science/article/pii/S0890540184710091?via%3Dihub">paper</a> of Littlestone-Warmuth, a simple algorithm called the <strong>weighted majority algorithm</strong> is introduced that achieves sublinear regret for this problem. We maintain a list of weights <span class="math inline">\(w_1,...,w_n\)</span>, one for each expert, and we vote on an action based on weighted majority of the experts– that is, for the expert opinions <span class="math inline">\((x_1,...,x_n)\in\{0,1\}^n\)</span>, we vote 1 if</p>
+<p><span class="math display">\[  \sum_{i:x_i=1} w_i \ge \sum_{i:x_i=0} w_i \]</span></p>
+<p>and 0 otherwise.</p>
+<p>Once we receive the correct answer, we penalize each incorrect expert by multiplying their weight by 0.5. In code:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">class</span> WeightedMajority(Learner):</a>
+<a class="sourceLine" id="cb2-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</a>
+<a class="sourceLine" id="cb2-5" title="5">        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</a>
+<a class="sourceLine" id="cb2-6" title="6">        <span class="co"># initialize weights of experts to 1.0</span></a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</a>
+<a class="sourceLine" id="cb2-8" title="8">        <span class="va">self</span>.last_opinions <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb2-9" title="9">    </a>
+<a class="sourceLine" id="cb2-10" title="10">    <span class="kw">def</span> decide(<span class="va">self</span>, opinions: np.ndarray) <span class="op">-&gt;</span> <span class="bu">int</span>:</a>
+<a class="sourceLine" id="cb2-11" title="11">        <span class="co"># weighted majority vote</span></a>
+<a class="sourceLine" id="cb2-12" title="12">        total_weight_0 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> opinions))</a>
+<a class="sourceLine" id="cb2-13" title="13">        total_weight_1 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> opinions)</a>
+<a class="sourceLine" id="cb2-14" title="14">        <span class="va">self</span>.last_opinions <span class="op">=</span> opinions</a>
+<a class="sourceLine" id="cb2-15" title="15">        <span class="cf">return</span> <span class="dv">1</span> <span class="cf">if</span> total_weight_1 <span class="op">&gt;=</span> total_weight_0 <span class="cf">else</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-16" title="16"></a>
+<a class="sourceLine" id="cb2-17" title="17">    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: <span class="bu">int</span>):</a>
+<a class="sourceLine" id="cb2-18" title="18">        <span class="co"># here, loss is the &quot;correct answer&quot; in {0, 1}</span></a>
+<a class="sourceLine" id="cb2-19" title="19">        wrong_experts <span class="op">=</span> <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss]</a>
+<a class="sourceLine" id="cb2-20" title="20">        wrong_experts <span class="op">*=</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb2-21" title="21">        <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss] <span class="op">=</span> wrong_experts</a></code></pre></div>
+<p>The <em>main theorem</em> of Littlestone-Warmuth is a regret analysis of this learning algorithm: the number of mistakes <span class="math inline">\(R^T\)</span> made by the weighted majority learner is bounded above by</p>
+<p><span class="math display">\[ R^T \le 2.41(m + \log_2{n}) \]</span></p>
+<p>where <span class="math inline">\(m\)</span> is the number of mistakes made by the best expert so far.</p>
+<p><strong>Proof:</strong> This is fairly straightforward. Let <span class="math inline">\(W\)</span> be the total weight of all experts (so initially <span class="math inline">\(W=n\)</span>). If the learner makes a mistake, that means that more than half the total weight is on the wrong experts, so that chunk will be halved. As a consequence, we lose at least a 1/4th of our total weight. So</p>
+<p><span class="math display">\[ W \le n(3/4)^M \]</span></p>
+<p>where <span class="math inline">\(M\)</span> is the total number of mistakes made (above we called it <span class="math inline">\(R^T\)</span>).</p>
+<p>On the contrary, if our best expert made <span class="math inline">\(m\)</span> mistakes, it’s weight is <span class="math inline">\(1/2^m\)</span> and so <span class="math inline">\(W\ge 1/2^m\)</span> at least. Combining the two gives</p>
+<p><span class="math display">\[ 1/2^m \le n(3/4)^M \]</span></p>
+<p>which rearranging gives the regret bound. <span class="math inline">\(\square\)</span></p>
+<p>It is often the case that many algorithms in computer science are enhanced by introducing randomness. Applying it to this situation will miraculously give a better regret bound! Here, instead of weighted majority vote, we normalize the weights into <em>probabilities</em> and choose as our action the opinion of a randomly chosen expert. We also then multiply the weights of all wrong experts by <span class="math inline">\(\beta\)</span>, where <span class="math inline">\(\beta\)</span> is some hyperparameter we can tune the algorithm with.</p>
+<p>Via a similar argument, we can prove the regret bound</p>
+<p><span class="math display">\[ R^T \le \frac{m\log(1/\beta) + \log n}{1-\beta} \]</span></p>
+<p>where, again <span class="math inline">\(m\)</span> is the number of mistakes made by the best expert so far.</p>
+<h3 id="convex-optimization">convex optimization</h3>
+<p>A special case that we will focus on is the setting of <strong>online convex optimization</strong>. Here, we receive <strong>no</strong> signals <span class="math inline">\(x_t\)</span> from the environment, and instead our “actions” will be points in a convex domain <span class="math inline">\(a_t\in\mathcal{K}\)</span>. The loss here will be given by an arbitrary convex function <span class="math inline">\(f_t\)</span>, and so the goal of our convex optimizer is to minimize the regret term</p>
+<p><span class="math display">\[ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=1}^T f_t(a_t) \]</span></p>
+<p>Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.</p>
+<p>First, we give a brief primer to notions of convexity in mathematics.</p>
+<p>TODO: complete this section</p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
