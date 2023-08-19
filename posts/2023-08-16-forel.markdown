@@ -196,3 +196,21 @@ class MultiplicativeWeights(Learner):
         self.weights *= gibbs_weights
 ```
 
+Let us now determine the regret bound for this learning algorithm. Note that
+
+$$
+\begin{align*}
+    \Phi_{t+1} - \Phi_t &= -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_{t+1}(i)}}
+        + \frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}} \\
+        &= -\frac{1}{\beta}\log{\frac{Z_{t+1}}{Z_t}}
+\end{align*}
+$$
+
+As $E_{t+1}(i)=E_t(i)+\ell_i^t$ and $Z_{t+1}=\sum_{i=1}^n e^{-\beta E_t(i)}e^{-\beta\ell_i^t}$, we have
+
+$$ 
+\begin{align*}
+    \frac{Z_{t+1}}{Z_t} &= \sum_{i=1}^n\left(\frac{e^{-\beta E_t(i)}}{Z_t}\right)e^{-\beta\ell_i^t} \\
+        &= \sum_{i=1}^n x_{t,i} e^{-\beta\ell_i^t}
+\end{align*}
+$$
