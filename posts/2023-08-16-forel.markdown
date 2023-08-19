@@ -1,0 +1,114 @@
+---
+title: Online learning and FoReL
+author: Calvin
+---
+
+**Note: This blog post is still a rough draft. Read on with caution.**
+
+In part 2 of our unthemed dive into the reinforcement learning literature, we will be taking a look at online (convex) optimization and some reinforcement learning algorithms that came out of it, applied to imperfect-information zero-sum games.
+
+The last post focused on counterfactual regret minimization, which was also an online algorithm for choosing the optimal strategies for an agent. The success of counterfactual regret minimization came from its strong theoretical guarantees of sublinear regret growth, along with its generality. As such, it seems fitting to start with a general overview of the ideas behind online optimization and see what other ideas came out of it that could be fruitful for future AIs.
+
+### online learning
+
+In machine learning, online learning is the process of continuously adapting and making decisions from streams of information: at each point in a time $t$, an online learning algorithm is given an informational signal $x_t$ from a space $\mathcal{X}$, and decides on an action $a_t\in\mathcal{A}$ to perform. After their decision, the environment/opponent chooses a loss function $\ell^t$ and causes the agent to suffer a loss $\ell^t(x_t, a_t)$. The algorithm learns from this loss and updates its processes for the next time.
+
+```python
+for _ in range(num_timesteps):
+    signal_t = env.receive_signal()
+    action_t = learner.decide(signal_t)
+    loss_t = env.receive_loss()
+    loss = loss_t(signal_t, action_t)
+    learner.suffer(loss)
+```
+
+The goal of the learner is to minimize their **regret**
+
+$$ R^T = \max_{a^*\in\mathcal{A}}\left\{\sum_{t=1}^T\ell^t(x_t, a^*)\right\} - \sum_{t=1}^T\ell^t(x_t, a_t) $$
+
+We call such an online learning setting **learnable** if we can achieve sublinear regret in $T$.
+
+Let us give a vibe for the field with an example. Consider the $n$-*expert opinion* setting, where we at each time step we are trying to perform a binary action, i.e. $a_t\in\mathcal{A}=\{0, 1\}$. To inform us on what action to take, we listen to $n$ "experts", which in our setting is a vector of 0's and 1's $x_t\in\mathcal{X}=\{0,1\}^n$. After the learner takes their binary action, the true answer in $\{0,1\}$ is revealed and the loss is given by the 0-1 loss
+
+$$  
+\begin{equation}
+    \ell^t(x_t, a_t) = 
+    \begin{cases}
+        1 & \text{if } a_t\text{ is correct answer}\\
+        0 & \text{otherwise}
+    \end{cases}
+\end{equation}
+$$
+
+We can then see that the regret $R^T$ is merely the **number of mistakes** made by the learner after $T$ attempts. 
+
+In this [paper](https://www.sciencedirect.com/science/article/pii/S0890540184710091?via%3Dihub) of Littlestone-Warmuth, a simple algorithm called the **weighted majority algorithm** is introduced that achieves sublinear regret for this problem. We maintain a list of weights $w_1,...,w_n$, one for each expert, and we vote on an action based on weighted majority of the experts-- that is, for the expert opinions $(x_1,...,x_n)\in\{0,1\}^n$, we vote 1 if
+
+$$  \sum_{i:x_i=1} w_i \ge \sum_{i:x_i=0} w_i $$
+
+and 0 otherwise. 
+
+Once we receive the correct answer, we penalize each incorrect expert by multiplying their weight by 0.5. In code:
+
+```python
+import numpy as np
+
+class WeightedMajority(Learner):
+    def __init__(self, num_experts: int):
+        self.num_experts = num_experts
+        # initialize weights of experts to 1.0
+        self.weights = np.repeat(1.0, num_experts)
+        self.last_opinions = None
+    
+    def decide(self, opinions: np.ndarray) -> int:
+        # weighted majority vote
+        total_weight_0 = np.sum(self.weights * (1 - opinions))
+        total_weight_1 = np.sum(self.weights * opinions)
+        self.last_opinions = opinions
+        return 1 if total_weight_1 >= total_weight_0 else 0
+
+    def suffer(self, loss: int):
+        # here, loss is the "correct answer" in {0, 1}
+        wrong_experts = self.weights[self.last_opinions != loss]
+        wrong_experts *= 0.5
+        self.weights[self.last_opinions != loss] = wrong_experts
+```
+
+The *main theorem* of Littlestone-Warmuth is a regret analysis of this learning algorithm: the number of mistakes $R^T$ made by the weighted majority learner is bounded above by
+
+$$ R^T \le 2.41(m + \log_2{n}) $$
+
+where $m$ is the number of mistakes made by the best expert so far.
+
+**Proof:** This is fairly straightforward. Let $W$ be the total weight of all experts (so initially $W=n$). If the learner makes a mistake, that means that more than half the total weight is on the wrong experts, so that chunk will be halved. As a consequence, we lose at least a 1/4th of our total weight. So
+
+$$ W \le n(3/4)^M $$
+
+where $M$ is the total number of mistakes made (above we called it $R^T$).
+
+On the contrary, if our best expert made $m$ mistakes, it's weight is $1/2^m$ and so $W\ge 1/2^m$ at least. Combining the two gives
+
+$$ 1/2^m \le n(3/4)^M $$
+
+which rearranging gives the regret bound. $\square$
+
+It is often the case that many algorithms in computer science are enhanced by introducing randomness. Applying it to this situation will miraculously give a better regret bound! Here, instead of weighted majority vote, we normalize the weights into *probabilities* and choose as our action the opinion of a randomly chosen expert. We also then multiply the weights of all wrong experts by $\beta$, where $\beta$ is some hyperparameter we can tune the algorithm with.
+
+Via a similar argument, we can prove the regret bound
+
+$$ R^T \le \frac{m\log(1/\beta) + \log n}{1-\beta} $$
+
+where, again $m$ is the number of mistakes made by the best expert so far.
+
+### convex optimization
+
+A special case that we will focus on is the setting of **online convex optimization**. Here, we receive **no** signals $x_t$ from the environment, and instead our "actions" will be points in a convex domain $a_t\in\mathcal{K}$. The loss here will be given by an arbitrary convex function $f_t$, and so the goal of our convex optimizer is to minimize the regret term
+
+$$ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=1}^T f_t(a_t) $$
+
+Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.
+
+First, we give a brief primer to notions of convexity in mathematics. 
+
+TODO: complete this section
+
