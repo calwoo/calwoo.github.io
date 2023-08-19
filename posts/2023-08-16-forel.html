@@ -101,8 +101,56 @@
 <p>A special case that we will focus on is the setting of <strong>online convex optimization</strong>. Here, we receive <strong>no</strong> signals <span class="math inline">\(x_t\)</span> from the environment, and instead our “actions” will be points in a convex domain <span class="math inline">\(a_t\in\mathcal{K}\)</span>. The loss here will be given by an arbitrary convex function <span class="math inline">\(f_t\)</span>, and so the goal of our convex optimizer is to minimize the regret term</p>
 <p><span class="math display">\[ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=1}^T f_t(a_t) \]</span></p>
 <p>Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.</p>
-<p>First, we give a brief primer to notions of convexity in mathematics.</p>
-<p>TODO: complete this section</p>
+<p>Online convex optimization in pseudocode is given by:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</a>
+<a class="sourceLine" id="cb3-2" title="2">    x_t <span class="op">=</span> learner.generate()</a>
+<a class="sourceLine" id="cb3-3" title="3">    f_t <span class="op">=</span> env.receive_loss()</a>
+<a class="sourceLine" id="cb3-4" title="4">    loss <span class="op">=</span> f_t(x_t)</a>
+<a class="sourceLine" id="cb3-5" title="5">    learner.suffer(loss)</a></code></pre></div>
+<p>which is similar to the general online learning situation above. In OCO we are trying to compute the <em>offline optimum</em></p>
+<p><span class="math display">\[ \min_{x\in\mathcal{K}}\sum_{t=1}^T f_t(x) \]</span></p>
+<p>(which is equivalent to getting sublinear regret), where our <span class="math inline">\(f_t\)</span> is coming from a potentially constrained space of functions <span class="math inline">\(\mathcal{F}\)</span>. The <strong>goal</strong> is to, in a generic way, get a regret bound of the form</p>
+<p><span class="math display">\[ R^T \le \mathcal{O}_{\mathcal{K},\mathcal{F}}(\sqrt{T}) \]</span></p>
+<p>Like in the last section, we will first describe an online convex optimization problem inspired by the expert opinion problem: here we have <span class="math inline">\(n\)</span> experts, with a goal to best utilize the opinions of the experts in order to minimize a linear loss.</p>
+<p>At time <span class="math inline">\(t=1,2,...\)</span> we need to decide <span class="math inline">\(x_t\in\Delta^n\)</span> (where <span class="math inline">\(\Delta^n\)</span> is the probability simplex, see last post), probabilities for following the advice, i.e.</p>
+<p><span class="math display">\[  x_{t,i}=\text{probability of listening to expert }i\text{ at time }t \]</span></p>
+<p>Let <span class="math inline">\(\ell^t\)</span> be the loss vector where</p>
+<p><span class="math display">\[ \ell^t_i=\text{loss of listening to expert }i\text{ at time }t \]</span></p>
+<p>Our expected loss is then</p>
+<p><span class="math display">\[ \sum_{i=1}^n x_{t,i}\ell^t_i = \langle x_t, \ell^t\rangle \]</span></p>
+<p>This is the case of online convex optimization where at each time <span class="math inline">\(t\)</span>, the generated point is <span class="math inline">\(x_t\in\Delta^n\)</span> (note that the probability simplex is convex!) and the linear convex loss is given by <span class="math inline">\(f_t(x)=\langle x_t, \ell^t\rangle\)</span>.</p>
+<p>The learning algorithm we will use for this problem is known as <strong>multiplicative weights</strong>.</p>
+<h3 id="multiplicative-weights">multiplicative weights</h3>
+<p>We give here a statistical physics approach to a no-regret algorithm for the expert advice problem.</p>
+<p>Focusing on a single expert <span class="math inline">\(i\)</span>, call the cumulative loss incurred by this expert at time <span class="math inline">\(t-1\)</span> to be the <em>energy</em></p>
+<p><span class="math display">\[ E_t(i) = \sum_{k=1}^{t-1}\ell_i^k \]</span></p>
+<p>So at time <span class="math inline">\(t\)</span>, the learner knows <span class="math inline">\(E_t(i)\)</span> for each <span class="math inline">\(i\)</span>. By convexity of <span class="math inline">\(\Delta^n\)</span>, the offline optimum of our problem is interpreted as the energy of the lowest energy (i.e. <em>ground state</em>) expert at time <span class="math inline">\(t+1\)</span>,</p>
+<p><span class="math display">\[ \min_{i\in\{1,...,n\}} E_t(i) \]</span></p>
+<p>For any arbitrary “inverse temperature” parameter <span class="math inline">\(\beta\)</span>, we trivially have <span class="math inline">\(e^{-\beta\min_i E_t(i)}\le\sum_{i=1}^n e^{-\beta E_t(i)}\)</span> and so</p>
+<p><span class="math display">\[ \min_{i\in\{1,...,n\}} E_t(i) \ge -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}} \]</span></p>
+<p>where <span class="math inline">\(\Phi_t = -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}}\)</span> is the <strong>free energy</strong> at temperature <span class="math inline">\(1/\beta\)</span> at time <span class="math inline">\(t\)</span>. We will use this to establish a regret bound.</p>
+<p>Given the energies of each expert, how do we decide on a distribution to sample them from? Statistical physics say to form a <a href="https://en.wikipedia.org/wiki/Boltzmann_distribution">Boltzmann-Gibbs distribution</a></p>
+<p><span class="math display">\[ x_{t,i}=\frac{1}{Z_t}e^{-\beta E_t(i)} \]</span></p>
+<p>where <span class="math inline">\(Z_t=\sum_{i=1}^n e^{-\beta E_t(i)}\)</span> is the <strong>partition function</strong> at time <span class="math inline">\(t\)</span>. This makes sense– we want to heed experts which have given us the least loss more often.</p>
+<p>This choice of <span class="math inline">\(x_t\in\Delta^n\)</span> is the <strong>multiplicative weights algorithm</strong>:</p>
+<pre class="code"><code>    maintain weights w_t = [w_t(1), w_t(2), ..., w_t(n)]
+    update as
+        w_t[i] &lt;- w_{t-1}[i] * exp(-beta * loss_{t-1}[i])
+    generate strategy x_t as
+        x_t[i] &lt;- w_t[i] / sum(w_t)</code></pre>
+<p>which in Python can be given as</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">class</span> MultiplicativeWeights(Learner):</a>
+<a class="sourceLine" id="cb5-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</a>
+<a class="sourceLine" id="cb5-3" title="3">        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</a>
+<a class="sourceLine" id="cb5-4" title="4">        <span class="co"># initialize weights of experts to 1.0</span></a>
+<a class="sourceLine" id="cb5-5" title="5">        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</a>
+<a class="sourceLine" id="cb5-6" title="6">    </a>
+<a class="sourceLine" id="cb5-7" title="7">    <span class="kw">def</span> generate(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
+<a class="sourceLine" id="cb5-8" title="8">        <span class="cf">return</span> <span class="va">self</span>.weights <span class="op">/</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights)</a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: np.ndarray):</a>
+<a class="sourceLine" id="cb5-11" title="11">        gibbs_weights <span class="op">=</span> np.exp(<span class="op">-</span><span class="va">self</span>.beta <span class="op">*</span> loss)</a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="va">self</span>.weights <span class="op">*=</span> gibbs_weights</a></code></pre></div>
     </section>
 </article>
 
