@@ -108,7 +108,91 @@ $$ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=
 
 Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.
 
-First, we give a brief primer to notions of convexity in mathematics. 
+Online convex optimization in pseudocode is given by:
 
-TODO: complete this section
+```python
+for _ in range(num_timesteps):
+    x_t = learner.generate()
+    f_t = env.receive_loss()
+    loss = f_t(x_t)
+    learner.suffer(loss)
+```
+
+which is similar to the general online learning situation above. In OCO we are trying to compute the *offline optimum*
+
+$$ \min_{x\in\mathcal{K}}\sum_{t=1}^T f_t(x) $$
+
+(which is equivalent to getting sublinear regret), where our $f_t$ is coming from a potentially constrained space of functions $\mathcal{F}$. The **goal** is to, in a generic way, get a regret bound of the form
+
+$$ R^T \le \mathcal{O}_{\mathcal{K},\mathcal{F}}(\sqrt{T}) $$
+
+Like in the last section, we will first describe an online convex optimization problem inspired by the expert opinion problem: here we have $n$ experts, with a goal to best utilize the opinions of the experts in order to minimize a linear loss.
+
+At time $t=1,2,...$ we need to decide $x_t\in\Delta^n$ (where $\Delta^n$ is the probability simplex, see last post), probabilities for following the advice, i.e.
+
+$$  x_{t,i}=\text{probability of listening to expert }i\text{ at time }t $$
+
+Let $\ell^t$ be the loss vector where
+
+$$ \ell^t_i=\text{loss of listening to expert }i\text{ at time }t $$
+
+Our expected loss is then
+
+$$ \sum_{i=1}^n x_{t,i}\ell^t_i = \langle x_t, \ell^t\rangle $$
+
+This is the case of online convex optimization where at each time $t$, the generated point is $x_t\in\Delta^n$ (note that the probability simplex is convex!) and the linear convex loss is given by $f_t(x)=\langle x_t, \ell^t\rangle$.
+
+The learning algorithm we will use for this problem is known as **multiplicative weights**.
+
+
+### multiplicative weights
+
+We give here a statistical physics approach to a no-regret algorithm for the expert advice problem.
+
+Focusing on a single expert $i$, call the cumulative loss incurred by this expert at time $t-1$ to be the *energy*
+
+$$ E_t(i) = \sum_{k=1}^{t-1}\ell_i^k $$
+
+So at time $t$, the learner knows $E_t(i)$ for each $i$. By convexity of $\Delta^n$, the offline optimum of our problem is interpreted as the energy of the lowest energy (i.e. *ground state*) expert at time $t+1$,
+
+$$ \min_{i\in\{1,...,n\}} E_t(i) $$
+
+For any arbitrary "inverse temperature" parameter $\beta$, we trivially have $e^{-\beta\min_i E_t(i)}\le\sum_{i=1}^n e^{-\beta E_t(i)}$ and so
+
+$$ \min_{i\in\{1,...,n\}} E_t(i) \ge -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}} $$
+
+where $\Phi_t = -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}}$ is the **free energy** at temperature $1/\beta$ at time $t$. We will use this to establish a regret bound.
+
+Given the energies of each expert, how do we decide on a distribution to sample them from? Statistical physics say to form a [Boltzmann-Gibbs distribution](https://en.wikipedia.org/wiki/Boltzmann_distribution)
+
+$$ x_{t,i}=\frac{1}{Z_t}e^{-\beta E_t(i)} $$
+
+where $Z_t=\sum_{i=1}^n e^{-\beta E_t(i)}$ is the **partition function** at time $t$. This makes sense-- we want to heed experts which have given us the least loss more often.
+
+This choice of $x_t\in\Delta^n$ is the **multiplicative weights algorithm**:
+
+```code
+    maintain weights w_t = [w_t(1), w_t(2), ..., w_t(n)]
+    update as
+        w_t[i] <- w_{t-1}[i] * exp(-beta * loss_{t-1}[i])
+    generate strategy x_t as
+        x_t[i] <- w_t[i] / sum(w_t)
+```
+
+which in Python can be given as
+
+```python
+class MultiplicativeWeights(Learner):
+    def __init__(self, num_experts: int):
+        self.num_experts = num_experts
+        # initialize weights of experts to 1.0
+        self.weights = np.repeat(1.0, num_experts)
+    
+    def generate(self) -> np.ndarray:
+        return self.weights / np.sum(self.weights)
+
+    def suffer(self, loss: np.ndarray):
+        gibbs_weights = np.exp(-self.beta * loss)
+        self.weights *= gibbs_weights
+```
 
