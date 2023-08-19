@@ -151,6 +151,21 @@
 <a class="sourceLine" id="cb5-10" title="10">    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: np.ndarray):</a>
 <a class="sourceLine" id="cb5-11" title="11">        gibbs_weights <span class="op">=</span> np.exp(<span class="op">-</span><span class="va">self</span>.beta <span class="op">*</span> loss)</a>
 <a class="sourceLine" id="cb5-12" title="12">        <span class="va">self</span>.weights <span class="op">*=</span> gibbs_weights</a></code></pre></div>
+<p>Let us now determine the regret bound for this learning algorithm. Note that</p>
+<p><span class="math display">\[
+\begin{align*}
+    \Phi_{t+1} - \Phi_t &amp;= -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_{t+1}(i)}}
+        + \frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}} \\
+        &amp;= -\frac{1}{\beta}\log{\frac{Z_{t+1}}{Z_t}}
+\end{align*}
+\]</span></p>
+<p>As <span class="math inline">\(E_{t+1}(i)=E_t(i)+\ell_i^t\)</span> and <span class="math inline">\(Z_{t+1}=\sum_{i=1}^n e^{-\beta E_t(i)}e^{-\beta\ell_i^t}\)</span>, we have</p>
+<p><span class="math display">\[ 
+\begin{align*}
+    \frac{Z_{t+1}}{Z_t} &amp;= \sum_{i=1}^n\left(\frac{e^{-\beta E_t(i)}}{Z_t}\right)e^{-\beta\ell_i^t} \\
+        &amp;= \sum_{i=1}^n x_{t,i} e^{-\beta\ell_i^t}
+\end{align*}
+\]</span></p>
     </section>
 </article>
 
