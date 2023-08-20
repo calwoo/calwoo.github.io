@@ -257,6 +257,70 @@
 <p><span class="math display">\[ x_i = \frac{\exp\left(-\frac{1}{c}\sum_{k=1}^{t-1}\ell_i^k\right)}{\sum_{j=1}^n \exp\left(-\frac{1}{c}\sum_{k=1}^{t-1}\ell_j^k\right)} \]</span></p>
 <p>If we choose <span class="math inline">\(c=\frac{1}{\beta}\)</span>, we get the multiplicative weights algorithm!</p>
 <h3 id="computing-forel">computing FoReL</h3>
+<p>In this section, we will take a look at computing the FoReL dynamics. Considering it as a discrete dynamical system, we want to iteratively compute</p>
+<p><span class="math display">\[ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} \]</span></p>
+<p>for each time step <span class="math inline">\(t\)</span>. However, computing this requires taking an <code>argmax</code> over a entire convex space, which is itself a (constrained) optimization problem. Is there a way to reduce this to a sequence of easier optimization settings?</p>
+<p>Consider the case where the regularization function <span class="math inline">\(R(x)\)</span> is a quadratic norm <span class="math inline">\(R(x)=\frac{1}{2}\|x\|^2\)</span>, that is,</p>
+<p><span class="math display">\[ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{\eta\sum_{s=1}^t f_t(x) + \frac{1}{2}\|x\|^2\right\} \]</span></p>
+<p>We start by looking at the case where the convex loss functions <span class="math inline">\(f_s\)</span> are <strong>linear</strong>, that is <span class="math inline">\(f_s(x) = \nabla{f_s}\cdot x\)</span>. In this case, the problem above simplifies– by definition of <span class="math inline">\(x_{t+1}, x_t\)</span>,</p>
+<p><span class="math display">\[ \nabla \left\{\eta\sum_{s=1}^t f_t(x) + \frac{1}{2}\|x\|^2\right\}(x_{t+1}) = \eta\sum_{s=1}^t\nabla{f_s} + x_{t+1} = 0 \]</span></p>
+<p>and</p>
+<p><span class="math display">\[ \nabla \left\{\eta\sum_{s=1}^{t-1} f_t(x) + \frac{1}{2}\|x\|^2\right\}(x_t) = \eta\sum_{s=1}^{t-1}\nabla{f_s} + x_t = 0 \]</span></p>
+<p>Hence, combining the two we see that</p>
+<p><span class="math display">\[ x_{t+1} = x_t - \eta\nabla{f_t}(x_t) \]</span></p>
+<p>which is <strong>online gradient descent</strong>. In particular, the FoReL dynamics here is solvable in a “closed form”, and only involves the most recent loss function at that time step. Indeed, this is the main computational gain: we turn a minimization problem involving all losses <span class="math inline">\(f_s\)</span> up to time <span class="math inline">\(t\)</span> into a problem involving just one of them, <span class="math inline">\(f_t\)</span>.</p>
+<p>This argument can be extended, but in order to do so, we need to modify our notion of “distance to a solution”. Indeed, we will effectively try and turn our constrained optimization problem, into an unconstrained one but in a “different metric space” of sorts.</p>
+<p>Consider the regularized minimization problem</p>
+<p><span class="math display">\[ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} \]</span></p>
+<p>and iterative define</p>
+<p><span class="math display">\[ \Phi_0 = R \\ \Phi_t = \Phi_{t-1} + \eta f_t \]</span></p>
+<p>Then we can write <span class="math inline">\(x_{t+1} = \argmin_{x\in\mathcal{K}}\Phi_t(x)\)</span>. For <span class="math inline">\(\Phi:\mathbf{R}^n\to\mathbf{R}\)</span>, define the <strong>Bregman divergence</strong> with respect to <span class="math inline">\(\Phi\)</span> as</p>
+<p><span class="math display">\[ D_\Phi(a, b) = \Phi(a) - (\Phi(b)+\nabla{\Phi}(b)\cdot(a-b)) \]</span></p>
+<p>which is the difference between <span class="math inline">\(\Phi(a)\)</span> and the first-order approximation of <span class="math inline">\(\Phi(a)\)</span> centered at <span class="math inline">\(b\)</span>.</p>
+<p>Here are two basic examples: First, let <span class="math inline">\(\Phi(a)=\frac{1}{2}\|a\|^2\)</span>. Then the Bregman divergence corresponding to this function is given by</p>
+<p><span class="math display">\[
+\begin{align*}
+    D_\Phi(a, b) &amp;= \frac{1}{2}\|a\|^2-\frac{1}{2}\|b\|^2-b\cdot(a-b) \\
+        &amp;= \frac{1}{2}\|a\|^2 + \frac{1}{2}\|b\|^2 - a^\top b \\
+        &amp;= \frac{1}{2}\|a-b\|^2
+\end{align*}
+\]</span></p>
+<p>For a second example, let <span class="math inline">\(\Phi(a)=\sum_i a_i\log{a_i}\)</span>, the entropy function. Computing the Bregman divergence:</p>
+<p><span class="math display">\[
+\begin{align*}
+    D_\Phi(a, b) &amp;= \sum_i a_i\log{a_i}-\sum_i b_i\log{b_i} - \sum_i (\log{b_i}+1)(a_i-b_i) \\
+        &amp;= \sum_i a_i\log{\frac{a_i}{b_i}}
+\end{align*}
+\]</span></p>
+<p>as <span class="math inline">\(\sum_i a_i = 1 = \sum_i b_i\)</span>. Here we see that the Bregman divergence in this case is the Kullback-Leibner divergence.</p>
+<p>For now, consider the case of linear losses. In the unconstrained optimization situation (<span class="math inline">\(\mathcal{K}=\mathbf{R}^d\)</span>), we are trying to iteratively solve the dynamics</p>
+<p><span class="math display">\[ \tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\left\{\eta\sum_{s=1}^t g_s\cdot x + R(x)\right\} \]</span></p>
+<p>where here the tilde denotes the unconstrained dynamics. As in the argument before, we can let</p>
+<p><span class="math display">\[ \nabla R(\tilde{x}_{t+1})=\eta\sum_{s=1}^t g_s \\ \nabla R(\tilde{x}_t)=\eta\sum_{s=1}^{t-1} g_s \]</span></p>
+<p>by definition of <span class="math inline">\(\tilde{x}_{t+1}, \tilde{x}_t\)</span>. Hence <span class="math inline">\(\nabla R(\tilde{x}_{t+1})=\nabla R(\tilde{x}_t)-\eta g_t\)</span>, and so</p>
+<p><span class="math display">\[ \tilde{x}_{t+1} = \nabla R^{-1}(\nabla R(\tilde{x}_t)-\eta g_t) \]</span></p>
+<p>which is a generalization of online gradient descent called <strong>mirror descent</strong>.</p>
+<p>How do we deal with the constrained optimization case? It turns out that all we need to do is solve the unconstrained case and then “project” the answer down onto the constraints, i.e. the convex set <span class="math inline">\(\mathcal{K}\)</span> we’re optimizing over. Formalizing this, let</p>
+<p><span class="math display">\[ \Pi^\Phi_\mathcal{K}(b) = \argmin_{a\in\mathcal{K}} D_\Phi(a, b) \]</span></p>
+<p>be the <strong>Bregman projection</strong> of <span class="math inline">\(b\in\mathbf{R}^d\)</span> onto <span class="math inline">\(\mathcal{K}\subset\mathbf{R}^d\)</span> via the divergence <span class="math inline">\(D_\Phi\)</span>.</p>
+<p><strong>Theorem:</strong> Let <span class="math inline">\(x_{t+1} = \argmin_{x\in\mathcal{K}}\Phi_t(x)\)</span> be the constrained optimization iterate, and <span class="math inline">\(\tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\Phi_t(x)\)</span> the corresponding unconstrained iterate. Then they are related by the Bregman projection:</p>
+<p><span class="math display">\[ x_{t+1} = \Pi_\mathcal{K}^{\Phi_t}(\tilde{x}_{t+1}) \]</span></p>
+<p><em>Proof:</em> Let <span class="math inline">\(x'_{t+1}=\Pi_\mathcal{K}^{\Phi_t}(\tilde{x}_{t+1})\)</span>. By definition,</p>
+<p><span class="math display">\[ \Phi_t(x_{t+1}) \le \Phi_t(x'_{t+1}) \]</span></p>
+<p>Conversely, <span class="math inline">\(D_{\Phi_t}(x'_{t+1},\tilde{x}_{t+1})\le D_{\Phi_t}(x_{t+1},\tilde{x}_{t+1})\)</span> by definition of the Bregman projection. As <span class="math inline">\(\nabla\Phi_t(\tilde{x}_{t+1})=0\)</span>, we have</p>
+<p><span class="math display">\[ D_{\Phi_t}(x,\tilde{x}_{t+1})=\Phi_t(x)-\Phi_t(\tilde{x}_{t+1}) \]</span></p>
+<p>and so <span class="math inline">\(\Phi_t(x'_{t+1})\le\Phi_t(x_{t+1})\)</span>. This implies <span class="math inline">\(x_{t+1}=x'_{t+1}\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>Hence, with linear losses, the constrained optimization solution becomes</p>
+<p><span class="math display">\[ x_{t+1} = \Pi^{\Phi_t}_\mathcal{K}\left(\nabla R^{-1}(\nabla R(\tilde{x}_t)-\eta g_t)\right) \]</span></p>
+<p>In general, we won’t have linear losses. What do we take as our unconstrained minimizers in this case? Let</p>
+<p><span class="math display">\[ \tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\left\{\eta f_t(x) + D_{\Phi_{t-1}}(x, \tilde{x}_t)\right\} \]</span></p>
+<p>We can prove this is a minimizer of <span class="math inline">\(\Phi_t\)</span>: by definition of <span class="math inline">\(\Phi_t\)</span>,</p>
+<p><span class="math display">\[ \eta f_t(x) + D_{\Phi_{t-1}}(x, \tilde{x}_t) = \Phi_t(x) - \Phi_{t-1}(x) + D_{\Phi_{t-1}}(x, \tilde{x}_t) \]</span></p>
+<p>Taking gradients with respect to <span class="math inline">\(x\)</span>,</p>
+<p><span class="math display">\[ \nabla \Phi_t(x) - \nabla \Phi_{t-1}(x) + \nabla_x D_{\Phi_{t-1}}(x,\tilde{x}_t) \]</span></p>
+<p>and noting that <span class="math inline">\(\nabla_x D_{\Phi_{t-1}}(x,\tilde{x}_t)=\nabla\Phi_{t-1}(x)-\nabla\Phi_{t-1}(\tilde{x}_t)\)</span>, setting to zero gives</p>
+<p><span class="math display">\[ \nabla\Phi_t(\tilde{x}_{t+1})=\nabla\Phi_{t-1}(\tilde{x}_t) \]</span></p>
+<p>which inductively can be shown to be zero. So <span class="math inline">\(\tilde{x}_{t+1}\)</span> minimizes <span class="math inline">\(\Phi_t\)</span>. As before, the constrained dynamics are given by Bregman projection.</p>
     </section>
 </article>
 
