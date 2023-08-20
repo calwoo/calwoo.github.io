@@ -273,7 +273,7 @@ So instead, we start from scratch and think more generally-- we assume nothing a
 
 At time $t$, all we have are our loss functions $f_1, f_2,..., f_{t-1}$. If we have solutions that worked well in past time steps, why not just capitalize on those in a greedy fashion? The **follow the leader** algorithm does this: we take
 
-$$ x_t = \argmin_{x\in\mathcal{K}}\sum_{k=1}^{t-1} f_k(x) $$
+$$ x_t = \operatorname*{argmin}_{x\in\mathcal{K}}\sum_{k=1}^{t-1} f_k(x) $$
 
 When does this do badly? Inutitively, FoL can *overfit* to past history-- if we get sequences of conflicting loss functions, the algorithm can continually change its mind on the "best point" $x_t$.
 
@@ -311,7 +311,7 @@ This suggests that we should take smaller steps to balance out the old informati
 
 We do this by introducing a **regularizer** $R$ and take at each time $t$ a *regularized step*
 
-$$ x_t = \argmin_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^{t-1} f_k(x)\right\} $$
+$$ x_t = \operatorname*{argmin}_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^{t-1} f_k(x)\right\} $$
 
 This algorithm is **follow the regularized leader**, or FoReL.
 
@@ -329,7 +329,7 @@ $$ R(x) = c \cdot \sum_{i=1}^n x_i\log{x_i} $$
 
 Consider FoReL on $\Delta^n$ with negentropic regularization:
 
-$$ x_t = \argmin_{x\in\mathcal{K}}\left\{\sum_{k=1}^{t-1} \langle\ell^k, x\rangle + c\cdot\sum_{i=1}^n x_i\log{x_i}\right\} $$
+$$ x_t = \operatorname*{argmin}_{x\in\mathcal{K}}\left\{\sum_{k=1}^{t-1} \langle\ell^k, x\rangle + c\cdot\sum_{i=1}^n x_i\log{x_i}\right\} $$
 
 Solving by [Lagrange multipliers](https://en.wikipedia.org/wiki/Lagrange_multiplier), we want to find the Jacobian of
 
@@ -371,13 +371,13 @@ If we choose $c=\frac{1}{\beta}$, we get the multiplicative weights algorithm!
 
 In this section, we will take a look at computing the FoReL dynamics. Considering it as a discrete dynamical system, we want to iteratively compute
 
-$$ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} $$
+$$ x_{t+1} = \operatorname*{argmin}_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} $$
 
 for each time step $t$. However, computing this requires taking an `argmax` over a entire convex space, which is itself a (constrained) optimization problem. Is there a way to reduce this to a sequence of easier optimization settings?
 
 Consider the case where the regularization function $R(x)$ is a quadratic norm $R(x)=\frac{1}{2}\|x\|^2$, that is,
 
-$$ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{\eta\sum_{s=1}^t f_t(x) + \frac{1}{2}\|x\|^2\right\} $$
+$$ x_{t+1} = \operatorname*{argmin}_{x\in\mathcal{K}}\left\{\eta\sum_{s=1}^t f_t(x) + \frac{1}{2}\|x\|^2\right\} $$
 
 We start by looking at the case where the convex loss functions $f_s$ are **linear**, that is $f_s(x) = \nabla{f_s}\cdot x$. In this case, the problem above simplifies-- by definition of $x_{t+1}, x_t$,
 
@@ -397,13 +397,13 @@ This argument can be extended, but in order to do so, we need to modify our noti
 
 Consider the regularized minimization problem
 
-$$ x_{t+1} = \argmin_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} $$
+$$ x_{t+1} = \operatorname*{argmin}_{x\in\mathcal{K}}\left\{R(x) + \sum_{k=1}^t f_k(x)\right\} $$
 
 and iterative define
 
 $$ \Phi_0 = R \\ \Phi_t = \Phi_{t-1} + \eta f_t $$
 
-Then we can write $x_{t+1} = \argmin_{x\in\mathcal{K}}\Phi_t(x)$. For $\Phi:\mathbf{R}^n\to\mathbf{R}$, define the **Bregman divergence** with respect to $\Phi$ as
+Then we can write $x_{t+1} = \operatorname*{argmin}_{x\in\mathcal{K}}\Phi_t(x)$. For $\Phi:\mathbf{R}^n\to\mathbf{R}$, define the **Bregman divergence** with respect to $\Phi$ as
 
 $$ D_\Phi(a, b) = \Phi(a) - (\Phi(b)+\nabla{\Phi}(b)\cdot(a-b)) $$
 
@@ -432,7 +432,7 @@ as $\sum_i a_i = 1 = \sum_i b_i$. Here we see that the Bregman divergence in thi
 
 For now, consider the case of linear losses. In the unconstrained optimization situation ($\mathcal{K}=\mathbf{R}^d$), we are trying to iteratively solve the dynamics
 
-$$ \tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\left\{\eta\sum_{s=1}^t g_s\cdot x + R(x)\right\} $$
+$$ \tilde{x}_{t+1} = \operatorname*{argmin}_{x\in\mathbf{R}^d}\left\{\eta\sum_{s=1}^t g_s\cdot x + R(x)\right\} $$
 
 where here the tilde denotes the unconstrained dynamics. As in the argument before, we can let
 
@@ -446,11 +446,11 @@ which is a generalization of online gradient descent called **mirror descent**.
 
 How do we deal with the constrained optimization case? It turns out that all we need to do is solve the unconstrained case and then "project" the answer down onto the constraints, i.e. the convex set $\mathcal{K}$ we're optimizing over. Formalizing this, let
 
-$$ \Pi^\Phi_\mathcal{K}(b) = \argmin_{a\in\mathcal{K}} D_\Phi(a, b) $$
+$$ \Pi^\Phi_\mathcal{K}(b) = \operatorname*{argmin}_{a\in\mathcal{K}} D_\Phi(a, b) $$
 
 be the **Bregman projection** of $b\in\mathbf{R}^d$ onto $\mathcal{K}\subset\mathbf{R}^d$ via the divergence $D_\Phi$.
 
-**Theorem:** Let $x_{t+1} = \argmin_{x\in\mathcal{K}}\Phi_t(x)$ be the constrained optimization iterate, and $\tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\Phi_t(x)$ the corresponding unconstrained iterate. Then they are related by the Bregman projection:
+**Theorem:** Let $x_{t+1} = \operatorname*{argmin}_{x\in\mathcal{K}}\Phi_t(x)$ be the constrained optimization iterate, and $\tilde{x}_{t+1} = \operatorname*{argmin}_{x\in\mathbf{R}^d}\Phi_t(x)$ the corresponding unconstrained iterate. Then they are related by the Bregman projection:
 
 $$ x_{t+1} = \Pi_\mathcal{K}^{\Phi_t}(\tilde{x}_{t+1}) $$
 
@@ -470,7 +470,7 @@ $$ x_{t+1} = \Pi^{\Phi_t}_\mathcal{K}\left(\nabla R^{-1}(\nabla R(\tilde{x}_t)-\
 
 In general, we won't have linear losses. What do we take as our unconstrained minimizers in this case? Let
 
-$$ \tilde{x}_{t+1} = \argmin_{x\in\mathbf{R}^d}\left\{\eta f_t(x) + D_{\Phi_{t-1}}(x, \tilde{x}_t)\right\} $$
+$$ \tilde{x}_{t+1} = \operatorname*{argmin}_{x\in\mathbf{R}^d}\left\{\eta f_t(x) + D_{\Phi_{t-1}}(x, \tilde{x}_t)\right\} $$
 
 We can prove this is a minimizer of $\Phi_t$: by definition of $\Phi_t$,
 

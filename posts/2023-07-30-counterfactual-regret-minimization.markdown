@@ -180,7 +180,7 @@ $$ \ell^t(x^{(n)}) = u_n(x^{(1)}_t, x^{(2)}_t,..., x^{(n-1)}_t, x^{(n)}) $$
 
 The *claim* is that the average of player $n$'s strategies converges to the best response to $\bar{x}^{(1)},...,\bar{x}^{(n-1)}$:
 
-$$ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \operatorname{argmax}_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} $$
+$$ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \operatorname*{argmax}_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} $$
 
 To see this, note that by multilinearity,
 
@@ -266,7 +266,7 @@ This is **weak duality**.
 
 To prove the minimax theorem, we need to prove the inequality in the other direction. As in the previous regret learning situation, we play a repeated game between a regret minimizer an the environment: $\mathcal{R}_\mathcal{X}$ chooses a strategy $x_t\in\mathcal{X}$ and the environment plays $y_t\in\mathcal{Y}$ such that $y_t$ is a best response:
 
-$$ y_t \in\argmin_{y\in\mathcal{Y}} x_t^\top Ay $$
+$$ y_t \in\operatorname*{argmin}_{y\in\mathcal{Y}} x_t^\top Ay $$
 
 The utility function observed by $\mathcal{R}_\mathcal{X}$ at each time $t$ is given by
 
