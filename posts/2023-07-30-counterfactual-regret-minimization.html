@@ -122,7 +122,7 @@ GO   | (1, 0) | (-100, -100) |
 <p>We let player <span class="math inline">\(n\)</span> picks strategies according to an algorithm that guarantees sublinear external regret (i.e. via a <span class="math inline">\(\Phi^{\text{const}}\)</span>-regret minimizer), where the utility function is given by the multilinear payoff functional</p>
 <p><span class="math display">\[ \ell^t(x^{(n)}) = u_n(x^{(1)}_t, x^{(2)}_t,..., x^{(n-1)}_t, x^{(n)}) \]</span></p>
 <p>The <em>claim</em> is that the average of player <span class="math inline">\(n\)</span>’s strategies converges to the best response to <span class="math inline">\(\bar{x}^{(1)},...,\bar{x}^{(n-1)}\)</span>:</p>
-<p><span class="math display">\[ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \operatorname{argmax}_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} \]</span></p>
+<p><span class="math display">\[ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \operatorname*{argmax}_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} \]</span></p>
 <p>To see this, note that by multilinearity,</p>
 <p><span class="math display">\[
 \begin{align*}
@@ -180,7 +180,7 @@ GO   | (1, 0) | (-100, -100) |
 <p><span class="math display">\[ \max_{x\in\mathcal{X}}\min_{y\in\mathcal{Y}} x^\top Ay \le \min_{y\in\mathcal{Y}}\max_{x\in\mathcal{X}} x^\top Ay \]</span></p>
 <p>This is <strong>weak duality</strong>.</p>
 <p>To prove the minimax theorem, we need to prove the inequality in the other direction. As in the previous regret learning situation, we play a repeated game between a regret minimizer an the environment: <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> chooses a strategy <span class="math inline">\(x_t\in\mathcal{X}\)</span> and the environment plays <span class="math inline">\(y_t\in\mathcal{Y}\)</span> such that <span class="math inline">\(y_t\)</span> is a best response:</p>
-<p><span class="math display">\[ y_t \in\argmin_{y\in\mathcal{Y}} x_t^\top Ay \]</span></p>
+<p><span class="math display">\[ y_t \in\operatorname*{argmin}_{y\in\mathcal{Y}} x_t^\top Ay \]</span></p>
 <p>The utility function observed by <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> at each time <span class="math inline">\(t\)</span> is given by</p>
 <p><span class="math display">\[ \ell^t_\mathcal{X}: x\mapsto x^\top Ay_t \]</span></p>
 <p>We assume that <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span> gives sublinear regret in the worst case. Let <span class="math inline">\(\bar{x}^T=\frac{1}{T}\sum_{t=1}^T x_t\)</span> and <span class="math inline">\(\bar{y}^T=\frac{1}{T}\sum_{t=1}^T y_t\)</span> be the average strategies up to time <span class="math inline">\(T\)</span>. For all <span class="math inline">\(t\)</span>,</p>
