@@ -180,7 +180,7 @@ $$ \ell^t(x^{(n)}) = u_n(x^{(1)}_t, x^{(2)}_t,..., x^{(n-1)}_t, x^{(n)}) $$
 
 The *claim* is that the average of player $n$'s strategies converges to the best response to $\bar{x}^{(1)},...,\bar{x}^{(n-1)}$:
 
-$$ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \argmax_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} $$
+$$ \frac{1}{T}\sum_{t=1}^T x^{(n)}_t \xrightarrow{T\rightarrow\infty} \operatorname{argmax}_{\hat{x}^{(n)}\in\mathcal{X}^{(n)}}\left\{u_n(\bar{x}^{(1)},...,\bar{x}^{(n-1)}, \hat{x}^{(n)})\right\} $$
 
 To see this, note that by multilinearity,
 
