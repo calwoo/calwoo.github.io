@@ -166,6 +166,41 @@
         &amp;= \sum_{i=1}^n x_{t,i} e^{-\beta\ell_i^t}
 \end{align*}
 \]</span></p>
+<p>Assume, without loss of generality (we can rescale if necessary), that <span class="math inline">\(\|\ell^t\|_\infty\le 1\)</span> and <span class="math inline">\(|\beta|&lt;\frac{1}{2}\)</span>. Taylor expanding the exponential terms as</p>
+<p><span class="math display">\[ e^{-\beta\ell_i^t} \le 1 - \beta\ell^t_i + \beta^2\ell_i^{t,2} \]</span></p>
+<p>where <span class="math inline">\(\ell^{t,2}\)</span> is the pointwise square of the vector <span class="math inline">\(\ell^t\)</span>. We can replace in the equality above this expression to get the inequality</p>
+<p><span class="math display">\[ 
+\begin{align*}
+    \frac{Z_{t+1}}{Z_t} &amp;\le \sum_{i=1}^n x_{t,i}\cdot(1 - \beta\ell^t_i + \beta^2\ell_i^{t,2}) \\
+        &amp;= 1 - \beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle
+\end{align*}
+\]</span></p>
+<p>Since for <span class="math inline">\(|z|&lt;\frac{1}{2}\)</span>, <span class="math inline">\(1-z\le e^{-z}\)</span>, we get in this case that</p>
+<p><span class="math display">\[ \frac{Z_{t+1}}{Z_t} \le \exp(- \beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle) \]</span></p>
+<p>so</p>
+<p><span class="math display">\[
+\begin{align*}
+    \Phi_{t+1}-\Phi_t &amp;= -\frac{1}{\beta}\log\frac{Z_{t+1}}{Z_t} \\
+        &amp;\ge -\frac{1}{\beta}\cdot\left(-\beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle\right) \\
+        &amp;= \langle x_t,\ell^t\rangle - \beta\langle x_t, \ell^{t,2}\rangle
+\end{align*}
+\]</span></p>
+<p>Rearranging, we have</p>
+<p><span class="math display">\[ \langle x_t,\ell^t \rangle \le \Phi_{t+1}-\Phi_t+\beta\langle x_t, \ell^{t,2}\rangle \]</span></p>
+<p>Summing over <span class="math inline">\(t\)</span> and realizing we have a telescoping sum, we get</p>
+<p><span class="math display">\[ \sum_{t=1}^T\langle x_t,\ell^t\rangle \le \Phi_{t+1}-\Phi_1 + \beta\sum_{t=1}^T\langle x_t,\ell^{t,2}\rangle \]</span></p>
+<p>As <span class="math inline">\(\Phi_1=-\frac{1}{\beta}\log{n}\)</span> and <span class="math inline">\(\Phi_{T+1}\le\min_{j\in\{1,...,n\}}\sum_{t=1}^T \ell_j^t\)</span>, we combine the above to get</p>
+<p><span class="math display">\[
+\begin{align*}
+    R^T &amp;= \sum_{t=1}^T\langle x_t,\ell^t\rangle - \min_{j\in\{1,...,n\}}\sum_{t=1}^T\ell_j^t \\
+        &amp;\le \frac{\log{n}}{\beta} + \beta\sum_{t=1}^T\langle x_t,\ell^{t,2}\rangle \\
+        &amp;\le \frac{\log{n}}{\beta} + \beta T
+\end{align*}
+\]</span></p>
+<p>Taking <span class="math inline">\(T \ge 4\log{n}\)</span> and <span class="math inline">\(\beta=\sqrt{\frac{\log{n}}{T}}\)</span>, we get a regret bound</p>
+<p><span class="math display">\[ R^T \le 2\sqrt{T\log{n}}. \]</span></p>
+<h3 id="follow-the-regularized-leader">follow the regularized leader</h3>
+<p>Multiplicative weights is a nice algorithm, but it isn’t clear how to extend it to other convex sets <span class="math inline">\(\mathcal{K}\)</span> that isn’t the probability simplex.</p>
     </section>
 </article>
 
