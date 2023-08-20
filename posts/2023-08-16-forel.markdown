@@ -214,3 +214,58 @@ $$
         &= \sum_{i=1}^n x_{t,i} e^{-\beta\ell_i^t}
 \end{align*}
 $$
+
+Assume, without loss of generality (we can rescale if necessary), that $\|\ell^t\|_\infty\le 1$ and $|\beta|<\frac{1}{2}$. Taylor expanding the exponential terms as
+
+$$ e^{-\beta\ell_i^t} \le 1 - \beta\ell^t_i + \beta^2\ell_i^{t,2} $$
+
+where $\ell^{t,2}$ is the pointwise square of the vector $\ell^t$. We can replace in the equality above this expression to get the inequality
+
+$$ 
+\begin{align*}
+    \frac{Z_{t+1}}{Z_t} &\le \sum_{i=1}^n x_{t,i}\cdot(1 - \beta\ell^t_i + \beta^2\ell_i^{t,2}) \\
+        &= 1 - \beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle
+\end{align*}
+$$
+
+Since for $|z|<\frac{1}{2}$, $1-z\le e^{-z}$, we get in this case that
+
+$$ \frac{Z_{t+1}}{Z_t} \le \exp(- \beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle) $$
+
+so
+
+$$
+\begin{align*}
+    \Phi_{t+1}-\Phi_t &= -\frac{1}{\beta}\log\frac{Z_{t+1}}{Z_t} \\
+        &\ge -\frac{1}{\beta}\cdot\left(-\beta\langle x_t,\ell^t\rangle + \beta^2\langle x_t, \ell^{t,2}\rangle\right) \\
+        &= \langle x_t,\ell^t\rangle - \beta\langle x_t, \ell^{t,2}\rangle
+\end{align*}
+$$
+
+Rearranging, we have
+
+$$ \langle x_t,\ell^t \rangle \le \Phi_{t+1}-\Phi_t+\beta\langle x_t, \ell^{t,2}\rangle $$
+
+Summing over $t$ and realizing we have a telescoping sum, we get
+
+$$ \sum_{t=1}^T\langle x_t,\ell^t\rangle \le \Phi_{t+1}-\Phi_1 + \beta\sum_{t=1}^T\langle x_t,\ell^{t,2}\rangle $$
+
+As $\Phi_1=-\frac{1}{\beta}\log{n}$ and $\Phi_{T+1}\le\min_{j\in\{1,...,n\}}\sum_{t=1}^T \ell_j^t$, we combine the above to get
+
+$$
+\begin{align*}
+    R^T &= \sum_{t=1}^T\langle x_t,\ell^t\rangle - \min_{j\in\{1,...,n\}}\sum_{t=1}^T\ell_j^t \\
+        &\le \frac{\log{n}}{\beta} + \beta\sum_{t=1}^T\langle x_t,\ell^{t,2}\rangle \\
+        &\le \frac{\log{n}}{\beta} + \beta T
+\end{align*}
+$$
+
+Taking $T \ge 4\log{n}$ and $\beta=\sqrt{\frac{\log{n}}{T}}$, we get a regret bound
+
+$$ R^T \le 2\sqrt{T\log{n}}. $$
+
+
+### follow the regularized leader
+
+Multiplicative weights is a nice algorithm, but it isn't clear how to extend it to other convex sets $\mathcal{K}$ that isn't the probability simplex.
+
