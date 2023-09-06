@@ -833,6 +833,22 @@ If we run this for Kuhn poker, we get
 
 So we get an average game value of $\simeq -0.05$, which is the theoretical value for the game at Nash equilibrium.
 
+
+### why does this work?
+
+Let $R^T_{cf}(I)$ be the counterfactual regret given by
+
+$$ R^T_{cf, i}(I) = \max_{a\in A(I)} \frac{1}{T}\sum_{t=1}^T \pi^\sigma_{-i}(I) \left(u_i(\sigma_t, I\rightarrow a) - u_i(\sigma_t, I)\right) $$
+
+Then
+
+**Theorem** ([Zinkevich et al. 2008](https://proceedings.neurips.cc/paper/2007/file/08d98638c6fcd194a4b1e6992063e944-Paper.pdf)): The sum of the immediate counterfactual regrets over all information states upper bound the total regret.
+
+$$ R^T \le \sum_I \max\left\{R^T_{cf}(I), 0\right\} $$
+
+In particular, we conclude that minimizing counterfactual regret will also minimize total (external) regret. Hence it is enough to regret minimize over each information set. 
+
+
 ### conclusion
 
 I should write a conclusion here.
