@@ -571,6 +571,13 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="op">&gt;</span> <span class="ex">train</span>(100000)</a>
 <a class="sourceLine" id="cb22-2" title="2"><span class="ex">-0.05834981887437761</span></a></code></pre></div>
 <p>So we get an average game value of <span class="math inline">\(\simeq -0.05\)</span>, which is the theoretical value for the game at Nash equilibrium.</p>
+<h3 id="why-does-this-work">why does this work?</h3>
+<p>Let <span class="math inline">\(R^T_{cf}(I)\)</span> be the counterfactual regret given by</p>
+<p><span class="math display">\[ R^T_{cf, i}(I) = \max_{a\in A(I)} \frac{1}{T}\sum_{t=1}^T \pi^\sigma_{-i}(I) \left(u_i(\sigma_t, I\rightarrow a) - u_i(\sigma_t, I)\right) \]</span></p>
+<p>Then</p>
+<p><strong>Theorem</strong> (<a href="https://proceedings.neurips.cc/paper/2007/file/08d98638c6fcd194a4b1e6992063e944-Paper.pdf">Zinkevich et al. 2008</a>): The sum of the immediate counterfactual regrets over all information states upper bound the total regret.</p>
+<p><span class="math display">\[ R^T \le \sum_I \max\left\{R^T_{cf}(I), 0\right\} \]</span></p>
+<p>In particular, we conclude that minimizing counterfactual regret will also minimize total (external) regret. Hence it is enough to regret minimize over each information set.</p>
 <h3 id="conclusion">conclusion</h3>
 <p>I should write a conclusion here.</p>
     </section>
