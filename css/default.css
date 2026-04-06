@@ -143,3 +143,16 @@ article .header {
     font-size: 1.8rem;
   }
 }
+
+/* Obsidian callout blocks */
+.callout {
+    border-left: 3px solid #aaa;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 4px 4px 0;
+}
+.callout-note     { border-color: #4a9eff; background: #f0f6ff; }
+.callout-warning  { border-color: #f0a500; background: #fffbf0; }
+.callout-tip      { border-color: #3cb371; background: #f0fff4; }
+.callout-info     { border-color: #4a9eff; background: #f0f6ff; }
+.callout-important { border-color: #c678dd; background: #f9f0ff; }
