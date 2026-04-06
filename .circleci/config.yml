@@ -7,7 +7,8 @@ jobs:
       BRANCH: master
       TARGET_REPO: calwoo/calwoo.github.io.git
     steps:
-      - checkout
+      - checkout:
+          submodules: true
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
