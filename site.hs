@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
+import           Control.Monad (forM_)
 import           Data.Monoid (mappend)
 import           Hakyll
 import           Text.Pandoc.Options
 
-import           Data.Char (toLower)
+import           Data.Char (toLower, toUpper)
 import           Data.List (isPrefixOf, isSuffixOf)
 import           System.FilePath (dropExtension, (</>))
 import           Text.Pandoc (Block(..), Inline(..), Pandoc)
@@ -68,7 +70,62 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
-    match "templates/*" $ compile templateBodyCompiler
+    -- Copy non-markdown assets from notes (figures, images in concepts/papers)
+    match ("notes/**" .&&. complement "notes/**.md") $ do
+        route   idRoute
+        compile copyFileCompiler
+
+    -- Render individual note pages
+    -- Pattern covers concepts, papers, curricula but excludes CLAUDE.md, README,
+    -- docs/, plans/, and .claude/ by only matching the three known content sections.
+    let notePattern =
+          ("notes/concepts/**.md" .||. "notes/papers/**.md" .||. "notes/curricula/**.md")
+          .&&. complement ("notes/**/exercises.md" .||. "notes/**/solutions.md")
+    match notePattern $ do
+        route $ customRoute noteRoute
+        compile $ noteCompiler
+            >>= loadAndApplyTemplate "templates/note.html"    defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+
+    -- Per-section index pages (concepts, papers, curricula)
+    let noteSections = ["concepts", "papers", "curricula"]
+    forM_ noteSections $ \section -> do
+        let sectionPattern =
+              fromGlob ("notes/" ++ section ++ "/**.md")
+              .&&. complement (fromGlob ("notes/" ++ section ++ "/**/exercises.md")
+                               .||. fromGlob ("notes/" ++ section ++ "/**/solutions.md"))
+        create [fromFilePath ("notes/" ++ section ++ "/index.html")] $ do
+            route idRoute
+            compile $ do
+                notes <- loadAll sectionPattern
+                let sectionCtx =
+                        listField "notes" defaultContext (return notes) `mappend`
+                        constField "title"   (capitalize section)       `mappend`
+                        constField "section" section                    `mappend`
+                        defaultContext
+                makeItem ""
+                    >>= loadAndApplyTemplate "templates/notes-section.html" sectionCtx
+                    >>= loadAndApplyTemplate "templates/default.html"       sectionCtx
+                    >>= relativizeUrls
+
+    -- Notes landing page
+    create ["notes/index.html"] $ do
+        route idRoute
+        compile $ do
+            let sections    = ["concepts", "papers", "curricula"]
+                sectionsCtx =
+                    listField "sections"
+                        (field "name" (return . itemBody))
+                        (mapM makeItem sections)
+                    `mappend` constField "title" "Notes"
+                    `mappend` defaultContext
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/notes-index.html" sectionsCtx
+                >>= loadAndApplyTemplate "templates/default.html"     sectionsCtx
+                >>= relativizeUrls
+
+    match "templates/**" $ compile templateBodyCompiler
 
 
 --------------------------------------------------------------------------------
@@ -145,6 +202,10 @@ processWikilinks (c:rest)         = c : processWikilinks rest
 
 slugify :: String -> String
 slugify = map (\c -> if c == ' ' then '-' else toLower c)
+
+capitalize :: String -> String
+capitalize []     = []
+capitalize (c:cs) = toUpper c : cs
 
 --------------------------------------------------------------------------------
 -- Pandoc AST transform: convert Obsidian callout blockquotes to styled divs.
