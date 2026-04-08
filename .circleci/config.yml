@@ -42,7 +42,7 @@ jobs:
           command: stack exec site build
       - run:
           name: Publish GitHub Pages
-          # working_directory: './_site'
+          no_output_timeout: 20m
           command: |
             if [ "${CIRCLE_BRANCH}" = "develop" ]; then
               echo -e "Starting to deploy to Github Pages\n"
@@ -68,7 +68,7 @@ jobs:
               echo "committing to git repo..."
               if git commit -m "publish $CIRCLE_SHA1 [ci skip]" ; then
                 echo "git push files with force..."
-                git push -fq https://${GH_TOKEN}@github.com/$TARGET_REPO master
+                GIT_TERMINAL_PROMPT=0 git push -fq https://x-access-token:${GH_TOKEN}@github.com/$TARGET_REPO master
                 echo -e "deployment completed!\n"
               else
                 echo "content not changed, nothing to deploy"
