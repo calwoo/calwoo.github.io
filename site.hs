@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 import           Control.Monad (forM_)
 import           Data.Monoid (mappend)
@@ -7,7 +6,8 @@ import           Hakyll
 import           Text.Pandoc.Options
 
 import           Data.Char (toLower, toUpper)
-import           Data.List (isPrefixOf, isSuffixOf)
+import           Data.List (isPrefixOf)
+import qualified Data.Text as T
 import           System.FilePath (dropExtension, (</>))
 import           Text.Pandoc (Block(..), Inline(..), Pandoc)
 import           Text.Pandoc.Walk (walk)
@@ -217,14 +217,14 @@ transformBlock :: Block -> Block
 transformBlock (BlockQuote (Para inlines : rest))
     | (firstStr : remainingInlines) <- inlines
     , Just calloutType <- parseCalloutMarker firstStr =
-        Div ("", ["callout", "callout-" ++ calloutType], [])
+        Div ("", ["callout", "callout-" <> T.pack calloutType], [])
             (Para remainingInlines : rest)
 transformBlock b = b
 
 parseCalloutMarker :: Inline -> Maybe String
 parseCalloutMarker (Str s)
-    | "[!" `isPrefixOf` s && "]" `isSuffixOf` s =
-        Just (map toLower (drop 2 (init s)))
+    | "[!" `T.isPrefixOf` s && "]" `T.isSuffixOf` s =
+        Just (T.unpack (T.toLower (T.drop 2 (T.init s))))
 parseCalloutMarker _ = Nothing
 
 --------------------------------------------------------------------------------
@@ -248,8 +248,7 @@ noteWriterOptions =
 --   1. Extract H1 title, inject as YAML frontmatter (so $title$ works in templates)
 --   2. Strip H1 from body (default.html already renders $title$ as <h1>)
 --   3. Convert wikilinks to standard markdown links
---   4. Render with Pandoc (obsidianTransform will be wired in when we
---      upgrade to Hakyll >= 4.13 which exports renderPandocWithTransform)
+--   4. Render with Pandoc + obsidianTransform (callouts → styled divs)
 noteCompiler :: Compiler (Item String)
 noteCompiler = do
     raw <- getResourceString
@@ -259,5 +258,8 @@ noteCompiler = do
                     ++ stripH1 rawBody
         processed = processWikilinks withMeta
     makeItem processed
-        >>= renderPandocWith defaultHakyllReaderOptions noteWriterOptions
+        >>= renderPandocWithTransform
+                defaultHakyllReaderOptions
+                noteWriterOptions
+                obsidianTransform
 
