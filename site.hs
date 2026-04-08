@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import           Control.Monad (forM_)
-import           Data.Monoid (mappend)
 import           Hakyll
 import           Text.Pandoc.Options
 
