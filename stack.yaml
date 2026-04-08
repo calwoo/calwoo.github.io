@@ -47,8 +47,8 @@ packages:
 # Extra package databases containing global packages
 # extra-package-dbs: []
 
-# Control whether we use the GHC we find on the path
-# system-ghc: true
+# Use the system GHC when available (e.g. in the haskell:9.6.3 Docker image on CI)
+system-ghc: true
 #
 # Require a specific version of stack, using version ranges
 # require-stack-version: -any # Default
