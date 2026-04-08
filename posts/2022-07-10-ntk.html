@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -64,26 +65,26 @@ A_{11} &amp; A_{12} &amp; \cdot\cdot\cdot &amp; A_{1k} &amp; B_{11} &amp; B_{12}
 <p><span class="math display">\[ K_\text{NTK}(x,\tilde{x}) = \left\langle \nabla f_x(w^{(0)}), \nabla f_{\tilde{x}}(w^{(0)})\right\rangle \]</span></p>
 <p>This is the <strong>neural tangent kernel</strong> (NTK). This equivalence between training the linearized neural network and kernel regression with this kernel was first given by this <a href="https://arxiv.org/abs/1806.07572">paper</a> by Jacot et al.</p>
 <p>In python, we can naively express this as</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> torch</a>
-<a class="sourceLine" id="cb1-2" title="2">optimizer <span class="op">=</span> torch.optim.SGD(nnet.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>)</a>
-<a class="sourceLine" id="cb1-3" title="3"></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">def</span> ntk_kernel(nnet, x1, x2):</a>
-<a class="sourceLine" id="cb1-5" title="5">    optimizer.zero_grad()</a>
-<a class="sourceLine" id="cb1-6" title="6">    nnet(x1).backward()</a>
-<a class="sourceLine" id="cb1-7" title="7">    fx1_grads <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</a>
-<a class="sourceLine" id="cb1-9" title="9">        fx1_grads.append(param.grad.clone())</a>
-<a class="sourceLine" id="cb1-10" title="10">        </a>
-<a class="sourceLine" id="cb1-11" title="11">    optimizer.zero_grad()</a>
-<a class="sourceLine" id="cb1-12" title="12">    nnet(x2).backward()</a>
-<a class="sourceLine" id="cb1-13" title="13">    fx2_grads <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb1-14" title="14">    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</a>
-<a class="sourceLine" id="cb1-15" title="15">        fx2_grads.append(param.grad.clone())</a>
-<a class="sourceLine" id="cb1-16" title="16">        </a>
-<a class="sourceLine" id="cb1-17" title="17">    ker_val <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb1-18" title="18">    <span class="cf">for</span> grad1, grad2 <span class="kw">in</span> <span class="bu">zip</span>(fx1_grads, fx2_grads):</a>
-<a class="sourceLine" id="cb1-19" title="19">        ker_val <span class="op">+=</span> (grad1 <span class="op">*</span> grad2).<span class="bu">sum</span>()</a>
-<a class="sourceLine" id="cb1-20" title="20">    <span class="cf">return</span> ker_val.numpy().item()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.SGD(nnet.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ntk_kernel(nnet, x1, x2):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    optimizer.zero_grad()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    nnet(x1).backward()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    fx1_grads <span class="op">=</span> []</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        fx1_grads.append(param.grad.clone())</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    optimizer.zero_grad()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    nnet(x2).backward()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    fx2_grads <span class="op">=</span> []</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> param <span class="kw">in</span> nnet.parameters():</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        fx2_grads.append(param.grad.clone())</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    ker_val <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> grad1, grad2 <span class="kw">in</span> <span class="bu">zip</span>(fx1_grads, fx2_grads):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        ker_val <span class="op">+=</span> (grad1 <span class="op">*</span> grad2).<span class="bu">sum</span>()</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ker_val.numpy().item()</span></code></pre></div>
 <h2 id="infinite-width">infinite width</h2>
 <p>While this is nice, the NTK looks too general of an object to be useful. In particular, we would like it if there was an effective way to compute this explicitly for different neural networks of interest. As a warmup, we will go through the derivation of the neural tangent kernel for our 1-hidden layer neural network.</p>
 <p>Explicitly, for an input <span class="math inline">\(x\)</span> we can write the function output <span class="math inline">\(f(w;x)\)</span> as</p>
@@ -172,5 +173,7 @@ K^{(1)}_{\text{NTK},\infty}(x,\tilde{x}) = \check{\phi}(x^T\tilde{x}) + \check{\
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -41,10 +42,10 @@
 <p>More generally, for any functor <span class="math inline">\(f:C\to \text{Set}\)</span>, we get a Yoneda of the form (but same spirit):</p>
 <p><span class="math display">\[ \text{Yoneda: } \text{Nat}(\text{Hom}_C(a,-), f) \simeq f(a) \]</span></p>
 <p>How do we get about using this in Haskell? We unwind the definitions– the set of natural transformations is a special version of an <em>end</em>, a categorical limit construction. To unwind this, you just need to remember that a natural transformation in the above Yoneda is a <strong>collection</strong> of maps <span class="math inline">\(\text{Hom}_C(a,x)\to f(x)\)</span> for all <span class="math inline">\(x\)</span>, such that these maps are compatible by natural coherences. In Haskell, this can be written in the form</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">{-# LANGUAGE RankNTypes #-}</span></a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="ot">yoneda ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="kw">forall</span> x<span class="fu">.</span> (a <span class="ot">-&gt;</span> x) <span class="ot">-&gt;</span> f x) <span class="ot">-&gt;</span> f a</a>
-<a class="sourceLine" id="cb1-4" title="4">yoneda gs <span class="fu">=</span> gs <span class="fu">id</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE RankNTypes #-}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ot">yoneda ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (<span class="kw">forall</span> x<span class="op">.</span> (a <span class="ot">-&gt;</span> x) <span class="ot">-&gt;</span> f x) <span class="ot">-&gt;</span> f a</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>yoneda gs <span class="ot">=</span> gs <span class="fu">id</span></span></code></pre></div>
 <p><strong>NOTE:</strong> This type signature doesn’t enforce the coherences for an end! So this is slightly confusing to me. Unless I am wrong, in which case, please let me know!</p>
 <p>Now for a bit of a mind-bender– <span class="math inline">\(C\)</span> can be any category! So we take the category to the functor category from <span class="math inline">\(C\to\text{Set}\)</span>, call it <span class="math inline">\([C,\text{Set}]\)</span>. Then we have</p>
 <p><span class="math display">\[ \text{Nat}(\text{Hom}_{[C,\text{Set}]}(f,-), \text{Hom}_{[C,\text{Set}]}(g,-)) \simeq \text{Hom}_{[C,\text{Set}]}(g,f) \]</span></p>
@@ -55,71 +56,71 @@
 <p>Magic time: apply the original Yoneda lemma for <span class="math inline">\(C\)</span> and we get finally:</p>
 <p><span class="math display">\[ \text{Nat}_{[C,\text{Set}]}([-](a), [-](b)) \simeq \text{Hom}_C(a, b) \]</span></p>
 <p>where <span class="math inline">\([-](x): [C,\text{Set}]\to\text{Set}\)</span> is the application functor <span class="math inline">\(f\mapsto f(x)\)</span>. Unwinding this as an end, we remember that the natural transformations <span class="math inline">\([-](a) \to [-](b)\)</span> are a <strong>collection</strong> of maps from <span class="math inline">\(f(a)\to f(b)\)</span> for <strong>any functor</strong>. In Haskell, this gives the amazing functional identity</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">import</span> <span class="dt">Data.Functor.Identity</span></a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="ot">yoneda' ::</span> (<span class="kw">forall</span> f<span class="fu">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> f b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b)</a>
-<a class="sourceLine" id="cb2-4" title="4">yoneda' gs <span class="fu">=</span> \x <span class="ot">-&gt;</span> runIdentity <span class="fu">$</span> gs (<span class="dt">Identity</span> x)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Functor.Identity</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">yoneda' ::</span> (<span class="kw">forall</span> f<span class="op">.</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> f b) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>yoneda' gs <span class="ot">=</span> \x <span class="ot">-&gt;</span> runIdentity <span class="op">$</span> gs (<span class="dt">Identity</span> x)</span></code></pre></div>
 <p>This is where we get our first glimpse at the philosophy of lenses: If we want to understand an object, it suffices to probe it with as many different “views” as possible, and if all these views coherently agree, we can say we understand the object!</p>
 <h3 id="profunctors-and-isos">profunctors and isos</h3>
 <p>As explained in the <a href="../posts/2020-01-21-profunctors.html">previous post</a>, a profunctor from <span class="math inline">\(C\to D\)</span> is a functor <span class="math inline">\(p: D^{op}\times C \to\text{Set}\)</span>. This mix of covariance and contravariance can be described in the <code>Profunctor</code> type class</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">class</span> <span class="dt">Profunctor</span> p <span class="kw">where</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> (p a b <span class="ot">-&gt;</span> p s t)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Profunctor</span> p <span class="kw">where</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> (p a b <span class="ot">-&gt;</span> p s t)</span></code></pre></div>
 <p>This class describes the double-lift, since given objects <span class="math inline">\((a, b)\)</span> and <span class="math inline">\((s, t)\)</span> of <span class="math inline">\(D^{op}\times C\)</span>, a “map” in that category is given by a pair of maps <span class="math inline">\(s\to a\)</span> and <span class="math inline">\(b\to t\)</span>. Applying the Yoneda lemma above for profunctors means running the Yoneda twice, so that we can read off as</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">yonedaPro ::</span> (<span class="kw">forall</span> p<span class="fu">.</span> <span class="dt">Profunctor</span> p <span class="ot">=&gt;</span> p a b <span class="ot">-&gt;</span> p s t) <span class="ot">-&gt;</span> <span class="dt">Iso</span> s t a b</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">yonedaPro ::</span> (<span class="kw">forall</span> p<span class="op">.</span> <span class="dt">Profunctor</span> p <span class="ot">=&gt;</span> p a b <span class="ot">-&gt;</span> p s t) <span class="ot">-&gt;</span> <span class="dt">Iso</span> s t a b</span></code></pre></div>
 <p>where</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">data</span> <span class="dt">Iso</span> s t a b <span class="fu">=</span> <span class="dt">Iso</span> (s <span class="ot">-&gt;</span> a) (b <span class="ot">-&gt;</span> t)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Iso</span> s t a b <span class="ot">=</span> <span class="dt">Iso</span> (s <span class="ot">-&gt;</span> a) (b <span class="ot">-&gt;</span> t)</span></code></pre></div>
 <p>is just a product type for pairs of functions.</p>
 <p><strong>NOTE:</strong> I don’t know why they call this <code>Iso</code>, since it doesn’t really have much to do with isomorphisms. In fact, they are usually NOT isomorphisms. I prefer to call these things by what they really are in mathematics: twisted arrows <code>TwArr</code>. But alas, the crowd has spoken.</p>
 <h3 id="profunctor-composition">profunctor composition</h3>
 <p>If profunctors are generalized functors, then they should be able to compose. Recall that the composition of two functors is again a functor</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">newtype</span> <span class="dt">Compose</span> f g a <span class="fu">=</span> <span class="dt">Compose</span> {<span class="ot"> getCompose ::</span> f (g a) }</a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">instance</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> <span class="dt">Functor</span> (<span class="dt">Compose</span> f g) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="ot">    fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g a <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g b</a>
-<a class="sourceLine" id="cb6-5" title="5">    <span class="fu">fmap</span> f (<span class="dt">Compose</span> x) <span class="fu">=</span> <span class="dt">Compose</span> <span class="fu">$</span> <span class="fu">fmap</span> (<span class="fu">fmap</span> f) x</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Compose</span> f g a <span class="ot">=</span> <span class="dt">Compose</span> {<span class="ot"> getCompose ::</span> f (g a) }</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> <span class="dt">Functor</span> (<span class="dt">Compose</span> f g) <span class="kw">where</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g a <span class="ot">-&gt;</span> <span class="dt">Compose</span> f g b</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f (<span class="dt">Compose</span> x) <span class="ot">=</span> <span class="dt">Compose</span> <span class="op">$</span> <span class="fu">fmap</span> (<span class="fu">fmap</span> f) x</span></code></pre></div>
 <p>But given two profunctors <span class="math inline">\(D^{op}\times C\to\text{Set}, E^{op}\times D\to\text{Set}\)</span>, how do we compose them? Lets recall the definition of the composition as a Kan extension:</p>
 <p><span class="math display">\[ G \circ F := \int^{d \in D} F(d,-)\otimes G(-,d) \]</span></p>
 <p>In traditional Haskell fashion, we won’t enforce the coend gluing laws in the type, but in spirit: unwinding this definition we see that we get a valid constructor of elements of the composition– we take a “path in F” and a “path in G”.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">data</span> <span class="dt">PCompose</span> p q x y <span class="kw">where</span></a>
-<a class="sourceLine" id="cb7-2" title="2">    <span class="dt">ProCompose</span><span class="ot"> ::</span> (p d y, q x d) <span class="ot">-&gt;</span> <span class="dt">PCompose</span> p q x y</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">PCompose</span> p q x y <span class="kw">where</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">ProCompose</span><span class="ot"> ::</span> (p d y, q x d) <span class="ot">-&gt;</span> <span class="dt">PCompose</span> p q x y</span></code></pre></div>
 <p>As a sanity check, lets see what this looks like for functors “completed” to profunctors. What do I mean by this? Recall from last post there was a way to promote an ordinary functor <span class="math inline">\(f:C\to D\)</span> to a profunctor by post-composing with the Yoneda embedding:</p>
 <p><span class="math display">\[ f^{\text{pro}}: C \stackrel{F}{\longrightarrow} D \stackrel{Yoneda}{\longrightarrow} \text{PShv}(D) \]</span></p>
 <p>In terms of objects, it sends <span class="math inline">\(c\mapsto\text{Hom}_D(-,f(c))\)</span>. This inspires the following promotion operator in Haskell:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">newtype</span> <span class="dt">Promotion</span> f d c <span class="fu">=</span> <span class="dt">Promotion</span> {<span class="ot"> runPromoted ::</span> d <span class="ot">-&gt;</span> f c }</a>
-<a class="sourceLine" id="cb8-2" title="2"></a>
-<a class="sourceLine" id="cb8-3" title="3"><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Profunctor</span> (<span class="dt">Promotion</span> f) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> (<span class="dt">Promotion</span> f a b <span class="ot">-&gt;</span> <span class="dt">Promotion</span> f s t)</a>
-<a class="sourceLine" id="cb8-5" title="5">    dimap g h pf <span class="fu">=</span> <span class="dt">Promotion</span> <span class="fu">$</span> </a>
-<a class="sourceLine" id="cb8-6" title="6">        <span class="fu">fmap</span> h <span class="fu">.</span> runPromoted pf <span class="fu">.</span> g</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Promotion</span> f d c <span class="ot">=</span> <span class="dt">Promotion</span> {<span class="ot"> runPromoted ::</span> d <span class="ot">-&gt;</span> f c }</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Profunctor</span> (<span class="dt">Promotion</span> f) <span class="kw">where</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> (<span class="dt">Promotion</span> f a b <span class="ot">-&gt;</span> <span class="dt">Promotion</span> f s t)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    dimap g h pf <span class="ot">=</span> <span class="dt">Promotion</span> <span class="op">$</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fmap</span> h <span class="op">.</span> runPromoted pf <span class="op">.</span> g</span></code></pre></div>
 <p>Now we wish to study the composition of promoted functors. In one direction we have</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="dt">PCompose</span> (<span class="dt">Promotion</span> f) (<span class="dt">Promotion</span> g) x y</a>
-<a class="sourceLine" id="cb9-2" title="2">    <span class="fu">==</span> (<span class="dt">Promotion</span> f d y, <span class="dt">Promotion</span> g x d)</a>
-<a class="sourceLine" id="cb9-3" title="3">    <span class="fu">==</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">PCompose</span> (<span class="dt">Promotion</span> f) (<span class="dt">Promotion</span> g) x y</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">==</span> (<span class="dt">Promotion</span> f d y, <span class="dt">Promotion</span> g x d)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">==</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</span></code></pre></div>
 <p>and in the other we have</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="dt">Promotion</span> (<span class="dt">Compose</span> g f) x y</a>
-<a class="sourceLine" id="cb10-2" title="2">    <span class="fu">==</span> x <span class="ot">-&gt;</span> (<span class="dt">Compose</span> g f) y</a>
-<a class="sourceLine" id="cb10-3" title="3">    <span class="fu">==</span> x <span class="ot">-&gt;</span> g (f y)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Promotion</span> (<span class="dt">Compose</span> g f) x y</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">==</span> x <span class="ot">-&gt;</span> (<span class="dt">Compose</span> g f) y</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">==</span> x <span class="ot">-&gt;</span> g (f y)</span></code></pre></div>
 <p>But there is a clear isomorphism between <code>(d -&gt; f y, x -&gt; g d)</code><span class="math inline">\(\simeq\)</span><code>x -&gt; g (f y)</code> given by</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">compIso ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d) <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> g (f y))</a>
-<a class="sourceLine" id="cb11-2" title="2">compIso (h, k) <span class="fu">=</span> <span class="fu">fmap</span> h <span class="fu">.</span> k</a>
-<a class="sourceLine" id="cb11-3" title="3"></a>
-<a class="sourceLine" id="cb11-4" title="4"><span class="ot">compIsoInv ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (x <span class="ot">-&gt;</span> g (f y)) <span class="ot">-&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</a>
-<a class="sourceLine" id="cb11-5" title="5">compIsoInv k <span class="fu">=</span> (<span class="fu">id</span>, k)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">compIso ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d) <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> g (f y))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>compIso (h, k) <span class="ot">=</span> <span class="fu">fmap</span> h <span class="op">.</span> k</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ot">compIsoInv ::</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> (x <span class="ot">-&gt;</span> g (f y)) <span class="ot">-&gt;</span> (d <span class="ot">-&gt;</span> f y, x <span class="ot">-&gt;</span> g d)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>compIsoInv k <span class="ot">=</span> (<span class="fu">id</span>, k)</span></code></pre></div>
 <p>And this should make sense! Profunctor composition should be a version of regular composition.</p>
 <h3 id="profunctor-optics-finally">profunctor optics, finally</h3>
 <p>So far, we’ve been wandering around profunctors and Yoneda, and haven’t talked about optics. What’s the upshot of using all of this?</p>
 <p>Remember, profunctors are generalizations of functions. In fact, the canonical example of a profunctor is given by <span class="math inline">\(\text{Hom}_C(-,-)\)</span></p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">instance</span> <span class="dt">Profunctor</span> (<span class="ot">-&gt;</span>) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> ((a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> t))</a>
-<a class="sourceLine" id="cb12-3" title="3">    dimap h k <span class="fu">=</span> \f <span class="ot">-&gt;</span> k <span class="fu">.</span> f <span class="fu">.</span> h</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Profunctor</span> (<span class="ot">-&gt;</span>) <span class="kw">where</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    dimap ::</span> (s <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> t) <span class="ot">-&gt;</span> ((a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> (s <span class="ot">-&gt;</span> t))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    dimap h k <span class="ot">=</span> \f <span class="ot">-&gt;</span> k <span class="op">.</span> f <span class="op">.</span> h</span></code></pre></div>
 <p>In this way it’s clear that profunctors perform some kind of interplay between covariance and contravariant functoriality, which is in essence what an optic is doing. An <em>optic</em> is an abstraction for understanding an object and a “focus”. Here a canonical example is that of a <em>lens</em>, which gives an interface for setters and getters in objects-with-attributes (I won’t say classes).</p>
 <p>A trivial example of an optic is one in which the there is no interaction between the focus and the object– given an object, we can view the focus, but given the (might be polymorphically-changed) focus, we might get a new object that had nothing to do with the original whole! In such generality, all we can say about this optic is that it is composed to two arrows of “opposing direction”. This sounds familiar: it’s just a twisted arrow! (or as we called it in Haskell, an <code>Iso</code>). And above, we’ve already identified via Yoneda what twisted arrows are in terms of profunctors– it’s just an end</p>
 <p><span class="math display">\[ \text{Iso}_{s,t,a,b} = \int_{p\in\text{Prof}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) \]</span></p>
 <p>where <span class="math inline">\(\text{Prof}\)</span> is the category of profunctors (we defined composition above).</p>
 <p>In this form, we could experiment by giving our profunctors more structure, dependent on the monoidal properties of the underlying enrichment (which is <span class="math inline">\(\text{Set}\)</span> in this case). We know that <span class="math inline">\(\text{Set}\)</span> is a symmetric monoidal category under the cartesian product <span class="math inline">\(\times\)</span>, so restrict ourselves to profunctors that respect the monoidal structure:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">class</span> <span class="dt">Profunctor</span> p <span class="ot">=&gt;</span> <span class="dt">Cartesian</span> p <span class="kw">where</span></a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="ot">    first  ::</span> p a b <span class="ot">-&gt;</span> p (a, c) (b, c)</a>
-<a class="sourceLine" id="cb13-3" title="3"><span class="ot">    second ::</span> p a b <span class="ot">-&gt;</span> p (c, a) (c, b)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Profunctor</span> p <span class="ot">=&gt;</span> <span class="dt">Cartesian</span> p <span class="kw">where</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    first  ::</span> p a b <span class="ot">-&gt;</span> p (a, c) (b, c)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    second ::</span> p a b <span class="ot">-&gt;</span> p (c, a) (c, b)</span></code></pre></div>
 <p>What optic does this give us? Computing the end as above, we have</p>
 <p><span class="math display">\[ \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) \simeq 
    \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(\text{mul}_c(a,b), \text{mul}_c(s,t))
@@ -127,35 +128,35 @@
 <p>where <span class="math inline">\(\text{mul}_c:C^{op}\times C\to\text{Set}\)</span> is the profunctor given by <span class="math inline">\((a,b)\mapsto\text{Hom}_{\text{Set}}(a,b\times c)\)</span>. By the usual computation, this is given by a pair of functions</p>
 <p><span class="math display">\[ \int^{c\in\text{Set}} \text{Hom}_{\text{Set}}(s, a\times c)\times\text{Hom}_{\text{Set}}(b\times c, t) \]</span></p>
 <p>which by the Yoneda lemma gives <span class="math inline">\(\text{Hom}_{\text{Set}}(s,a)\times\text{Hom}_{\text{Set}}(s\times b, t)\)</span>. This is precisely a <em>lens</em>!</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">data</span> <span class="dt">Lens</span> s t a b <span class="fu">=</span> <span class="dt">Lens</span> {<span class="ot"> view   ::</span> s <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb14-2" title="2">                         ,<span class="ot"> update ::</span> (b, s) <span class="ot">-&gt;</span> t </a>
-<a class="sourceLine" id="cb14-3" title="3">                         }</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Lens</span> s t a b <span class="ot">=</span> <span class="dt">Lens</span> {<span class="ot"> view   ::</span> s <span class="ot">-&gt;</span> a</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                         ,<span class="ot"> update ::</span> (b, s) <span class="ot">-&gt;</span> t </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                         }</span></code></pre></div>
 <p>Hence we get our first nontrivial optics–</p>
 <p><span class="math display">\[ \text{Lens}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{Cart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) \]</span></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">type</span> <span class="dt">LensP</span> s t a b <span class="fu">=</span> <span class="kw">forall</span> p<span class="fu">.</span> <span class="dt">Cartesian</span> p <span class="ot">=&gt;</span> p a b <span class="ot">-&gt;</span> p s t</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">LensP</span> s t a b <span class="ot">=</span> <span class="kw">forall</span> p<span class="op">.</span> <span class="dt">Cartesian</span> p <span class="ot">=&gt;</span> p a b <span class="ot">-&gt;</span> p s t</span></code></pre></div>
 <h3 id="diversion-the-isomorphism-in-code">diversion: the isomorphism in code</h3>
 <p>I think it’s a great exercise to show this equivalence between the lens definitions explicitly. The derivation in Haskell is as follows.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">comparison ::</span> <span class="dt">Lens</span> s t a b <span class="ot">-&gt;</span> <span class="dt">LensP</span> s t a b</a>
-<a class="sourceLine" id="cb16-2" title="2">comparison (<span class="dt">Lens</span> v u) <span class="fu">=</span> dimap dup u <span class="fu">.</span> second <span class="fu">.</span> lmap v</a>
-<a class="sourceLine" id="cb16-3" title="3">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="ot">        lmap ::</span> (a' <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> p a b <span class="ot">-&gt;</span> p a' b</a>
-<a class="sourceLine" id="cb16-5" title="5">        lmap f <span class="fu">=</span> dimap f <span class="fu">id</span></a>
-<a class="sourceLine" id="cb16-6" title="6"></a>
-<a class="sourceLine" id="cb16-7" title="7"><span class="ot">        dup  ::</span> a <span class="ot">-&gt;</span> (a, a)</a>
-<a class="sourceLine" id="cb16-8" title="8">        dup x <span class="fu">=</span> (x, x)</a>
-<a class="sourceLine" id="cb16-9" title="9"></a>
-<a class="sourceLine" id="cb16-10" title="10"><span class="co">-- constant functor</span></a>
-<a class="sourceLine" id="cb16-11" title="11"><span class="kw">type</span> <span class="dt">Constant</span> b a <span class="fu">=</span> <span class="dt">Constant</span> {<span class="ot"> runConstant ::</span> b }</a>
-<a class="sourceLine" id="cb16-12" title="12">    <span class="kw">deriving</span> <span class="dt">Functor</span></a>
-<a class="sourceLine" id="cb16-13" title="13"></a>
-<a class="sourceLine" id="cb16-14" title="14"><span class="ot">comparisonInv ::</span> <span class="dt">LensP</span> s t a b <span class="ot">-&gt;</span> <span class="dt">Lens</span> s t a b</a>
-<a class="sourceLine" id="cb16-15" title="15">comparisonInv pfn <span class="fu">=</span> <span class="dt">Lens</span> view' update'</a>
-<a class="sourceLine" id="cb16-16" title="16">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb16-17" title="17"><span class="ot">        view' ::</span> s <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb16-18" title="18">        view' s <span class="fu">=</span> runConstant <span class="fu">.</span> runPromotion (pfn (<span class="dt">Promotion</span> <span class="dt">Constant</span>))</a>
-<a class="sourceLine" id="cb16-19" title="19"></a>
-<a class="sourceLine" id="cb16-20" title="20"><span class="ot">        update' ::</span> (b, s) <span class="ot">-&gt;</span> t</a>
-<a class="sourceLine" id="cb16-21" title="21">        update' (b, s) <span class="fu">=</span> pfn (<span class="fu">const</span> b) s</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">comparison ::</span> <span class="dt">Lens</span> s t a b <span class="ot">-&gt;</span> <span class="dt">LensP</span> s t a b</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>comparison (<span class="dt">Lens</span> v u) <span class="ot">=</span> dimap dup u <span class="op">.</span> second <span class="op">.</span> lmap v</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ot">        lmap ::</span> (a' <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> p a b <span class="ot">-&gt;</span> p a' b</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        lmap f <span class="ot">=</span> dimap f <span class="fu">id</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ot">        dup  ::</span> a <span class="ot">-&gt;</span> (a, a)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        dup x <span class="ot">=</span> (x, x)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- constant functor</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Constant</span> b a <span class="ot">=</span> <span class="dt">Constant</span> {<span class="ot"> runConstant ::</span> b }</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> <span class="dt">Functor</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="ot">comparisonInv ::</span> <span class="dt">LensP</span> s t a b <span class="ot">-&gt;</span> <span class="dt">Lens</span> s t a b</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>comparisonInv pfn <span class="ot">=</span> <span class="dt">Lens</span> view' update'</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="ot">        view' ::</span> s <span class="ot">-&gt;</span> a</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        view' s <span class="ot">=</span> runConstant <span class="op">.</span> runPromotion (pfn (<span class="dt">Promotion</span> <span class="dt">Constant</span>))</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="ot">        update' ::</span> (b, s) <span class="ot">-&gt;</span> t</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>        update' (b, s) <span class="ot">=</span> pfn (<span class="fu">const</span> b) s</span></code></pre></div>
 <h3 id="intuitions-and-final-remarks">intuitions and final remarks</h3>
 <p>This gives us a great tool-box for building optics– enrich our profunctors with special properties and we get different optics. If we let our optics preserve the cocartesian structure of <span class="math inline">\(\text{Set}\)</span>, we get <em>prisms</em>.</p>
 <p><span class="math display">\[ \text{Prisms}_{s,t,a,b} = \int_{p\in\text{Prof}^{\text{coCart}}} \text{Hom}_{\text{Set}}(p(a,b), p(s,t)) \]</span></p>
@@ -170,5 +171,7 @@
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

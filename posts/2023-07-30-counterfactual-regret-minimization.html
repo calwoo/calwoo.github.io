@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -39,7 +40,9 @@
 <p>In this post, which should be the first of at least 2 more, we will give a brief overview of the definitions and concepts from classical game theory that we need, restricting ourselves to two-player zero-sum games. Then we’ll introduce the optimization idea of regret minimization, and give an overview of counterfactual regret minimization, an efficient implementation of regret minimization for imperfect information games.</p>
 <h3 id="game-theory">game theory</h3>
 <p>In this section we will give an brief introduction to some game-theoretic concepts, rushing to introduce the central concept of a Nash equilibrium of a normal-form game.</p>
-<p>First, we should define what we mean by a <strong>normal form game</strong>. We will be considering games where there are multiple <em>agents</em> (say, <span class="math inline">\(n\)</span> of them), and where each agent can take a certain action <span class="math inline">\(a_i\)</span> from it’s <em>action space</em> <span class="math inline">\(A_i\)</span>. In these games, all agents perform their action simultaneously, with the actions of the other agents not influencing immediately each other. In this way, the game’s outcome is determined by the single <em>action profile</em> <span class="math display">\[ a = (a_1, ..., a_n) \in A = A_1 \times ... \times A_n \]</span> What would cause an agent to take a particular action over others? In this setting we assume each agent is equipped with a <em>utility function</em> <span class="math inline">\(u_i: A\rightarrow \mathbb{R}\)</span> that effectively gives the payoff that each action profile gives to the <span class="math inline">\(i\)</span>th agent. It is then a fair assumption that the goal of an agent is to maximize their payoff.</p>
+<p>First, we should define what we mean by a <strong>normal form game</strong>. We will be considering games where there are multiple <em>agents</em> (say, <span class="math inline">\(n\)</span> of them), and where each agent can take a certain action <span class="math inline">\(a_i\)</span> from it’s <em>action space</em> <span class="math inline">\(A_i\)</span>. In these games, all agents perform their action simultaneously, with the actions of the other agents not influencing immediately each other. In this way, the game’s outcome is determined by the single <em>action profile</em>
+<span class="math display">\[ a = (a_1, ..., a_n) \in A = A_1 \times ... \times A_n \]</span>
+What would cause an agent to take a particular action over others? In this setting we assume each agent is equipped with a <em>utility function</em> <span class="math inline">\(u_i: A\rightarrow \mathbb{R}\)</span> that effectively gives the payoff that each action profile gives to the <span class="math inline">\(i\)</span>th agent. It is then a fair assumption that the goal of an agent is to maximize their payoff.</p>
 <p>It can be convenient (especially in low-dimensions) to represent a normal-form game as a <span class="math inline">\(n\)</span>-dimensional matrix of payoffs. For example, a canonical example is the prisoner’s dilemma problem</p>
 <pre><code>           SILENT     CONFESS
         -----------------------
@@ -55,20 +58,40 @@ CONFESS | (0, -5)  | (-3, -3) |
 <p>A few observations about Pareto optimality: first, every game has at least one Pareto optimal strategy. In fact, we can always find a Pareto optimal strategy composed of pure strategies for each agent– for example, for agent <span class="math inline">\(1\)</span>, we can consider the set of pure strategy profiles with the highest payoff for them (there may be multiple action profiles with the same payoff). Then for agent <span class="math inline">\(2\)</span>, we choose the subset of that set that has the highest payoff for them, etc. The resulting pure strategy profiles are all Pareto optimal. Second, in a zero-sum game, all strategy profiles are Pareto optimal.</p>
 <h3 id="nash-equilibrium">nash equilibrium</h3>
 <p>For each agent <span class="math inline">\(i\)</span>, let <span class="math inline">\(s_i\)</span> denote a (mixed) strategy the agent could take, and <span class="math inline">\(s_{-i}=(s_1,...,s_{i-1}, s_{i+1},...,s_n)\)</span> a strategy profile without agent <span class="math inline">\(i\)</span> considered. That is, we are isolating agent <span class="math inline">\(i\)</span>’s strategy from a full strategy profile <span class="math inline">\(s=(s_i, s_{-i})\)</span> for the game.</p>
-<p>If agent <span class="math inline">\(i\)</span> knew the strategy profile <span class="math inline">\(s_{-i}\)</span> of the other agents, it could choose the strategy <span class="math inline">\(s^*_i\)</span> that would be benefit itself. That is, for any other strategy <span class="math inline">\(s'_i\)</span>, <span class="math display">\[ u_i(s^*_i, s_{-i}) \ge u_i(s'_i, s_{-i}) \]</span> We call <span class="math inline">\(s^*_i\)</span> the <strong>best response</strong> of agent <span class="math inline">\(i\)</span> to the other’s strategy <span class="math inline">\(s_{-i}\)</span>.</p>
+<p>If agent <span class="math inline">\(i\)</span> knew the strategy profile <span class="math inline">\(s_{-i}\)</span> of the other agents, it could choose the strategy <span class="math inline">\(s^*_i\)</span> that would be benefit itself. That is, for any other strategy <span class="math inline">\(s'_i\)</span>,
+<span class="math display">\[ u_i(s^*_i, s_{-i}) \ge u_i(s'_i, s_{-i}) \]</span>
+We call <span class="math inline">\(s^*_i\)</span> the <strong>best response</strong> of agent <span class="math inline">\(i\)</span> to the other’s strategy <span class="math inline">\(s_{-i}\)</span>.</p>
 <p>If the other agents knew of each other’s strategies, they would all be continually trying to change their strategies in order to implement the best responses to one another. Iteratively, they may eventually reach a stable state– they may reach a strategy profile <span class="math inline">\(s=(s_1,...,s_n)\)</span> in which for all agents <span class="math inline">\(i\)</span>, <span class="math inline">\(s_i\)</span> is a best response to the remainder <span class="math inline">\(s_{-i}\)</span>. This is a <strong>Nash equilibrium</strong>. Note that equilibria may not be unique.</p>
 <p>Since we’re working with zero-sum games, there are a couple of properties Nash equilibria enjoy that we will use. For one, in zero-sum games the Nash equilibria are <em>interchangable</em>: if <span class="math inline">\(s=(s_1, s_2)\)</span> is a Nash equilibrium and <span class="math inline">\(s' = (s'_1, s'_2)\)</span> is another, then <span class="math inline">\((s_1, s'_2)\)</span> and <span class="math inline">\((s'_1, s_2)\)</span> are both Nash equilibria.</p>
-<p><strong>Proof:</strong> Recall in a zero-sum game, we have for any strategy profile <span class="math inline">\(s\)</span>, <span class="math inline">\(u_1(s) + u_2(s) = 0\)</span>. We can see then that <span class="math display">\[ u_1(s_1, s_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2) \le u_1(s'_1, s'_2) \]</span> By symmetry, we get <span class="math inline">\(u_1(s_1, s_2) \ge u_1(s'_1, s'_2)\)</span>, and so <span class="math inline">\(u_i(s_1, s_2) = u_i(s'_1, s'_2)\)</span>.</p>
-<p>Consider the profile <span class="math inline">\((s_1, s'_2)\)</span>, and let <span class="math inline">\(s''_1\)</span> be another strategy that agent <span class="math inline">\(1\)</span> could take. Using the above equality we can see <span class="math display">\[ u_1(s''_1, s'_2) \le u_1(s'_1, s'_2) = -u_2(s'_1, s'_2) \]</span> since <span class="math inline">\((s'_1, s'_2)\)</span> is a Nash equilibrium. By the above, <span class="math inline">\(u_2(s'_1, s'_2) = u_2(s_1, s_2)\)</span> so <span class="math display">\[ -u_2(s'_1, s'_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2)\]</span> Combining with above, we see that <span class="math inline">\(s_1\)</span> is the best response for agent <span class="math inline">\(1\)</span> for the strategy <span class="math inline">\(s'_2\)</span> of agent <span class="math inline">\(2\)</span>. A symmetric argument for a strategy <span class="math inline">\(s''_2\)</span> taken by agent <span class="math inline">\(2\)</span> shows that <span class="math inline">\((s_1, s'_2)\)</span> is a Nash equilibrium. The case for <span class="math inline">\((s'_1, s_2)\)</span> follows similarly. <span class="math inline">\(\square\)</span></p>
+<p><strong>Proof:</strong> Recall in a zero-sum game, we have for any strategy profile <span class="math inline">\(s\)</span>, <span class="math inline">\(u_1(s) + u_2(s) = 0\)</span>. We can see then that
+<span class="math display">\[ u_1(s_1, s_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2) \le u_1(s'_1, s'_2) \]</span>
+By symmetry, we get <span class="math inline">\(u_1(s_1, s_2) \ge u_1(s'_1, s'_2)\)</span>, and so <span class="math inline">\(u_i(s_1, s_2) = u_i(s'_1, s'_2)\)</span>.</p>
+<p>Consider the profile <span class="math inline">\((s_1, s'_2)\)</span>, and let <span class="math inline">\(s''_1\)</span> be another strategy that agent <span class="math inline">\(1\)</span> could take. Using the above equality we can see
+<span class="math display">\[ u_1(s''_1, s'_2) \le u_1(s'_1, s'_2) = -u_2(s'_1, s'_2) \]</span>
+since <span class="math inline">\((s'_1, s'_2)\)</span> is a Nash equilibrium. By the above, <span class="math inline">\(u_2(s'_1, s'_2) = u_2(s_1, s_2)\)</span> so
+<span class="math display">\[ -u_2(s'_1, s'_2) = -u_2(s_1, s_2) \le -u_2(s_1, s'_2) = u_1(s_1, s'_2)\]</span>
+Combining with above, we see that <span class="math inline">\(s_1\)</span> is the best response for agent <span class="math inline">\(1\)</span> for the strategy <span class="math inline">\(s'_2\)</span> of agent <span class="math inline">\(2\)</span>. A symmetric argument for a strategy <span class="math inline">\(s''_2\)</span> taken by agent <span class="math inline">\(2\)</span> shows that <span class="math inline">\((s_1, s'_2)\)</span> is a Nash equilibrium. The case for <span class="math inline">\((s'_1, s_2)\)</span> follows similarly. <span class="math inline">\(\square\)</span></p>
 <p>The second property is one that we proved in the proof above: in a zero-sum game, the expected payoff to each player is the same for every Nash equilibrium.</p>
 <h3 id="computing-equilibria">computing equilibria</h3>
 <p>Let’s restrict for now to the case of two-player zero-sum games. How would we compute the Nash equilibria of such a game? We first introduce the <em>maxmin</em> strategy for an agent.</p>
-<p>Suppose we have a conservative agent– they would want to maximize their expected utility regardless of what the other agents do. In particular, they would seek a strategy that maximizes their expected utility in the <em>worst case scenario</em> that the other agents act to minimize their payoff. This is the <strong>maxmin strategy</strong> <span class="math display">\[ \underline{s}_i = \arg\max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> The payoff from this strategy is the <strong>maxmin value</strong> <span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> Analogously, an agent could seek a strategy to maximally punish the payoffs of their opponents, regardless of the damage to themselves. This leads to the <strong>minmax strategy</strong> and value <span class="math display">\[ \overline{v}_i = \min_{s_i}\max_{s_{-i}}{u_i(s_i, s_{-i})} \]</span> Note that in general, <span class="math inline">\(\underline{v}_i \le \overline{v}_i\)</span>. However, when we’re in a finite two-player zero-sum game, we can prove something even stronger. Let <span class="math inline">\((s^*_i, s^*_{-i})\)</span> be a Nash equilibrium and <span class="math inline">\(v^*_i\)</span> be the expected utility of agent <span class="math inline">\(i\)</span> in this equilibrium.</p>
-<p>First, we observe that <span class="math inline">\(v^*_i \ge \underline{v_i}\)</span>. This is because if <span class="math inline">\(v^*_i &lt; \underline{v}_i\)</span> then agent <span class="math inline">\(i\)</span> could gain greater utility by using their maxmin strategy instead, which is a contradiction to <span class="math inline">\(s^*\)</span> being a Nash equilibrium. In an equilibrium, all agents acts according to their best response to the other’s strategies: <span class="math display">\[ v^*_{-i} = \max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \]</span> As we’re in a zero-sum game, <span class="math inline">\(v^*_i = -v^*_{-i}\)</span> and <span class="math inline">\(u_i=-u_{-i}\)</span>, so <span class="math display">\[ \begin{aligned} v^*_i &amp;= -v^*_{-i} \\ &amp;= -\max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \\
+<p>Suppose we have a conservative agent– they would want to maximize their expected utility regardless of what the other agents do. In particular, they would seek a strategy that maximizes their expected utility in the <em>worst case scenario</em> that the other agents act to minimize their payoff. This is the <strong>maxmin strategy</strong>
+<span class="math display">\[ \underline{s}_i = \arg\max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span>
+The payoff from this strategy is the <strong>maxmin value</strong>
+<span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \]</span>
+Analogously, an agent could seek a strategy to maximally punish the payoffs of their opponents, regardless of the damage to themselves. This leads to the <strong>minmax strategy</strong> and value
+<span class="math display">\[ \overline{v}_i = \min_{s_i}\max_{s_{-i}}{u_i(s_i, s_{-i})} \]</span>
+Note that in general, <span class="math inline">\(\underline{v}_i \le \overline{v}_i\)</span>. However, when we’re in a finite two-player zero-sum game, we can prove something even stronger. Let <span class="math inline">\((s^*_i, s^*_{-i})\)</span> be a Nash equilibrium and <span class="math inline">\(v^*_i\)</span> be the expected utility of agent <span class="math inline">\(i\)</span> in this equilibrium.</p>
+<p>First, we observe that <span class="math inline">\(v^*_i \ge \underline{v_i}\)</span>. This is because if <span class="math inline">\(v^*_i &lt; \underline{v}_i\)</span> then agent <span class="math inline">\(i\)</span> could gain greater utility by using their maxmin strategy instead, which is a contradiction to <span class="math inline">\(s^*\)</span> being a Nash equilibrium. In an equilibrium, all agents acts according to their best response to the other’s strategies:
+<span class="math display">\[ v^*_{-i} = \max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \]</span>
+As we’re in a zero-sum game, <span class="math inline">\(v^*_i = -v^*_{-i}\)</span> and <span class="math inline">\(u_i=-u_{-i}\)</span>, so
+<span class="math display">\[ \begin{aligned} v^*_i &amp;= -v^*_{-i} \\ &amp;= -\max_{s_{-i}}{u_{-i}(s^*_i, s_{-i})} \\
 &amp;= \min_{s_{-i}}{-u_{-i}(s^*_i, s_{-i})} \\
 &amp;= \min_{s_{-i}}{u_i(s^*_i, s_{-i})}
 \end{aligned}
-\]</span> By definition then, <span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \ge \min_{s_{-i}}{u_i(s^*_i, s_{-i})} = v^*_i \]</span> Hence <span class="math inline">\(\underline{v}_i = v^*_i\)</span> and so our maxmin strategy is actually a Nash equilibrium! This is the <strong>minimax theorem</strong> proven by von Neumann in 1928.</p>
+\]</span>
+By definition then,
+<span class="math display">\[ \underline{v}_i = \max_{s_i}\min_{s_{-i}}{u_i(s_i, s_{-i})} \ge \min_{s_{-i}}{u_i(s^*_i, s_{-i})} = v^*_i \]</span>
+Hence <span class="math inline">\(\underline{v}_i = v^*_i\)</span> and so our maxmin strategy is actually a Nash equilibrium! This is the <strong>minimax theorem</strong> proven by von Neumann in 1928.</p>
 <p>In general, computing the Nash equilibria of a general normal-form game is computationally difficult (even from a complexity theory standpoint)! More precisely, a few years ago Babichenko-Rubinstein <a href="https://arxiv.org/abs/1608.06580">show</a> that there is no guaranteed method for players to find even an approximate Nash equilibrium unless they tell each other almost everything about their preferences.</p>
 <p>We instead focus on a different solution type that is more computationally efficient, the <strong>correlated equilibria</strong>, which is a strict generalization of Nash equilibrium. It helps to start with an example:</p>
 <pre><code>        STOP         GO
@@ -79,7 +102,7 @@ GO   | (1, 0) | (-100, -100) |
 <p>In this <strong>traffic light game</strong>, each player has two actions– stop or go. It’s clear that there are two pure-strategy Nash equilibria, the off-diagonals <code>(GO, STOP)</code> and <code>(STOP, GO)</code>. However, these are not ideal, as only one person benefits in either situation.</p>
 <p>Let’s try and compute a mixed strategy Nash equilibrium for this game. Let the strategy of the first player be <span class="math inline">\(\sigma=(p, 1-p)\)</span> where <span class="math inline">\(p\)</span> is the probability of <code>GO</code>. How do we choose <span class="math inline">\(p\)</span>? It should be chosen such that if player 2 plays with a best response, player 1 plays in such a way that player 2 is indifferent between their actions, that is</p>
 <p><span class="math display">\[  u_2(\sigma, \text{GO}) = u_2(\sigma, \text{STOP}) \]</span></p>
-<p>If this were to not hold, e.g. <span class="math inline">\(u_2(\sigma, \text{GO}) &gt; u_2(\sigma, \text{STOP})\)</span>, then player 2 would have a better time choosing <code>GO</code> more often, contradicting that they play with a best response. Computing out the expected utilities, we have</p>
+<p>If this were to not hold, e.g. <span class="math inline">\(u_2(\sigma, \text{GO}) &gt; u_2(\sigma, \text{STOP})\)</span>, then player 2 would have a better time choosing <code>GO</code> more often, contradicting that they play with a best response. Computing out the expected utilities, we have</p>
 <p><span class="math display">\[ 1\cdot (1-p) - 100p = 0 \]</span></p>
 <p>which implies <span class="math inline">\(p = 1/101\)</span>. Hence in a mixed Nash equilibrium, both players go at a traffic stop with absurdly low probability! This is obviously very unideal.</p>
 <p>Luckily, this isn’t how traffic stops at intersections work in the real world. In this game-theoretic setting, each mixed strategy that goes into a Nash equilibrium gives a probability distribution over actions for each player– however, each action ends up choosing their action independently, without any communication between them. In real-life, we have <em>traffic lights</em>, which act as a signal to both players which suggests their action. This <em>correlates</em> the action of each player without fixing them to a single pure strategy.</p>
@@ -213,40 +236,40 @@ GO   | (1, 0) | (-100, -100) |
 <p><span class="math display">\[ R^T = \max_{\hat{x}\in\Delta^n}\left\{ \sum_{t=1}^T\left(\langle\ell^t,\hat{x}\rangle - \langle\ell^t,x_t\rangle\right)\right\} \]</span></p>
 <p>grow sublinearly as <span class="math inline">\(T\to\infty\)</span>, regardless of the utility vectors <span class="math inline">\(\ell^t\)</span> chosen by the environment.</p>
 <p>We describe the regret matching algorithm, along with a Python implementation. Recall that to implement a regret minimizer, we need to complete a specific API:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb3-2" title="2"></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw">class</span> RegretMinimizer:</a>
-<a class="sourceLine" id="cb3-4" title="4">    <span class="at">@abstractmethod</span></a>
-<a class="sourceLine" id="cb3-5" title="5">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb3-6" title="6">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a>
-<a class="sourceLine" id="cb3-7" title="7">    </a>
-<a class="sourceLine" id="cb3-8" title="8">    <span class="at">@abstractmethod</span></a>
-<a class="sourceLine" id="cb3-9" title="9">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</a>
-<a class="sourceLine" id="cb3-10" title="10">        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegretMinimizer:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div>
 <p>Regret matching will be a specific instance of a regret minimizer. Such decision-generating agents have some internal state that allows it to update its strategies over time (i.e. learning). At time 0, for regret matching we set a cumulative <em>regret</em> vector <span class="math inline">\(r_0\in\mathbf{R}^n\)</span> to <span class="math inline">\(\mathbf{0}\)</span> and we set an initial (uniform) strategy <span class="math inline">\(x_0=\left(\frac{1}{n},...,\frac{1}{n}\right)\in\mathbf{R}^n\)</span> where <span class="math inline">\(n\)</span> here is the number of actions <span class="math inline">\(|\mathcal{X}|\)</span> the agent following this strategy can make.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">class</span> RegretMatcher(RegretMinimizer):</a>
-<a class="sourceLine" id="cb4-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb4-3" title="3">        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</a>
-<a class="sourceLine" id="cb4-4" title="4">        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(num_actions)</a>
-<a class="sourceLine" id="cb4-5" title="5">        <span class="va">self</span>.current_strategy <span class="op">=</span> np.zeros(num_actions)</a>
-<a class="sourceLine" id="cb4-6" title="6">        <span class="va">self</span>.last_strategy <span class="op">=</span> np.zeros(num_actions)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RegretMatcher(RegretMinimizer):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(num_actions)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_strategy <span class="op">=</span> np.zeros(num_actions)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.last_strategy <span class="op">=</span> np.zeros(num_actions)</span></code></pre></div>
 <p>Suppose at time <span class="math inline">\(t\)</span> we are given a strategy <span class="math inline">\(x_t\in\mathbf{R}^n\)</span>. How do we update our regret vector <span class="math inline">\(r_{t-1}\)</span> to <span class="math inline">\(r_t\)</span> and use it to generate the next strategy? The intuition behind regret matching is that we should choose the actions that we regret not having chosen in the past more often.</p>
 <p>Given <span class="math inline">\(r_{t-1}\)</span>, let <span class="math inline">\(\theta_t = [r_{t-1}]^+\)</span> to be the vector gotten by setting any negative terms in the vector to 0. In this sense, negative regret is useless to us, since we don’t want to disincentivize choosing an action that already is giving us benefits. However, <span class="math inline">\(\theta_t\)</span> may no longer be in <span class="math inline">\(\Delta^n\)</span>, but we can force it by normalizing. So we take as our next strategy</p>
 <p><span class="math display">\[ x_t = \frac{\theta_t}{\|\theta_t\|_1} \]</span></p>
 <p>In code,</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb5-2" title="2">        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</a>
-<a class="sourceLine" id="cb5-3" title="3">        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb5-4" title="4">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</a>
-<a class="sourceLine" id="cb5-5" title="5">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb5-6" title="6">            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</a>
-<a class="sourceLine" id="cb5-7" title="7">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb5-8" title="8">            <span class="co"># default to uniform</span></a>
-<a class="sourceLine" id="cb5-9" title="9">            strategy <span class="op">=</span> np.repeat(<span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.num_actions, <span class="va">self</span>.num_actions)</a>
-<a class="sourceLine" id="cb5-10" title="10"></a>
-<a class="sourceLine" id="cb5-11" title="11">        <span class="va">self</span>.current_strategy <span class="op">=</span> strategy</a>
-<a class="sourceLine" id="cb5-12" title="12">        <span class="va">self</span>.strategy_sum <span class="op">+=</span> strategy</a>
-<a class="sourceLine" id="cb5-13" title="13">        <span class="cf">return</span> strategy</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="co"># default to uniform</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            strategy <span class="op">=</span> np.repeat(<span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.num_actions, <span class="va">self</span>.num_actions)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_strategy <span class="op">=</span> strategy</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.strategy_sum <span class="op">+=</span> strategy</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> strategy</span></code></pre></div>
 <p>Given a feedback vector <span class="math inline">\(\ell^t\)</span>, we want to now update our internal state in order to generate better strategies. Often, we can interpret our feedback utility vector from the environment as</p>
 <p><span class="math display">\[ \ell^t_a = \text{the payoff gotten if we purely chose action a} \]</span></p>
 <p>Consider the term</p>
@@ -254,53 +277,53 @@ GO   | (1, 0) | (-100, -100) |
 <p>where <span class="math inline">\(\mathbf{1}\)</span> is the vector <span class="math inline">\((1,...,1)\in\mathbf{R}^n\)</span>. Interpreting <span class="math inline">\(\langle\ell^t, x_t\rangle\)</span> as the expected utility of <span class="math inline">\(x_t\)</span>, we can interpret the vector <span class="math inline">\(\alpha_t\)</span> as</p>
 <p><span class="math display">\[ \alpha_{t,a} = \text{the regret of not purely choosing action a} \]</span></p>
 <p>To update our cumulative regret, we fold this into the mix: <span class="math inline">\(r_t = r_{t-1} + \alpha_t\)</span>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
-<a class="sourceLine" id="cb6-2" title="2">        expected_utility <span class="op">=</span> np.dot(utility_vector, <span class="va">self</span>.current_strategy)</a>
-<a class="sourceLine" id="cb6-3" title="3">        regrets <span class="op">=</span> utility_vector <span class="op">-</span> expected_utility</a>
-<a class="sourceLine" id="cb6-4" title="4">        <span class="va">self</span>.regret_sum <span class="op">+=</span> regrets</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        expected_utility <span class="op">=</span> np.dot(utility_vector, <span class="va">self</span>.current_strategy)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        regrets <span class="op">=</span> utility_vector <span class="op">-</span> expected_utility</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_sum <span class="op">+=</span> regrets</span></code></pre></div>
 <p>Performing this iterative gives the regret matching algorithm.</p>
 <p><strong>Rmk:</strong> If we take <span class="math inline">\(r_t=[r_{t-1}+\alpha_t]^+\)</span> instead, we get the <span class="math inline">\(\text{regret matching}^+\)</span> algorithm.</p>
 <h3 id="composition-and-swap-regret">composition and swap-regret*</h3>
 <p><strong>This section could be skipped on a first reading!</strong></p>
 <p>Now that we have a regret minimizer for <span class="math inline">\(\Delta^n\)</span>, can we build regret minimizers for other spaces? Since we can hope to build up our spaces as compositions of probability simplices, if we had rules to combine regret minimizers for certain algebraic operations we could generically build regret minimizers for a whole range of domain spaces <span class="math inline">\(\mathcal{X}\)</span>.</p>
 <p>Suppose <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span> are regret minimizers for <span class="math inline">\(\mathcal{X}\)</span> and <span class="math inline">\(\mathcal{Y}\)</span> respectively. Trivially, we get a regret minimizer for <span class="math inline">\(\mathcal{X}\times\mathcal{Y}\)</span> by</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> Product(RegretMinimizer):</a>
-<a class="sourceLine" id="cb7-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</a>
-<a class="sourceLine" id="cb7-3" title="3">        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</a>
-<a class="sourceLine" id="cb7-4" title="4"></a>
-<a class="sourceLine" id="cb7-5" title="5">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb7-6" title="6">        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</a>
-<a class="sourceLine" id="cb7-7" title="7">        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</a>
-<a class="sourceLine" id="cb7-8" title="8">        <span class="cf">return</span> np.concatenate([x_t, y_t], axis<span class="op">=</span><span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb7-9" title="9"></a>
-<a class="sourceLine" id="cb7-10" title="10">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
-<a class="sourceLine" id="cb7-11" title="11">        num_actions_x <span class="op">=</span> <span class="va">self</span>.r_x.num_actions</a>
-<a class="sourceLine" id="cb7-12" title="12">        <span class="va">self</span>.r_x.observe_utility(utility_vector[:num_actions_x])</a>
-<a class="sourceLine" id="cb7-13" title="13">        <span class="va">self</span>.r_y.observe_utility(utility_vector[num_actions_x:])</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Product(RegretMinimizer):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.concatenate([x_t, y_t], axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        num_actions_x <span class="op">=</span> <span class="va">self</span>.r_x.num_actions</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_x.observe_utility(utility_vector[:num_actions_x])</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_y.observe_utility(utility_vector[num_actions_x:])</span></code></pre></div>
 <p>It is clear that</p>
 <p><span class="math display">\[  R^T_{\mathcal{X}\times\mathcal{Y}} = R^T_\mathcal{X} + R^T_\mathcal{Y} \]</span></p>
 <p>so if <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span> have sublinear regret, so does <span class="math inline">\(\mathcal{R}_{\mathcal{X}\times\mathcal{Y}}\)</span>.</p>
 <p>Less trivially, consider the algebraic operation given by the convex hull <span class="math inline">\(\operatorname{conv}(\mathcal{X}, \mathcal{Y})\)</span>. Here we are assuming that <span class="math inline">\(\mathcal{X},\mathcal{Y}\subset\mathbf{R}^n\)</span>. Along with regret minimizers <span class="math inline">\(\mathcal{R}_\mathcal{X}\)</span>, <span class="math inline">\(\mathcal{R}_\mathcal{Y}\)</span>, we also need a regret minimizer for the simplex <span class="math inline">\(\Delta^2\)</span> (which we can luckily use the regret matching algorithm above)!</p>
 <p>Then we get a regret minimizer for <span class="math inline">\(\operatorname{conv}(\mathcal{X}, \mathcal{Y})\)</span> via</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">class</span> ConvexHull(RegretMinimizer):</a>
-<a class="sourceLine" id="cb8-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</a>
-<a class="sourceLine" id="cb8-3" title="3">        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</a>
-<a class="sourceLine" id="cb8-4" title="4">        <span class="va">self</span>.r_simplex <span class="op">=</span> RegretMatcher(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb8-5" title="5"></a>
-<a class="sourceLine" id="cb8-6" title="6">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb8-7" title="7">        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</a>
-<a class="sourceLine" id="cb8-8" title="8">        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</a>
-<a class="sourceLine" id="cb8-9" title="9">        p1_t, p2_t <span class="op">=</span> <span class="va">self</span>.r_simplex.next_strategy()</a>
-<a class="sourceLine" id="cb8-10" title="10">        <span class="cf">return</span> p1_t <span class="op">*</span> x_t <span class="op">+</span> p2_t <span class="op">*</span> y_t</a>
-<a class="sourceLine" id="cb8-11" title="11"></a>
-<a class="sourceLine" id="cb8-12" title="12">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
-<a class="sourceLine" id="cb8-13" title="13">        <span class="va">self</span>.r_x.observe_utility(utility_vector)</a>
-<a class="sourceLine" id="cb8-14" title="14">        <span class="va">self</span>.r_y.observe_utility(utility_vector)</a>
-<a class="sourceLine" id="cb8-15" title="15">        utility_augmented_vec <span class="op">=</span> np.array([</a>
-<a class="sourceLine" id="cb8-16" title="16">            np.dot(utility_vector, <span class="va">self</span>.r_x.current_strategy),</a>
-<a class="sourceLine" id="cb8-17" title="17">            np.dot(utility_vector, <span class="va">self</span>.r_y.current_strategy)</a>
-<a class="sourceLine" id="cb8-18" title="18">        ])</a>
-<a class="sourceLine" id="cb8-19" title="19">        <span class="va">self</span>.r_simplex.observe_utility(utility_augmented_vec)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ConvexHull(RegretMinimizer):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, r_x: RegretMinimizer, r_y: RegretMinimizer):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_x, <span class="va">self</span>.r_y <span class="op">=</span> r_x, r_y</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_simplex <span class="op">=</span> RegretMatcher(<span class="dv">2</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> <span class="va">self</span>.r_x.next_strategy()</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        y_t <span class="op">=</span> <span class="va">self</span>.r_y.next_strategy()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        p1_t, p2_t <span class="op">=</span> <span class="va">self</span>.r_simplex.next_strategy()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> p1_t <span class="op">*</span> x_t <span class="op">+</span> p2_t <span class="op">*</span> y_t</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_x.observe_utility(utility_vector)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_y.observe_utility(utility_vector)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        utility_augmented_vec <span class="op">=</span> np.array([</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            np.dot(utility_vector, <span class="va">self</span>.r_x.current_strategy),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            np.dot(utility_vector, <span class="va">self</span>.r_y.current_strategy)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        ])</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.r_simplex.observe_utility(utility_augmented_vec)</span></code></pre></div>
 <p>How does the cumulative regret grow in this case? By definition,</p>
 <p><span class="math display">\[
 \begin{align*}
@@ -329,24 +352,24 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <p>We close this section with the construction of a no-swap regret learning algorithm for the simplex <span class="math inline">\(\Delta^n\)</span>. In the literature, a lot of research is focused on creating external regret minimizers. However, in the previous section we gave a definition of <span class="math inline">\(\Phi\)</span>-regret minimization for general <span class="math inline">\(\Phi\)</span>. How can we construct no-<span class="math inline">\(\Phi\)</span> regret learners generically?</p>
 <p>In 2008, a <a href="https://www.cs.cmu.edu/~ggordon/gordon-greenwald-marks-icml-phi-regret.pdf">paper</a> by Gordon et al. gives a way to construct a <span class="math inline">\(\Phi\)</span>-regret minimizer for <span class="math inline">\(\mathcal{X}\)</span> from a regret minimizer over the set of functions <span class="math inline">\(\phi\in\Phi\)</span>.</p>
 <p><strong>Theorem</strong> (Gordon et al.): Let <span class="math inline">\(\mathcal{R}\)</span> be a <em>deterministic</em> regret minimizer over <span class="math inline">\(\Phi\)</span> with sublinear cumulative regret, and assume each <span class="math inline">\(\phi\in\Phi\)</span> has a fixed point, <span class="math inline">\(\phi(x)=x\in\mathcal{X}\)</span>. Then a <span class="math inline">\(\Phi\)</span>-regret minimizer <span class="math inline">\(\mathcal{R}_\Phi\)</span> can be constructed from <span class="math inline">\(\mathcal{R}\)</span> as:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">class</span> PhiRegretLearner(RegretMinimizer):</a>
-<a class="sourceLine" id="cb9-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, regret_learner: RegretMinimizer):</a>
-<a class="sourceLine" id="cb9-3" title="3">        <span class="va">self</span>.regret_learner <span class="op">=</span> regret_learner</a>
-<a class="sourceLine" id="cb9-4" title="4">        <span class="va">self</span>.last_fixpoint <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb9-5" title="5"></a>
-<a class="sourceLine" id="cb9-6" title="6">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb9-7" title="7">        <span class="co"># since regret_learner is a regret minimizer over \Phi</span></a>
-<a class="sourceLine" id="cb9-8" title="8">        phi_t <span class="op">=</span> <span class="va">self</span>.regret_learner.next_strategy()</a>
-<a class="sourceLine" id="cb9-9" title="9">        <span class="co"># get fixed point</span></a>
-<a class="sourceLine" id="cb9-10" title="10">        x_t <span class="op">=</span> fixpoint(phi_t)</a>
-<a class="sourceLine" id="cb9-11" title="11">        <span class="va">self</span>.last_fixpoint <span class="op">=</span> x_t</a>
-<a class="sourceLine" id="cb9-12" title="12">        <span class="cf">return</span> x_t</a>
-<a class="sourceLine" id="cb9-13" title="13"></a>
-<a class="sourceLine" id="cb9-14" title="14">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</a>
-<a class="sourceLine" id="cb9-15" title="15">        x_t <span class="op">=</span> <span class="va">self</span>.last_fixpoint</a>
-<a class="sourceLine" id="cb9-16" title="16">        <span class="kw">def</span> _linear_utility_functional(phi):</a>
-<a class="sourceLine" id="cb9-17" title="17">            <span class="cf">return</span> np.dot(utility_vec, phi(x_t))</a>
-<a class="sourceLine" id="cb9-18" title="18">        <span class="va">self</span>.regret_learner.observe_utility(_linear_utility_functional)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PhiRegretLearner(RegretMinimizer):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, regret_learner: RegretMinimizer):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_learner <span class="op">=</span> regret_learner</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.last_fixpoint <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># since regret_learner is a regret minimizer over \Phi</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        phi_t <span class="op">=</span> <span class="va">self</span>.regret_learner.next_strategy()</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get fixed point</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> fixpoint(phi_t)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.last_fixpoint <span class="op">=</span> x_t</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_t</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vec: np.ndarray):</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> <span class="va">self</span>.last_fixpoint</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> _linear_utility_functional(phi):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> np.dot(utility_vec, phi(x_t))</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_learner.observe_utility(_linear_utility_functional)</span></code></pre></div>
 <p>where we assume <code>fixpoint</code> is a function that can deterministically get a fixed point of the function <span class="math inline">\(phi\in\Phi\)</span>. Furthermore, <span class="math inline">\(R^T=R^T_\Phi\)</span>, so <span class="math inline">\(\mathcal{R}_\Phi\)</span> has sublinear regret.</p>
 <p><em>Proof</em>: For a sequence <span class="math inline">\(\phi_1,\phi_2,...\)</span> output by <span class="math inline">\(\mathcal{R}\)</span> with utilities <span class="math inline">\(\phi\mapsto\langle\ell^1,\phi(x_1)\rangle,\phi\mapsto\langle\ell^2,\phi(x_2)\rangle,...\)</span> we have</p>
 <p><span class="math display">\[ R^T=\max_{\hat{\phi}\in\Phi}\left\{\sum_{t=1}^T\left(\langle\ell^t,\hat{\phi}(x_t)\rangle-\langle\ell^t,\phi_t(x_t)\rangle\right)\right\} \]</span></p>
@@ -362,31 +385,31 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <p><span class="math display">\[ R^{\text{ext},T}_\Phi = n R^T_{\Delta^n} \le n\Omega\sqrt{T} \]</span></p>
 <p>for some constant <span class="math inline">\(\Omega\)</span>. Therefore, <span class="math inline">\(R^{\text{ext},T}_\Phi\)</span> is sublinear.</p>
 <p>Following Gordon et al., to use the theorem we need each <span class="math inline">\(M\in\Phi^\text{all}\)</span> to have a fixed point. But <span class="math inline">\(M:\Delta^n\to\Delta^n\)</span> <strong>must</strong> have one by the <a href="https://en.wikipedia.org/wiki/Brouwer_fixed-point_theorem">Brouwer fixed point theorem</a>. Hence the theorem gives a <span class="math inline">\(\Phi^\text{all}\)</span>-regret minimizer, i.e. a no-swap regret learner <span class="math inline">\(\mathcal{R}_\Phi\)</span> for <span class="math inline">\(\Delta^n\)</span>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">class</span> SwapRegretMinimizer(RegretMinimizer):</a>
-<a class="sourceLine" id="cb10-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb10-3" title="3">        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</a>
-<a class="sourceLine" id="cb10-4" title="4">        <span class="va">self</span>.current_strategy <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb10-5" title="5">        <span class="va">self</span>.regret_matchers <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb10-6" title="6">            RegretMatcher(num_actions)</a>
-<a class="sourceLine" id="cb10-7" title="7">            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_actions)</a>
-<a class="sourceLine" id="cb10-8" title="8">        ]</a>
-<a class="sourceLine" id="cb10-9" title="9"></a>
-<a class="sourceLine" id="cb10-10" title="10">    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb10-11" title="11">        simplex_vectors <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb10-12" title="12">        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</a>
-<a class="sourceLine" id="cb10-13" title="13">            v_i <span class="op">=</span> <span class="va">self</span>.regret_matchers[i].next_strategy()</a>
-<a class="sourceLine" id="cb10-14" title="14">            simplex_vectors.append(v_i)</a>
-<a class="sourceLine" id="cb10-15" title="15">        <span class="co"># concat to form stochastic matrix</span></a>
-<a class="sourceLine" id="cb10-16" title="16">        M <span class="op">=</span> np.column_stack(simplex_vectors)</a>
-<a class="sourceLine" id="cb10-17" title="17">        <span class="co"># get fixed point</span></a>
-<a class="sourceLine" id="cb10-18" title="18">        x_t <span class="op">=</span> fixpoint(M)</a>
-<a class="sourceLine" id="cb10-19" title="19">        <span class="va">self</span>.current_strategy <span class="op">=</span> x_t</a>
-<a class="sourceLine" id="cb10-20" title="20">        <span class="cf">return</span> x_t</a>
-<a class="sourceLine" id="cb10-21" title="21"></a>
-<a class="sourceLine" id="cb10-22" title="22">    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</a>
-<a class="sourceLine" id="cb10-23" title="23">        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</a>
-<a class="sourceLine" id="cb10-24" title="24">            simplex_util_vec <span class="op">=</span> <span class="va">self</span>.current_strategy[i] <span class="op">*</span> utility_vector</a>
-<a class="sourceLine" id="cb10-25" title="25">            <span class="va">self</span>.regret_matchers[i].observe_utility(simplex_util_vec)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SwapRegretMinimizer(RegretMinimizer):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_actions: <span class="bu">int</span>):</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_actions <span class="op">=</span> num_actions</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_strategy <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_matchers <span class="op">=</span> [</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            RegretMatcher(num_actions)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_actions)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> next_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        simplex_vectors <span class="op">=</span> []</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            v_i <span class="op">=</span> <span class="va">self</span>.regret_matchers[i].next_strategy()</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            simplex_vectors.append(v_i)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># concat to form stochastic matrix</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        M <span class="op">=</span> np.column_stack(simplex_vectors)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get fixed point</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        x_t <span class="op">=</span> fixpoint(M)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_strategy <span class="op">=</span> x_t</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x_t</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> observe_utility(<span class="va">self</span>, utility_vector: np.ndarray):</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_actions):</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>            simplex_util_vec <span class="op">=</span> <span class="va">self</span>.current_strategy[i] <span class="op">*</span> utility_vector</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.regret_matchers[i].observe_utility(simplex_util_vec)</span></code></pre></div>
 <p>This algorithm agrees with the one presented by <a href="https://www.jmlr.org/papers/volume8/blum07a/blum07a.pdf">Blum-Mansour</a>.</p>
 <h3 id="counterfactual-regret-minimization">counterfactual regret minimization</h3>
 <p>We will now try to compute Nash equilibria of imperfect information zero-sum games in extensive form. At this point, the post is getting pretty long and I still think the <a href="https://en.wikipedia.org/wiki/Extensive-form_game">wikipedia</a> page on extensive-form games is pretty good for defining the key terms.</p>
@@ -397,111 +420,114 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <img width="560" height="300" src="../images/kuhn-poker.png">
 </p>
 <p>We start off by giving a minimal description of our game tree for Kuhn Poker. As we will build the information sets dynamically, we just need to have a mapping <code>node_set</code> from information sets to our “information nodes”, which are regret minimizers for histories terminating at that information set.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># kuhn poker definitions</span></a>
-<a class="sourceLine" id="cb11-2" title="2">PASS <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb11-3" title="3">BET <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb11-4" title="4">NUM_ACTIONS <span class="op">=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb11-5" title="5">CARDS <span class="op">=</span> [<span class="st">&quot;J&quot;</span>, <span class="st">&quot;Q&quot;</span>, <span class="st">&quot;K&quot;</span>]</a>
-<a class="sourceLine" id="cb11-6" title="6"></a>
-<a class="sourceLine" id="cb11-7" title="7">node_map <span class="op">=</span> {}</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># kuhn poker definitions</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>PASS <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>BET <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>NUM_ACTIONS <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>CARDS <span class="op">=</span> [<span class="st">&quot;J&quot;</span>, <span class="st">&quot;Q&quot;</span>, <span class="st">&quot;K&quot;</span>]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>node_map <span class="op">=</span> {}</span></code></pre></div>
 <p>Counterfactual regret minimization assigns to every information set of the game an independent regret matcher, which we call an <code>InformationNode</code>. The purpose of this node is to produce (mixed) strategies for which action to pursue at the current information set, and to learn from its regrets to produce ever more optimal strategies.</p>
 <p>Although a true regret minimizer has an <code>observe_utility</code> method, we omit it and couple it more with the <code>cfr</code> function below in this implementation.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">class</span> InformationNode:</a>
-<a class="sourceLine" id="cb12-2" title="2">    info_set: <span class="bu">str</span></a>
-<a class="sourceLine" id="cb12-3" title="3">    </a>
-<a class="sourceLine" id="cb12-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb12-5" title="5">        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb12-6" title="6">        <span class="va">self</span>.strategy <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb12-7" title="7">        <span class="va">self</span>.strategy_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb12-8" title="8">    </a>
-<a class="sourceLine" id="cb12-9" title="9">    <span class="kw">def</span> get_strategy(<span class="va">self</span>, realization_weight: <span class="bu">float</span>, threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.001</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb12-10" title="10">        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</a>
-<a class="sourceLine" id="cb12-11" title="11">        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb12-12" title="12">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</a>
-<a class="sourceLine" id="cb12-13" title="13">        </a>
-<a class="sourceLine" id="cb12-14" title="14">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb12-15" title="15">            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</a>
-<a class="sourceLine" id="cb12-16" title="16">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb12-17" title="17">            strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb12-18" title="18">            </a>
-<a class="sourceLine" id="cb12-19" title="19">        <span class="co"># thresholding for stability</span></a>
-<a class="sourceLine" id="cb12-20" title="20">        strategy[strategy <span class="op">&lt;</span> threshold] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb12-21" title="21">        strategy <span class="op">/=</span> np.<span class="bu">sum</span>(strategy)</a>
-<a class="sourceLine" id="cb12-22" title="22">            </a>
-<a class="sourceLine" id="cb12-23" title="23">        <span class="va">self</span>.strategy <span class="op">=</span> strategy</a>
-<a class="sourceLine" id="cb12-24" title="24">        <span class="va">self</span>.strategy_sum <span class="op">+=</span> realization_weight <span class="op">*</span> strategy</a>
-<a class="sourceLine" id="cb12-25" title="25">        <span class="cf">return</span> strategy</a>
-<a class="sourceLine" id="cb12-26" title="26">    </a>
-<a class="sourceLine" id="cb12-27" title="27">    <span class="kw">def</span> get_average_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb12-28" title="28">        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.strategy_sum)</a>
-<a class="sourceLine" id="cb12-29" title="29">        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb12-30" title="30">            average_strategy <span class="op">=</span> <span class="va">self</span>.strategy_sum <span class="op">/</span> normalizing_sum</a>
-<a class="sourceLine" id="cb12-31" title="31">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb12-32" title="32">            average_strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb12-33" title="33">        <span class="cf">return</span> average_strategy</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InformationNode:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    info_set: <span class="bu">str</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.regret_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.strategy <span class="op">=</span> np.zeros(NUM_ACTIONS)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.strategy_sum <span class="op">=</span> np.zeros(NUM_ACTIONS)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_strategy(<span class="va">self</span>, realization_weight: <span class="bu">float</span>, threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.001</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        regrets <span class="op">=</span> np.copy(<span class="va">self</span>.regret_sum)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        regrets[regrets <span class="op">&lt;</span> <span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(regrets)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>            strategy <span class="op">=</span> regrets <span class="op">/</span> normalizing_sum</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>            strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># thresholding for stability</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        strategy[strategy <span class="op">&lt;</span> threshold] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        strategy <span class="op">/=</span> np.<span class="bu">sum</span>(strategy)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.strategy <span class="op">=</span> strategy</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.strategy_sum <span class="op">+=</span> realization_weight <span class="op">*</span> strategy</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> strategy</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_average_strategy(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        normalizing_sum <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.strategy_sum)</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> normalizing_sum <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>            average_strategy <span class="op">=</span> <span class="va">self</span>.strategy_sum <span class="op">/</span> normalizing_sum</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>            average_strategy <span class="op">=</span> np.repeat(<span class="fl">1.0</span> <span class="op">/</span> NUM_ACTIONS, NUM_ACTIONS)</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> average_strategy</span></code></pre></div>
 <p>Now we implement the CFR algorithm. The type of this function is given by</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">str</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span></a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">str</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span></span></code></pre></div>
 <p>(where here, <code>cards</code> is only a dependency because we are shuffling the cards via Fisher-Yates per training iteration, and then our handout of cards to each player is just via indexing).</p>
-<p>Parameters: * <code>history</code> is a string representation of the information set we are currently at. For example, we will represent player 1’s information set of having a King and the player 0 already applying a bet to be <code>Kb</code>, while something like <code>Qpb</code> is an information set for player 0 where they are holding a Q, they passed and an opponent raised a bet. * <code>p0</code> is the probability that player 0 reaches <code>history</code> under the strategy profile <span class="math inline">\(\sigma\)</span>. Mathematically this is represented by <span class="math inline">\(\pi_0^\sigma(h)\)</span> where <span class="math inline">\(h\)</span> is the <code>history</code>. * <code>p1</code> is the analogous probability for player 1, <span class="math inline">\(\pi_1^\sigma(h)\)</span>.</p>
+<p>Parameters:
+* <code>history</code> is a string representation of the information set we are currently at. For example, we will represent player 1’s information set of having a King and the player 0 already applying a bet to be <code>Kb</code>, while something like <code>Qpb</code> is an information set for player 0 where they are holding a Q, they passed and an opponent raised a bet.
+* <code>p0</code> is the probability that player 0 reaches <code>history</code> under the strategy profile <span class="math inline">\(\sigma\)</span>. Mathematically this is represented by <span class="math inline">\(\pi_0^\sigma(h)\)</span> where <span class="math inline">\(h\)</span> is the <code>history</code>.
+* <code>p1</code> is the analogous probability for player 1, <span class="math inline">\(\pi_1^\sigma(h)\)</span>.</p>
 <p>The function <code>cfr</code> returns the expected utility of the subgame of the game starting from the given <code>history</code>:</p>
 <p><span class="math display">\[ \operatorname{cfr}(\mathcal{C}, h, \pi^\sigma_0(h), \pi^\sigma_1(h)) = \sum_{z\in Z} \pi^\sigma(h, z)u_0(z) \]</span></p>
 <p>where <span class="math inline">\(Z\)</span> is the set of all terminal game histories, <span class="math inline">\(\pi^\sigma(h, z)\)</span> the probability of reaching <span class="math inline">\(z\)</span> from <span class="math inline">\(h\)</span> given the strategy profile <span class="math inline">\(\sigma\)</span>, and <span class="math inline">\(u_0\)</span> is the terminal utility function for player 0.</p>
 <p><strong>Note:</strong> In the literature, this is denoted <span class="math inline">\(u_0(\sigma, I)\)</span>, where <span class="math inline">\(I\)</span> is an information set represented by this history <span class="math inline">\(h\)</span>.</p>
-<p>This is important, and crucial for the recursion later on. Each training run will start the recursive process by making a call to <code>cfr(cards, &quot;&quot;, 1, 1)</code>, where <code>history=&quot;&quot;</code> means we are asking about the expected utility of the <strong>entire</strong> game.</p>
+<p>This is important, and crucial for the recursion later on. Each training run will start the recursive process by making a call to <code>cfr(cards, "", 1, 1)</code>, where <code>history=""</code> means we are asking about the expected utility of the <strong>entire</strong> game.</p>
 <p>Since Kuhn Poker is very simple, from the <code>history</code> string we can determine which player’s turn it is via</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">players <span class="op">=</span> <span class="bu">len</span>(history)</a>
-<a class="sourceLine" id="cb14-2" title="2">player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb14-3" title="3">opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>players <span class="op">=</span> <span class="bu">len</span>(history)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</span></code></pre></div>
 <p>Since <code>cfr</code> is recursively defined by performing a walk along the game tree, we need to satisfy our base case by giving the terminal utility function <span class="math inline">\(u_0(z)\)</span>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">def</span> better_card(player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</a>
-<a class="sourceLine" id="cb15-2" title="2">    values <span class="op">=</span> {<span class="st">&quot;J&quot;</span>: <span class="dv">0</span>, <span class="st">&quot;Q&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;K&quot;</span>: <span class="dv">2</span>}</a>
-<a class="sourceLine" id="cb15-3" title="3">    player_val, opponent_val <span class="op">=</span> values[player_card], values[opponent_card]</a>
-<a class="sourceLine" id="cb15-4" title="4">    <span class="cf">return</span> player_val <span class="op">&gt;</span> opponent_val</a>
-<a class="sourceLine" id="cb15-5" title="5"></a>
-<a class="sourceLine" id="cb15-6" title="6"><span class="kw">def</span> terminal_utility(history: <span class="bu">str</span>, player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> (<span class="bu">bool</span>, <span class="bu">float</span>):</a>
-<a class="sourceLine" id="cb15-7" title="7">    terminal_pass <span class="op">=</span> history[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="st">'p'</span></a>
-<a class="sourceLine" id="cb15-8" title="8">    double_bet <span class="op">=</span> history[<span class="op">-</span><span class="dv">2</span>:] <span class="op">==</span> <span class="st">&quot;bb&quot;</span></a>
-<a class="sourceLine" id="cb15-9" title="9">    is_player_card_higher <span class="op">=</span> better_card(player_card, opponent_card)</a>
-<a class="sourceLine" id="cb15-10" title="10"></a>
-<a class="sourceLine" id="cb15-11" title="11">    <span class="cf">if</span> terminal_pass:</a>
-<a class="sourceLine" id="cb15-12" title="12">        <span class="cf">if</span> history <span class="op">==</span> <span class="st">&quot;pp&quot;</span>:</a>
-<a class="sourceLine" id="cb15-13" title="13">            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb15-14" title="14">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb15-15" title="15">            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span></a>
-<a class="sourceLine" id="cb15-16" title="16">    <span class="cf">elif</span> double_bet:</a>
-<a class="sourceLine" id="cb15-17" title="17">        <span class="cf">return</span> <span class="va">True</span>, <span class="dv">2</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="dv">-2</span></a>
-<a class="sourceLine" id="cb15-18" title="18">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb15-19" title="19">        <span class="cf">return</span> <span class="va">False</span>, <span class="dv">0</span></a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> better_card(player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> {<span class="st">&quot;J&quot;</span>: <span class="dv">0</span>, <span class="st">&quot;Q&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;K&quot;</span>: <span class="dv">2</span>}</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    player_val, opponent_val <span class="op">=</span> values[player_card], values[opponent_card]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> player_val <span class="op">&gt;</span> opponent_val</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> terminal_utility(history: <span class="bu">str</span>, player_card: <span class="bu">str</span>, opponent_card: <span class="bu">str</span>) <span class="op">-&gt;</span> (<span class="bu">bool</span>, <span class="bu">float</span>):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    terminal_pass <span class="op">=</span> history[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="st">'p'</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    double_bet <span class="op">=</span> history[<span class="op">-</span><span class="dv">2</span>:] <span class="op">==</span> <span class="st">&quot;bb&quot;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    is_player_card_higher <span class="op">=</span> better_card(player_card, opponent_card)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> terminal_pass:</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> history <span class="op">==</span> <span class="st">&quot;pp&quot;</span>:</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span>, <span class="dv">1</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> double_bet:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span>, <span class="dv">2</span> <span class="cf">if</span> is_player_card_higher <span class="cf">else</span> <span class="op">-</span><span class="dv">2</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span>, <span class="dv">0</span></span></code></pre></div>
 <p>In our <code>cfr</code> function we return our terminal utilities as a base case:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb16-1" title="1">player_card <span class="op">=</span> cards[player]</a>
-<a class="sourceLine" id="cb16-2" title="2">opponent_card <span class="op">=</span> cards[opponent]</a>
-<a class="sourceLine" id="cb16-3" title="3"></a>
-<a class="sourceLine" id="cb16-4" title="4"><span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb16-5" title="5">    terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</a>
-<a class="sourceLine" id="cb16-6" title="6">    <span class="cf">if</span> terminate:</a>
-<a class="sourceLine" id="cb16-7" title="7">        <span class="cf">return</span> util</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>player_card <span class="op">=</span> cards[player]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>opponent_card <span class="op">=</span> cards[opponent]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> terminate:</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> util</span></code></pre></div>
 <p>If we’re not in a terminal history, then we must be in an information set. We then grab the information node from the <code>node_set</code> mapping, or instantiate it if it doesn’t exist.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1">info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</a>
-<a class="sourceLine" id="cb17-2" title="2">node <span class="op">=</span> node_map.get(info_set)</a>
-<a class="sourceLine" id="cb17-3" title="3"><span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb17-4" title="4">    node <span class="op">=</span> InformationNode()</a>
-<a class="sourceLine" id="cb17-5" title="5">    node.info_set <span class="op">=</span> info_set</a>
-<a class="sourceLine" id="cb17-6" title="6">    node_map[info_set] <span class="op">=</span> node</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>node <span class="op">=</span> node_map.get(info_set)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    node <span class="op">=</span> InformationNode()</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    node.info_set <span class="op">=</span> info_set</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    node_map[info_set] <span class="op">=</span> node</span></code></pre></div>
 <p>Here, the <code>info_set</code> is the string representation of the information set for the player (which includes which card they are holding).</p>
 <p>Now we reach the recursive <code>cfr</code> call for computing the expected utility <span class="math inline">\(u_0(\sigma, I)\)</span>. Note that we can break down the expected utility at an information set into a weighted sum over utilities of “one-step-over” information sets</p>
 <p><span class="math display">\[ u_0(\sigma, I) = \sum_{a\in A(I)} \sigma(I)(a)u_0(\sigma, I\rightarrow a) \]</span></p>
 <p>where <span class="math inline">\(a\in A(I)\)</span> is an action in the set of actions at information set <span class="math inline">\(I\)</span>, <span class="math inline">\(\sigma(I)(a)\)</span> is the probability of action <span class="math inline">\(a\)</span> taken in the strategy for information set <span class="math inline">\(I\)</span>, and <span class="math inline">\(I\rightarrow a\)</span> the next information set reached when action <span class="math inline">\(a\)</span> is applied.</p>
 <p>In code:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1">strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</a>
-<a class="sourceLine" id="cb18-2" title="2">util <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb18-3" title="3">node_util <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb18-4" title="4"><span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</a>
-<a class="sourceLine" id="cb18-5" title="5">    next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</a>
-<a class="sourceLine" id="cb18-6" title="6">    <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb18-7" title="7">        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</a>
-<a class="sourceLine" id="cb18-8" title="8">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb18-9" title="9">        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</a>
-<a class="sourceLine" id="cb18-10" title="10">    node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>util <span class="op">=</span> np.zeros(NUM_ACTIONS)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>node_util <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</span></code></pre></div>
 <p>Here, <code>strategy</code> is represented above by <span class="math inline">\(\sigma(I)\)</span>, <code>util</code> is a vector where the <code>a</code>th entry is given by <span class="math inline">\(u_0(\sigma, I\rightarrow a)\)</span> and <code>node_util</code> is our final <span class="math inline">\(u_0(\sigma, I)\)</span>. We note a slight subtlety comes in passing in the probability of reaching our history <span class="math inline">\(\pi_i^\sigma(h)\)</span> is being passed into <code>get_strategy</code> and ultimately multiplied by the distribution generated by the regret matcher. This is because <span class="math inline">\(\sigma(I)(a)\)</span> is the probability of the action <span class="math inline">\(a\)</span>, unconditioned on whether we’re at information set <span class="math inline">\(I\)</span>! So it has to take the probability to getting to <span class="math inline">\(I\)</span> into account.</p>
 <p>The <code>node_util</code> that we get is the expected utility for the subgame that we want. However, counterfactual regret minimization is also an algorithm for training the regret matchers to produce better strategies, so we must also have a mechanism for generating a new strategy at each information set by factoring in the utilities passed backwards from each terminal node.</p>
 <p>The mechanism <span class="math inline">\(cfr\)</span> uses is that of <strong>counterfactual regret</strong>. Define <span class="math inline">\(\pi_{-i}^\sigma(h)\)</span> to be the <strong>counterfactual reach probability</strong>, the probability of reaching history <span class="math inline">\(h\)</span> with strategy profile <span class="math inline">\(\sigma\)</span> where we treat player <span class="math inline">\(i\)</span>’s actions to reach <span class="math inline">\(I\)</span> with probability 1. That is, <span class="math inline">\(\pi^\sigma_{-i}(h)\)</span> is the product</p>
@@ -509,67 +535,67 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
 <p>Then the counterfactual regret of not taking action <span class="math inline">\(a\)</span> at information set <span class="math inline">\(I\)</span> is given by</p>
 <p><span class="math display">\[ r(h, a) = \pi^\sigma_{-i}(I) \left(u_i(\sigma, I\rightarrow a) - u_i(\sigma, I)\right) \]</span></p>
 <p>In our implementation this is given by</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1">regret <span class="op">=</span> util <span class="op">-</span> node_util</a>
-<a class="sourceLine" id="cb19-2" title="2">counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</a>
-<a class="sourceLine" id="cb19-3" title="3">node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>regret <span class="op">=</span> util <span class="op">-</span> node_util</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</span></code></pre></div>
 <p>In totality,</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">int</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</a>
-<a class="sourceLine" id="cb20-2" title="2">    plays <span class="op">=</span> <span class="bu">len</span>(history)</a>
-<a class="sourceLine" id="cb20-3" title="3">    player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb20-4" title="4">    opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</a>
-<a class="sourceLine" id="cb20-5" title="5">    </a>
-<a class="sourceLine" id="cb20-6" title="6">    <span class="co"># terminal payoff</span></a>
-<a class="sourceLine" id="cb20-7" title="7">    player_card <span class="op">=</span> cards[player]</a>
-<a class="sourceLine" id="cb20-8" title="8">    opponent_card <span class="op">=</span> cards[opponent]</a>
-<a class="sourceLine" id="cb20-9" title="9"></a>
-<a class="sourceLine" id="cb20-10" title="10">    <span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb20-11" title="11">        terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</a>
-<a class="sourceLine" id="cb20-12" title="12">        <span class="cf">if</span> terminate:</a>
-<a class="sourceLine" id="cb20-13" title="13">            <span class="cf">return</span> util</a>
-<a class="sourceLine" id="cb20-14" title="14">        </a>
-<a class="sourceLine" id="cb20-15" title="15">    info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</a>
-<a class="sourceLine" id="cb20-16" title="16">    node <span class="op">=</span> node_map.get(info_set)</a>
-<a class="sourceLine" id="cb20-17" title="17">    <span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb20-18" title="18">        node <span class="op">=</span> InformationNode()</a>
-<a class="sourceLine" id="cb20-19" title="19">        node.info_set <span class="op">=</span> info_set</a>
-<a class="sourceLine" id="cb20-20" title="20">        node_map[info_set] <span class="op">=</span> node</a>
-<a class="sourceLine" id="cb20-21" title="21">        </a>
-<a class="sourceLine" id="cb20-22" title="22">    <span class="co"># recursive call to cfr with more history</span></a>
-<a class="sourceLine" id="cb20-23" title="23">    <span class="co"># get strategy for information set</span></a>
-<a class="sourceLine" id="cb20-24" title="24">    strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</a>
-<a class="sourceLine" id="cb20-25" title="25">    util <span class="op">=</span> np.zeros(NUM_ACTIONS)</a>
-<a class="sourceLine" id="cb20-26" title="26">    node_util <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb20-27" title="27">    <span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</a>
-<a class="sourceLine" id="cb20-28" title="28">        next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</a>
-<a class="sourceLine" id="cb20-29" title="29">        <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb20-30" title="30">            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</a>
-<a class="sourceLine" id="cb20-31" title="31">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb20-32" title="32">            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</a>
-<a class="sourceLine" id="cb20-33" title="33">        node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</a>
-<a class="sourceLine" id="cb20-34" title="34">        </a>
-<a class="sourceLine" id="cb20-35" title="35">    <span class="co"># counterfactual regrets</span></a>
-<a class="sourceLine" id="cb20-36" title="36">    regret <span class="op">=</span> util <span class="op">-</span> node_util</a>
-<a class="sourceLine" id="cb20-37" title="37">    counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</a>
-<a class="sourceLine" id="cb20-38" title="38">    node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</a>
-<a class="sourceLine" id="cb20-39" title="39">    node_map[info_set] <span class="op">=</span> node</a>
-<a class="sourceLine" id="cb20-40" title="40"></a>
-<a class="sourceLine" id="cb20-41" title="41">    <span class="cf">return</span> node_util</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cfr(cards: <span class="bu">list</span>[<span class="bu">int</span>], history: <span class="bu">str</span>, p0: <span class="bu">float</span>, p1: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    plays <span class="op">=</span> <span class="bu">len</span>(history)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    player <span class="op">=</span> plays <span class="op">%</span> <span class="dv">2</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    opponent <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> player</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># terminal payoff</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    player_card <span class="op">=</span> cards[player]</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    opponent_card <span class="op">=</span> cards[opponent]</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> plays <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        terminate, util <span class="op">=</span> terminal_utility(history, player_card, opponent_card)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> terminate:</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> util</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    info_set <span class="op">=</span> <span class="bu">str</span>(player_card) <span class="op">+</span> history</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    node <span class="op">=</span> node_map.get(info_set)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        node <span class="op">=</span> InformationNode()</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        node.info_set <span class="op">=</span> info_set</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        node_map[info_set] <span class="op">=</span> node</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># recursive call to cfr with more history</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get strategy for information set</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    strategy <span class="op">=</span> node.get_strategy(p0 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p1)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    util <span class="op">=</span> np.zeros(NUM_ACTIONS)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    node_util <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> a <span class="kw">in</span> <span class="bu">range</span>(NUM_ACTIONS):</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>        next_history <span class="op">=</span> history <span class="op">+</span> (<span class="st">'p'</span> <span class="cf">if</span> a <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'b'</span>)</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0 <span class="op">*</span> strategy[a], p1)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>            util[a] <span class="op">=</span> <span class="op">-</span>cfr(cards, next_history, p0, p1 <span class="op">*</span> strategy[a])</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>        node_util <span class="op">+=</span> strategy[a] <span class="op">*</span> util[a]</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># counterfactual regrets</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    regret <span class="op">=</span> util <span class="op">-</span> node_util</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    counterfactual_reach_prob <span class="op">=</span> p1 <span class="cf">if</span> player <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> p0</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    node.regret_sum <span class="op">+=</span> counterfactual_reach_prob <span class="op">*</span> regret</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    node_map[info_set] <span class="op">=</span> node</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> node_util</span></code></pre></div>
 <p>To train our regret minimizers, we run an iteration loop via</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">def</span> train(iterations: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb21-2" title="2">    util <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb21-3" title="3">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(iterations):</a>
-<a class="sourceLine" id="cb21-4" title="4">        <span class="co"># fisher-yates shuffle</span></a>
-<a class="sourceLine" id="cb21-5" title="5">        <span class="cf">for</span> c1 <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(CARDS) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">-1</span>):</a>
-<a class="sourceLine" id="cb21-6" title="6">            c2 <span class="op">=</span> random.randint(a<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span>c1)</a>
-<a class="sourceLine" id="cb21-7" title="7">            CARDS[c1], CARDS[c2] <span class="op">=</span> CARDS[c2], CARDS[c1]</a>
-<a class="sourceLine" id="cb21-8" title="8"></a>
-<a class="sourceLine" id="cb21-9" title="9">        util <span class="op">+=</span> cfr(CARDS, <span class="st">&quot;&quot;</span>, <span class="dv">1</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb21-10" title="10"></a>
-<a class="sourceLine" id="cb21-11" title="11">    avg_game_value <span class="op">=</span> util <span class="op">/</span> iterations</a>
-<a class="sourceLine" id="cb21-12" title="12">    <span class="cf">return</span> avg_game_value</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train(iterations: <span class="bu">int</span>):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    util <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(iterations):</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># fisher-yates shuffle</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c1 <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(CARDS) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            c2 <span class="op">=</span> random.randint(a<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span>c1)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            CARDS[c1], CARDS[c2] <span class="op">=</span> CARDS[c2], CARDS[c1]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        util <span class="op">+=</span> cfr(CARDS, <span class="st">&quot;&quot;</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    avg_game_value <span class="op">=</span> util <span class="op">/</span> iterations</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> avg_game_value</span></code></pre></div>
 <p>If we run this for Kuhn poker, we get</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="op">&gt;</span> <span class="ex">train</span>(100000)</a>
-<a class="sourceLine" id="cb22-2" title="2"><span class="ex">-0.05834981887437761</span></a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> train<span class="kw">(</span><span class="ex">100000</span><span class="kw">)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-0.05834981887437761</span></span></code></pre></div>
 <p>So we get an average game value of <span class="math inline">\(\simeq -0.05\)</span>, which is the theoretical value for the game at Nash equilibrium.</p>
 <h3 id="why-does-this-work">why does this work?</h3>
 <p>Let <span class="math inline">\(R^T_{cf}(I)\)</span> be the counterfactual regret given by</p>
@@ -589,5 +615,7 @@ R^T &amp;= \max_{\hat{\lambda}\in\Delta^2, \hat{x}\in\mathcal{X},\hat{y}\in\math
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

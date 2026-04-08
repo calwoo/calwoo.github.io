@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -52,108 +53,108 @@
 <h3 id="forward-mode-autodiff">forward-mode autodiff</h3>
 <p><em>Upshot:</em> We can use this perspective of the pushforward to perform forward-mode auto-differentation. We build a computational graph and push through the inputs a dual number. In the end we output a value that contains the derivative we are looking for.</p>
 <p>We’ll build an example of this in Python using operator overloading. Python does this by using <em>magic methods</em> like <code>__add__</code> and <code>__mul__</code>. To start, we need a representation of a dual number.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">from</span> typing <span class="im">import</span> Union</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">class</span> Dual:</a>
-<a class="sourceLine" id="cb1-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, val: <span class="bu">float</span>, tangent: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span>):</a>
-<a class="sourceLine" id="cb1-5" title="5">        <span class="va">self</span>.val <span class="op">=</span> val</a>
-<a class="sourceLine" id="cb1-6" title="6">        <span class="va">self</span>.tangent <span class="op">=</span> tangent</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Union</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Dual:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, val: <span class="bu">float</span>, tangent: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.val <span class="op">=</span> val</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tangent <span class="op">=</span> tangent</span></code></pre></div>
 <p>Algebraically, an element of the dual numbers <span class="math inline">\(k[x]/(x^2)\)</span> is of the form <span class="math inline">\(a + bx\)</span>. The algebra of dual numbers is straightforward, and is given by</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1">    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</a>
-<a class="sourceLine" id="cb2-2" title="2">        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</a>
-<a class="sourceLine" id="cb2-3" title="3">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">+</span> other.val, <span class="va">self</span>.tangent <span class="op">+</span> other.tangent) </a>
-<a class="sourceLine" id="cb2-4" title="4">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-5" title="5">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">+</span> other, <span class="va">self</span>.tangent)</a>
-<a class="sourceLine" id="cb2-6" title="6"></a>
-<a class="sourceLine" id="cb2-7" title="7">    <span class="kw">def</span> <span class="fu">__sub__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</a>
-<a class="sourceLine" id="cb2-8" title="8">        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</a>
-<a class="sourceLine" id="cb2-9" title="9">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">-</span> other.val, <span class="va">self</span>.tangent <span class="op">-</span> other.tangent)</a>
-<a class="sourceLine" id="cb2-10" title="10">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-11" title="11">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">-</span> other, <span class="va">self</span>.tangent)</a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13">    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</a>
-<a class="sourceLine" id="cb2-14" title="14">        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</a>
-<a class="sourceLine" id="cb2-15" title="15">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">*</span> other.val, <span class="va">self</span>.val <span class="op">*</span> other.tangent <span class="op">+</span> <span class="va">self</span>.tangent <span class="op">*</span> other.val)</a>
-<a class="sourceLine" id="cb2-16" title="16">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-17" title="17">            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">*</span> other, <span class="va">self</span>.tangent <span class="op">*</span> other)</a>
-<a class="sourceLine" id="cb2-18" title="18">    </a>
-<a class="sourceLine" id="cb2-19" title="19">    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, other: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</a>
-<a class="sourceLine" id="cb2-20" title="20">        <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">**</span> other, <span class="va">self</span>.tangent <span class="op">*</span> other <span class="op">*</span> <span class="va">self</span>.val <span class="op">**</span> (other <span class="op">-</span> <span class="dv">1</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">+</span> other.val, <span class="va">self</span>.tangent <span class="op">+</span> other.tangent) </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">+</span> other, <span class="va">self</span>.tangent)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__sub__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">-</span> other.val, <span class="va">self</span>.tangent <span class="op">-</span> other.tangent)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">-</span> other, <span class="va">self</span>.tangent)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other: Union[<span class="st">&quot;Dual&quot;</span>, <span class="bu">float</span>]) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(other, Dual):</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">*</span> other.val, <span class="va">self</span>.val <span class="op">*</span> other.tangent <span class="op">+</span> <span class="va">self</span>.tangent <span class="op">*</span> other.val)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">*</span> other, <span class="va">self</span>.tangent <span class="op">*</span> other)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, other: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Dual&quot;</span>:</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Dual(<span class="va">self</span>.val <span class="op">**</span> other, <span class="va">self</span>.tangent <span class="op">*</span> other <span class="op">*</span> <span class="va">self</span>.val <span class="op">**</span> (other <span class="op">-</span> <span class="dv">1</span>))</span></code></pre></div>
 <p>Since all arithmetic operations are overloaded, performing forward-mode autodiff is as easy as plugging it into the functions and extracting the tangent component:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x <span class="op">-</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="op">&gt;</span> f(x).tangent</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="fl">7.0</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">1.0</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x <span class="op">-</span> <span class="dv">3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f(x).tangent</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fl">7.0</span></span></code></pre></div>
 <p>We can also perform this calculation for multivariate functions:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="op">&gt;</span> y <span class="op">=</span> Dual(<span class="fl">4.0</span>, <span class="fl">0.0</span>)</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x, y: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x<span class="op">*</span>y <span class="op">-</span> y</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="op">&gt;</span> f(x, y).tangent</a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="fl">10.0</span>        <span class="co"># derivative w.r.t x</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">0.0</span>)</a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="op">&gt;</span> y <span class="op">=</span> Dual(<span class="fl">4.0</span>, <span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x, y: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x<span class="op">*</span>y <span class="op">-</span> y</a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="op">&gt;</span> f(x, y).tangent</a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="fl">2.0</span>         <span class="co"># derivative w.r.t y</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">1.0</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> y <span class="op">=</span> Dual(<span class="fl">4.0</span>, <span class="fl">0.0</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x, y: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x<span class="op">*</span>y <span class="op">-</span> y</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f(x, y).tangent</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fl">10.0</span>        <span class="co"># derivative w.r.t x</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> x <span class="op">=</span> Dual(<span class="fl">3.0</span>, <span class="fl">0.0</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> y <span class="op">=</span> Dual(<span class="fl">4.0</span>, <span class="fl">1.0</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f <span class="op">=</span> <span class="kw">lambda</span> x, y: x<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> x<span class="op">*</span>y <span class="op">-</span> y</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> f(x, y).tangent</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fl">2.0</span>         <span class="co"># derivative w.r.t y</span></span></code></pre></div>
 <p>That’s cool.</p>
 <h3 id="reverse-mode-autodiff">reverse-mode autodiff</h3>
 <p>Note that for the function <span class="math inline">\(f:\mathbb{R}^2\to\mathbb{R}\)</span> above, we had to perform the forward-mode procedure twice to compute the directional derivatives. In general, for a function <span class="math inline">\(f:\mathbb{R}^n\to\mathbb{R}\)</span> we require <span class="math inline">\(\mathcal{O}(n)\)</span> forward-passes to compute the complete Jacobian of the function. As these are the kind of functions ubiquitously found in machine learning (e.g. loss functions), we seek more efficient ways to compute this.</p>
 <p>Instead, reverse-mode autodifferentiation propagates errors backwards from the output of the computation. To keep track of the gradients, we take any computation and lift it to a computational graph DSL (domain-specific language).</p>
 <p>To start, the computational graph is a collection of nodes:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">from</span> typing <span class="im">import</span> List, Tuple, Optional</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">class</span> Node:</a>
-<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value: <span class="bu">float</span>):</a>
-<a class="sourceLine" id="cb5-5" title="5">        <span class="va">self</span>.value <span class="op">=</span> value</a>
-<a class="sourceLine" id="cb5-6" title="6">        <span class="va">self</span>.children: List[Tuple[<span class="st">&quot;Node&quot;</span>, <span class="bu">float</span>]] <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb5-7" title="7">        <span class="va">self</span>.grad_value: Optional[<span class="bu">float</span>] <span class="op">=</span> <span class="va">None</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List, Tuple, Optional</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Node:</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value: <span class="bu">float</span>):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.value <span class="op">=</span> value</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.children: List[Tuple[<span class="st">&quot;Node&quot;</span>, <span class="bu">float</span>]] <span class="op">=</span> []</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad_value: Optional[<span class="bu">float</span>] <span class="op">=</span> <span class="va">None</span></span></code></pre></div>
 <p>Each node in a graph contains a list of references to each child node– this is because when computing the gradient value in a node, we compute it as a weighted sum of the propagated gradients from the children. As a convention, each reference in the <code>children</code> list is a tuple of the child node and the intermediate gradient <span class="math inline">\(\frac{d\text{child}}{d\text{parent}}\)</span>.</p>
 <p>Computations are then build via Python’s magic methods (operator overloading also):</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1">    <span class="at">@nodeize</span></a>
-<a class="sourceLine" id="cb6-2" title="2">    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
-<a class="sourceLine" id="cb6-3" title="3">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">*</span> other.value)</a>
-<a class="sourceLine" id="cb6-4" title="4">        <span class="co"># attach hooks to dependency nodes</span></a>
-<a class="sourceLine" id="cb6-5" title="5">        <span class="va">self</span>.children.append((new_node, other.value))</a>
-<a class="sourceLine" id="cb6-6" title="6">        other.children.append((new_node, <span class="va">self</span>.value))</a>
-<a class="sourceLine" id="cb6-7" title="7">        <span class="cf">return</span> new_node</a>
-<a class="sourceLine" id="cb6-8" title="8"></a>
-<a class="sourceLine" id="cb6-9" title="9">    <span class="at">@nodeize</span></a>
-<a class="sourceLine" id="cb6-10" title="10">    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
-<a class="sourceLine" id="cb6-11" title="11">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">+</span> other.value)</a>
-<a class="sourceLine" id="cb6-12" title="12">        <span class="co"># attach hooks to dependency nodes</span></a>
-<a class="sourceLine" id="cb6-13" title="13">        <span class="va">self</span>.children.append((new_node, <span class="fl">1.0</span>))</a>
-<a class="sourceLine" id="cb6-14" title="14">        other.children.append((new_node, <span class="fl">1.0</span>))</a>
-<a class="sourceLine" id="cb6-15" title="15">        <span class="cf">return</span> new_node</a>
-<a class="sourceLine" id="cb6-16" title="16"></a>
-<a class="sourceLine" id="cb6-17" title="17">    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, other: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</a>
-<a class="sourceLine" id="cb6-18" title="18">        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">**</span> other)</a>
-<a class="sourceLine" id="cb6-19" title="19">        <span class="va">self</span>.children.append((new_node, other <span class="op">*</span> <span class="va">self</span>.value <span class="op">**</span> (other <span class="op">-</span> <span class="dv">1</span>)))</a>
-<a class="sourceLine" id="cb6-20" title="20">        <span class="cf">return</span> new_node</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="at">@nodeize</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">*</span> other.value)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># attach hooks to dependency nodes</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.children.append((new_node, other.value))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        other.children.append((new_node, <span class="va">self</span>.value))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> new_node</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@nodeize</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>, other: <span class="st">&quot;Node&quot;</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">+</span> other.value)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># attach hooks to dependency nodes</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.children.append((new_node, <span class="fl">1.0</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        other.children.append((new_node, <span class="fl">1.0</span>))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> new_node</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>, other: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="st">&quot;Node&quot;</span>:</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        new_node <span class="op">=</span> Node(<span class="va">self</span>.value <span class="op">**</span> other)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.children.append((new_node, other <span class="op">*</span> <span class="va">self</span>.value <span class="op">**</span> (other <span class="op">-</span> <span class="dv">1</span>)))</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> new_node</span></code></pre></div>
 <p>Here, <code>nodeize</code> is a decorator to avoid excessive <code>isinstance</code> checks (we don’t type-hint it for readability):</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">def</span> nodeize(fn):</a>
-<a class="sourceLine" id="cb7-2" title="2">    <span class="kw">def</span> _fn(cls, other):</a>
-<a class="sourceLine" id="cb7-3" title="3">        <span class="cf">if</span> <span class="bu">isinstance</span>(other, <span class="bu">float</span>):</a>
-<a class="sourceLine" id="cb7-4" title="4">            other <span class="op">=</span> Node(other)</a>
-<a class="sourceLine" id="cb7-5" title="5">        <span class="cf">return</span> fn(cls, other)</a>
-<a class="sourceLine" id="cb7-6" title="6">    <span class="cf">return</span> _fn</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nodeize(fn):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _fn(cls, other):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(other, <span class="bu">float</span>):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            other <span class="op">=</span> Node(other)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> fn(cls, other)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> _fn</span></code></pre></div>
 <p>Finally, gradients are computed by the process above:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">    <span class="at">@property</span></a>
-<a class="sourceLine" id="cb8-2" title="2">    <span class="kw">def</span> grad(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</a>
-<a class="sourceLine" id="cb8-3" title="3">        <span class="co"># accept gradients from all children</span></a>
-<a class="sourceLine" id="cb8-4" title="4">        <span class="cf">if</span> <span class="va">self</span>.grad_value <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb8-5" title="5">            <span class="va">self</span>.grad_value <span class="op">=</span> <span class="bu">sum</span>(var.grad <span class="op">*</span> dx <span class="cf">for</span> var, dx <span class="kw">in</span> <span class="va">self</span>.children)</a>
-<a class="sourceLine" id="cb8-6" title="6"></a>
-<a class="sourceLine" id="cb8-7" title="7">        <span class="cf">return</span> <span class="va">self</span>.grad_value</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> grad(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># accept gradients from all children</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.grad_value <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.grad_value <span class="op">=</span> <span class="bu">sum</span>(var.grad <span class="op">*</span> dx <span class="cf">for</span> var, dx <span class="kw">in</span> <span class="va">self</span>.children)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.grad_value</span></code></pre></div>
 <p>This gives a fully-fledged reverse-mode autodifferentation system.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="op">&gt;</span> x <span class="op">=</span> Node(<span class="fl">2.0</span>)</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="op">&gt;</span> y <span class="op">=</span> Node(<span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="op">&gt;</span> z <span class="op">=</span> x <span class="op">*</span> y <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> x <span class="op">**</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb9-4" title="4"><span class="op">&gt;</span> <span class="co"># Set gradient value at output to start reverse-mode</span></a>
-<a class="sourceLine" id="cb9-5" title="5"><span class="op">&gt;</span> z.grad_value <span class="op">=</span> <span class="fl">1.0</span> </a>
-<a class="sourceLine" id="cb9-6" title="6"><span class="op">&gt;</span> x.grad</a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="fl">5.0</span></a>
-<a class="sourceLine" id="cb9-8" title="8"><span class="op">&gt;</span> y.grad</a>
-<a class="sourceLine" id="cb9-9" title="9"><span class="fl">4.0</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> x <span class="op">=</span> Node(<span class="fl">2.0</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> y <span class="op">=</span> Node(<span class="fl">1.0</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> z <span class="op">=</span> x <span class="op">*</span> y <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> x <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="co"># Set gradient value at output to start reverse-mode</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> z.grad_value <span class="op">=</span> <span class="fl">1.0</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> x.grad</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fl">5.0</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> y.grad</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fl">4.0</span></span></code></pre></div>
 <h3 id="closing">closing</h3>
 <p>These are two very basic ways to build an autodiff system. I am not sure how to connect the dual number perspective to reverse-mode autodifferentiation (I would need a dual-number approach to the cotangent space, but making it explicit might be difficult). If anyone knows how, let me know please!</p>
 <p>In a later blog post, I’ll talk about another way to approach reverse-mode autodifferentiation using something I have been interested in for the past year: effect handlers and delimited continuations.</p>
@@ -166,5 +167,7 @@
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

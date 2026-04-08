@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -41,38 +42,38 @@
 <p>Intuitively, in a functional language without mutable state we have to pass the state <code>s</code> around with us throughout all our functions. If we’re given a function <code>a -&gt; b</code> that may require state, we can naively pass it along by accepting the state explicitly as a reified object <code>(a, s) -&gt; (b, s)</code>. Writing our code this way makes it clear that we can have composable functions-with-state-attached and be perfectly happy with it. However, we’d like to hide this state a bit, so the first bit of cleaning up is through a currying:</p>
 <pre><code>a -&gt; (s -&gt; (b, s))</code></pre>
 <p>Now, we encapsulate the tail <code>s -&gt; (b, s)</code> into a datatype</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">newtype</span> <span class="dt">State</span> s a <span class="fu">=</span> <span class="dt">State</span> {<span class="ot"> runState ::</span> s <span class="ot">-&gt;</span> (a, s) }</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">State</span> s a <span class="ot">=</span> <span class="dt">State</span> {<span class="ot"> runState ::</span> s <span class="ot">-&gt;</span> (a, s) }</span></code></pre></div>
 <p>In this formulation, functions-with-state are expressed as functions <code>a -&gt; State s b</code>. We lost our obvious compositionality, but it’s not entirely gone! This composition expresses the entire monadicity of the State datatype:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">State</span> s) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb3-2" title="2">    <span class="fu">return</span> x <span class="fu">=</span> <span class="dt">State</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> (x, s)</a>
-<a class="sourceLine" id="cb3-3" title="3">    <span class="dt">State</span> m <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span> <span class="dt">State</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> <span class="kw">let</span> (v, s') <span class="fu">=</span> m s </a>
-<a class="sourceLine" id="cb3-4" title="4">                                  <span class="kw">in</span> runState (k v) s'</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">State</span> s) <span class="kw">where</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> x <span class="ot">=</span> <span class="dt">State</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> (x, s)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">State</span> m <span class="op">&gt;&gt;=</span> k <span class="ot">=</span> <span class="dt">State</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="kw">let</span> (v, s') <span class="ot">=</span> m s </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="kw">in</span> runState (k v) s'</span></code></pre></div>
 <p>To recap: the entire point of the monadic composition operator <code>&gt;&gt;=</code> above is to give us an abstraction of “passing state along the computations”. If a computation manipulates state, it must pass that mutated state around to the next computation, and to the next, otherwise our semantics would be all wrong. This is the essence of what monads do– they’re not <a href="https://blog.plover.com/prog/burritos.html">burritos</a> or whatever fancible food-item people think they are. They are <strong>ways to propagate effects through functions</strong>.</p>
 <p>However, the monad is fairly obtuse to use by itself– often we write helper functions for the monad instance to allow access to the “internals” of the monad. For <code>State</code> 99.9% of the time we just want a way to fetch the current state, and to assign a state to be propagated. This usually gives rise to the two functions:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="ot">get ::</span> <span class="dt">State</span> s s</a>
-<a class="sourceLine" id="cb4-2" title="2">get <span class="fu">=</span> <span class="dt">State</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> (s, s)</a>
-<a class="sourceLine" id="cb4-3" title="3"></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="ot">put ::</span> s <span class="ot">-&gt;</span> <span class="dt">State</span> s ()</a>
-<a class="sourceLine" id="cb4-5" title="5">put s <span class="fu">=</span> <span class="dt">State</span> <span class="fu">$</span> \_ <span class="ot">-&gt;</span> ((), s)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">get ::</span> <span class="dt">State</span> s s</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>get <span class="ot">=</span> <span class="dt">State</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> (s, s)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ot">put ::</span> s <span class="ot">-&gt;</span> <span class="dt">State</span> s ()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>put s <span class="ot">=</span> <span class="dt">State</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span> ((), s)</span></code></pre></div>
 <p>Plugging in the definitions above and running it through the monad instance gives you a sense of why these definitions are valid. From this, we can write various programs such as</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">import</span> <span class="dt">Data.Foldable</span> (forM_)</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="ot">fib ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">State</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) ()</a>
-<a class="sourceLine" id="cb5-4" title="4">fib n <span class="fu">=</span> forM_ [<span class="dv">0</span><span class="fu">..</span>n] loop</a>
-<a class="sourceLine" id="cb5-5" title="5">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb5-6" title="6">        loop m <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-7" title="7">            <span class="kw">if</span> m <span class="fu">==</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb5-8" title="8">            <span class="kw">then</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-9" title="9">                    put (<span class="dv">0</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb5-10" title="10">                    <span class="fu">return</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb5-11" title="11">            <span class="kw">else</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb5-12" title="12">                    (a, b) <span class="ot">&lt;-</span> get</a>
-<a class="sourceLine" id="cb5-13" title="13">                    put (b, a <span class="fu">+</span> b)</a>
-<a class="sourceLine" id="cb5-14" title="14">                    <span class="fu">return</span> b</a>
-<a class="sourceLine" id="cb5-15" title="15"></a>
-<a class="sourceLine" id="cb5-16" title="16"><span class="ot">fibo ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb5-17" title="17">fibo n <span class="fu">=</span> forM_ [<span class="dv">0</span><span class="fu">..</span>n] <span class="fu">$</span> \m <span class="ot">-&gt;</span></a>
-<a class="sourceLine" id="cb5-18" title="18">    <span class="fu">print</span> <span class="fu">$</span> <span class="fu">fst</span> (<span class="fu">snd</span> (runState (fib m) (<span class="dv">0</span>, <span class="dv">0</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Foldable</span> (forM_)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ot">fib ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">State</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) ()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>fib n <span class="ot">=</span> forM_ [<span class="dv">0</span><span class="op">..</span>n] loop</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        loop m <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> m <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">then</span> <span class="kw">do</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                    put (<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">return</span> <span class="dv">1</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            <span class="kw">else</span> <span class="kw">do</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                    (a, b) <span class="ot">&lt;-</span> get</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                    put (b, a <span class="op">+</span> b)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">return</span> b</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="ot">fibo ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>fibo n <span class="ot">=</span> forM_ [<span class="dv">0</span><span class="op">..</span>n] <span class="op">$</span> \m <span class="ot">-&gt;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span> <span class="op">$</span> <span class="fu">fst</span> (<span class="fu">snd</span> (runState (fib m) (<span class="dv">0</span>, <span class="dv">0</span>)))</span></code></pre></div>
 <p>How nice.</p>
 <h3 id="compositionality-and-monad-transformers">compositionality and monad transformers</h3>
 <p>But the above looks undeniably wasteful– if all we wanted was to run <code>fibo 10</code> and print out the first 10 fibonacci numbers, why don’t we just print them out as opposed to the <code>return</code> command in <code>fib</code>? After all, <code>forM_</code> discards all those monadic return values and just propagates the effects (state in this case), and running <code>fibo</code> for printing merely runs through each <code>fib</code> wastefully again. But doing so naively results in an error!</p>
@@ -81,39 +82,39 @@
 <p><span class="math display">\[ \text{Monad}_\text{Set} = \text{Mon}(\text{Fun}(\text{Set}, \text{Set})) \]</span></p>
 <p>Here, a monad is given by an endofunctor <span class="math inline">\(F:\text{Set}\to\text{Set}\)</span> with natural transformations <span class="math inline">\(F\circ F\to F\)</span> and <span class="math inline">\(\text{id}_\text{Set}\to F\)</span>. When we compose two monads <span class="math inline">\(F\circ G\)</span>, how can we define the composition transformation <span class="math inline">\(F\circ G\circ F\circ G \to F \circ G\)</span>? This makes the crux of the matter clear: we need to propagate an effect corresponding to <span class="math inline">\(G\)</span> through the monad <span class="math inline">\(F\)</span>, <span class="math inline">\(F\circ G \rightsquigarrow G\circ F\)</span>.</p>
 <p>This is the point behind a <strong>monad transformer</strong>, which reifies this propagation through the <code>lift</code> function. Simply said, a monad transformer is an operation that turns monads to monads. Usually such transformers operate on monads to imbue them with an <em>extra effect</em>, for example the <code>StateT</code> monad transformer:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">newtype</span> <span class="dt">StateT</span> s m a <span class="fu">=</span> <span class="dt">StateT</span> {<span class="ot"> runStateT ::</span> s <span class="ot">-&gt;</span> m (a, s) }</a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">instance</span> (<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">StateT</span> s m) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb6-4" title="4">    <span class="fu">return</span> a <span class="fu">=</span> <span class="dt">StateT</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> <span class="fu">return</span> (a, s)</a>
-<a class="sourceLine" id="cb6-5" title="5">    <span class="dt">StateT</span> x <span class="fu">&gt;&gt;=</span> f <span class="fu">=</span> <span class="dt">StateT</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb6-6" title="6">        (v, s') <span class="ot">&lt;-</span> x s</a>
-<a class="sourceLine" id="cb6-7" title="7">        runStateT (f v) s'</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">StateT</span> s m a <span class="ot">=</span> <span class="dt">StateT</span> {<span class="ot"> runStateT ::</span> s <span class="ot">-&gt;</span> m (a, s) }</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">StateT</span> s m) <span class="kw">where</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> a <span class="ot">=</span> <span class="dt">StateT</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="fu">return</span> (a, s)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">StateT</span> x <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">StateT</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        (v, s') <span class="ot">&lt;-</span> x s</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        runStateT (f v) s'</span></code></pre></div>
 <p>The <code>lift</code> function is encoded in the <code>MonadTrans</code> typeclass</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">class</span> <span class="dt">MonadTrans</span> t <span class="kw">where</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="ot">    lift ::</span> (<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> m a <span class="ot">-&gt;</span> t m a</a>
-<a class="sourceLine" id="cb7-3" title="3"></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="kw">instance</span> <span class="dt">MonadTrans</span> (<span class="dt">StateT</span> s) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb7-5" title="5">    lift ma <span class="fu">=</span> <span class="dt">StateT</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> <span class="kw">do</span> c <span class="ot">&lt;-</span> ma</a>
-<a class="sourceLine" id="cb7-6" title="6">                                <span class="fu">return</span> (c, s)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">MonadTrans</span> t <span class="kw">where</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    lift ::</span> (<span class="dt">Monad</span> m) <span class="ot">=&gt;</span> m a <span class="ot">-&gt;</span> t m a</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonadTrans</span> (<span class="dt">StateT</span> s) <span class="kw">where</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    lift ma <span class="ot">=</span> <span class="dt">StateT</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="kw">do</span> c <span class="ot">&lt;-</span> ma</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">return</span> (c, s)</span></code></pre></div>
 <p>Along with encoding the usual <code>get/put</code> functions we get the second-take of the fibonacci function:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="ot">get ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">StateT</span> s m s</a>
-<a class="sourceLine" id="cb8-2" title="2">get <span class="fu">=</span> <span class="dt">StateT</span> <span class="fu">$</span> \s <span class="ot">-&gt;</span> <span class="fu">return</span> (s, s)</a>
-<a class="sourceLine" id="cb8-3" title="3"></a>
-<a class="sourceLine" id="cb8-4" title="4"><span class="ot">put ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">StateT</span> s m ()</a>
-<a class="sourceLine" id="cb8-5" title="5">put s <span class="fu">=</span> <span class="dt">StateT</span> <span class="fu">$</span> \_ <span class="ot">-&gt;</span> <span class="fu">return</span> ((), s)</a>
-<a class="sourceLine" id="cb8-6" title="6"></a>
-<a class="sourceLine" id="cb8-7" title="7"><span class="ot">fibT ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb8-8" title="8">fibT n <span class="fu">=</span> runStateT (forM_ [<span class="dv">0</span><span class="fu">..</span>n] loop) (<span class="dv">0</span>, <span class="dv">0</span>) <span class="fu">&gt;&gt;</span> <span class="fu">print</span> <span class="st">&quot;done!&quot;</span></a>
-<a class="sourceLine" id="cb8-9" title="9">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb8-10" title="10">        loop m <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb8-11" title="11">            <span class="kw">if</span> m <span class="fu">==</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb8-12" title="12">            <span class="kw">then</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb8-13" title="13">                    put (<span class="dv">0</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb8-14" title="14">                    lift <span class="fu">$</span> <span class="fu">print</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb8-15" title="15">            <span class="kw">else</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb8-16" title="16">                    (a, b) <span class="ot">&lt;-</span> get</a>
-<a class="sourceLine" id="cb8-17" title="17">                    put (b, a <span class="fu">+</span> b)</a>
-<a class="sourceLine" id="cb8-18" title="18">                    lift <span class="fu">$</span> <span class="fu">print</span> b</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">get ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">StateT</span> s m s</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>get <span class="ot">=</span> <span class="dt">StateT</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="fu">return</span> (s, s)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">put ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">StateT</span> s m ()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>put s <span class="ot">=</span> <span class="dt">StateT</span> <span class="op">$</span> \_ <span class="ot">-&gt;</span> <span class="fu">return</span> ((), s)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ot">fibT ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>fibT n <span class="ot">=</span> runStateT (forM_ [<span class="dv">0</span><span class="op">..</span>n] loop) (<span class="dv">0</span>, <span class="dv">0</span>) <span class="op">&gt;&gt;</span> <span class="fu">print</span> <span class="st">&quot;done!&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        loop m <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> m <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">then</span> <span class="kw">do</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                    put (<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>                    lift <span class="op">$</span> <span class="fu">print</span> <span class="dv">0</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            <span class="kw">else</span> <span class="kw">do</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>                    (a, b) <span class="ot">&lt;-</span> get</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>                    put (b, a <span class="op">+</span> b)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>                    lift <span class="op">$</span> <span class="fu">print</span> b</span></code></pre></div>
 <p>This looks nicer. But arguably more cumbersome. Isn’t there a better way to combine monadic (computational) effects?</p>
 <h3 id="local-vs-global-coordinates">local vs global coordinates</h3>
 <p>Monads explicitly tell us how to sequence computational effects, and this makes it difficult to combine them because of the amount of boilerplate needed to write them. But most of the time we don’t care about the implementation of the monad– we care about the interface it affords us, the <strong>operations</strong>, such as <code>get/put</code>.</p>
@@ -140,42 +141,42 @@
 <h3 id="freer-monads">free(r) monads</h3>
 <p>An algebra for a monad <span class="math inline">\(M(A)\to A\)</span> can be thought of as a way to capture a computational effect and return a value, i.e. an <strong>effect handler</strong>. Described this way, a free algebra for a free monad is a way to separate the semantics of an algebraic effect from its handler, i.e. its interpretation in reified values.</p>
 <p>As above, free monads allow us to describe an operation we want to perform, and then promote these into abstract syntax trees. The data type for a free monad is given by</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="ot">{-# LANGUAGE GADTs #-}</span></a>
-<a class="sourceLine" id="cb9-2" title="2"></a>
-<a class="sourceLine" id="cb9-3" title="3"><span class="kw">data</span> <span class="dt">Free</span> f a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb9-4" title="4">    <span class="dt">Pure</span><span class="ot">   ::</span> a <span class="ot">-&gt;</span> <span class="dt">Free</span> f a </a>
-<a class="sourceLine" id="cb9-5" title="5">    <span class="dt">Impure</span><span class="ot"> ::</span> f (<span class="dt">Free</span> f a) <span class="ot">-&gt;</span> <span class="dt">Free</span> f a</a>
-<a class="sourceLine" id="cb9-6" title="6"></a>
-<a class="sourceLine" id="cb9-7" title="7"><span class="ot">eta ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> <span class="dt">Free</span> f a </a>
-<a class="sourceLine" id="cb9-8" title="8">eta <span class="fu">=</span> <span class="dt">Impure</span> <span class="fu">.</span> <span class="fu">fmap</span> <span class="dt">Pure</span> </a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE GADTs #-}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Free</span> f a <span class="kw">where</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Pure</span><span class="ot">   ::</span> a <span class="ot">-&gt;</span> <span class="dt">Free</span> f a </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Impure</span><span class="ot"> ::</span> f (<span class="dt">Free</span> f a) <span class="ot">-&gt;</span> <span class="dt">Free</span> f a</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="ot">eta ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> f a <span class="ot">-&gt;</span> <span class="dt">Free</span> f a </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>eta <span class="ot">=</span> <span class="dt">Impure</span> <span class="op">.</span> <span class="fu">fmap</span> <span class="dt">Pure</span> </span></code></pre></div>
 <p>For example, we can describe ASTs for the <code>State</code> effect as</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">type</span> <span class="dt">FState</span> s <span class="fu">=</span> <span class="dt">Free</span> (<span class="dt">State</span> s)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">FState</span> s <span class="ot">=</span> <span class="dt">Free</span> (<span class="dt">State</span> s)</span></code></pre></div>
 <p>A value of type <code>FState s</code> is an abstract syntax tree with state counters in the nodes. Propagating effects through these trees is given by the monad instance:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">Free</span> f) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb11-2" title="2">    <span class="fu">return</span> <span class="fu">=</span> <span class="dt">Pure</span></a>
-<a class="sourceLine" id="cb11-3" title="3">    <span class="dt">Pure</span> a   <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span> k a </a>
-<a class="sourceLine" id="cb11-4" title="4">    <span class="dt">Impure</span> m <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span> <span class="dt">Impure</span> (<span class="fu">fmap</span> (<span class="fu">&gt;&gt;=</span> k) m)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">Free</span> f) <span class="kw">where</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> <span class="ot">=</span> <span class="dt">Pure</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Pure</span> a   <span class="op">&gt;&gt;=</span> k <span class="ot">=</span> k a </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Impure</span> m <span class="op">&gt;&gt;=</span> k <span class="ot">=</span> <span class="dt">Impure</span> (<span class="fu">fmap</span> (<span class="op">&gt;&gt;=</span> k) m)</span></code></pre></div>
 <p>As a result, we can separate the ASTs (effects) from their interpreters (handlers):</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="ot">test ::</span> <span class="dt">FState</span> <span class="dt">Int</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb12-2" title="2">test <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb12-3" title="3">    eta <span class="fu">$</span> put <span class="dv">10</span></a>
-<a class="sourceLine" id="cb12-4" title="4">    x <span class="ot">&lt;-</span> eta get</a>
-<a class="sourceLine" id="cb12-5" title="5">    <span class="fu">return</span> x</a>
-<a class="sourceLine" id="cb12-6" title="6"></a>
-<a class="sourceLine" id="cb12-7" title="7"><span class="ot">interp ::</span> <span class="dt">FState</span> <span class="dt">Int</span> a <span class="ot">-&gt;</span> a</a>
-<a class="sourceLine" id="cb12-8" title="8">interp m <span class="fu">=</span> <span class="fu">fst</span> <span class="fu">$</span> run m <span class="dv">0</span></a>
-<a class="sourceLine" id="cb12-9" title="9">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb12-10" title="10">        run (<span class="dt">Pure</span> x)   s <span class="fu">=</span> (x, s)</a>
-<a class="sourceLine" id="cb12-11" title="11">        run (<span class="dt">Impure</span> m) s <span class="fu">=</span> <span class="kw">let</span> (m0, s0) <span class="fu">=</span> runState m s</a>
-<a class="sourceLine" id="cb12-12" title="12">                           <span class="kw">in</span> run m0 s0</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ot">test ::</span> <span class="dt">FState</span> <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    eta <span class="op">$</span> put <span class="dv">10</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> eta get</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> x</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ot">interp ::</span> <span class="dt">FState</span> <span class="dt">Int</span> a <span class="ot">-&gt;</span> a</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>interp m <span class="ot">=</span> <span class="fu">fst</span> <span class="op">$</span> run m <span class="dv">0</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">Pure</span> x)   s <span class="ot">=</span> (x, s)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">Impure</span> m) s <span class="ot">=</span> <span class="kw">let</span> (m0, s0) <span class="ot">=</span> runState m s</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                           <span class="kw">in</span> run m0 s0</span></code></pre></div>
 <p>Here <code>interp</code> is a <code>FState</code>-algebra. However, this is unsatisfactory: we wanted to provide an <em>interface</em> of operations for the state effect, such as <code>get/put</code> and then promote that into abstract syntax trees. So we start with the interface</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">data</span> <span class="dt">StateF</span> s a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb13-2" title="2">    <span class="dt">Get</span><span class="ot"> ::</span> <span class="dt">StateF</span> s s</a>
-<a class="sourceLine" id="cb13-3" title="3">    <span class="dt">Put</span><span class="ot"> ::</span> s <span class="ot">-&gt;</span> <span class="dt">StateF</span> s ()</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">StateF</span> s a <span class="kw">where</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Get</span><span class="ot"> ::</span> <span class="dt">StateF</span> s s</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Put</span><span class="ot"> ::</span> s <span class="ot">-&gt;</span> <span class="dt">StateF</span> s ()</span></code></pre></div>
 <p>And try to create the free monad from it:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">type</span> <span class="dt">FFState</span> s <span class="fu">=</span> <span class="dt">Free</span> (<span class="dt">StateF</span> s)</a>
-<a class="sourceLine" id="cb14-2" title="2"></a>
-<a class="sourceLine" id="cb14-3" title="3"><span class="fu">&gt;&gt;&gt;</span> <span class="dt">ERROR</span><span class="fu">:</span> <span class="dt">StateF</span> s is <span class="dt">NOT</span> a functor<span class="fu">!</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">FFState</span> s <span class="ot">=</span> <span class="dt">Free</span> (<span class="dt">StateF</span> s)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">ERROR</span><span class="op">:</span> <span class="dt">StateF</span> s is <span class="dt">NOT</span> a functor<span class="op">!</span></span></code></pre></div>
 <p>Here, <code>StateF</code> is described as a GADT, which can’t be promoted to a functor instance! After all, where would <code>Put 10</code> be mapped to?</p>
 <p>But category theory saves us a bit here. We have a not-yet-functor <code>StateF s</code> and we want to “thicken” it to one, in the minimal way. In other words, we are looking for the <em>best approximation to the problem of finding a functor</em> <code>StateFF s : Type -&gt; Type</code> <em>extending</em> <code>StateF</code>. This is known as a <strong>left Kan extension</strong>. To read more about it, we refer to the <a href="https://ncatlab.org/nlab/show/Kan+extension">nLab</a> article about it.</p>
 <p>How do we define the Kan extension? Let’s abstract the situation a bit. Suppose you had a not-yet-functor <span class="math inline">\(F:\mathcal{C}\to\mathcal{D}\)</span> (by this we mean, <span class="math inline">\(F\)</span> is only defined on a subpart of <span class="math inline">\(\mathcal{C}\)</span>) and you wanted to extend it to an actual functor <span class="math inline">\(\text{Lan}_\text{id} F:\mathcal{C}\to\mathcal{D}\)</span>.</p>
@@ -187,68 +188,68 @@
 <p>To write this in Haskell, it is convenient to encode this as a coend:</p>
 <p><span class="math display">\[ (\text{Lan}_\text{id} F)(c) \simeq \int^{c' \in C} \text{Hom}_\mathcal{C}(c',c)\otimes F(c') \]</span></p>
 <p>This allows us to write the left Kan extension as</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">data</span> <span class="dt">Lan</span> f a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb15-2" title="2">    <span class="dt">Lan</span><span class="ot"> ::</span> f x <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">Lan</span> f a</a>
-<a class="sourceLine" id="cb15-3" title="3"></a>
-<a class="sourceLine" id="cb15-4" title="4"><span class="kw">instance</span> <span class="dt">Functor</span> (<span class="dt">Lan</span> f) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb15-5" title="5">    <span class="fu">fmap</span> k (<span class="dt">Lan</span> fx h) <span class="fu">=</span> <span class="dt">Lan</span> fx (k <span class="fu">.</span> h)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Lan</span> f a <span class="kw">where</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Lan</span><span class="ot"> ::</span> f x <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">Lan</span> f a</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> (<span class="dt">Lan</span> f) <span class="kw">where</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> k (<span class="dt">Lan</span> fx h) <span class="ot">=</span> <span class="dt">Lan</span> fx (k <span class="op">.</span> h)</span></code></pre></div>
 <p><strong>Upshot:</strong> Given the interface, we get a new <strong>freer monad</strong></p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">type</span> <span class="dt">FFState</span> s <span class="fu">=</span> <span class="dt">Free</span> (<span class="dt">Lan</span> (<span class="dt">State</span> s))</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">FFState</span> s <span class="ot">=</span> <span class="dt">Free</span> (<span class="dt">Lan</span> (<span class="dt">State</span> s))</span></code></pre></div>
 <p>The type constructor <code>Free Lan</code> when desugared gives the (non-GADT!) datatype</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">data</span> <span class="dt">FFree</span> f a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-2" title="2">    <span class="dt">FPure</span><span class="ot">   ::</span> a <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</a>
-<a class="sourceLine" id="cb17-3" title="3">    <span class="dt">FImpure</span><span class="ot"> ::</span> f x <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a) <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">FFree</span> f a <span class="kw">where</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FPure</span><span class="ot">   ::</span> a <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FImpure</span><span class="ot"> ::</span> f x <span class="ot">-&gt;</span> (x <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a) <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</span></code></pre></div>
 <p>In this, the type signature for <code>FImpure</code> describes effects clearly: it’s a continuation! From this, the monad instance for <code>FFree f</code> is like that of a free monad:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1"><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">FFree</span> f) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb18-2" title="2">    <span class="fu">return</span> <span class="fu">=</span> <span class="dt">FPure</span></a>
-<a class="sourceLine" id="cb18-3" title="3">    <span class="dt">FPure</span> x       <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span> k x</a>
-<a class="sourceLine" id="cb18-4" title="4">    <span class="dt">FImpure</span> fx ct <span class="fu">&gt;&gt;=</span> k <span class="fu">=</span> <span class="dt">FImpure</span> fx (\x <span class="ot">-&gt;</span> (ct x) <span class="fu">&gt;&gt;=</span> k)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monad</span> (<span class="dt">FFree</span> f) <span class="kw">where</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> <span class="ot">=</span> <span class="dt">FPure</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FPure</span> x       <span class="op">&gt;&gt;=</span> k <span class="ot">=</span> k x</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FImpure</span> fx ct <span class="op">&gt;&gt;=</span> k <span class="ot">=</span> <span class="dt">FImpure</span> fx (\x <span class="ot">-&gt;</span> (ct x) <span class="op">&gt;&gt;=</span> k)</span></code></pre></div>
 <p>Notice that we don’t need <code>f</code> to be a functor anymore!</p>
 <h3 id="closing">closing</h3>
 <p>To finish this tour off, lets implement the fibonacci above again, but with this algebraic effect handler. First we describe the interface of effect operations we need to have</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">data</span> <span class="dt">EffI</span> s a <span class="kw">where</span></a>
-<a class="sourceLine" id="cb19-2" title="2">    <span class="dt">Get</span><span class="ot">   ::</span> <span class="dt">EffI</span> s s</a>
-<a class="sourceLine" id="cb19-3" title="3">    <span class="dt">Put</span><span class="ot">   ::</span> s <span class="ot">-&gt;</span> <span class="dt">EffI</span> s ()</a>
-<a class="sourceLine" id="cb19-4" title="4">    <span class="dt">Print</span><span class="ot"> ::</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">EffI</span> s ()</a>
-<a class="sourceLine" id="cb19-5" title="5"></a>
-<a class="sourceLine" id="cb19-6" title="6"><span class="kw">type</span> <span class="dt">EffM</span> s <span class="fu">=</span> <span class="dt">FFree</span> (<span class="dt">EffI</span> s)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">EffI</span> s a <span class="kw">where</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Get</span><span class="ot">   ::</span> <span class="dt">EffI</span> s s</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Put</span><span class="ot">   ::</span> s <span class="ot">-&gt;</span> <span class="dt">EffI</span> s ()</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Print</span><span class="ot"> ::</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">EffI</span> s ()</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">EffM</span> s <span class="ot">=</span> <span class="dt">FFree</span> (<span class="dt">EffI</span> s)</span></code></pre></div>
 <p>Here, the <code>I</code> denotes the “interface” while <code>M</code> denotes the monad. We are using the freer monadic type constructor so we don’t need to reify the GADT <code>EffI</code> as a functor instance. The helper function <code>etaF</code> allows us to lift effect operators to the freer monad:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1"><span class="ot">etaF ::</span> f a <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</a>
-<a class="sourceLine" id="cb20-2" title="2">etaF fx <span class="fu">=</span> <span class="dt">FImpure</span> fx <span class="dt">FPure</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">etaF ::</span> f a <span class="ot">-&gt;</span> <span class="dt">FFree</span> f a</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>etaF fx <span class="ot">=</span> <span class="dt">FImpure</span> fx <span class="dt">FPure</span></span></code></pre></div>
 <p>An example of a program written with this monad is</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="ot">test ::</span> <span class="dt">EffM</span> <span class="dt">Int</span> <span class="dt">Int</span></a>
-<a class="sourceLine" id="cb21-2" title="2">test <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb21-3" title="3">    y <span class="ot">&lt;-</span> etaF <span class="dt">Get</span></a>
-<a class="sourceLine" id="cb21-4" title="4">    etaF <span class="fu">$</span> <span class="dt">Put</span> (<span class="dv">10</span> <span class="fu">+</span> y)</a>
-<a class="sourceLine" id="cb21-5" title="5">    x <span class="ot">&lt;-</span> etaF <span class="dt">Get</span></a>
-<a class="sourceLine" id="cb21-6" title="6">    etaF <span class="fu">$</span> <span class="dt">Print</span> (<span class="dv">2</span> <span class="fu">*</span> x)</a>
-<a class="sourceLine" id="cb21-7" title="7">    <span class="fu">return</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">test ::</span> <span class="dt">EffM</span> <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> etaF <span class="dt">Get</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    etaF <span class="op">$</span> <span class="dt">Put</span> (<span class="dv">10</span> <span class="op">+</span> y)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> etaF <span class="dt">Get</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    etaF <span class="op">$</span> <span class="dt">Print</span> (<span class="dv">2</span> <span class="op">*</span> x)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> x</span></code></pre></div>
 <p>Notice unlike the monad transformer version, all effects are treated at the same level! Programs are only now at the mercy of their effect handlers:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="ot">interp ::</span> <span class="dt">EffM</span> s a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">IO</span> a</a>
-<a class="sourceLine" id="cb22-2" title="2">interp m s <span class="fu">=</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> run m s; <span class="fu">return</span> <span class="fu">$</span> <span class="fu">fst</span> x</a>
-<a class="sourceLine" id="cb22-3" title="3">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb22-4" title="4"><span class="ot">        run ::</span> <span class="dt">EffM</span> s x <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">IO</span> (x, s)</a>
-<a class="sourceLine" id="cb22-5" title="5">        run (<span class="dt">FPure</span>   x)           s <span class="fu">=</span> <span class="fu">return</span> (x, s)</a>
-<a class="sourceLine" id="cb22-6" title="6">        run (<span class="dt">FImpure</span> <span class="dt">Get</span>       k) s <span class="fu">=</span> run (k s) s</a>
-<a class="sourceLine" id="cb22-7" title="7">        run (<span class="dt">FImpure</span> (<span class="dt">Put</span> s')  k) s <span class="fu">=</span> run (k ()) s'  </a>
-<a class="sourceLine" id="cb22-8" title="8">        run (<span class="dt">FImpure</span> (<span class="dt">Print</span> t) k) s <span class="fu">=</span> <span class="kw">do</span> <span class="fu">print</span> t; run (k ()) s </a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ot">interp ::</span> <span class="dt">EffM</span> s a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">IO</span> a</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>interp m s <span class="ot">=</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> run m s; <span class="fu">return</span> <span class="op">$</span> <span class="fu">fst</span> x</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ot">        run ::</span> <span class="dt">EffM</span> s x <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> <span class="dt">IO</span> (x, s)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">FPure</span>   x)           s <span class="ot">=</span> <span class="fu">return</span> (x, s)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">FImpure</span> <span class="dt">Get</span>       k) s <span class="ot">=</span> run (k s) s</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">FImpure</span> (<span class="dt">Put</span> s')  k) s <span class="ot">=</span> run (k ()) s'  </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        run (<span class="dt">FImpure</span> (<span class="dt">Print</span> t) k) s <span class="ot">=</span> <span class="kw">do</span> <span class="fu">print</span> t; run (k ()) s </span></code></pre></div>
 <p>Running on <code>test</code> we have</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="fu">&gt;</span> interp test <span class="dv">0</span></a>
-<a class="sourceLine" id="cb23-2" title="2"><span class="dv">20</span></a>
-<a class="sourceLine" id="cb23-3" title="3"><span class="dv">10</span></a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> interp test <span class="dv">0</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span></code></pre></div>
 <p>Finally, we get a “lift-less” version of the fibonacci function with the freer monad:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="ot">fibF ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</a>
-<a class="sourceLine" id="cb24-2" title="2">fibF n <span class="fu">=</span> interp (forM_ [<span class="dv">0</span><span class="fu">..</span>n] loop) (<span class="dv">0</span>, <span class="dv">0</span>) <span class="fu">&gt;&gt;</span> <span class="fu">print</span> <span class="st">&quot;done!&quot;</span></a>
-<a class="sourceLine" id="cb24-3" title="3">    <span class="kw">where</span></a>
-<a class="sourceLine" id="cb24-4" title="4">        loop m <span class="fu">=</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb24-5" title="5">            <span class="kw">if</span> m <span class="fu">==</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb24-6" title="6">                <span class="kw">then</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb24-7" title="7">                    etaF <span class="fu">$</span> <span class="dt">Put</span> (<span class="dv">0</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb24-8" title="8">                    etaF <span class="fu">$</span> <span class="dt">Print</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb24-9" title="9">                <span class="kw">else</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb24-10" title="10">                    (a, b) <span class="ot">&lt;-</span> etaF <span class="fu">$</span> <span class="dt">Get</span></a>
-<a class="sourceLine" id="cb24-11" title="11">                    etaF <span class="fu">$</span> <span class="dt">Put</span> (b, a <span class="fu">+</span> b)</a>
-<a class="sourceLine" id="cb24-12" title="12">                    etaF <span class="fu">$</span> <span class="dt">Print</span> b</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fibF ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>fibF n <span class="ot">=</span> interp (forM_ [<span class="dv">0</span><span class="op">..</span>n] loop) (<span class="dv">0</span>, <span class="dv">0</span>) <span class="op">&gt;&gt;</span> <span class="fu">print</span> <span class="st">&quot;done!&quot;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        loop m <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> m <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                <span class="kw">then</span> <span class="kw">do</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                    etaF <span class="op">$</span> <span class="dt">Put</span> (<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>                    etaF <span class="op">$</span> <span class="dt">Print</span> <span class="dv">0</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> <span class="kw">do</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                    (a, b) <span class="ot">&lt;-</span> etaF <span class="op">$</span> <span class="dt">Get</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>                    etaF <span class="op">$</span> <span class="dt">Put</span> (b, a <span class="op">+</span> b)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>                    etaF <span class="op">$</span> <span class="dt">Print</span> b</span></code></pre></div>
 <p>We’ll use this as a jumping stone for algebraic effects in probabilistic programming in later posts.</p>
 <h3 id="speculative-future">speculative future?</h3>
 <p>Let’s revisit the 2-stage bar construction for monads that we saw above:</p>
@@ -270,5 +271,7 @@
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

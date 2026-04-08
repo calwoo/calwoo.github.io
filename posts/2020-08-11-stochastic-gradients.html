@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -56,14 +57,14 @@
 <p>This gives the <strong>score-function estimator</strong></p>
 <p><span class="math display">\[ f_{\text{SF}}(z)=f(z)\cdot\nabla_\theta\log{p(z|\theta)} \]</span></p>
 <p>In a modern deep learning framework, the above loss function would be given by</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">def</span> loss(p, f):</a>
-<a class="sourceLine" id="cb1-2" title="2">    <span class="co"># Here, p depends on parameters</span></a>
-<a class="sourceLine" id="cb1-3" title="3">    z <span class="op">=</span> p.sample()</a>
-<a class="sourceLine" id="cb1-4" title="4">    <span class="cf">with</span> torch.no_grad():</a>
-<a class="sourceLine" id="cb1-5" title="5">        <span class="co"># Block function from producing a gradient</span></a>
-<a class="sourceLine" id="cb1-6" title="6">        fz_nograd <span class="op">=</span> f(z)</a>
-<a class="sourceLine" id="cb1-7" title="7">    mc_loss <span class="op">=</span> fz_nograd <span class="op">*</span> p.log_prob(z)</a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> mc_loss</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss(p, f):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Here, p depends on parameters</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> p.sample()</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Block function from producing a gradient</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        fz_nograd <span class="op">=</span> f(z)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    mc_loss <span class="op">=</span> fz_nograd <span class="op">*</span> p.log_prob(z)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mc_loss</span></code></pre></div>
 <p>It is an exercise to show the well-known identity <span class="math inline">\(\mathbf{E}_{z\sim p(z|\theta)}[\nabla_\theta\log{p(z|\theta)}] = 0\)</span>. This implies that for any <span class="math inline">\(c\in\mathbf{R}\)</span>, the estimator <span class="math inline">\((f(z)-c)\cdot\nabla_\theta\log{p(z|\theta)}\)</span> is also unbiased. However, if <span class="math inline">\(c=c(z)\)</span> depends on the sampled value <span class="math inline">\(z\sim p(z|\theta)\)</span>, there is no guarantee that the resulting estimator is unbiased:</p>
 <p><span class="math display">\[ \mathbf{E}_{z\sim p(z|\theta)}[(f(z)-c(z))\nabla_\theta\log{p(z|\theta)}] \neq \nabla_\theta \mathbf{E}_{z\sim p(z|\theta)}[ f(z) ] \]</span></p>
 <p>Indeed, the above estimator is biased by the expectation <span class="math inline">\(\mathbf{E}_{z\sim p(z|\theta)}[c(z)\nabla_\theta\log{p(z|\theta)}]\)</span>, so by adding this mean we get a new unbiased gradient estimator</p>
@@ -82,18 +83,18 @@
     \end{align} \]</span></p>
 <p>which gives a new gradient estimator <span class="math inline">\(f_\text{reparam}(\epsilon) = \nabla_\theta f(g(\theta, \epsilon))\)</span>, the <strong>reparameterization gradient</strong>. Since this estimator takes into account the interaction between <span class="math inline">\(f\)</span> and <span class="math inline">\(\theta\)</span>, the reparameterization gradient tends to achieve lower variance than the score-function estimator. This seems good, but the tradeoff is that our distributions <span class="math inline">\(p(z|\theta)\)</span> need to be decomposed into a deterministic function of a simpler base distribution that does not depend on the parameters we’re optimizing. This is often tricky or impossible to do.</p>
 <p>An example of writing out a reparameterized sampling distribution is given by the <span class="math inline">\(\text{Normal}(\mu,\sigma)\)</span> distribution.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">class</span> Normal(Distribution):</a>
-<a class="sourceLine" id="cb2-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, mu, sigma):</a>
-<a class="sourceLine" id="cb2-3" title="3">        <span class="va">self</span>.mu <span class="op">=</span> mu</a>
-<a class="sourceLine" id="cb2-4" title="4">        <span class="va">self</span>.sigma <span class="op">=</span> sigma</a>
-<a class="sourceLine" id="cb2-5" title="5"></a>
-<a class="sourceLine" id="cb2-6" title="6">    <span class="kw">def</span> sample(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb2-7" title="7">        epsilon <span class="op">=</span> torch.randn()</a>
-<a class="sourceLine" id="cb2-8" title="8">        <span class="cf">return</span> <span class="va">self</span>.mu <span class="op">+</span> <span class="va">self</span>.sigma <span class="op">*</span> epsilon</a>
-<a class="sourceLine" id="cb2-9" title="9"></a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="kw">def</span> loss(p, f):</a>
-<a class="sourceLine" id="cb2-11" title="11">    z <span class="op">=</span> p.sample()</a>
-<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">return</span> f(z)        </a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Normal(Distribution):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, mu, sigma):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.mu <span class="op">=</span> mu</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sigma <span class="op">=</span> sigma</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> sample(<span class="va">self</span>):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        epsilon <span class="op">=</span> torch.randn()</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.mu <span class="op">+</span> <span class="va">self</span>.sigma <span class="op">*</span> epsilon</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss(p, f):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> p.sample()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> f(z)        </span></code></pre></div>
 <p>The above is entirely backpropagatable, so any model with this normal distribution in it can sample with impunity. Here, the normal distribution (by virtue of its status as a <a href="https://en.wikipedia.org/wiki/Stable_distribution">stable distribution</a>) can be decomposed into an affine transformation of a unit Gaussian. This is admittedly unusual among probability distributions– finding readily computable <strong>explicit reparameterizations</strong> is rare, and we often cannot apply this trick directly.</p>
 <p>It’s a consequence of the <a href="https://en.wikipedia.org/wiki/Probability_integral_transform">universality of the uniform</a> distribution that given any probability distribution, we can reparameterize sampling from it by sampling from a uniform and applying the inverse CDF of the distribution to it. While it is nice that we can always theoretically find a reparameterization to a uniform, in practice computing the inverse of the CDF can be computationally or analytically intractible. Could we compute a gradient estimator relying only on the CDF itself?</p>
 <p>Let <span class="math inline">\(z = F^{-1}_\theta(\epsilon)\sim p(z|\theta)\)</span> where <span class="math inline">\(\epsilon\sim\text{Uniform}(0,1)\)</span> and <span class="math inline">\(F_\theta\)</span> is the CDF of <span class="math inline">\(p\)</span>. Then we can compute the reparameterization gradient as</p>
@@ -194,5 +195,7 @@
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -39,16 +40,16 @@
 <p>The last post focused on counterfactual regret minimization, which was also an online algorithm for choosing the optimal strategies for an agent. The success of counterfactual regret minimization came from its strong theoretical guarantees of sublinear regret growth, along with its generality. As such, it seems fitting to start with a general overview of the ideas behind online optimization and see what other ideas came out of it that could be fruitful for future AIs.</p>
 <h3 id="online-learning">online learning</h3>
 <p>In machine learning, online learning is the process of continuously adapting and making decisions from streams of information: at each point in a time <span class="math inline">\(t\)</span>, an online learning algorithm is given an informational signal <span class="math inline">\(x_t\)</span> from a space <span class="math inline">\(\mathcal{X}\)</span>, and decides on an action <span class="math inline">\(a_t\in\mathcal{A}\)</span> to perform. After their decision, the environment/opponent chooses a loss function <span class="math inline">\(\ell^t\)</span> and causes the agent to suffer a loss <span class="math inline">\(\ell^t(x_t, a_t)\)</span>. The algorithm learns from this loss and updates its processes for the next time.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</a>
-<a class="sourceLine" id="cb1-2" title="2">    signal_t <span class="op">=</span> env.receive_signal()</a>
-<a class="sourceLine" id="cb1-3" title="3">    action_t <span class="op">=</span> learner.decide(signal_t)</a>
-<a class="sourceLine" id="cb1-4" title="4">    loss_t <span class="op">=</span> env.receive_loss()</a>
-<a class="sourceLine" id="cb1-5" title="5">    loss <span class="op">=</span> loss_t(signal_t, action_t)</a>
-<a class="sourceLine" id="cb1-6" title="6">    learner.suffer(loss)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    signal_t <span class="op">=</span> env.receive_signal()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    action_t <span class="op">=</span> learner.decide(signal_t)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    loss_t <span class="op">=</span> env.receive_loss()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> loss_t(signal_t, action_t)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    learner.suffer(loss)</span></code></pre></div>
 <p>The goal of the learner is to minimize their <strong>regret</strong></p>
 <p><span class="math display">\[ R^T = \max_{a^*\in\mathcal{A}}\left\{\sum_{t=1}^T\ell^t(x_t, a^*)\right\} - \sum_{t=1}^T\ell^t(x_t, a_t) \]</span></p>
 <p>We call such an online learning setting <strong>learnable</strong> if we can achieve sublinear regret in <span class="math inline">\(T\)</span>.</p>
-<p>Let us give a vibe for the field with an example. Consider the <span class="math inline">\(n\)</span>-<em>expert opinion</em> setting, where we at each time step we are trying to perform a binary action, i.e. <span class="math inline">\(a_t\in\mathcal{A}=\{0, 1\}\)</span>. To inform us on what action to take, we listen to <span class="math inline">\(n\)</span> “experts”, which in our setting is a vector of 0’s and 1’s <span class="math inline">\(x_t\in\mathcal{X}=\{0,1\}^n\)</span>. After the learner takes their binary action, the true answer in <span class="math inline">\(\{0,1\}\)</span> is revealed and the loss is given by the 0-1 loss</p>
+<p>Let us give a vibe for the field with an example. Consider the <span class="math inline">\(n\)</span>-<em>expert opinion</em> setting, where we at each time step we are trying to perform a binary action, i.e. <span class="math inline">\(a_t\in\mathcal{A}=\{0, 1\}\)</span>. To inform us on what action to take, we listen to <span class="math inline">\(n\)</span> “experts”, which in our setting is a vector of 0’s and 1’s <span class="math inline">\(x_t\in\mathcal{X}=\{0,1\}^n\)</span>. After the learner takes their binary action, the true answer in <span class="math inline">\(\{0,1\}\)</span> is revealed and the loss is given by the 0-1 loss</p>
 <p><span class="math display">\[  
 \begin{equation}
     \ell^t(x_t, a_t) = 
@@ -63,27 +64,27 @@
 <p><span class="math display">\[  \sum_{i:x_i=1} w_i \ge \sum_{i:x_i=0} w_i \]</span></p>
 <p>and 0 otherwise.</p>
 <p>Once we receive the correct answer, we penalize each incorrect expert by multiplying their weight by 0.5. In code:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">class</span> WeightedMajority(Learner):</a>
-<a class="sourceLine" id="cb2-4" title="4">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb2-5" title="5">        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</a>
-<a class="sourceLine" id="cb2-6" title="6">        <span class="co"># initialize weights of experts to 1.0</span></a>
-<a class="sourceLine" id="cb2-7" title="7">        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</a>
-<a class="sourceLine" id="cb2-8" title="8">        <span class="va">self</span>.last_opinions <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb2-9" title="9">    </a>
-<a class="sourceLine" id="cb2-10" title="10">    <span class="kw">def</span> decide(<span class="va">self</span>, opinions: np.ndarray) <span class="op">-&gt;</span> <span class="bu">int</span>:</a>
-<a class="sourceLine" id="cb2-11" title="11">        <span class="co"># weighted majority vote</span></a>
-<a class="sourceLine" id="cb2-12" title="12">        total_weight_0 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> opinions))</a>
-<a class="sourceLine" id="cb2-13" title="13">        total_weight_1 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> opinions)</a>
-<a class="sourceLine" id="cb2-14" title="14">        <span class="va">self</span>.last_opinions <span class="op">=</span> opinions</a>
-<a class="sourceLine" id="cb2-15" title="15">        <span class="cf">return</span> <span class="dv">1</span> <span class="cf">if</span> total_weight_1 <span class="op">&gt;=</span> total_weight_0 <span class="cf">else</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-16" title="16"></a>
-<a class="sourceLine" id="cb2-17" title="17">    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb2-18" title="18">        <span class="co"># here, loss is the &quot;correct answer&quot; in {0, 1}</span></a>
-<a class="sourceLine" id="cb2-19" title="19">        wrong_experts <span class="op">=</span> <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss]</a>
-<a class="sourceLine" id="cb2-20" title="20">        wrong_experts <span class="op">*=</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb2-21" title="21">        <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss] <span class="op">=</span> wrong_experts</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> WeightedMajority(Learner):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initialize weights of experts to 1.0</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.last_opinions <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> decide(<span class="va">self</span>, opinions: np.ndarray) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># weighted majority vote</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        total_weight_0 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> opinions))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        total_weight_1 <span class="op">=</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights <span class="op">*</span> opinions)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.last_opinions <span class="op">=</span> opinions</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="cf">if</span> total_weight_1 <span class="op">&gt;=</span> total_weight_0 <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: <span class="bu">int</span>):</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># here, loss is the &quot;correct answer&quot; in {0, 1}</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        wrong_experts <span class="op">=</span> <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        wrong_experts <span class="op">*=</span> <span class="fl">0.5</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.weights[<span class="va">self</span>.last_opinions <span class="op">!=</span> loss] <span class="op">=</span> wrong_experts</span></code></pre></div>
 <p>The <em>main theorem</em> of Littlestone-Warmuth is a regret analysis of this learning algorithm: the number of mistakes <span class="math inline">\(R^T\)</span> made by the weighted majority learner is bounded above by</p>
 <p><span class="math display">\[ R^T \le 2.41(m + \log_2{n}) \]</span></p>
 <p>where <span class="math inline">\(m\)</span> is the number of mistakes made by the best expert so far.</p>
@@ -102,11 +103,11 @@
 <p><span class="math display">\[ R^T = \max_{a^*\in\mathcal{K}}\left\{\sum_{t=1}^T f_t(a^*)\right\} - \sum_{t=1}^T f_t(a_t) \]</span></p>
 <p>Our goal in this post is to introduce and derive some important algorithms for solving the online convex optimization problem, and apply these algorithms to game-theoretic solutions in modern machine learning.</p>
 <p>Online convex optimization in pseudocode is given by:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</a>
-<a class="sourceLine" id="cb3-2" title="2">    x_t <span class="op">=</span> learner.generate()</a>
-<a class="sourceLine" id="cb3-3" title="3">    f_t <span class="op">=</span> env.receive_loss()</a>
-<a class="sourceLine" id="cb3-4" title="4">    loss <span class="op">=</span> f_t(x_t)</a>
-<a class="sourceLine" id="cb3-5" title="5">    learner.suffer(loss)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_timesteps):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    x_t <span class="op">=</span> learner.generate()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    f_t <span class="op">=</span> env.receive_loss()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> f_t(x_t)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    learner.suffer(loss)</span></code></pre></div>
 <p>which is similar to the general online learning situation above. In OCO we are trying to compute the <em>offline optimum</em></p>
 <p><span class="math display">\[ \min_{x\in\mathcal{K}}\sum_{t=1}^T f_t(x) \]</span></p>
 <p>(which is equivalent to getting sublinear regret), where our <span class="math inline">\(f_t\)</span> is coming from a potentially constrained space of functions <span class="math inline">\(\mathcal{F}\)</span>. The <strong>goal</strong> is to, in a generic way, get a regret bound of the form</p>
@@ -124,7 +125,7 @@
 <p>We give here a statistical physics approach to a no-regret algorithm for the expert advice problem.</p>
 <p>Focusing on a single expert <span class="math inline">\(i\)</span>, call the cumulative loss incurred by this expert at time <span class="math inline">\(t-1\)</span> to be the <em>energy</em></p>
 <p><span class="math display">\[ E_t(i) = \sum_{k=1}^{t-1}\ell_i^k \]</span></p>
-<p>So at time <span class="math inline">\(t\)</span>, the learner knows <span class="math inline">\(E_t(i)\)</span> for each <span class="math inline">\(i\)</span>. By convexity of <span class="math inline">\(\Delta^n\)</span>, the offline optimum of our problem is interpreted as the energy of the lowest energy (i.e. <em>ground state</em>) expert at time <span class="math inline">\(t+1\)</span>,</p>
+<p>So at time <span class="math inline">\(t\)</span>, the learner knows <span class="math inline">\(E_t(i)\)</span> for each <span class="math inline">\(i\)</span>. By convexity of <span class="math inline">\(\Delta^n\)</span>, the offline optimum of our problem is interpreted as the energy of the lowest energy (i.e. <em>ground state</em>) expert at time <span class="math inline">\(t+1\)</span>,</p>
 <p><span class="math display">\[ \min_{i\in\{1,...,n\}} E_t(i) \]</span></p>
 <p>For any arbitrary “inverse temperature” parameter <span class="math inline">\(\beta\)</span>, we trivially have <span class="math inline">\(e^{-\beta\min_i E_t(i)}\le\sum_{i=1}^n e^{-\beta E_t(i)}\)</span> and so</p>
 <p><span class="math display">\[ \min_{i\in\{1,...,n\}} E_t(i) \ge -\frac{1}{\beta}\log{\sum_{i=1}^n e^{-\beta E_t(i)}} \]</span></p>
@@ -139,18 +140,18 @@
     generate strategy x_t as
         x_t[i] &lt;- w_t[i] / sum(w_t)</code></pre>
 <p>which in Python can be given as</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">class</span> MultiplicativeWeights(Learner):</a>
-<a class="sourceLine" id="cb5-2" title="2">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</a>
-<a class="sourceLine" id="cb5-3" title="3">        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</a>
-<a class="sourceLine" id="cb5-4" title="4">        <span class="co"># initialize weights of experts to 1.0</span></a>
-<a class="sourceLine" id="cb5-5" title="5">        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</a>
-<a class="sourceLine" id="cb5-6" title="6">    </a>
-<a class="sourceLine" id="cb5-7" title="7">    <span class="kw">def</span> generate(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</a>
-<a class="sourceLine" id="cb5-8" title="8">        <span class="cf">return</span> <span class="va">self</span>.weights <span class="op">/</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights)</a>
-<a class="sourceLine" id="cb5-9" title="9"></a>
-<a class="sourceLine" id="cb5-10" title="10">    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: np.ndarray):</a>
-<a class="sourceLine" id="cb5-11" title="11">        gibbs_weights <span class="op">=</span> np.exp(<span class="op">-</span><span class="va">self</span>.beta <span class="op">*</span> loss)</a>
-<a class="sourceLine" id="cb5-12" title="12">        <span class="va">self</span>.weights <span class="op">*=</span> gibbs_weights</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiplicativeWeights(Learner):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_experts: <span class="bu">int</span>):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_experts <span class="op">=</span> num_experts</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># initialize weights of experts to 1.0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.weights <span class="op">=</span> np.repeat(<span class="fl">1.0</span>, num_experts)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate(<span class="va">self</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.weights <span class="op">/</span> np.<span class="bu">sum</span>(<span class="va">self</span>.weights)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> suffer(<span class="va">self</span>, loss: np.ndarray):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        gibbs_weights <span class="op">=</span> np.exp(<span class="op">-</span><span class="va">self</span>.beta <span class="op">*</span> loss)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.weights <span class="op">*=</span> gibbs_weights</span></code></pre></div>
 <p>Let us now determine the regret bound for this learning algorithm. Note that</p>
 <p><span class="math display">\[
 \begin{align*}
@@ -330,5 +331,7 @@
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>

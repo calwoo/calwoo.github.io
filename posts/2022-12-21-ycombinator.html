@@ -21,6 +21,7 @@
                 <a href="../about.html">About</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../archive.html">Archive</a>
+                <a href="../notes/">Notes</a>
             </nav>
         </header>
 
@@ -42,14 +43,14 @@
 <p>The single argument isn’t too much of a restriction, by the way. We can extend to (finite) multiple arguments by <strong>currying</strong>:</p>
 <pre><code>λx.λy.3xy+x-1</code></pre>
 <p>which is equivalently in Python given by</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> f(x, y):</a>
-<a class="sourceLine" id="cb3-2" title="2">    <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="co"># same as</span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="kw">def</span> f(x):</a>
-<a class="sourceLine" id="cb3-6" title="6">    <span class="kw">def</span> g(y):</a>
-<a class="sourceLine" id="cb3-7" title="7">        <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-8" title="8">    <span class="cf">return</span> g</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x, y):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># same as</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(x):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> g(y):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">3</span><span class="op">*</span>x<span class="op">*</span>y <span class="op">+</span> x <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> g</span></code></pre></div>
 <p>As <span class="math inline">\(\lambda\)</span>-functions are indeed functions, we can apply them on other expressions like</p>
 <pre><code>[λx.3x+1] 7</code></pre>
 <p>which would give 22. This all looks dandy, except that in the lambda calculus, we really only have functions (well, plus variable bindings and evaluations). So an expression like <code>λx.3x+1</code> will require us to figure out some things, like what the symbols <code>3</code> and <code>+</code> mean in this theory of computation.</p>
@@ -104,25 +105,25 @@ mult(0)(x) = [λn.λm.n(add(m))(0)] 0 x
 <p>So for example, we can do <strong>recursion</strong>.</p>
 <h2 id="recursion">recursion</h2>
 <p>Let’s look at an example of a recursive function, the factorial:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">def</span> fact(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</a>
-<a class="sourceLine" id="cb14-2" title="2">    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb14-3" title="3">        <span class="cf">return</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb14-4" title="4">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb14-5" title="5">        <span class="cf">return</span> n <span class="op">*</span> fact(n <span class="op">-</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fact(n: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> n <span class="op">*</span> fact(n <span class="op">-</span> <span class="dv">1</span>)</span></code></pre></div>
 <p>A key feature of this definition is that it refers to the function itself in the definition. This self-reference requires us to give the function a <em>name</em>, which isn’t something we can do in the standard <span class="math inline">\(\lambda\)</span>-calculus. <span class="math inline">\(\lambda\)</span>-functions are <em>anonymous</em>, hence it’s difficult to write a recursive function this way.</p>
 <p>However, if we step back and think about our goal, we might have a path forward. We want to construct a function <code>fact</code> in the <span class="math inline">\(\lambda\)</span>-calculus in such a way that <code>fact</code> is a “definitionally a function of itself”. That is, there is some other lambda <code>g</code>, such that we can express <code>fact</code> as</p>
 <pre><code>fact = g(fact)</code></pre>
 <p>We see that the <code>fact</code> <span class="math inline">\(\lambda\)</span>-function is hence a <strong>fixed point</strong> of the <span class="math inline">\(\lambda\)</span>-function <code>g</code>! In this way, we have converted our question of defining a recursive function (that may require self-reference) into a question of computing the fixed points of <span class="math inline">\(\lambda\)</span>-functions.</p>
 <p>So now just need a way to compute the fixed points of <span class="math inline">\(\lambda\)</span>-functions. Our goal is to divine a higher-order function</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">fix ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fix ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a</span></code></pre></div>
 <p>such that for any function <code>f</code>, we have <code>fix f = f (fix f)</code>– that is, <code>fix</code> takes a function and returns a fixed point of the function. Haskell is kinda cheating when we define this, by the way– you can write</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1">fix f <span class="fu">=</span> <span class="kw">let</span> {x <span class="fu">=</span> f x} <span class="kw">in</span> x</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fix f <span class="ot">=</span> <span class="kw">let</span> {x <span class="ot">=</span> f x} <span class="kw">in</span> x</span></code></pre></div>
 <p>and just let lazy evaluation semantics take hold to make sure you don’t cause a horrific stack overflow.</p>
 <p>But in the standard <span class="math inline">\(\lambda\)</span>-calculus we can’t get off this easily. To begin with, lets try to express the simplest recursive function</p>
 <pre><code>loop = loop</code></pre>
 <p>Here, loop is the true self-referential function. Indeed, in Python</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1"><span class="kw">def</span> loop(x):</a>
-<a class="sourceLine" id="cb19-2" title="2">    <span class="cf">return</span> loop(x)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loop(x):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> loop(x)</span></code></pre></div>
 <p>How would we write this in the <span class="math inline">\(\lambda\)</span>-calculus? Brace yourself for some magic:</p>
 <pre><code>loop = (λx.x x) (λx.x x)</code></pre>
 <p>If we sit back and expand it out in terms of the function application and <span class="math inline">\(\beta\)</span>-reduction rules, we see that indeed this does give <code>loop = loop</code> by definition.</p>
@@ -143,23 +144,23 @@ mult(0)(x) = [λn.λm.n(add(m))(0)] 0 x
 <p>we have that</p>
 <pre><code>fact = fix λr.λx.if x == 0 then 1 else r(x - 1) * x</code></pre>
 <p>In python, we can write the above as</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb26-1" title="1"><span class="co"># the Y combinator</span></a>
-<a class="sourceLine" id="cb26-2" title="2">fix <span class="op">=</span> <span class="kw">lambda</span> f: (<span class="kw">lambda</span> x: f(x(x)))(<span class="kw">lambda</span> x: f(x(x)))</a>
-<a class="sourceLine" id="cb26-3" title="3"></a>
-<a class="sourceLine" id="cb26-4" title="4"><span class="co"># the associated recursion lambda for fact</span></a>
-<a class="sourceLine" id="cb26-5" title="5">g <span class="op">=</span> <span class="kw">lambda</span> r: (<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> r(x <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> x)</a>
-<a class="sourceLine" id="cb26-6" title="6"></a>
-<a class="sourceLine" id="cb26-7" title="7"><span class="co"># the factorial</span></a>
-<a class="sourceLine" id="cb26-8" title="8">fact <span class="op">=</span> fix(g)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the Y combinator</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>fix <span class="op">=</span> <span class="kw">lambda</span> f: (<span class="kw">lambda</span> x: f(x(x)))(<span class="kw">lambda</span> x: f(x(x)))</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the associated recursion lambda for fact</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="kw">lambda</span> r: (<span class="kw">lambda</span> x: <span class="dv">1</span> <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> r(x <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> x)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the factorial</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>fact <span class="op">=</span> fix(g)</span></code></pre></div>
 <p>Testing, we see in the interpreter</p>
 <pre><code>&gt; fact(9)
 RecursionError: maximum recursion depth exceeded</code></pre>
 <p>Whoops! Python eagerly evaluates those function calls, leading to a burst stack. The usual way to get around this is by passing in a <em>thunk</em>, giving</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" title="1">fix_thunk <span class="op">=</span> <span class="kw">lambda</span> f: <span class="op">\</span></a>
-<a class="sourceLine" id="cb28-2" title="2">    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))<span class="op">\</span></a>
-<a class="sourceLine" id="cb28-3" title="3">    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))</a>
-<a class="sourceLine" id="cb28-4" title="4"></a>
-<a class="sourceLine" id="cb28-5" title="5">fact_thunk <span class="op">=</span> fix_thunk(g)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fix_thunk <span class="op">=</span> <span class="kw">lambda</span> f: <span class="op">\</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))<span class="op">\</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">lambda</span> x: f(<span class="kw">lambda</span> y: x(x)(y)))</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>fact_thunk <span class="op">=</span> fix_thunk(g)</span></code></pre></div>
 <p>Then, in fact, we get finally a running computation:</p>
 <pre><code>&gt; fact_thunk(9)
 362880</code></pre>
@@ -172,5 +173,7 @@ RecursionError: maximum recursion depth exceeded</code></pre>
             Site proudly generated by
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
     </body>
 </html>
