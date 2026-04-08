@@ -7,8 +7,13 @@ jobs:
       BRANCH: master
       TARGET_REPO: calwoo/calwoo.github.io.git
     steps:
-      - checkout:
-          submodules: true
+      - run:
+          name: Checkout with submodules
+          command: |
+            git clone --recurse-submodules \
+              https://${GH_TOKEN}@github.com/${TARGET_REPO%.git}.git \
+              .
+            git checkout $CIRCLE_BRANCH
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
