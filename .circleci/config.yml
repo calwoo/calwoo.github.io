@@ -68,7 +68,7 @@ jobs:
               echo "committing to git repo..."
               if git commit -m "publish $CIRCLE_SHA1 [ci skip]" ; then
                 echo "git push files with force..."
-                GIT_TERMINAL_PROMPT=0 git push -fq https://${GH_TOKEN}@github.com/$TARGET_REPO master
+                GIT_TERMINAL_PROMPT=0 git push -fq https://x-oauth-basic:${GH_TOKEN}@github.com/$TARGET_REPO master
                 echo -e "deployment completed!\n"
               else
                 echo "content not changed, nothing to deploy"
