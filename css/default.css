@@ -42,11 +42,6 @@ nav a:hover {
   color: var(--accent);
 }
 
-.nav-github {
-  display: inline-flex;
-  vertical-align: middle;
-}
-
 .nav-github svg {
   fill: currentColor;
   display: block;
@@ -159,10 +154,13 @@ article .header {
   }
   nav {
     margin: 0;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.2rem;
   }
   nav a {
-    margin: 0 0 0 1.2rem;
+    margin: 0;
     display: inline;
   }
   footer {
