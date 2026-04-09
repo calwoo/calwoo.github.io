@@ -2,6 +2,9 @@
 
 :root {
   --accent: #b85c00;
+  --page-bg: #2e2b28;
+  --card-bg: #faf7f2;
+  --card-bg-alt: #f0ebe0;
 }
 
 html {
@@ -11,8 +14,9 @@ html {
 body {
   font-family: KaTeX_Main,Times New Roman,serif;
   font-size: 16px;
-  margin: auto;
-  color: #000;
+  background-color: var(--page-bg);
+  margin: 0;
+  color: #1a1a1a;
 }
 
 a {
@@ -21,6 +25,15 @@ a {
 
 a:hover {
   color: var(--accent);
+}
+
+#wrapper {
+  background-color: var(--card-bg);
+  width: 90%;
+  max-width: 780px;
+  margin: 20px auto;
+  padding: 12px 40px 24px;
+  box-sizing: border-box;
 }
 
 header {
@@ -84,40 +97,11 @@ article .header {
   font-size: 1.1em;
 }
 
-@media (max-width: 319px) {
-  body {
-    width: 90%;
-    margin: 0;
-    padding: 0 5%;
-  }
-  header {
-    margin: 4.2rem 0;
-  }
-  nav {
-    margin: 0 auto 3rem;
-    text-align: center;
-  }
-  footer {
-    text-align: center;
-  }
-  .logo {
-    text-align: center;
-    margin: 1rem auto 3rem;
-  }
-  .logo a {
-    font-size: 2.4rem;
-  }
-  nav a {
-    display: block;
-    line-height: 1.6;
-  }
-}
-
-@media (min-width: 320px) {
-  body {
-    width: 90%;
-    margin: 0;
-    padding: 0 5%;
+@media (max-width: 639px) {
+  #wrapper {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 5% 24px;
   }
   header {
     margin: 4.2rem 0;
@@ -143,10 +127,8 @@ article .header {
 }
 
 @media (min-width: 640px) {
-  body {
-    width: 70rem;
-    margin: 0 auto;
-    padding: 0;
+  #wrapper {
+    padding: 12px 40px 24px;
   }
   header {
     margin: 0 0 3rem;
