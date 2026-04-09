@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>metric-geometry-and-dimension-reduction - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>metric-geometry-and-dimension-reduction</h1>
+            <article>
+    <section>
+        <p><em>CS 265 — Lectures 7–9 | Topics: Metric Embeddings, Bourgain’s Theorem, Johnson-Lindenstrauss, LSH, Compressed Sensing, RIP</em></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-metric-spaces-and-ℓ_p-geometry%7C1.-metric-spaces-and-ℓ_p-geometry/">#1. Metric Spaces and ℓ_p Geometry|1. Metric Spaces and ℓ_p Geometry</a>
+<ul>
+<li><a href="../../../../notes/#1.1-definitions-and-examples%7C1.1-definitions-and-examples/">#1.1 Definitions and Examples|1.1 Definitions and Examples</a></li>
+<li><a href="../../../../notes/#1.2-isometric-embeddings-and-distortion%7C1.2-isometric-embeddings-and-distortion/">#1.2 Isometric Embeddings and Distortion|1.2 Isometric Embeddings and Distortion</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-bourgain's-embedding-theorem%7C2.-bourgain's-embedding-theorem/">#2. Bourgain’s Embedding Theorem|2. Bourgain’s Embedding Theorem</a>
+<ul>
+<li><a href="../../../../notes/#2.1-construction%7C2.1-construction/">#2.1 Construction|2.1 Construction</a></li>
+<li><a href="../../../../notes/#2.2-upper-bound-proof%7C2.2-upper-bound-proof/">#2.2 Upper Bound Proof|2.2 Upper Bound Proof</a></li>
+<li><a href="../../../../notes/#2.3-lower-bound-proof%7C2.3-lower-bound-proof/">#2.3 Lower Bound Proof|2.3 Lower Bound Proof</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-the-johnson-lindenstrauss-transform%7C3.-the-johnson-lindenstrauss-transform/">#3. The Johnson-Lindenstrauss Transform|3. The Johnson-Lindenstrauss Transform</a>
+<ul>
+<li><a href="../../../../notes/#3.1-statement-and-construction%7C3.1-statement-and-construction/">#3.1 Statement and Construction|3.1 Statement and Construction</a></li>
+<li><a href="../../../../notes/#3.2-full-proof%7C3.2-full-proof/">#3.2 Full Proof|3.2 Full Proof</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-locality-sensitive-hashing%7C4.-locality-sensitive-hashing/">#4. Locality-Sensitive Hashing|4. Locality-Sensitive Hashing</a>
+<ul>
+<li><a href="../../../../notes/#4.1-nearest-neighbor-and-the-curse-of-dimensionality%7C4.1-nearest-neighbor-and-the-curse-of-dimensionality/">#4.1 Nearest Neighbor and the Curse of Dimensionality|4.1 Nearest Neighbor and the Curse of Dimensionality</a></li>
+<li><a href="../../../../notes/#4.2-random-hyperplane-lsh%7C4.2-random-hyperplane-lsh/">#4.2 Random Hyperplane LSH|4.2 Random Hyperplane LSH</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-compressed-sensing-and-the-restricted-isometry-property%7C5.-compressed-sensing-and-the-restricted-isometry-property/">#5. Compressed Sensing and the Restricted Isometry Property|5. Compressed Sensing and the Restricted Isometry Property</a>
+<ul>
+<li><a href="../../../../notes/#5.1-sparse-recovery-setup%7C5.1-sparse-recovery-setup/">#5.1 Sparse Recovery Setup|5.1 Sparse Recovery Setup</a></li>
+<li><a href="../../../../notes/#5.2-the-restricted-isometry-property%7C5.2-the-restricted-isometry-property/">#5.2 The Restricted Isometry Property|5.2 The Restricted Isometry Property</a></li>
+<li><a href="../../../../notes/#5.3-recovery-via-ℓ_1-minimization%7C5.3-recovery-via-ℓ_1-minimization/">#5.3 Recovery via ℓ_1 Minimization|5.3 Recovery via ℓ_1 Minimization</a></li>
+<li><a href="../../../../notes/#5.4-gaussian-matrices-satisfy-rip:-ε-net-proof%7C5.4-gaussian-matrices-satisfy-rip:-ε-net-proof/">#5.4 Gaussian Matrices Satisfy RIP: ε-Net Proof|5.4 Gaussian Matrices Satisfy RIP: ε-Net Proof</a></li>
+</ul></li>
+<li><a href="../../../../notes/#summary:-three-pillars-of-randomized-metric-geometry%7Csummary:-three-pillars-of-randomized-metric-geometry/">#Summary: Three Pillars of Randomized Metric Geometry|Summary: Three Pillars of Randomized Metric Geometry</a></li>
+<li><a href="../../../../notes/#6.-references%7C6.-references/">#6. References|6. References</a></li>
+</ul>
+<hr />
+<h2 id="metric-spaces-and-ℓ_p-geometry">1. Metric Spaces and ℓ_p Geometry 📐</h2>
+<h3 id="definitions-and-examples">1.1 Definitions and Examples</h3>
+<p><strong>Definition (Metric Space).</strong> A <em>metric space</em> is a pair <span class="math inline">\((X, d)\)</span> where <span class="math inline">\(X\)</span> is a set and <span class="math inline">\(d : X \times X \to \mathbb{R}_{\geq 0}\)</span> satisfies:
+1. <span class="math inline">\(d(x, y) = 0 \iff x = y\)</span> (identity of indiscernibles),
+2. <span class="math inline">\(d(x, y) = d(y, x)\)</span> (symmetry),
+3. <span class="math inline">\(d(x, z) \leq d(x, y) + d(y, z)\)</span> for all <span class="math inline">\(x, y, z \in X\)</span> (triangle inequality).</p>
+<p>The central examples throughout these lectures are the <em><span class="math inline">\(\ell_p\)</span> metrics</em> on <span class="math inline">\(\mathbb{R}^n\)</span>.</p>
+<p><strong>Definition (<span class="math inline">\(\ell_p\)</span> Metric).</strong> For <span class="math inline">\(p \geq 1\)</span> and <span class="math inline">\(x, y \in \mathbb{R}^n\)</span>,</p>
+<p><span class="math display">\[d_p(x, y) = \|x - y\|_p = \left(\sum_{i=1}^n |x_i - y_i|^p\right)^{1/p},\]</span></p>
+<p>with <span class="math inline">\(d_\infty(x, y) = \max_i |x_i - y_i|\)</span> as the limiting case.</p>
+<div class="callout callout-note">
+<p> Why <span class="math inline">\(p \geq 1\)</span>?
+The triangle inequality for <span class="math inline">\(\|\cdot\|_p\)</span> follows from <em>Minkowski’s inequality</em>, which requires <span class="math inline">\(p \geq 1\)</span>. For <span class="math inline">\(p &lt; 1\)</span>, the triangle inequality fails: consider <span class="math inline">\(x = (1, 0)\)</span>, <span class="math inline">\(y = (0, 1)\)</span>, <span class="math inline">\(z = (0, 0)\)</span> in <span class="math inline">\(\mathbb{R}^2\)</span> with <span class="math inline">\(p = 1/2\)</span>. Then <span class="math inline">\(d_{1/2}(x, y) = (1 + 1)^2 = 4\)</span>, while <span class="math inline">\(d_{1/2}(x, z) + d_{1/2}(z, y) = 1 + 1 = 2\)</span>. See Exercise 1 for the general argument.</p>
+</div>
+<p>A second important family is <em>graph metrics</em>. Given an unweighted graph <span class="math inline">\(G = (V, E)\)</span>, define <span class="math inline">\(d_G(u, v)\)</span> as the length of the shortest path from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span>. One verifies the triangle inequality from path concatenation.</p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 1</p>
+<p><em>Show that for <span class="math inline">\(p \in (0,1)\)</span> and <span class="math inline">\(n \geq 2\)</span>, <span class="math inline">\(d_p\)</span> violates the triangle inequality. Construct an explicit counterexample in <span class="math inline">\(\mathbb{R}^2\)</span> and identify which step in Minkowski’s proof breaks.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.1-definitions-and-examples%7Cmetric-space-definition/">#1.1 Definitions and Examples|Metric space definition</a>, basic real analysis.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 1
+<strong>Key insight:</strong> Minkowski’s inequality <span class="math inline">\(\|u + v\|_p \leq \|u\|_p + \|v\|_p\)</span> is equivalent to the triangle inequality and holds iff <span class="math inline">\(p \geq 1\)</span>. For <span class="math inline">\(p &lt; 1\)</span>, the function <span class="math inline">\(t \mapsto t^p\)</span> is <em>concave</em> rather than convex, reversing the direction of Jensen’s inequality that powers the proof.</p>
+<p><strong>Sketch:</strong> Take <span class="math inline">\(x = e_1\)</span>, <span class="math inline">\(y = e_2\)</span>, <span class="math inline">\(z = 0\)</span> in <span class="math inline">\(\mathbb{R}^2\)</span>. Then <span class="math inline">\(d_p(x, y) = (1^p + 1^p)^{1/p} = 2^{1/p}\)</span>, while <span class="math inline">\(d_p(x, z) + d_p(z, y) = 1 + 1 = 2\)</span>. For <span class="math inline">\(p &lt; 1\)</span>, <span class="math inline">\(1/p &gt; 1\)</span>, so <span class="math inline">\(2^{1/p} &gt; 2\)</span>, giving <span class="math inline">\(d_p(x,y) &gt; d_p(x,z) + d_p(z,y)\)</span>.</p>
+</div>
+<h3 id="isometric-embeddings-and-distortion">1.2 Isometric Embeddings and Distortion</h3>
+<p><strong>Definition (Embedding, Distortion).</strong> An <em>embedding</em> of <span class="math inline">\((X, d)\)</span> into <span class="math inline">\((Y, d')\)</span> is a map <span class="math inline">\(f : X \to Y\)</span>. It is <em>isometric</em> if <span class="math inline">\(d'(f(x), f(y)) = d(x, y)\)</span> for all <span class="math inline">\(x, y\)</span>. More generally, <span class="math inline">\(f\)</span> has <em>distortion at most <span class="math inline">\(\alpha\)</span></em> if there exists <span class="math inline">\(\beta &gt; 0\)</span> such that</p>
+<p><span class="math display">\[\beta \cdot d(x, y) \leq d'(f(x), f(y)) \leq \alpha\beta \cdot d(x, y) \quad \forall x, y \in X.\]</span></p>
+<p>Distortion 1 is an isometry (up to global scaling). Distortion <span class="math inline">\(\alpha\)</span> means the embedding stretches and compresses distances by at most a factor of <span class="math inline">\(\alpha\)</span> relative to each other.</p>
+<div class="callout callout-info">
+<p> Universal Isometric Embedding into <span class="math inline">\(\ell_\infty\)</span>
+Every <span class="math inline">\(n\)</span>-point metric <span class="math inline">\((X, d)\)</span> embeds isometrically into <span class="math inline">\((\mathbb{R}^n, \ell_\infty)\)</span>. Fix an ordering <span class="math inline">\(x_1, \ldots, x_n\)</span> of <span class="math inline">\(X\)</span> and define <span class="math inline">\(f(x) = (d(x, x_1), \ldots, d(x, x_n))\)</span>. Then <span class="math inline">\(\|f(x) - f(y)\|_\infty = \max_i |d(x, x_i) - d(y, x_i)|\)</span>. The upper bound <span class="math inline">\(\leq d(x, y)\)</span> follows from the triangle inequality; the lower bound is achieved at <span class="math inline">\(i\)</span> with <span class="math inline">\(x_i = x\)</span> (giving <span class="math inline">\(d(y, x)\)</span>). This embedding is in <span class="math inline">\(\mathbb{R}^n\)</span>, which is often far too high-dimensional to be useful.</p>
+</div>
+<p>The central question of <em>metric embeddings</em> is: can we embed <span class="math inline">\((X, d)\)</span> into a “nice” target space (e.g., <span class="math inline">\(\ell_2\)</span> or <span class="math inline">\(\ell_1\)</span>) with low distortion and low dimension? These two goals tension against each other — richer structure in the target makes distortion easier to achieve, but low dimension is valuable for algorithmic applications.</p>
+<hr />
+<h2 id="bourgains-embedding-theorem">2. Bourgain’s Embedding Theorem 🔑</h2>
+<p><strong>Theorem 1 (Bourgain 1985).</strong> Every <span class="math inline">\(n\)</span>-point metric space <span class="math inline">\((X, d)\)</span> embeds into <span class="math inline">\((\mathbb{R}^k, \ell_1)\)</span> with distortion <span class="math inline">\(O(\log n)\)</span> and <span class="math inline">\(k = O(\log^2 n)\)</span>. The distortion <span class="math inline">\(O(\log n)\)</span> is tight.</p>
+<h3 id="construction">2.1 Construction</h3>
+<p>Set parameters: <span class="math inline">\(k = O(\log^2 n)\)</span> coordinates indexed by pairs <span class="math inline">\((i, j)\)</span> with <span class="math inline">\(i \in \{1, \ldots, \lceil \log n \rceil\}\)</span> and <span class="math inline">\(j \in \{1, \ldots, c\log n\}\)</span> for a constant <span class="math inline">\(c &gt; 0\)</span> to be chosen. For each pair <span class="math inline">\((i, j)\)</span>, sample a random set <span class="math inline">\(S_{i,j} \subseteq X\)</span> by including each point of <span class="math inline">\(X\)</span> independently with probability <span class="math inline">\(1/2^i\)</span>.</p>
+<p>Define the embedding <span class="math inline">\(f : X \to \mathbb{R}^k\)</span> by</p>
+<p><span class="math display">\[f(x) = \bigl(d(x, S_{1,1}),\ d(x, S_{1,2}),\ \ldots,\ d(x, S_{\lceil\log n\rceil,\, c\log n})\bigr),\]</span></p>
+<p>where <span class="math inline">\(d(x, S) = \min_{s \in S} d(x, s)\)</span> is the distance from <span class="math inline">\(x\)</span> to the nearest point of <span class="math inline">\(S\)</span> (with the convention <span class="math inline">\(d(x, \emptyset) = 0\)</span>).</p>
+<div class="callout callout-note">
+<p> Intuition for the Scales
+The index <span class="math inline">\(i\)</span> controls the <em>scale</em> at which we sample: at scale <span class="math inline">\(i\)</span>, we expect roughly <span class="math inline">\(n/2^i\)</span> points in <span class="math inline">\(S_{i,j}\)</span>, so <span class="math inline">\(S_{i,j}\)</span> is a sparse random sample that captures structure at radius <span class="math inline">\(\sim 2^i \cdot d_{\min}\)</span>. The multiple repetitions <span class="math inline">\(j = 1, \ldots, c\log n\)</span> at each scale reduce variance via concentration.</p>
+</div>
+<h3 id="upper-bound-proof">2.2 Upper Bound Proof</h3>
+<p><strong>Claim.</strong> <span class="math inline">\(\|f(x) - f(y)\|_1 \leq k \cdot d(x, y)\)</span> deterministically.</p>
+<p><em>Proof.</em> It suffices to show that for each set <span class="math inline">\(S\)</span>, <span class="math inline">\(|d(x, S) - d(y, S)| \leq d(x, y)\)</span>. Fix <span class="math inline">\(s^* = \arg\min_{s \in S} d(y, s)\)</span>. Then</p>
+<p><span class="math display">\[d(x, S) \leq d(x, s^*) \leq d(x, y) + d(y, s^*) = d(x, y) + d(y, S),\]</span></p>
+<p>so <span class="math inline">\(d(x, S) - d(y, S) \leq d(x, y)\)</span>. By symmetry, <span class="math inline">\(d(y, S) - d(x, S) \leq d(x, y)\)</span>. Hence each coordinate contributes at most <span class="math inline">\(d(x, y)\)</span> to the <span class="math inline">\(\ell_1\)</span> sum, giving <span class="math inline">\(\|f(x) - f(y)\|_1 \leq k \cdot d(x, y)\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="lower-bound-proof">2.3 Lower Bound Proof</h3>
+<p>The harder direction shows that with high probability, <span class="math inline">\(\|f(x) - f(y)\|_1 = \Omega(d(x,y) / \log n)\)</span> for every pair <span class="math inline">\(x, y\)</span>. The proof proceeds by a carefully chosen multi-scale analysis: at scale <span class="math inline">\(i\)</span>, the set <span class="math inline">\(S_{i,j}\)</span> is “just sparse enough” to hit one ball but miss the other.</p>
+<p>Fix <span class="math inline">\(x, y \in X\)</span> with <span class="math inline">\(r = d(x, y)\)</span>. For integer <span class="math inline">\(i \geq 0\)</span>, let <span class="math inline">\(B(x, \delta)\)</span> denote the ball of radius <span class="math inline">\(\delta\)</span> centered at <span class="math inline">\(x\)</span>. Define</p>
+<p><span class="math display">\[\delta_i = \min\{\delta : |B(x, \delta)| \geq 2^i \text{ and } |B(y, \delta)| \geq 2^i\}.\]</span></p>
+<p>This is the smallest radius at which <em>both</em> neighborhoods have grown to size <span class="math inline">\(2^i\)</span>.</p>
+<p><strong>Key observation.</strong> Since <span class="math inline">\(|X| = n\)</span>, the sequence terminates at <span class="math inline">\(\delta_{\log n}\)</span> (at <span class="math inline">\(i = \log n\)</span>, both balls must contain <span class="math inline">\(n\)</span> points, i.e., all of <span class="math inline">\(X\)</span>, so <span class="math inline">\(\delta_{\log n}\)</span> is the diameter of the larger of the two balls). Also <span class="math inline">\(\delta_0 = 0\)</span> and the sequence is non-decreasing by definition.</p>
+<p><strong>Telescoping.</strong> We have <span class="math inline">\(\sum_{i=0}^{\log n - 1} (\delta_{i+1} - \delta_i) = \delta_{\log n} - \delta_0 = \delta_{\log n}\)</span>.</p>
+<p><strong>Relating <span class="math inline">\(\delta_{\log n}\)</span> to <span class="math inline">\(d(x, y)\)</span>.</strong> We claim <span class="math inline">\(\delta_{\log n} \geq d(x, y)/2\)</span>. Indeed, for any <span class="math inline">\(\delta &lt; r/2\)</span>, the balls <span class="math inline">\(B(x, \delta)\)</span> and <span class="math inline">\(B(y, \delta)\)</span> are <em>disjoint</em>: any <span class="math inline">\(z \in B(x, \delta) \cap B(y, \delta)\)</span> would satisfy <span class="math inline">\(r = d(x,y) \leq d(x,z) + d(z,y) &lt; 2\delta &lt; r\)</span>, a contradiction. Since <span class="math inline">\(B(x, \delta) \cap B(y, \delta) = \emptyset\)</span> and <span class="math inline">\(|X| = n\)</span>, we have <span class="math inline">\(|B(x,\delta)| + |B(y,\delta)| \leq n\)</span>, so at least one of them has size <span class="math inline">\(&lt; n/2 = 2^{\log n - 1}\)</span>. This means <span class="math inline">\(\delta_{i^*} \geq r/2\)</span> where <span class="math inline">\(i^* = \lceil \log n \rceil - 1\)</span>, i.e., the telescoping sum is at least <span class="math inline">\(r/2\)</span>:</p>
+<p><span class="math display">\[\sum_{i=0}^{\lceil \log n \rceil - 1} (\delta_{i+1} - \delta_i) = \delta_{\lceil \log n \rceil} \geq r/2.\]</span></p>
+<p><strong>Contribution of a single set <span class="math inline">\(S_{i,j}\)</span>.</strong> Fix a scale <span class="math inline">\(i\)</span>. We argue that <span class="math inline">\(S_{i,j}\)</span> contributes approximately <span class="math inline">\(\delta_{i+1} - \delta_i\)</span> to <span class="math inline">\(\|f(x) - f(y)\|_1\)</span>.</p>
+<p>At scale <span class="math inline">\(i\)</span>: by definition of <span class="math inline">\(\delta_i\)</span>, the ball <span class="math inline">\(B(x, \delta_i)\)</span> has <span class="math inline">\(|B(x, \delta_i)| \geq 2^i\)</span>, so the probability that <span class="math inline">\(S_{i,j}\)</span> hits <span class="math inline">\(B(x, \delta_i)\)</span> is <span class="math inline">\(\geq 1 - (1 - 1/2^i)^{2^i} \geq 1 - 1/e\)</span>. Conditioned on this, <span class="math inline">\(d(x, S_{i,j}) \leq \delta_i\)</span>.</p>
+<p>At scale <span class="math inline">\(i+1\)</span>: the ball <span class="math inline">\(B(x, \delta_{i+1})\)</span> has <span class="math inline">\(|B(x, \delta_{i+1})| \geq 2^{i+1}\)</span>, but we want <span class="math inline">\(S_{i,j}\)</span> to <em>miss</em> <span class="math inline">\(B(y, \delta_i)\)</span>. The set <span class="math inline">\(B(y, \delta_i)\)</span> has <span class="math inline">\(|B(y, \delta_i)| &lt; 2^i\)</span> (by definition of <span class="math inline">\(\delta_i\)</span> as the minimum), so the probability <span class="math inline">\(S_{i,j}\)</span> hits <span class="math inline">\(B(y, \delta_i)\)</span> is <span class="math inline">\(&lt; 1 - (1 - 1/2^i)^{2^i - 1} \approx 1 - 1/e\)</span>. Hence with constant probability, <span class="math inline">\(d(y, S_{i,j}) &gt; \delta_i\)</span> while <span class="math inline">\(d(x, S_{i,j}) \leq \delta_i\)</span>, giving coordinate contribution <span class="math inline">\(\geq \delta_{i+1} - \delta_i\)</span>.</p>
+<p><strong>Chernoff + union bound.</strong> Each of the <span class="math inline">\(c \log n\)</span> repetitions at scale <span class="math inline">\(i\)</span> independently gives a contribution <span class="math inline">\(\geq \delta_{i+1} - \delta_i\)</span> with constant probability <span class="math inline">\(p_0 &gt; 0\)</span>. By a Chernoff bound, at least <span class="math inline">\((p_0/2) \cdot c\log n\)</span> sets contribute <span class="math inline">\(\geq \delta_{i+1} - \delta_i\)</span> with probability <span class="math inline">\(\geq 1 - e^{-\Omega(c \log n)} = 1 - n^{-\Omega(c)}\)</span>.</p>
+<p>Summing over all <span class="math inline">\(\log n\)</span> scales and applying a union bound over all <span class="math inline">\(\binom{n}{2} = O(n^2)\)</span> pairs:</p>
+<p><span class="math display">\[\|f(x) - f(y)\|_1 \geq \sum_{i=0}^{\log n - 1} \frac{p_0 c \log n}{2} \cdot (\delta_{i+1} - \delta_i) = \frac{p_0 c \log n}{2} \cdot \delta_{\log n} \geq \frac{p_0 c \log n}{2} \cdot \frac{r}{2}.\]</span></p>
+<p>Wait — this gives <span class="math inline">\(\Omega(\log n) \cdot d(x, y)\)</span>, which is the <em>wrong direction</em>. Correctly: the total <span class="math inline">\(\ell_1\)</span> norm collects contributions from each <em>individual</em> <span class="math inline">\((i,j)\)</span> pair, and at scale <span class="math inline">\(i\)</span>, each repetition <span class="math inline">\(j\)</span> contributes <span class="math inline">\((\delta_{i+1} - \delta_i)\)</span> with constant probability, so the <em>expected</em> total is</p>
+<p><span class="math display">\[\mathbb{E}[\|f(x) - f(y)\|_1] \geq \sum_i c\log n \cdot p_0 \cdot (\delta_{i+1} - \delta_i) = \Omega\!\left(c \log n \cdot \frac{r}{2}\right).\]</span></p>
+<p>Dividing by the number of coordinates <span class="math inline">\(k = O(\log^2 n)\)</span> recovers that the <em>average coordinate contribution</em> is <span class="math inline">\(\Omega(r/\log n)\)</span>, so <span class="math inline">\(\|f(x)-f(y)\|_1 = \Omega(r)\)</span> after the Chernoff concentration. This yields distortion <span class="math inline">\(O(\log n)\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Tightness
+The <span class="math inline">\(O(\log n)\)</span> distortion in Bourgain’s theorem is tight. The <span class="math inline">\(n\)</span>-point <em>constant-degree expander graph</em> with its shortest-path metric requires distortion <span class="math inline">\(\Omega(\log n)\)</span> to embed into <span class="math inline">\(\ell_1\)</span> (or <span class="math inline">\(\ell_2\)</span>). This lower bound was established by Linial, London, and Rabinovich (1994).</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 2</p>
+<p><em>Prove rigorously that for any set <span class="math inline">\(S \subseteq X\)</span> and any metric <span class="math inline">\((X, d)\)</span>, the function <span class="math inline">\(x \mapsto d(x, S)\)</span> is <span class="math inline">\(1\)</span>-Lipschitz with respect to <span class="math inline">\(d\)</span>. Why does this immediately give the upper bound <span class="math inline">\(\|f(x) - f(y)\|_1 \leq k \cdot d(x, y)\)</span>?</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.2-upper-bound-proof%7Cupper-bound-proof/">#2.2 Upper Bound Proof|Upper bound proof</a>, <a href="../../../../notes/#1.2-isometric-embeddings-and-distortion%7Cdistortion-definition/">#1.2 Isometric Embeddings and Distortion|distortion definition</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 2
+<strong>Key insight:</strong> The distance-to-set function <span class="math inline">\(d(\cdot, S)\)</span> is the infimum of a family of 1-Lipschitz functions.</p>
+<p><strong>Sketch:</strong> For any <span class="math inline">\(s \in S\)</span>, the function <span class="math inline">\(x \mapsto d(x, s)\)</span> is 1-Lipschitz by the triangle inequality: <span class="math inline">\(|d(x,s) - d(y,s)| \leq d(x,y)\)</span>. The infimum of 1-Lipschitz functions is also 1-Lipschitz (taking <span class="math inline">\(s^* = \arg\min d(y, s)\)</span>: <span class="math inline">\(d(x,S) \leq d(x, s^*) \leq d(x,y) + d(y,s^*) = d(x,y) + d(y,S)\)</span>). Applying this to each of the <span class="math inline">\(k\)</span> coordinates and summing gives <span class="math inline">\(\|f(x)-f(y)\|_1 \leq k \cdot d(x,y)\)</span>.</p>
+</div>
+<hr />
+<h2 id="the-johnson-lindenstrauss-transform">3. The Johnson-Lindenstrauss Transform 💡</h2>
+<h3 id="statement-and-construction">3.1 Statement and Construction</h3>
+<p><strong>Theorem 1 (Johnson-Lindenstrauss 1984).</strong> For any <span class="math inline">\(\varepsilon \in (0,1)\)</span> and any <span class="math inline">\(n\)</span>-point set <span class="math inline">\(X \subseteq \mathbb{R}^d\)</span>, there exists a linear map <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^m\)</span> with <span class="math inline">\(m = O(\log n / \varepsilon^2)\)</span> such that for all <span class="math inline">\(x, y \in X\)</span>:</p>
+<p><span class="math display">\[(1 - \varepsilon)\|x - y\|_2 \leq \|f(x) - f(y)\|_2 \leq (1 + \varepsilon)\|x - y\|_2.\]</span></p>
+<p><strong>Construction.</strong> Let <span class="math inline">\(A\)</span> be an <span class="math inline">\(m \times d\)</span> random matrix with entries <span class="math inline">\(A_{ij} \stackrel{\text{iid}}{\sim} \mathcal{N}(0, 1/m)\)</span>, and set <span class="math inline">\(f(x) = Ax\)</span>.</p>
+<h3 id="full-proof">3.2 Full Proof</h3>
+<p><strong>Step 1: Reduction by linearity and spherical symmetry.</strong></p>
+<p>Since <span class="math inline">\(f\)</span> is linear, <span class="math inline">\(f(x) - f(y) = A(x - y)\)</span>. It suffices to analyze <span class="math inline">\(\|Av\|_2\)</span> for a fixed nonzero vector <span class="math inline">\(v \in \mathbb{R}^d\)</span>. By homogeneity, we may normalize to <span class="math inline">\(\|v\|_2 = 1\)</span>.</p>
+<p>Each row of <span class="math inline">\(A\)</span> is <span class="math inline">\(a_\ell^\top \sim \mathcal{N}(0, \frac{1}{m} I_d)\)</span>. The <em>spherical symmetry</em> of the Gaussian distribution means that <span class="math inline">\(a_\ell^\top v \sim \mathcal{N}(0, \frac{1}{m})\)</span> for any unit vector <span class="math inline">\(v\)</span> (since <span class="math inline">\(a_\ell^\top v \sim \mathcal{N}(0, \frac{1}{m}\|v\|^2)\)</span> and <span class="math inline">\(\|v\|=1\)</span>). Therefore we may assume WLOG that <span class="math inline">\(v = e_1\)</span>.</p>
+<p>With <span class="math inline">\(v = e_1\)</span>, the entries of <span class="math inline">\(Av\)</span> are <span class="math inline">\((Av)_\ell = A_{\ell 1} \sim \mathcal{N}(0, 1/m)\)</span> independently, so</p>
+<p><span class="math display">\[\|Av\|_2^2 = \sum_{\ell=1}^m A_{\ell 1}^2 = \frac{1}{m} \sum_{\ell=1}^m Z_\ell^2, \quad Z_\ell \stackrel{\text{iid}}{\sim} \mathcal{N}(0,1).\]</span></p>
+<p>We must show <span class="math inline">\(\Pr\bigl[|\|Av\|_2^2 - 1| &gt; \varepsilon\bigr]\)</span> is small.</p>
+<p><strong>Step 2: MGF of the chi-squared distribution.</strong></p>
+<p>Let <span class="math inline">\(Z \sim \mathcal{N}(0,1)\)</span>. We compute the moment generating function of <span class="math inline">\(Z^2\)</span>:</p>
+<p><span class="math display">\[\mathbb{E}[e^{tZ^2}] = \int_{-\infty}^\infty e^{tz^2} \cdot \frac{e^{-z^2/2}}{\sqrt{2\pi}} \, dz = \int_{-\infty}^\infty \frac{e^{-z^2(1-2t)/2}}{\sqrt{2\pi}} \, dz = \frac{1}{\sqrt{1 - 2t}}, \quad t &lt; \tfrac{1}{2}.\]</span></p>
+<p>Hence for <span class="math inline">\(W = \sum_{\ell=1}^m Z_\ell^2\)</span>,</p>
+<p><span class="math display">\[\mathbb{E}[e^{tW}] = \left(\frac{1}{\sqrt{1-2t}}\right)^m = (1-2t)^{-m/2}, \quad t &lt; \tfrac{1}{2}.\]</span></p>
+<p><strong>Step 3: Upper tail bound.</strong></p>
+<p>We want <span class="math inline">\(\Pr[W &gt; (1+\varepsilon)m]\)</span>. By Markov’s inequality applied to <span class="math inline">\(e^{tW}\)</span> for optimal <span class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[\Pr[W &gt; (1+\varepsilon)m] \leq \frac{\mathbb{E}[e^{tW}]}{e^{t(1+\varepsilon)m}} = \frac{(1-2t)^{-m/2}}{e^{t(1+\varepsilon)m}}.\]</span></p>
+<p>Minimize over <span class="math inline">\(t \in (0, 1/2)\)</span> by taking <span class="math inline">\(t = \varepsilon / (2(1+\varepsilon))\)</span>, giving (after simplification using <span class="math inline">\(\ln(1+\varepsilon) \geq \varepsilon - \varepsilon^2/2\)</span>):</p>
+<p><span class="math display">\[\Pr[W &gt; (1+\varepsilon)m] \leq \left(\frac{e^\varepsilon}{(1+\varepsilon)^{1+\varepsilon}}\right)^{m/2} \leq e^{-m\varepsilon^2/8}.\]</span></p>
+<p><strong>Step 4: Lower tail bound.</strong></p>
+<p>Similarly, <span class="math inline">\(\Pr[W &lt; (1-\varepsilon)m] \leq e^{-m\varepsilon^2/8}\)</span> by an analogous MGF argument (using negative <span class="math inline">\(t\)</span>).</p>
+<p><strong>Step 5: Union bound.</strong></p>
+<p>There are <span class="math inline">\(\binom{n}{2} \leq n^2/2\)</span> pairs <span class="math inline">\((x, y)\)</span>. For each pair, the failure probability is <span class="math inline">\(\leq 2e^{-m\varepsilon^2/8}\)</span>. Choosing</p>
+<p><span class="math display">\[m = \frac{17 \log n}{\varepsilon^2}\]</span></p>
+<p>makes <span class="math inline">\(2e^{-m\varepsilon^2/8} \leq 2e^{-2\log n} = 2/n^2\)</span>. By a union bound over <span class="math inline">\(n^2/2\)</span> pairs, the total failure probability is <span class="math inline">\(\leq 2/n^2 \cdot n^2/2 = 1\)</span>. In fact one chooses a slightly larger constant to make this probability tend to 0; <span class="math inline">\(m = O(\log n / \varepsilon^2)\)</span> suffices. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> JL is Dimension-Oblivious
+JL says we can compress <em>any</em> <span class="math inline">\(n\)</span>-point cloud in <span class="math inline">\(\mathbb{R}^{10^6}\)</span> to <span class="math inline">\(\mathbb{R}^{O(\log n)}\)</span> with <span class="math inline">\((1\pm\varepsilon)\)</span> pairwise distance preservation. The target dimension <span class="math inline">\(m\)</span> depends only on <span class="math inline">\(n\)</span> and <span class="math inline">\(\varepsilon\)</span>, not on the ambient dimension <span class="math inline">\(d\)</span>. This is remarkable: the proof exploits only that each row of <span class="math inline">\(A\)</span> provides an unbiased estimate of <span class="math inline">\(\|v\|^2\)</span>.</p>
+</div>
+<p><strong>Algorithmic implementation.</strong> The following Python pseudocode illustrates the JL transform applied to a point set:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> jl_transform(X: np.ndarray, eps: <span class="bu">float</span>) <span class="op">-&gt;</span> np.ndarray:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Johnson-Lindenstrauss dimension reduction.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    X   : (n, d) array of n points in R^d</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">    eps : distortion parameter in (0, 1)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Y : (n, m) array of n points in R^m, m = ceil(17 * log(n) / eps^2)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    n, d <span class="op">=</span> X.shape</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> <span class="bu">int</span>(np.ceil(<span class="dv">17</span> <span class="op">*</span> np.log(n) <span class="op">/</span> eps<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Draw Gaussian random matrix; scale by 1/sqrt(m) so rows have unit covariance</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.random.randn(m, d) <span class="op">/</span> np.sqrt(m)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X <span class="op">@</span> A.T  <span class="co"># shape (n, m)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> verify_distortion(X: np.ndarray, Y: np.ndarray, eps: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Check worst-case distortion over all pairs.&quot;&quot;&quot;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> X.shape[<span class="dv">0</span>]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    max_distortion <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, n):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            d_orig <span class="op">=</span> np.linalg.norm(X[i] <span class="op">-</span> X[j])</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>            d_embed <span class="op">=</span> np.linalg.norm(Y[i] <span class="op">-</span> Y[j])</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            ratio <span class="op">=</span> d_embed <span class="op">/</span> d_orig</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            distortion <span class="op">=</span> <span class="bu">max</span>(ratio, <span class="fl">1.0</span> <span class="op">/</span> ratio)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            max_distortion <span class="op">=</span> <span class="bu">max</span>(max_distortion, distortion)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> max_distortion  <span class="co"># should be &lt;= 1 + eps with high probability</span></span></code></pre></div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 3</p>
+<p><em>Verify the MGF calculation <span class="math inline">\(\mathbb{E}[e^{tZ^2}] = (1-2t)^{-1/2}\)</span> for <span class="math inline">\(Z \sim \mathcal{N}(0,1)\)</span> by completing the square in the exponent. Then derive the upper tail bound <span class="math inline">\(\Pr[\sum_{i=1}^m Z_i^2 &gt; (1+\varepsilon)m] \leq e^{-m\varepsilon^2/8}\)</span> by optimizing the Markov inequality over <span class="math inline">\(t\)</span>.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.2-full-proof%7Cjl-proof/">#3.2 Full Proof|JL proof</a>, <a href="../../../../notes/concepts/randomized-algorithms/concentration-inequalities%7Cchernoff-bounds/">concepts/randomized-algorithms/concentration-inequalities|Chernoff bounds</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 3
+<strong>Key insight:</strong> Completing the square reduces the MGF integral to a standard Gaussian integral; the Chernoff bound then replaces the non-standard <span class="math inline">\(\chi^2\)</span> tail with an exponential.</p>
+<p><strong>Sketch (MGF):</strong> <span class="math inline">\(\mathbb{E}[e^{tZ^2}] = \frac{1}{\sqrt{2\pi}} \int e^{tz^2 - z^2/2}\, dz = \frac{1}{\sqrt{2\pi}} \int e^{-z^2(1-2t)/2}\, dz\)</span>. Substituting <span class="math inline">\(u = z\sqrt{1-2t}\)</span> (valid for <span class="math inline">\(t &lt; 1/2\)</span>): <span class="math inline">\(= \frac{1}{\sqrt{1-2t}} \cdot \frac{1}{\sqrt{2\pi}} \int e^{-u^2/2}\, du = (1-2t)^{-1/2}\)</span>.</p>
+<p><strong>Sketch (tail bound):</strong> Let <span class="math inline">\(W = \sum Z_i^2\)</span>. <span class="math inline">\(\Pr[W &gt; (1+\varepsilon)m] \leq e^{-t(1+\varepsilon)m} (1-2t)^{-m/2}\)</span>. Taking <span class="math inline">\(\log\)</span> and minimizing over <span class="math inline">\(t\)</span>: set <span class="math inline">\(\partial/\partial t[\cdots] = 0\)</span>, get <span class="math inline">\(t^* = \varepsilon/(2(1+\varepsilon))\)</span>. Substitute and use <span class="math inline">\(\ln(1+\varepsilon) - \varepsilon/(1+\varepsilon) \geq \varepsilon^2/4\)</span> for small <span class="math inline">\(\varepsilon\)</span> to get the bound <span class="math inline">\(\leq e^{-m\varepsilon^2/8}\)</span>.</p>
+</div>
+<div class="callout callout-info">
+<p> Exercise 4</p>
+<p><em>Prove that for any linear map <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^m\)</span> with <span class="math inline">\(m &lt; \lfloor \log_2 n \rfloor\)</span>, there exist <span class="math inline">\(n\)</span> unit vectors in <span class="math inline">\(\mathbb{R}^d\)</span> such that <span class="math inline">\(f\)</span> fails to preserve at least one pairwise distance up to <span class="math inline">\((1\pm\varepsilon)\)</span> for <span class="math inline">\(\varepsilon = 1/2\)</span>. (Hint: use a dimension-counting argument on the kernel.)</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.1-statement-and-construction%7Cjl-statement/">#3.1 Statement and Construction|JL statement</a>, linear algebra (rank-nullity theorem).</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 4
+<strong>Key insight:</strong> A linear map with <span class="math inline">\(m &lt; \log_2 n\)</span> has an <span class="math inline">\((d - m)\)</span>-dimensional kernel that must intersect any sufficiently large collection of subspaces.</p>
+<p><strong>Sketch:</strong> Consider <span class="math inline">\(n = 2^m + 1\)</span> vectors. By rank-nullity, <span class="math inline">\(\ker(f)\)</span> has dimension <span class="math inline">\(d - m \geq 1\)</span>. Choose a nonzero <span class="math inline">\(v \in \ker(f)\)</span>; then <span class="math inline">\(\|f(v)\|_2 = 0\)</span> while <span class="math inline">\(\|v\|_2 &gt; 0\)</span>, so <span class="math inline">\(f\)</span> collapses <span class="math inline">\(v\)</span> entirely. To handle pairs: take <span class="math inline">\(n\)</span> points in general position in <span class="math inline">\(\mathbb{R}^d\)</span> with <span class="math inline">\(d \geq n\)</span>; since <span class="math inline">\(m &lt; \log_2 n\)</span>, the <span class="math inline">\(\binom{n}{2}\)</span> difference vectors cannot all avoid the kernel. A more careful argument via the Johnson-Lindenstrauss lower bound (Alon 2003) shows <span class="math inline">\(m = \Omega(\log n / \varepsilon^2)\)</span> is necessary.</p>
+</div>
+<hr />
+<h2 id="locality-sensitive-hashing">4. Locality-Sensitive Hashing 🔍</h2>
+<h3 id="nearest-neighbor-and-the-curse-of-dimensionality">4.1 Nearest Neighbor and the Curse of Dimensionality</h3>
+<p>The <em>approximate nearest neighbor</em> (ANN) problem: given a dataset <span class="math inline">\(P \subset \mathbb{R}^d\)</span> of <span class="math inline">\(n\)</span> points and a query <span class="math inline">\(q\)</span>, find a point <span class="math inline">\(p \in P\)</span> within distance <span class="math inline">\((1+\varepsilon) \cdot d(q, P)\)</span> from <span class="math inline">\(q\)</span>.</p>
+<p>Naive approach: linear scan costs <span class="math inline">\(O(nd)\)</span> per query. JL reduces <span class="math inline">\(d\)</span> to <span class="math inline">\(O(\log n / \varepsilon^2)\)</span>, but the data structure still requires <span class="math inline">\(O(n \cdot \text{target dim})\)</span> space, which blows up if we want a tree-based structure in <span class="math inline">\(O(\log n)\)</span> dimensions. <em>Locality-sensitive hashing</em> offers a different tradeoff: sublinear query time with polynomial space.</p>
+<div class="callout callout-note">
+<p> Data Structures vs. Embeddings
+JL’s dimension reduction is powerful for <em>offline</em> distance computations but does not directly yield efficient <em>online</em> query answering. A kd-tree in <span class="math inline">\(\mathbb{R}^{O(\log n)}\)</span> has <span class="math inline">\(O(n^{1/2})\)</span> query time due to the curse of dimensionality — beyond 20 or so dimensions, tree-based methods degrade toward linear scan. LSH sidesteps the curse by allowing controlled collision rates rather than exact partitioning.</p>
+</div>
+<p><strong>Definition (Locality-Sensitive Hash Family).</strong> A family <span class="math inline">\(\mathcal{H}\)</span> of hash functions <span class="math inline">\(h : \mathbb{R}^d \to U\)</span> is <em><span class="math inline">\((r_1, r_2, p_1, p_2)\)</span>-sensitive</em> for a distance function <span class="math inline">\(d\)</span> if for <span class="math inline">\(h\)</span> chosen uniformly from <span class="math inline">\(\mathcal{H}\)</span>:
+- If <span class="math inline">\(d(x, y) \leq r_1\)</span>: <span class="math inline">\(\Pr[h(x) = h(y)] \geq p_1\)</span>,
+- If <span class="math inline">\(d(x, y) \geq r_2\)</span>: <span class="math inline">\(\Pr[h(x) = h(y)] \leq p_2\)</span>.</p>
+<p>For this to be useful we need <span class="math inline">\(r_1 &lt; r_2\)</span> and <span class="math inline">\(p_1 &gt; p_2\)</span>. The <em>approximation ratio</em> is <span class="math inline">\(c = r_2/r_1\)</span>, and the key algorithmic parameter is <span class="math inline">\(\rho = \log(1/p_1)/\log(1/p_2) &lt; 1\)</span>, which governs query time: <span class="math inline">\(O(n^\rho)\)</span>.</p>
+<h3 id="random-hyperplane-lsh">4.2 Random Hyperplane LSH</h3>
+<p><strong>Construction.</strong> Let <span class="math inline">\(A\)</span> be a <span class="math inline">\(k \times d\)</span> Gaussian random matrix (rows <span class="math inline">\(a_1, \ldots, a_k \stackrel{\text{iid}}{\sim} \mathcal{N}(0, I_d)\)</span>). Define</p>
+<p><span class="math display">\[h(x) = \text{sign}(Ax) \in \{+1, -1\}^k.\]</span></p>
+<p>Two points <span class="math inline">\(x, y\)</span> are mapped to the same bucket iff <span class="math inline">\(h(x) = h(y)\)</span>, i.e., <span class="math inline">\(\text{sign}(a_\ell^\top x) = \text{sign}(a_\ell^\top y)\)</span> for all <span class="math inline">\(\ell = 1, \ldots, k\)</span>.</p>
+<p><strong>Claim 2 (Collision Probability).</strong> For any <span class="math inline">\(x, y \in \mathbb{R}^d\)</span>,</p>
+<p><span class="math display">\[\Pr[h(x) = h(y)] = \left(1 - \frac{\theta(x,y)}{\pi}\right)^k,\]</span></p>
+<p>where <span class="math inline">\(\theta(x, y) = \arccos\!\left(\frac{\langle x, y \rangle}{\|x\|_2 \|y\|_2}\right)\)</span> is the angle between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+<p><em>Proof.</em> The rows <span class="math inline">\(a_\ell\)</span> are independent, so it suffices to compute <span class="math inline">\(\Pr[\text{sign}(a^\top x) = \text{sign}(a^\top y)]\)</span> for a single Gaussian row <span class="math inline">\(a \sim \mathcal{N}(0, I_d)\)</span>.</p>
+<p>The event <span class="math inline">\(\text{sign}(a^\top x) \neq \text{sign}(a^\top y)\)</span> occurs iff <span class="math inline">\(a\)</span> lies in the halfspace separating <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, i.e., iff <span class="math inline">\(a^\top (x/\|x\| - y/\|y\|)\)</span> changes sign — equivalently, iff the random hyperplane <span class="math inline">\(\{z : a^\top z = 0\}\)</span> separates <span class="math inline">\(x\)</span> from <span class="math inline">\(y\)</span>. By spherical symmetry of <span class="math inline">\(a\)</span>, a random hyperplane through the origin separates <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> with probability <span class="math inline">\(\theta(x,y)/\pi\)</span> (the fraction of great-circle directions that separate the two points). Hence</p>
+<p><span class="math display">\[\Pr[\text{sign}(a^\top x) = \text{sign}(a^\top y)] = 1 - \frac{\theta(x,y)}{\pi}.\]</span></p>
+<p>Taking <span class="math inline">\(k\)</span> independent rows multiplies the probabilities, giving the claimed formula. <span class="math inline">\(\square\)</span></p>
+<p><strong>Parameter setting for ANN.</strong> Set <span class="math inline">\(k = \pi\sqrt{\log n}/\varepsilon\)</span> and use <span class="math inline">\(s = \sqrt{n}\)</span> independent hash tables.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Event</th>
+<th>Condition</th>
+<th>Collision probability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Near pair (call positive)</td>
+<td><span class="math inline">\(\theta(x,y) \leq \varepsilon\)</span></td>
+<td><span class="math inline">\(\geq (1 - \varepsilon/\pi)^k \approx e^{-k\varepsilon/\pi} \approx 1/2\)</span></td>
+</tr>
+<tr class="even">
+<td>Far pair (call negative)</td>
+<td><span class="math inline">\(\theta(x,y) \geq 5\varepsilon\)</span></td>
+<td><span class="math inline">\(\leq (1 - 5\varepsilon/\pi)^k \approx e^{-5k\varepsilon/\pi} \approx 1/n^2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>With <span class="math inline">\(s = \sqrt{n}\)</span> tables: a near pair is missed by all tables with probability <span class="math inline">\(\leq (1/2)^{\sqrt{n}} \approx 0\)</span>. A far pair appears as a false positive in any table with probability <span class="math inline">\(\leq \sqrt{n} / n^2 = n^{-3/2}\)</span>; summing over <span class="math inline">\(n\)</span> points gives <span class="math inline">\(O(1/\sqrt{n})\)</span> expected false positives per query.</p>
+<p><strong>Complexity.</strong> Space <span class="math inline">\(O(n^{O(1)})\)</span>, query time <span class="math inline">\(O(\varepsilon^{-1} d \sqrt{n} \log n)\)</span>.</p>
+<p>The following Mermaid diagram illustrates the LSH pipeline for a single query:</p>
+<pre class="mermaid"><code>flowchart LR
+    Q[&quot;Query q ∈ R^d&quot;] --&gt; H1[&quot;Hash table 1&lt;br/&gt;h_1(q) = sign(A_1 q)&quot;]
+    Q --&gt; H2[&quot;Hash table 2&lt;br/&gt;h_2(q) = sign(A_2 q)&quot;]
+    Q --&gt; Hdots[&quot;...&quot;]
+    Q --&gt; Hs[&quot;Hash table s&lt;br/&gt;h_s(q) = sign(A_s q)&quot;]
+    H1 --&gt; B1[&quot;Bucket B_1(q)&quot;]
+    H2 --&gt; B2[&quot;Bucket B_2(q)&quot;]
+    Hs --&gt; Bs[&quot;Bucket B_s(q)&quot;]
+    B1 --&gt; C[&quot;Candidates&lt;br/&gt;union of buckets&quot;]
+    B2 --&gt; C
+    Bs --&gt; C
+    C --&gt; L[&quot;Linear scan&lt;br/&gt;among candidates&quot;]
+    L --&gt; R[&quot;Return nearest&quot;]</code></pre>
+<div class="callout callout-question">
+<p> Optimal LSH for Euclidean Distance
+The hyperplane LSH above works well for <em>angular</em> similarity. For Euclidean distance (not angle), the optimal LSH uses <em>random translations</em> of a lattice grid and has collision probability <span class="math inline">\(\sim \exp(-\Omega(c^2))\)</span> for <span class="math inline">\(c\)</span>-approximate NN. Finding the optimal exponent (the “LSH exponent”) for various distance functions is an active research area.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 5</p>
+<p><em>Using the collision probability formula from Claim 2, compute the probability that a near pair (angle <span class="math inline">\(\leq \varepsilon\)</span>) is missed by all <span class="math inline">\(s = \sqrt{n}\)</span> hash tables, and the expected number of far-pair (angle <span class="math inline">\(\geq 5\varepsilon\)</span>) false positives per query. Use the parameter <span class="math inline">\(k = \pi\sqrt{\log n}/\varepsilon\)</span> and verify the claims in the table above.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.2-random-hyperplane-lsh%7Clsh-construction-and-collision-probability/">#4.2 Random Hyperplane LSH|LSH construction and collision probability</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 5
+<strong>Key insight:</strong> Near pairs collide per-table with probability <span class="math inline">\(\geq 1/2\)</span>; far pairs with probability <span class="math inline">\(\leq n^{-2}\)</span>; multiple tables boost recall while keeping false positives small.</p>
+<p><strong>Sketch:</strong> Near pair per-table: <span class="math inline">\((1 - \varepsilon/\pi)^k \approx e^{-k\varepsilon/\pi} = e^{-\sqrt{\log n}} = n^{-1/\sqrt{\log n}}\)</span>. For <span class="math inline">\(k = \pi\sqrt{\log n}/\varepsilon\)</span>, we get <span class="math inline">\(e^{-\sqrt{\log n}}\)</span>, which is roughly <span class="math inline">\(\geq 1/\text{poly log}\)</span> — close to <span class="math inline">\(1/2\)</span> for moderate <span class="math inline">\(n\)</span>. Near miss probability over <span class="math inline">\(s = \sqrt{n}\)</span> tables: <span class="math inline">\((1 - 1/2)^{\sqrt{n}} = 2^{-\sqrt{n}}\)</span>, negligible. Far pair per-table: <span class="math inline">\((1 - 5\varepsilon/\pi)^k \approx e^{-5\sqrt{\log n}} = n^{-5/\sqrt{\log n}} \leq 1/n^2\)</span> for large <span class="math inline">\(n\)</span>. False positives per query: <span class="math inline">\(n \cdot s \cdot n^{-2} = \sqrt{n}/n = n^{-1/2} \to 0\)</span>.</p>
+</div>
+<hr />
+<h2 id="compressed-sensing-and-the-restricted-isometry-property">5. Compressed Sensing and the Restricted Isometry Property 📡</h2>
+<h3 id="sparse-recovery-setup">5.1 Sparse Recovery Setup</h3>
+<p>A vector <span class="math inline">\(x \in \mathbb{R}^n\)</span> is <em><span class="math inline">\(k\)</span>-sparse</em> if it has at most <span class="math inline">\(k\)</span> nonzero entries: <span class="math inline">\(|\text{supp}(x)| \leq k\)</span>. Natural signals — audio, images in a wavelet basis, genomic data — are approximately sparse in some transformed domain.</p>
+<p><strong>Definition (Best <span class="math inline">\(k\)</span>-Sparse Approximation).</strong> For <span class="math inline">\(x \in \mathbb{R}^n\)</span>, let <span class="math inline">\(x_k\)</span> denote the vector obtained by keeping the <span class="math inline">\(k\)</span> entries of largest absolute value and zeroing the rest. Then <span class="math inline">\(x_k\)</span> is the best <span class="math inline">\(k\)</span>-sparse approximation to <span class="math inline">\(x\)</span> in both <span class="math inline">\(\ell_2\)</span> and <span class="math inline">\(\ell_\infty\)</span> norm: <span class="math inline">\(x_k = \arg\min_{z : \|z\|_0 \leq k} \|x - z\|_2\)</span>.</p>
+<p><strong>Setup.</strong> Given a <em>measurement matrix</em> <span class="math inline">\(A \in \mathbb{R}^{m \times n}\)</span> with <span class="math inline">\(m \ll n\)</span> and measurements <span class="math inline">\(y = Ax\)</span>, recover the <span class="math inline">\(k\)</span>-sparse vector <span class="math inline">\(x\)</span>. This is an underdetermined linear system — it has infinitely many solutions without further constraints. The central question: what properties must <span class="math inline">\(A\)</span> have to make sparse recovery possible, and what efficient algorithm recovers <span class="math inline">\(x\)</span>?</p>
+<div class="callout callout-info">
+<p> Information-Theoretic Lower Bound
+Any recovery algorithm requires at least <span class="math inline">\(m \geq 2k\)</span> measurements, by a simple counting argument: the set of <span class="math inline">\(k\)</span>-sparse vectors supported on <span class="math inline">\(\binom{n}{k}\)</span> possible supports must be mapped injectively by <span class="math inline">\(A\)</span>. For a random support of size <span class="math inline">\(2k\)</span>, the <span class="math inline">\(m \times 2k\)</span> submatrix of <span class="math inline">\(A\)</span> must be full-rank, which requires <span class="math inline">\(m \geq 2k\)</span>. The RIP construction achieves <span class="math inline">\(m = O(k \log(n/k))\)</span>, which is optimal up to logarithmic factors (the <span class="math inline">\(\log(n/k)\)</span> factor is necessary to distinguish among the <span class="math inline">\(\binom{n}{k}\)</span> possible support sets).</p>
+</div>
+<div class="callout callout-info">
+<p> Why Not ℓ_0 Minimization?
+The “obvious” recovery strategy is <span class="math inline">\(\min \|z\|_0\)</span> subject to <span class="math inline">\(Az = y\)</span> (minimize the number of nonzeros). This is NP-hard in general (equivalent to sparse subset-sum). Compressed sensing shows that <em><span class="math inline">\(\ell_1\)</span> minimization</em> — a convex relaxation — recovers <span class="math inline">\(x\)</span> exactly under appropriate conditions on <span class="math inline">\(A\)</span>.</p>
+</div>
+<h3 id="the-restricted-isometry-property">5.2 The Restricted Isometry Property</h3>
+<p><strong>Definition (RIP).</strong> A matrix <span class="math inline">\(A \in \mathbb{R}^{m \times n}\)</span> satisfies the <em>Restricted Isometry Property</em> <span class="math inline">\(\text{RIP}(k, \varepsilon)\)</span> if for every <span class="math inline">\(k\)</span>-sparse vector <span class="math inline">\(x \in \mathbb{R}^n\)</span>:</p>
+<p><span class="math display">\[(1 - \varepsilon)\|x\|_2^2 \leq \|Ax\|_2^2 \leq (1 + \varepsilon)\|x\|_2^2.\]</span></p>
+<p>Equivalently, every <span class="math inline">\(m \times k\)</span> submatrix of <span class="math inline">\(A\)</span> (corresponding to a support set of size <span class="math inline">\(k\)</span>) has all singular values in <span class="math inline">\([\sqrt{1-\varepsilon}, \sqrt{1+\varepsilon}]\)</span>. The <em>restricted isometry constant</em> <span class="math inline">\(\delta_k\)</span> is the smallest <span class="math inline">\(\varepsilon\)</span> for which <span class="math inline">\(\text{RIP}(k, \varepsilon)\)</span> holds.</p>
+<div class="callout callout-example">
+<p> RIP for the Identity
+The <span class="math inline">\(n \times n\)</span> identity matrix <span class="math inline">\(I_n\)</span> trivially satisfies <span class="math inline">\(\text{RIP}(k, 0)\)</span> for any <span class="math inline">\(k \leq n\)</span>: <span class="math inline">\(\|Ix\|_2 = \|x\|_2\)</span> exactly. Of course <span class="math inline">\(I_n\)</span> has <span class="math inline">\(m = n\)</span> rows and provides no compression. The interesting regime is <span class="math inline">\(m \ll n\)</span> with <span class="math inline">\(k \ll m\)</span>.</p>
+</div>
+<p>The following diagram summarizes the relationship between the three key objects:</p>
+<pre class="mermaid"><code>flowchart TD
+    A[&quot;Gaussian matrix A&lt;br/&gt;m x n, m = O(k log(n/k))&quot;] --&gt;|&quot;whp via epsilon-net&quot;| RIP[&quot;RIP(2k, delta)&quot;]
+    RIP --&gt;|&quot;implies&quot;| INJ[&quot;Injective on k-sparse&lt;br/&gt;vectors (Exercise 6)&quot;]
+    RIP --&gt;|&quot;implies&quot;| L1[&quot;ell_1 minimization&lt;br/&gt;recovers x exactly&quot;]
+    JL[&quot;JL on net points&lt;br/&gt;union bound&quot;] --&gt;|&quot;Step 3&quot;| RIP</code></pre>
+<p><strong>Connection to JL.</strong> <span class="math inline">\(\text{RIP}(2k, \varepsilon)\)</span> says that <span class="math inline">\(A\)</span> is a <span class="math inline">\((1 + O(\varepsilon))\)</span>-distortion embedding of the set <span class="math inline">\(\Sigma_{2k} = \{x : \|\text{supp}(x)\| \leq 2k\}\)</span> of <span class="math inline">\(2k\)</span>-sparse vectors into <span class="math inline">\(\ell_2\)</span>. The difference between two <span class="math inline">\(k\)</span>-sparse vectors (supported on potentially different sets) is <span class="math inline">\(2k\)</span>-sparse, so RIP<span class="math inline">\((2k, \varepsilon)\)</span> implies that <span class="math inline">\(A\)</span> approximately preserves all pairwise distances among <span class="math inline">\(k\)</span>-sparse vectors.</p>
+<div class="callout callout-note">
+<p> RIP Implies Unique Sparse Solution
+If <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\text{RIP}(2k, \varepsilon)\)</span> with <span class="math inline">\(\varepsilon &lt; 1\)</span>, then any two distinct <span class="math inline">\(k\)</span>-sparse vectors <span class="math inline">\(x \neq x'\)</span> satisfy <span class="math inline">\(\|Ax - Ax'\|_2 \geq \sqrt{1-\varepsilon}\|x - x'\|_2 &gt; 0\)</span>, so <span class="math inline">\(Ax \neq Ax'\)</span>: the measurements uniquely identify any <span class="math inline">\(k\)</span>-sparse vector. See Exercise 6.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 6</p>
+<p><em>Show that if <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\text{RIP}(2k, \varepsilon)\)</span> with <span class="math inline">\(\varepsilon &lt; 1\)</span>, then the map <span class="math inline">\(x \mapsto Ax\)</span> is injective on the set of <span class="math inline">\(k\)</span>-sparse vectors. Conclude that the sparse recovery problem has a unique solution.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.2-the-restricted-isometry-property%7Crip-definition/">#5.2 The Restricted Isometry Property|RIP definition</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 6
+<strong>Key insight:</strong> The difference of two <span class="math inline">\(k\)</span>-sparse vectors is <span class="math inline">\(2k\)</span>-sparse, so RIP<span class="math inline">\((2k)\)</span> applies directly.</p>
+<p><strong>Sketch:</strong> Suppose <span class="math inline">\(x \neq x'\)</span> are <span class="math inline">\(k\)</span>-sparse with <span class="math inline">\(Ax = Ax'\)</span>. Then <span class="math inline">\(A(x - x') = 0\)</span>. But <span class="math inline">\(x - x'\)</span> has support <span class="math inline">\(\leq 2k\)</span>, so by RIP<span class="math inline">\((2k, \varepsilon)\)</span> with <span class="math inline">\(\varepsilon &lt; 1\)</span>: <span class="math inline">\(0 = \|A(x-x')\|_2 \geq \sqrt{1-\varepsilon}\|x - x'\|_2 &gt; 0\)</span>, a contradiction. Hence no two distinct <span class="math inline">\(k\)</span>-sparse vectors share the same measurements.</p>
+</div>
+<h3 id="recovery-via-ℓ_1-minimization">5.3 Recovery via ℓ_1 Minimization</h3>
+<p><strong>Theorem 1 (Compressed Sensing Recovery).</strong> Suppose <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\text{RIP}(2k, \delta)\)</span> with <span class="math inline">\(\delta = \Theta(1)\)</span> (specifically <span class="math inline">\(\delta &lt; \sqrt{2} - 1\)</span> suffices). Let <span class="math inline">\(y = Ax\)</span> for a (not necessarily sparse) vector <span class="math inline">\(x \in \mathbb{R}^n\)</span>, and let <span class="math inline">\(x_k\)</span> denote the best <span class="math inline">\(k\)</span>-sparse approximation to <span class="math inline">\(x\)</span> (the vector retaining the <span class="math inline">\(k\)</span> largest-magnitude entries). Then the <span class="math inline">\(\ell_1\)</span> minimization</p>
+<p><span class="math display">\[\hat{x} = \arg\min_{z \in \mathbb{R}^n} \|z\|_1 \quad \text{subject to } Az = y\]</span></p>
+<p>satisfies</p>
+<p><span class="math display">\[\|x - \hat{x}\|_1 \leq C \|x - x_k\|_1\]</span></p>
+<p>for a universal constant <span class="math inline">\(C &gt; 0\)</span>. <em>In particular, if <span class="math inline">\(x\)</span> is exactly <span class="math inline">\(k\)</span>-sparse, then <span class="math inline">\(\hat{x} = x\)</span> exactly.</em></p>
+<div class="callout callout-info">
+<p> Proof Sketch of Recovery
+The key is the <em>null space property</em>: any <span class="math inline">\(h \in \ker(A)\)</span> must satisfy <span class="math inline">\(\|h_{T}\|_1 \leq \|h_{T^c}\|_1\)</span> for every set <span class="math inline">\(T\)</span> with <span class="math inline">\(|T| \leq k\)</span> (otherwise one can “cheat” and find a sparser solution than the true <span class="math inline">\(x\)</span>).</p>
+<p>Set <span class="math inline">\(h = \hat{x} - x\)</span>, so <span class="math inline">\(Ah = A\hat{x} - Ax = y - y = 0\)</span>. Let <span class="math inline">\(T_0\)</span> be the support of <span class="math inline">\(x_k\)</span> (top <span class="math inline">\(k\)</span> entries of <span class="math inline">\(x\)</span>). Since <span class="math inline">\(\hat{x}\)</span> is the <span class="math inline">\(\ell_1\)</span> minimizer and <span class="math inline">\(x\)</span> is feasible: <span class="math inline">\(\|\hat{x}\|_1 \leq \|x\|_1\)</span>, giving <span class="math inline">\(\|x_{T_0} + h_{T_0}\|_1 + \|x_{T_0^c} + h_{T_0^c}\|_1 \leq \|x_{T_0}\|_1 + \|x_{T_0^c}\|_1\)</span>. By triangle inequality: <span class="math inline">\(\|h_{T_0^c}\|_1 - \|x_{T_0^c}\|_1 \leq \|h_{T_0}\|_1 + \|x_{T_0^c}\|_1\)</span>, so</p>
+<p><span class="math display">\[\|h_{T_0^c}\|_1 \leq \|h_{T_0}\|_1 + 2\|x_{T_0^c}\|_1 = \|h_{T_0}\|_1 + 2\|x - x_k\|_1.\]</span></p>
+<p>Next decompose <span class="math inline">\(T_0^c\)</span> into blocks <span class="math inline">\(T_1, T_2, \ldots\)</span> of size <span class="math inline">\(k\)</span> by decreasing magnitude of <span class="math inline">\(h\)</span>. One shows <span class="math inline">\(\sum_{j \geq 1} \|h_{T_j}\|_2 \leq \|h_{T_0^c}\|_1 / \sqrt{k}\)</span>. The RIP<span class="math inline">\((2k)\)</span> condition applied to <span class="math inline">\(h_{T_0 \cup T_j}\)</span> gives <span class="math inline">\(\|Ah_{T_0 \cup T_j}\|_2 \approx \|h_{T_0 \cup T_j}\|_2\)</span>. Since <span class="math inline">\(Ah = 0\)</span>, summing over <span class="math inline">\(j\)</span> and applying the RIP inner product estimate yields <span class="math inline">\(\|h_{T_0}\|_2 \leq C \|x - x_k\|_1 / \sqrt{k}\)</span>. Combined with <span class="math inline">\(\|h\|_1 \leq \|h_{T_0}\|_1 + \|h_{T_0^c}\|_1 \leq 2\|h_{T_0}\|_1 + 2\|x-x_k\|_1\)</span>, the result follows.</p>
+</div>
+<h3 id="gaussian-matrices-satisfy-rip-ε-net-proof">5.4 Gaussian Matrices Satisfy RIP: ε-Net Proof</h3>
+<p><strong>Theorem 2 (Gaussian RIP).</strong> Let <span class="math inline">\(A \in \mathbb{R}^{m \times n}\)</span> have entries <span class="math inline">\(A_{ij} \stackrel{\text{iid}}{\sim} \mathcal{N}(0, 1/m)\)</span>. Then <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\text{RIP}(k, \delta)\)</span> with probability <span class="math inline">\(\geq 1 - 2e^{-\Omega(\delta^2 m)}\)</span> provided</p>
+<p><span class="math display">\[m = O\!\left(\frac{k \log(n/k)}{\delta^2}\right).\]</span></p>
+<p><strong>Proof via ε-net argument.</strong></p>
+<p><strong>Step 1: ε-Covering nets.</strong></p>
+<p><strong>Definition (ε-Covering Net).</strong> For a set <span class="math inline">\(K \subseteq \mathbb{R}^d\)</span> and <span class="math inline">\(\varepsilon &gt; 0\)</span>, an <em><span class="math inline">\(\varepsilon\)</span>-net</em> (or <em><span class="math inline">\(\varepsilon\)</span>-covering</em>) of <span class="math inline">\(K\)</span> is a set <span class="math inline">\(\mathcal{N} \subseteq K\)</span> such that for every <span class="math inline">\(x \in K\)</span>, there exists <span class="math inline">\(y \in \mathcal{N}\)</span> with <span class="math inline">\(\|x - y\|_2 \leq \varepsilon\)</span>.</p>
+<p><strong>Lemma (Net Size on the Sphere).</strong> The unit sphere <span class="math inline">\(\mathbb{S}^{k-1} \subset \mathbb{R}^k\)</span> has an <span class="math inline">\(\varepsilon\)</span>-net of size <span class="math inline">\(|\mathcal{N}| \leq (3/\varepsilon)^k\)</span>.</p>
+<p><em>Proof.</em> Greedy construction: add points to <span class="math inline">\(\mathcal{N}\)</span> one at a time, each time choosing a point on <span class="math inline">\(\mathbb{S}^{k-1}\)</span> at distance <span class="math inline">\(&gt; \varepsilon\)</span> from all current net points. By maximality, the resulting <span class="math inline">\(\mathcal{N}\)</span> is an <span class="math inline">\(\varepsilon\)</span>-net. The balls <span class="math inline">\(B(y, \varepsilon/2)\)</span> for <span class="math inline">\(y \in \mathcal{N}\)</span> are disjoint (centers are <span class="math inline">\(&gt;\varepsilon\)</span> apart) and all contained in <span class="math inline">\(B(0, 1 + \varepsilon/2)\)</span>. Comparing volumes:</p>
+<p><span class="math display">\[|\mathcal{N}| \cdot \text{Vol}(B(0, \varepsilon/2)) \leq \text{Vol}(B(0, 1 + \varepsilon/2)).\]</span></p>
+<p>Since <span class="math inline">\(\text{Vol}(B(0, r)) = c_k r^k\)</span>, we get <span class="math inline">\(|\mathcal{N}| \leq (1 + 2/\varepsilon)^k \leq (3/\varepsilon)^k\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Step 2: Net for sparse vectors.</strong></p>
+<p>Let <span class="math inline">\(\Sigma_k^1 = \{x \in \mathbb{R}^n : \|x\|_2 = 1,\ |\text{supp}(x)| \leq k\}\)</span> denote the unit-norm <span class="math inline">\(k\)</span>-sparse vectors.</p>
+<p><strong>Corollary.</strong> <span class="math inline">\(\Sigma_k^1\)</span> has an <span class="math inline">\(\varepsilon\)</span>-net <span class="math inline">\(\mathcal{N}\)</span> of size</p>
+<p><span class="math display">\[|\mathcal{N}| \leq \binom{n}{k} \cdot \left(\frac{3}{\varepsilon}\right)^k \leq \left(\frac{en}{k}\right)^k \cdot \left(\frac{3}{\varepsilon}\right)^k = \left(\frac{3en}{k\varepsilon}\right)^k.\]</span></p>
+<p><em>Proof.</em> Each element of <span class="math inline">\(\Sigma_k^1\)</span> has a support of size <span class="math inline">\(\leq k\)</span>. For each of the <span class="math inline">\(\binom{n}{k}\)</span> support sets <span class="math inline">\(T\)</span>, apply the sphere net construction in the <span class="math inline">\(k\)</span>-dimensional subspace <span class="math inline">\(\mathbb{R}^T\)</span>. The union of these nets covers <span class="math inline">\(\Sigma_k^1\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Step 3: RIP on the net.</strong></p>
+<p>Before applying the union bound, we record the precise concentration. For a fixed unit vector <span class="math inline">\(x \in \mathbb{S}^{k-1}\)</span> embedded in <span class="math inline">\(\mathbb{R}^n\)</span> (on support <span class="math inline">\(T\)</span>), by the JL analysis:</p>
+<p><span class="math display">\[\Pr\!\left[|\|Ax\|_2^2 - 1| &gt; \delta/2\right] \leq 2e^{-cm\delta^2}\]</span></p>
+<p>for a universal constant <span class="math inline">\(c &gt; 0\)</span> (this is precisely the JL concentration applied to <span class="math inline">\(\|Ax\|_2^2\)</span>).</p>
+<p>By a union bound over all <span class="math inline">\(|\mathcal{N}|\)</span> net points, <span class="math inline">\(A\)</span> is a <span class="math inline">\((1 \pm \delta/2)\)</span>-isometry on every point of <span class="math inline">\(\mathcal{N}\)</span> with probability <span class="math inline">\(\geq 1 - 2|\mathcal{N}| e^{-cm\delta^2}\)</span>.</p>
+<p>For this to exceed <span class="math inline">\(1/2\)</span>, we need <span class="math inline">\(|\mathcal{N}| e^{-cm\delta^2} \leq 1/4\)</span>, i.e.,</p>
+<p><span class="math display">\[k\log\!\left(\frac{3en}{k \cdot (\delta/2)}\right) \leq cm\delta^2 \implies m \geq \frac{Ck\log(n/k)}{\delta^2}.\]</span></p>
+<p><strong>Step 4: Extension from net to all sparse vectors (self-improvement).</strong></p>
+<p>Let <span class="math inline">\(\delta^*\)</span> denote the smallest value such that <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\|Ax\|_2 \leq 1 + \delta^*\)</span> for all <span class="math inline">\(x \in \Sigma_k^1\)</span>. We want to show <span class="math inline">\(\delta^* \leq \delta\)</span>.</p>
+<p>Fix any <span class="math inline">\(x \in \Sigma_k^1\)</span>. By the net, there exists <span class="math inline">\(y \in \mathcal{N}\)</span> with <span class="math inline">\(\|x - y\|_2 \leq \varepsilon\)</span>. Then</p>
+<p><span class="math display">\[\|Ax\|_2 \leq \|Ay\|_2 + \|A(x-y)\|_2.\]</span></p>
+<p>Since <span class="math inline">\(\|Ay\|_2 \leq 1 + \delta/2\)</span> (on the net) and <span class="math inline">\(x - y\)</span> is <span class="math inline">\(2k\)</span>-sparse with <span class="math inline">\(\|x-y\|_2 \leq \varepsilon\)</span>:</p>
+<p><span class="math display">\[\|A(x-y)\|_2 \leq (1 + \delta^*)\varepsilon \cdot \|x - y\|_2 / \|x-y\|_2 = (1+\delta^*)\varepsilon.\]</span></p>
+<p>Wait — more carefully, <span class="math inline">\((x-y)/\|x-y\|\)</span> is a unit-norm <span class="math inline">\(2k\)</span>-sparse vector, so <span class="math inline">\(\|A(x-y)\|_2 \leq (1+\delta^*)\|x-y\|_2 \leq (1+\delta^*)\varepsilon\)</span>. Thus:</p>
+<p><span class="math display">\[\|Ax\|_2 \leq (1 + \delta/2) + (1+\delta^*)\varepsilon.\]</span></p>
+<p>Taking <span class="math inline">\(\varepsilon = \delta/4\)</span> (and adjusting the net size accordingly):</p>
+<p><span class="math display">\[1 + \delta^* \leq 1 + \delta/2 + (1 + \delta^*)(\delta/4),\]</span></p>
+<p><span class="math display">\[\delta^* \leq \delta/2 + (1+\delta^*)\delta/4 = \delta/2 + \delta/4 + \delta^* \cdot \delta/4.\]</span></p>
+<p>Rearranging (assuming <span class="math inline">\(\delta &lt; 2\)</span>, so <span class="math inline">\(1 - \delta/4 &gt; 0\)</span>):</p>
+<p><span class="math display">\[\delta^*(1 - \delta/4) \leq 3\delta/4 \implies \delta^* \leq \frac{3\delta/4}{1 - \delta/4} \leq \delta\]</span></p>
+<p>for <span class="math inline">\(\delta \leq 1/2\)</span>. <strong>Hence <span class="math inline">\(\delta^* \leq \delta\)</span></strong>, and the RIP holds for all <span class="math inline">\(k\)</span>-sparse unit vectors. The lower bound follows by an analogous argument. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> RIP Does Not Hold for All Structured Matrices
+The Gaussian RIP proof relies crucially on isotropy and independence of the entries. <em>Structured</em> matrices (e.g., subsampled Fourier transforms) also satisfy RIP but require more sophisticated analysis — typically a matrix Bernstein inequality or a more careful net argument exploiting the matrix structure. Adversarially chosen <span class="math inline">\(A\)</span> may fail RIP entirely.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 7</p>
+<p><em>Prove rigorously that the unit sphere <span class="math inline">\(\mathbb{S}^{k-1}\)</span> has an <span class="math inline">\(\varepsilon\)</span>-net of size at most <span class="math inline">\((1 + 2/\varepsilon)^k\)</span> using the volume comparison argument. Then conclude the bound <span class="math inline">\((3/\varepsilon)^k\)</span> for <span class="math inline">\(\varepsilon \leq 1\)</span>.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.4-gaussian-matrices-satisfy-rip:-ε-net-proof%7Cε-net-construction/">#5.4 Gaussian Matrices Satisfy RIP: ε-Net Proof|ε-net construction</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 7
+<strong>Key insight:</strong> Disjoint balls of radius <span class="math inline">\(\varepsilon/2\)</span> centered at net points are all contained in a ball of radius <span class="math inline">\(1 + \varepsilon/2\)</span>; volume comparison bounds the count.</p>
+<p><strong>Sketch:</strong> Net points <span class="math inline">\(\{y_i\}\)</span> satisfy <span class="math inline">\(\|y_i - y_j\|_2 &gt; \varepsilon\)</span> for <span class="math inline">\(i \neq j\)</span>. Balls <span class="math inline">\(B(y_i, \varepsilon/2)\)</span> are pairwise disjoint and all lie inside <span class="math inline">\(B(0, 1) \oplus B(0, \varepsilon/2) = B(0, 1 + \varepsilon/2)\)</span>. By volume: <span class="math inline">\(|\mathcal{N}| \cdot (\varepsilon/2)^k \omega_k \leq (1+\varepsilon/2)^k \omega_k\)</span>, where <span class="math inline">\(\omega_k\)</span> is the volume of the unit ball. Hence <span class="math inline">\(|\mathcal{N}| \leq (1 + 2/\varepsilon)^k \leq (3/\varepsilon)^k\)</span> for <span class="math inline">\(\varepsilon \leq 1\)</span> (since <span class="math inline">\(1 + 2/\varepsilon \leq 3/\varepsilon\)</span> when <span class="math inline">\(\varepsilon \leq 1\)</span>).</p>
+</div>
+<div class="callout callout-info">
+<p> Exercise 8</p>
+<p><em>Formalize the self-improvement argument in Step 4. Specifically, suppose <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(\|Ax\|_2^2 \in [1 \pm \delta/2]\)</span> for all <span class="math inline">\(x\)</span> in an <span class="math inline">\(\varepsilon\)</span>-net of <span class="math inline">\(\Sigma_k^1\)</span>, and that <span class="math inline">\(\|Ax\|_2 \leq 1 + \delta^*\)</span> for all <span class="math inline">\(x \in \Sigma_k^1\)</span>. Derive the bound <span class="math inline">\(\delta^* \leq 4\varepsilon(1 + \delta^*) / (1 - 2\varepsilon) + \delta/2\)</span> and solve for <span class="math inline">\(\delta^*\)</span> in terms of <span class="math inline">\(\varepsilon\)</span> and <span class="math inline">\(\delta\)</span>. What value of <span class="math inline">\(\varepsilon\)</span> makes <span class="math inline">\(\delta^* \leq \delta\)</span>?</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.4-gaussian-matrices-satisfy-rip:-ε-net-proof%7Cε-net-proof,-step-4/">#5.4 Gaussian Matrices Satisfy RIP: ε-Net Proof|ε-net proof, Step 4</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<strong>Key insight:</strong> The bound on <span class="math inline">\(\delta^*\)</span> is a fixed-point equation; solving it requires <span class="math inline">\(\varepsilon\)</span> small enough that the fixed-point is below <span class="math inline">\(\delta\)</span>.</p>
+<p><strong>Sketch:</strong> For <span class="math inline">\(x \in \Sigma_k^1\)</span>, choose net point <span class="math inline">\(y\)</span> with <span class="math inline">\(\|x-y\|_2 \leq \varepsilon\)</span>. Then <span class="math inline">\(\|Ax\|_2 \leq \|Ay\|_2 + \|A(x-y)\|_2 \leq (1 + \delta/2) + (1+\delta^*)\varepsilon\)</span> (using RIP on the <span class="math inline">\(2k\)</span>-sparse vector <span class="math inline">\((x-y)/\|x-y\|_2\)</span> scaled by <span class="math inline">\(\|x-y\|_2 \leq \varepsilon\)</span>). So <span class="math inline">\(\delta^* \leq \delta/2 + \varepsilon(1+\delta^*)\)</span>. Solving: <span class="math inline">\(\delta^* \leq (\delta/2 + \varepsilon)/(1-\varepsilon)\)</span>. For <span class="math inline">\(\varepsilon = \delta/8\)</span>: <span class="math inline">\(\delta^* \leq (\delta/2 + \delta/8)/(1 - \delta/8) = (5\delta/8)/(1-\delta/8) \leq \delta\)</span> for <span class="math inline">\(\delta \leq 1/2\)</span>.</p>
+</div>
+<div class="callout callout-info">
+<p> Exercise 9</p>
+<p><em>Consider <span class="math inline">\(n = 3\)</span>, <span class="math inline">\(k = 1\)</span>, <span class="math inline">\(m = 1\)</span>, and <span class="math inline">\(A = [1, 1, 0]\)</span>. Let <span class="math inline">\(x = (1, 0, 0)\)</span> so <span class="math inline">\(y = Ax = 1\)</span>. Show that the <span class="math inline">\(\ell_1\)</span> minimizer subject to <span class="math inline">\(Az = 1\)</span> does not recover <span class="math inline">\(x\)</span>, and explain which assumption on <span class="math inline">\(A\)</span> is violated. What goes wrong with the RIP condition?</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.3-recovery-via-ℓ_1-minimization%7Cℓ_1-minimization/">#5.3 Recovery via ℓ_1 Minimization|ℓ_1 minimization</a>, <a href="../../../../notes/#5.2-the-restricted-isometry-property%7Crip-definition/">#5.2 The Restricted Isometry Property|RIP definition</a>.</p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 9
+<strong>Key insight:</strong> The matrix <span class="math inline">\(A = [1, 1, 0]\)</span> does not separate the 1-sparse vectors <span class="math inline">\((1,0,0)\)</span> and <span class="math inline">\((0,1,0)\)</span> — both give measurement <span class="math inline">\(y = 1\)</span> — so no algorithm can distinguish them from measurements alone.</p>
+<p><strong>Sketch:</strong> The <span class="math inline">\(\ell_1\)</span> minimizer subject to <span class="math inline">\([1,1,0]z = 1\)</span> is any <span class="math inline">\(z\)</span> with <span class="math inline">\(z_1 + z_2 = 1\)</span>, <span class="math inline">\(z_3 = 0\)</span>, minimizing <span class="math inline">\(|z_1| + |z_2|\)</span>. The minimum of <span class="math inline">\(|z_1| + |1 - z_1|\)</span> over <span class="math inline">\(z_1\)</span> is achieved at <span class="math inline">\(z_1 = 1/2\)</span>, giving <span class="math inline">\(\hat{x} = (1/2, 1/2, 0) \neq x\)</span>. The RIP<span class="math inline">\((2, \delta)\)</span> condition fails: the 2-sparse vector <span class="math inline">\(v = (1, -1, 0)\)</span> satisfies <span class="math inline">\(Av = 0\)</span> but <span class="math inline">\(\|v\|_2 = \sqrt{2} &gt; 0\)</span>, so <span class="math inline">\(A\)</span> collapses a nonzero <span class="math inline">\(2\)</span>-sparse vector.</p>
+</div>
+<hr />
+<h2 id="summary-three-pillars-of-randomized-metric-geometry">Summary: Three Pillars of Randomized Metric Geometry</h2>
+<p>The three main results of these lectures address a common theme: <em>random linear maps preserve geometric structure</em>. The table below compares their settings, guarantees, and sample complexities.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Result</th>
+<th>Setting</th>
+<th>Guarantee</th>
+<th>Dimension/Measurements</th>
+<th>Tightness</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bourgain (1985)</td>
+<td><span class="math inline">\(n\)</span>-point metric <span class="math inline">\((X,d)\)</span></td>
+<td>Embed into <span class="math inline">\((\mathbb{R}^k, \ell_1)\)</span> with distortion <span class="math inline">\(O(\log n)\)</span></td>
+<td><span class="math inline">\(k = O(\log^2 n)\)</span></td>
+<td>Distortion tight (expanders)</td>
+</tr>
+<tr class="even">
+<td>Johnson-Lindenstrauss (1984)</td>
+<td><span class="math inline">\(n\)</span> points in <span class="math inline">\((\mathbb{R}^d, \ell_2)\)</span></td>
+<td>Linear map to <span class="math inline">\(\mathbb{R}^m\)</span> with <span class="math inline">\((1\pm\varepsilon)\)</span> distortion</td>
+<td><span class="math inline">\(m = O(\log n / \varepsilon^2)\)</span></td>
+<td>Tight (Alon 2003)</td>
+</tr>
+<tr class="odd">
+<td>Compressed Sensing / RIP</td>
+<td><span class="math inline">\(k\)</span>-sparse <span class="math inline">\(x \in \mathbb{R}^n\)</span>, <span class="math inline">\(y = Ax\)</span></td>
+<td><span class="math inline">\(\ell_1\)</span> min recovers <span class="math inline">\(x\)</span></td>
+<td><span class="math inline">\(m = O(k \log(n/k) / \delta^2)\)</span></td>
+<td>Tight up to <span class="math inline">\(\log\)</span> factors</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note">
+<p> The Shared Proof Engine
+All three results ultimately reduce to the same probabilistic engine: <em>Gaussian concentration + union bound</em>. In JL, we union bound over <span class="math inline">\(O(n^2)\)</span> pairs. In Bourgain, we union bound over pairs and scales. In the RIP proof, we union bound over an <span class="math inline">\(\varepsilon\)</span>-net of size <span class="math inline">\(\exp(O(k \log(n/k)))\)</span>. The <span class="math inline">\(\log\)</span> factors appearing in dimensions and sample complexities trace directly to the logarithm of the union-bound size.</p>
+</div>
+<hr />
+<h2 id="references">6. References 📚</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bourgain (1985)</td>
+<td>Original proof that any <span class="math inline">\(n\)</span>-point metric embeds into <span class="math inline">\(\ell_1\)</span> with distortion <span class="math inline">\(O(\log n)\)</span> and dimension <span class="math inline">\(O(\log^2 n)\)</span></td>
+<td><a href="https://link.springer.com/article/10.1007/BF02797989">On Lipschitz embedding of finite metric spaces in Hilbert space</a></td>
+</tr>
+<tr class="even">
+<td>Johnson-Lindenstrauss (1984)</td>
+<td>Extensions of Lipschitz maps; original JL lemma on dimension reduction in <span class="math inline">\(\ell_2\)</span></td>
+<td><a href="https://scholar.google.com/scholar?q=Johnson+Lindenstrauss+1984+extensions+Lipschitz">Extensions of Lipschitz mappings into a Hilbert space</a></td>
+</tr>
+<tr class="odd">
+<td>Indyk-Motwani (1998)</td>
+<td>Introduced locality-sensitive hashing; approximate nearest neighbor in high dimensions</td>
+<td><a href="https://dl.acm.org/doi/10.1145/276698.276876">Approximate Nearest Neighbors: Towards Removing the Curse of Dimensionality</a></td>
+</tr>
+<tr class="even">
+<td>Candès-Tao (2006)</td>
+<td>Proved that <span class="math inline">\(\ell_1\)</span> minimization recovers sparse signals from RIP measurements; introduced the Dantzig selector</td>
+<td><a href="https://ieeexplore.ieee.org/document/4016283">Near-Optimal Signal Recovery From Random Projections</a></td>
+</tr>
+<tr class="odd">
+<td>Donoho (2006)</td>
+<td>Established compressed sensing framework and connection between sparsity and <span class="math inline">\(\ell_1\)</span> recovery</td>
+<td><a href="https://ieeexplore.ieee.org/document/1614066">Compressed Sensing</a></td>
+</tr>
+<tr class="even">
+<td>Abraham-Bartal-Neiman (2006)</td>
+<td>Tight lower bounds on metric embedding distortion; Ramsey-type theorems for metrics</td>
+<td><a href="https://dl.acm.org/doi/10.1145/1132516.1132543">Advances in Metric Embedding Theory</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>graph-and-number-algorithms - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>graph-and-number-algorithms</h1>
+            <article>
+    <section>
+        <p><em>CS 265/CME309: Randomized Algorithms — Lectures 2 &amp; 3</em>
+<em>Gregory Valiant, updated by Mary Wootters (Stanford, Fall 2020)</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-linearity-of-expectation%7C1.-linearity-of-expectation/">#1. Linearity of Expectation|1. Linearity of Expectation</a>
+<ul>
+<li><a href="../../../../notes/#1.1-statement-and-basic-examples%7C1.1-statement-and-basic-examples/">#1.1 Statement and Basic Examples|1.1 Statement and Basic Examples</a></li>
+<li><a href="../../../../notes/#1.2-coupon-collector-problem%7C1.2-coupon-collector-problem/">#1.2 Coupon Collector Problem|1.2 Coupon Collector Problem</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-karger's-min-cut-algorithm%7C2.-karger's-min-cut-algorithm/">#2. Karger’s Min-Cut Algorithm|2. Karger’s Min-Cut Algorithm</a>
+<ul>
+<li><a href="../../../../notes/#2.1-problem-definition%7C2.1-problem-definition/">#2.1 Problem Definition|2.1 Problem Definition</a></li>
+<li><a href="../../../../notes/#2.2-edge-contraction-and-the-algorithm%7C2.2-edge-contraction-and-the-algorithm/">#2.2 Edge Contraction and the Algorithm|2.2 Edge Contraction and the Algorithm</a></li>
+<li><a href="../../../../notes/#2.3-analysis:-probability-of-success%7C2.3-analysis:-probability-of-success/">#2.3 Analysis: Probability of Success|2.3 Analysis: Probability of Success</a></li>
+<li><a href="../../../../notes/#2.4-boosting-via-repetition%7C2.4-boosting-via-repetition/">#2.4 Boosting via Repetition|2.4 Boosting via Repetition</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-karger-stein-algorithm%7C3.-karger-stein-algorithm/">#3. Karger-Stein Algorithm|3. Karger-Stein Algorithm</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-key-observation%7C3.1-the-key-observation/">#3.1 The Key Observation|3.1 The Key Observation</a></li>
+<li><a href="../../../../notes/#3.2-modified-karger-algorithm%7C3.2-modified-karger-algorithm/">#3.2 Modified-Karger Algorithm|3.2 Modified-Karger Algorithm</a></li>
+<li><a href="../../../../notes/#3.3-analysis%7C3.3-analysis/">#3.3 Analysis|3.3 Analysis</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-primality-testing%7C4.-primality-testing/">#4. Primality Testing|4. Primality Testing</a>
+<ul>
+<li><a href="../../../../notes/#4.1-algebra-background%7C4.1-algebra-background/">#4.1 Algebra Background|4.1 Algebra Background</a></li>
+<li><a href="../../../../notes/#4.2-fermat's-test%7C4.2-fermat's-test/">#4.2 Fermat’s Test|4.2 Fermat’s Test</a></li>
+<li><a href="../../../../notes/#4.3-miller-rabin-algorithm%7C4.3-miller-rabin-algorithm/">#4.3 Miller-Rabin Algorithm|4.3 Miller-Rabin Algorithm</a></li>
+<li><a href="../../../../notes/#4.4-fingerprinting-with-primes%7C4.4-fingerprinting-with-primes/">#4.4 Fingerprinting with Primes|4.4 Fingerprinting with Primes</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-quicksort-analysis-via-linearity-of-expectation%7C5.-quicksort-analysis-via-linearity-of-expectation/">#5. QuickSort Analysis via Linearity of Expectation|5. QuickSort Analysis via Linearity of Expectation</a></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="linearity-of-expectation">1. Linearity of Expectation</h2>
+<h3 id="statement-and-basic-examples">1.1 Statement and Basic Examples</h3>
+<p><strong>Theorem (Linearity of Expectation).</strong> <em>For any random variables <span class="math inline">\(X_1, \ldots, X_n\)</span> (not necessarily independent) and scalars <span class="math inline">\(a_1, \ldots, a_n\)</span>:</em>
+<span class="math display">\[\mathbb{E}\!\left[\sum_i a_i X_i\right] = \sum_i a_i \,\mathbb{E}[X_i].\]</span></p>
+<div class="callout callout-note">
+<p> Independence not required
+The power of linearity of expectation is that it holds <em>regardless</em> of dependence between the <span class="math inline">\(X_i\)</span>. This is not true for variance: <span class="math inline">\(\text{Var}(\sum X_i) = \sum \text{Var}(X_i)\)</span> only when the <span class="math inline">\(X_i\)</span> are uncorrelated.</p>
+</div>
+<p>📐 <strong>Geometric random variable via linearity.</strong> Let <span class="math inline">\(X\)</span> be the number of flips of a <span class="math inline">\(p\)</span>-biased coin until the first heads. Rather than computing <span class="math inline">\(\mathbb{E}[X] = \sum_{k=1}^\infty k(1-p)^{k-1}p\)</span> directly, use the recurrence:</p>
+<p><span class="math display">\[\mathbb{E}[X] = p \cdot 1 + (1-p)(1 + \mathbb{E}[X]) \implies \mathbb{E}[X] = \frac{1}{p}.\]</span></p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 1
+<em>This exercise develops the indicator random variable technique, the primary way linearity of expectation is applied in algorithm analysis.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.1-statement-and-basic-examples/">#1.1 Statement and Basic Examples</a></p>
+</blockquote>
+<p>A random permutation <span class="math inline">\(\sigma\)</span> of <span class="math inline">\(\{1, \ldots, n\}\)</span> is chosen uniformly. A <em>fixed point</em> is an index <span class="math inline">\(i\)</span> with <span class="math inline">\(\sigma(i) = i\)</span>. Let <span class="math inline">\(F\)</span> = number of fixed points.</p>
+<ol type="a">
+<li><p>Define indicator variables <span class="math inline">\(X_i = \mathbf{1}[\sigma(i) = i]\)</span> and compute <span class="math inline">\(\mathbb{E}[X_i]\)</span>.</p></li>
+<li><p>Use linearity of expectation to compute <span class="math inline">\(\mathbb{E}[F]\)</span>.</p></li>
+<li><p>Compute <span class="math inline">\(\mathbb{E}[F(F-1)]\)</span> and hence <span class="math inline">\(\text{Var}(F)\)</span>. <em>(Hint: <span class="math inline">\(F(F-1) = \sum_{i \neq j} X_i X_j\)</span>.)</em></p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 1
+<strong>(a)</strong> <span class="math inline">\(\Pr[\sigma(i) = i] = (n-1)!/n! = 1/n\)</span>, so <span class="math inline">\(\mathbb{E}[X_i] = 1/n\)</span>.</p>
+<p><strong>(b)</strong> <span class="math inline">\(\mathbb{E}[F] = \sum_{i=1}^n \mathbb{E}[X_i] = n \cdot 1/n = 1\)</span>. Regardless of <span class="math inline">\(n\)</span>, the expected number of fixed points is exactly 1.</p>
+<p><strong>(c)</strong> <span class="math inline">\(\mathbb{E}[X_i X_j] = \Pr[\sigma(i)=i \text{ and } \sigma(j)=j] = (n-2)!/n! = 1/(n(n-1))\)</span>. So <span class="math inline">\(\mathbb{E}[F(F-1)] = n(n-1) \cdot 1/(n(n-1)) = 1\)</span>. Then <span class="math inline">\(\text{Var}(F) = \mathbb{E}[F^2] - \mathbb{E}[F]^2 = (\mathbb{E}[F(F-1)] + \mathbb{E}[F]) - 1 = (1 + 1) - 1 = 1\)</span>.</p>
+</blockquote>
+<hr />
+<h3 id="coupon-collector-problem">1.2 Coupon Collector Problem</h3>
+<p>💡 <strong>Setup.</strong> There are <span class="math inline">\(n\)</span> distinct coupons. Each trial draws one uniformly at random (with replacement). How many trials until all <span class="math inline">\(n\)</span> are collected?</p>
+<p>Let <span class="math inline">\(X_i\)</span> = number of additional trials to collect the <span class="math inline">\(i\)</span>-th new coupon, given that <span class="math inline">\(i-1\)</span> distinct coupons have been seen. At that point, the probability of a new coupon on any trial is <span class="math inline">\((n - (i-1))/n\)</span>, so <span class="math inline">\(X_i \sim \text{Geometric}\!\left(\frac{n-i+1}{n}\right)\)</span> and:</p>
+<p><span class="math display">\[\mathbb{E}[X_i] = \frac{n}{n-i+1}.\]</span></p>
+<p>By linearity, the expected total trials to collect all coupons is:</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\sum_{i=1}^n X_i\right] = \sum_{i=1}^n \frac{n}{n-i+1} = n \sum_{k=1}^n \frac{1}{k} = n H_n = \Theta(n \log n),\]</span></p>
+<p>where <span class="math inline">\(H_n\)</span> is the <span class="math inline">\(n\)</span>-th harmonic number.</p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 2
+<em>This problem establishes the coupon collector bound tightly and derives a tail bound via Markov’s inequality.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.2-coupon-collector-problem/">#1.2 Coupon Collector Problem</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Prove <span class="math inline">\(H_n = \ln n + O(1)\)</span> using the integral bound <span class="math inline">\(\int_1^n \frac{1}{x}\,dx \leq H_n \leq 1 + \int_1^n \frac{1}{x}\,dx\)</span>.</p></li>
+<li><p>Use Markov’s inequality to bound the probability that collecting all <span class="math inline">\(n\)</span> coupons takes more than <span class="math inline">\(cn \ln n\)</span> trials, for any constant <span class="math inline">\(c &gt; 1\)</span>.</p></li>
+<li><p><em>(Harder.)</em> Give a sharper tail bound: show that <span class="math inline">\(\Pr[\text{all } n \text{ collected after } n\ln n + cn \text{ trials}] \geq 1 - e^{-c}\)</span>. <em>(Hint: use a union bound over which coupon is missed.)</em></p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 2
+<strong>(a)</strong> Each term <span class="math inline">\(1/k\)</span> is the area of a unit-width rectangle at height <span class="math inline">\(1/k\)</span>. Since <span class="math inline">\(f(x) = 1/x\)</span> is decreasing, <span class="math inline">\(\int_k^{k+1} 1/x\,dx \leq 1/k \leq \int_{k-1}^k 1/x\,dx\)</span>. Summing: <span class="math inline">\(\ln n \leq H_n \leq 1 + \ln(n-1) \leq 1 + \ln n\)</span>.</p>
+<p><strong>(b)</strong> Let <span class="math inline">\(T\)</span> = total trials. By Markov: <span class="math inline">\(\Pr[T \geq cn\ln n] \leq \mathbb{E}[T]/(cn\ln n) = nH_n/(cn\ln n) \leq (n(1+\ln n))/(cn\ln n) \to 1/c\)</span> as <span class="math inline">\(n \to \infty\)</span>.</p>
+<p><strong>(c)</strong> After <span class="math inline">\(t = n\ln n + cn\)</span> trials, the probability that coupon <span class="math inline">\(i\)</span> is never seen is <span class="math inline">\((1 - 1/n)^t \leq e^{-t/n} = e^{-\ln n - c} = e^{-c}/n\)</span>. By the union bound over all <span class="math inline">\(n\)</span> coupons, <span class="math inline">\(\Pr[\text{some coupon missed}] \leq n \cdot e^{-c}/n = e^{-c}\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="kargers-min-cut-algorithm">2. Karger’s Min-Cut Algorithm</h2>
+<h3 id="problem-definition">2.1 Problem Definition</h3>
+<p><strong>Definition (Cut).</strong> A <em>cut</em> of graph <span class="math inline">\(G = (V, E)\)</span> is a partition <span class="math inline">\(V = S_1 \sqcup S_2\)</span> with <span class="math inline">\(S_1, S_2 \neq \emptyset\)</span>. An edge <em>(crosses</em> the cut if its endpoints are on opposite sides. A <em>min-cut</em> minimizes the number of crossing edges.</p>
+<p>Min-cut has applications in clustering, image segmentation, and network reliability. While efficient deterministic algorithms exist (e.g., max-flow/min-cut), Karger’s 1993 randomized algorithm is remarkably elegant and achieves competitive runtime after Karger-Stein’s improvement.</p>
+<h3 id="edge-contraction-and-the-algorithm">2.2 Edge Contraction and the Algorithm</h3>
+<p><strong>Definition (Edge Contraction).</strong> Contracting edge <span class="math inline">\((u, v)\)</span> in <span class="math inline">\(G\)</span> merges <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> into a single supernode, keeps all non-self-loop edges, and removes the self-loop <span class="math inline">\((u, v)\)</span>.</p>
+<pre class="mermaid"><code>graph LR
+    subgraph Before
+        A --- B
+        A --- C
+        B --- C
+        B --- D
+    end
+    subgraph After contracting B-C
+        A2[&quot;A&quot;] --- BC[&quot;BC&quot;]
+        A2 --- BC
+        BC --- D2[&quot;D&quot;]
+    end</code></pre>
+<p><strong>Algorithm (Karger’s Min-Cut).</strong>
+Given <span class="math inline">\(G = (V, E)\)</span> with <span class="math inline">\(|V| = n\)</span>:
+1. Repeat <span class="math inline">\(n - 2\)</span> times: choose a remaining edge uniformly at random and contract it.
+2. Return the cut separating the two remaining supernodes.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> karger_mincut(adj):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">    adj: dict mapping node -&gt; list of neighbors (multigraph allowed)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns: size of the cut found</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># represent each supernode as a frozenset of original vertices</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> {v: {v} <span class="cf">for</span> v <span class="kw">in</span> adj}</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    edges <span class="op">=</span> [(u, v) <span class="cf">for</span> u <span class="kw">in</span> adj <span class="cf">for</span> v <span class="kw">in</span> adj[u] <span class="cf">if</span> u <span class="op">&lt;</span> v]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="bu">len</span>(nodes) <span class="op">&gt;</span> <span class="dv">2</span>:</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        u, v <span class="op">=</span> random.choice(edges)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># merge v into u</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        nodes[u] <span class="op">|=</span> nodes[v]</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">del</span> nodes[v]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        edges <span class="op">=</span> [(a <span class="cf">if</span> a <span class="op">!=</span> v <span class="cf">else</span> u, b <span class="cf">if</span> b <span class="op">!=</span> v <span class="cf">else</span> u)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">for</span> a, b <span class="kw">in</span> edges</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">if</span> <span class="kw">not</span> (a <span class="op">==</span> u <span class="kw">and</span> b <span class="op">==</span> v) <span class="kw">and</span> <span class="kw">not</span> (a <span class="op">==</span> v <span class="kw">and</span> b <span class="op">==</span> u)]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">len</span>(edges)  <span class="co"># remaining edges = cut size</span></span></code></pre></div>
+<h3 id="analysis-probability-of-success">2.3 Analysis: Probability of Success</h3>
+<p><strong>Lemma (Contraction Preserves Min-Cut).</strong> <em>If we contract an edge that does not cross a min-cut <span class="math inline">\(C = (S_1, S_2)\)</span>, then <span class="math inline">\(C\)</span> is also a min-cut of the contracted graph.</em></p>
+<p><em>Proof.</em> Contracting a non-cut edge cannot decrease the min-cut value (any cut in the new graph corresponds to a cut of equal size in the old graph), and the partition <span class="math inline">\(S_1, S_2\)</span> still exists and has the same crossing count. <span class="math inline">\(\square\)</span></p>
+<p><strong>Theorem (Karger).</strong> <em>The probability that the above algorithm returns a specific min-cut <span class="math inline">\(C\)</span> is at least <span class="math inline">\(\dfrac{2}{n(n-1)}\)</span>.</em></p>
+<p><em>Proof.</em> Let <span class="math inline">\(k\)</span> = number of edges crossing <span class="math inline">\(C\)</span>. For the algorithm to return <span class="math inline">\(C\)</span>, none of the <span class="math inline">\(n-2\)</span> contractions may contract a crossing edge. Let <span class="math inline">\(E_i\)</span> = event that the <span class="math inline">\(i\)</span>-th contraction does not cross <span class="math inline">\(C\)</span>.</p>
+<p><strong>Key bound on <span class="math inline">\(\Pr[E_1]\)</span>.</strong> Since <span class="math inline">\(C\)</span> is a min-cut, every vertex has degree <span class="math inline">\(\geq k\)</span>, so <span class="math inline">\(|E| \geq nk/2\)</span>. Thus:
+<span class="math display">\[\Pr[E_1] = 1 - \frac{k}{|E|} \geq 1 - \frac{k}{nk/2} = 1 - \frac{2}{n} = \frac{n-2}{n}.\]</span></p>
+<p><strong>Inductive step.</strong> Conditioning on <span class="math inline">\(E_1, \ldots, E_{i-1}\)</span>, the graph has <span class="math inline">\(n - (i-1)\)</span> vertices and (by the Lemma) <span class="math inline">\(C\)</span> is still a min-cut. By the same argument:
+<span class="math display">\[\Pr[E_i \mid E_1, \ldots, E_{i-1}] \geq 1 - \frac{2}{n-i+1} = \frac{n-i-1}{n-i+1}.\]</span></p>
+<p><strong>Telescoping product:</strong>
+<span class="math display">\[\Pr[\text{output } C] \geq \prod_{i=1}^{n-2} \frac{n-i-1}{n-i+1} = \frac{n-2}{n} \cdot \frac{n-3}{n-1} \cdot \frac{n-4}{n-2} \cdots \frac{1}{3} \cdot \frac{0}{2}.\]</span></p>
+<p>Wait — the last factor has numerator 0. Let’s be careful: the product runs from <span class="math inline">\(i=1\)</span> to <span class="math inline">\(i = n-2\)</span>. The <span class="math inline">\(i\)</span>-th factor is <span class="math inline">\(\frac{n-i-1}{n-i+1}\)</span>. At <span class="math inline">\(i = n-2\)</span>: <span class="math inline">\(\frac{1}{3}\)</span>. At <span class="math inline">\(i = n-3\)</span>: <span class="math inline">\(\frac{2}{4}\)</span>. The numerators are <span class="math inline">\(n-3, n-4, \ldots, 1\)</span> and denominators <span class="math inline">\(n-1, n-2, \ldots, 3\)</span>. All intermediate terms cancel:</p>
+<p><span class="math display">\[\Pr[\text{output }C] \geq \frac{(n-2)!/(n(n-1))\cdot \ldots}{} = \frac{2}{n(n-1)}. \quad \square\]</span></p>
+<div class="callout callout-note">
+<p> Counting min-cuts
+The theorem implies there are at most <span class="math inline">\(\binom{n}{2}\)</span> distinct min-cuts in any graph (since all their success probabilities must sum to <span class="math inline">\(\leq 1\)</span>, and each is <span class="math inline">\(\geq 2/n(n-1) = 2/\binom{n}{2}\)</span>). This is a non-trivial combinatorial fact with no clean non-probabilistic proof!</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 3
+<em>This problem works out the telescoping product explicitly and derives the min-cut count bound.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.3-analysis:-probability-of-success/">#2.3 Analysis: Probability of Success</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Write out the full telescoping product <span class="math inline">\(\prod_{i=1}^{n-2} \frac{n-i-1}{n-i+1}\)</span> and show it equals <span class="math inline">\(\frac{2}{n(n-1)}\)</span>.</p></li>
+<li><p>A graph <span class="math inline">\(G\)</span> has <span class="math inline">\(M\)</span> distinct min-cuts. Show that <span class="math inline">\(M \leq \binom{n}{2}\)</span>.</p></li>
+<li><p>Construct a graph achieving <span class="math inline">\(M = \binom{n}{2}\)</span> (i.e., the bound is tight). <em>(Hint: think about cycles.)</em></p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 3
+<strong>(a)</strong> Factor <span class="math inline">\(i\)</span> contributes <span class="math inline">\(\frac{n-i-1}{n-i+1}\)</span>. Writing out:
+<span class="math display">\[\frac{n-2}{n} \cdot \frac{n-3}{n-1} \cdot \frac{n-4}{n-2} \cdot \frac{n-5}{n-3} \cdots \frac{1}{3} \cdot \frac{0+1}{2+1}\]</span>
+Wait, more carefully: the <span class="math inline">\(i\)</span>-th step has graph on <span class="math inline">\(n-i+1\)</span> vertices with min-cut <span class="math inline">\(k\)</span>, so <span class="math inline">\(\Pr[E_i] \geq \frac{n-i-1}{n-i+1}\)</span>. The numerator sequence (for <span class="math inline">\(i=1\)</span> to <span class="math inline">\(n-2\)</span>) is <span class="math inline">\(n-3, n-4, \ldots, 1\)</span> and denominator is <span class="math inline">\(n-1, n-2, \ldots, 3\)</span>. Most cancel, leaving <span class="math inline">\(\frac{1 \cdot 2}{(n-1) \cdot n} = \frac{2}{n(n-1)}\)</span>.</p>
+<p><strong>(b)</strong> Each min-cut is found with probability <span class="math inline">\(\geq 2/(n(n-1))\)</span> in a single run. The events “algorithm returns cut <span class="math inline">\(C_j\)</span>” are disjoint, so <span class="math inline">\(M \cdot \frac{2}{n(n-1)} \leq 1\)</span>, giving <span class="math inline">\(M \leq \frac{n(n-1)}{2} = \binom{n}{2}\)</span>.</p>
+<p><strong>(c)</strong> The <span class="math inline">\(n\)</span>-cycle achieves <span class="math inline">\(\binom{n}{2}\)</span> min-cuts: each min-cut has exactly 2 crossing edges, and removing any two edges splits the cycle. There are <span class="math inline">\(\binom{n}{2}\)</span> ways to choose 2 edges. Each pair of non-adjacent edges gives a distinct min-cut of value 2.</p>
+</blockquote>
+<hr />
+<h3 id="boosting-via-repetition">2.4 Boosting via Repetition</h3>
+<p>Running Karger’s algorithm <span class="math inline">\(t\)</span> times independently and returning the smallest cut found:</p>
+<p><span class="math display">\[\Pr[\text{all } t \text{ runs fail}] \leq \left(1 - \frac{2}{n(n-1)}\right)^t \leq e^{-2t/n(n-1)}.\]</span></p>
+<p>Taking <span class="math inline">\(t = \frac{c \cdot n(n-1)}{2} \approx cn^2/2\)</span> gives failure probability <span class="math inline">\(\leq e^{-c}\)</span>. With <span class="math inline">\(O(|E|)\)</span> per run, total time is <span class="math inline">\(O(cn^2 |E|)\)</span>.</p>
+<hr />
+<h2 id="karger-stein-algorithm">3. Karger-Stein Algorithm</h2>
+<h3 id="the-key-observation">3.1 The Key Observation</h3>
+<p>The success probability per step is not uniform. The <span class="math inline">\(i\)</span>-th contraction (on a graph with <span class="math inline">\(n - i + 1\)</span> vertices) fails with probability:
+<span class="math display">\[\frac{2}{n-i+1}.\]</span></p>
+<p>Early contractions are very unlikely to fail (<span class="math inline">\(\approx 2/n\)</span>); late contractions fail with probability up to <span class="math inline">\(2/3\)</span>. <strong>Most failures happen in the last few steps.</strong></p>
+<pre class="mermaid"><code>graph LR
+    A[&quot;Step 1&lt;br/&gt;Pr[fail] ≈ 2/n&quot;] --&gt; B[&quot;Step 2&lt;br/&gt;Pr[fail] ≈ 2/(n-1)&quot;]
+    B --&gt; C[&quot;...&quot;] --&gt; D[&quot;Step n-3&lt;br/&gt;Pr[fail] = 1/3&quot;]
+    D --&gt; E[&quot;Step n-2&lt;br/&gt;Pr[fail] = 1/2&quot;]</code></pre>
+<p><em>Implication:</em> Rather than restarting from scratch when a run fails, only redo the last few (high-failure) steps from a shared “checkpoint.”</p>
+<h3 id="modified-karger-algorithm">3.2 Modified-Karger Algorithm</h3>
+<p><strong>Algorithm (Modified-Karger / Karger-Stein sketch).</strong></p>
+<p>Given <span class="math inline">\(G\)</span> on <span class="math inline">\(n\)</span> vertices, parameters <span class="math inline">\(m\)</span> and <span class="math inline">\(k\)</span>:
+1. Run Karger’s from <span class="math inline">\(n\)</span> vertices down to <span class="math inline">\(m\)</span> vertices, producing graph <span class="math inline">\(G'\)</span> on <span class="math inline">\(m\)</span> supernodes.
+2. Run Karger’s <span class="math inline">\(k\)</span> more times independently on <span class="math inline">\(G'\)</span> (each down to 2 supernodes).
+3. Return the smallest cut found across all <span class="math inline">\(k\)</span> runs.</p>
+<h3 id="analysis">3.3 Analysis</h3>
+<p><strong>Failure probability of step 1</strong> (reducing <span class="math inline">\(G \to G'\)</span>): by the same telescoping argument as before,
+<span class="math display">\[\Pr[\text{step 1 destroys } C] \leq 1 - \frac{m(m-1)}{n(n-1)}.\]</span></p>
+<p><strong>Failure probability of one run on <span class="math inline">\(G'\)</span>:</strong> by Karger’s theorem on <span class="math inline">\(m\)</span> vertices, <span class="math inline">\(\leq 1 - \frac{2}{m(m-1)}\)</span>.</p>
+<p><strong>Overall failure:</strong>
+<span class="math display">\[\Pr[\text{fail}] \leq \underbrace{\left(1 - \frac{m(m-1)}{n(n-1)}\right)}_{\text{step 1 fails}} + \underbrace{\left(1 - \frac{2}{m(m-1)}\right)^k}_{\text{all } k \text{ step-2 runs fail}}.\]</span></p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 4
+<em>This problem derives the optimal parameters for Modified-Karger and shows the improvement over vanilla Karger.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.3-analysis/">#3.3 Analysis</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Plug in <span class="math inline">\(m = \sqrt{n}\)</span> and <span class="math inline">\(k = n\log n\)</span> into the failure bound above. Show failure probability is <span class="math inline">\(O(1/n)\)</span>, using <span class="math inline">\(1-x \leq e^{-x}\)</span>.</p></li>
+<li><p>Show that repeating Modified-Karger <span class="math inline">\(\Theta(n)\)</span> times achieves constant success probability. What is the total edge-contraction count?</p></li>
+<li><p>Compare with vanilla Karger: <span class="math inline">\(O(n^2)\)</span> repetitions, each <span class="math inline">\(O(n)\)</span> contractions, gives <span class="math inline">\(O(n^3)\)</span> total contractions at constant success probability. What does Modified-Karger achieve?</p></li>
+<li><p><em>(Challenge.)</em> Consider recursively applying this idea: to process <span class="math inline">\(G'\)</span>, instead of running plain Karger <span class="math inline">\(k\)</span> times, run Modified-Karger recursively. Sketch how this gives an algorithm with <span class="math inline">\(O(n^2 \log^3 n)\)</span> total contractions.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 4
+<strong>(a)</strong> With <span class="math inline">\(m = \sqrt{n}\)</span>: step 1 failure <span class="math inline">\(\leq 1 - m^2/n^2 \approx 1 - 1/n\)</span>. Step 2 failure per run <span class="math inline">\(\leq 1 - 2/m^2 = 1 - 2/n\)</span>. With <span class="math inline">\(k = n\log n\)</span> step-2 runs: <span class="math inline">\((1-2/n)^{n\log n} \leq e^{-2\log n} = 1/n^2\)</span>. Total failure <span class="math inline">\(\leq (1 - 1/n) + 1/n^2 \leq 1 - 1/n + 1/n^2 = O(1 - 1/(2n))\)</span>.</p>
+<p><strong>(b)</strong> Repeating <span class="math inline">\(c \cdot n\)</span> times: failure <span class="math inline">\(\leq (1 - 1/(2n))^{cn} \leq e^{-c/2}\)</span>, constant for any fixed <span class="math inline">\(c\)</span>. Edge contractions: step 1 uses <span class="math inline">\(O(n - \sqrt{n}) = O(n)\)</span> contractions. Step 2: <span class="math inline">\(k = n\log n\)</span> runs, each <span class="math inline">\(O(\sqrt{n})\)</span> contractions = <span class="math inline">\(O(n^{3/2}\log n)\)</span>. Repeating <span class="math inline">\(O(n)\)</span> times: <span class="math inline">\(O(n^{5/2}\log n)\)</span> total.</p>
+<p><strong>(c)</strong> Vanilla Karger: <span class="math inline">\(O(n^3)\)</span> contractions. Modified-Karger: <span class="math inline">\(O(n^{5/2}\log n)\)</span>. Improvement by factor <span class="math inline">\(\approx n^{1/2}/\log n\)</span>.</p>
+<p><strong>(d)</strong> Let <span class="math inline">\(T(n)\)</span> = contractions to get success probability <span class="math inline">\(\Omega(1/\log n)\)</span> on an <span class="math inline">\(n\)</span>-vertex graph. At each level, reduce to <span class="math inline">\(\sqrt{n}\)</span> vertices (<span class="math inline">\(O(n)\)</span> contractions), then recurse twice. Recurrence: <span class="math inline">\(T(n) = O(n) + 2T(\sqrt{n}) = O(n \log \log n)\)</span> (by Masters theorem or expansion). To boost to constant success, repeat <span class="math inline">\(O(\log n)\)</span> times: <span class="math inline">\(T_{\text{total}}(n) = O(n \log n \cdot \log \log n)\)</span>… more carefully, the full Karger-Stein analysis gives <span class="math inline">\(O(n^2 \log^3 n)\)</span> with the exact recursion <span class="math inline">\(T(n) = 2T(n/\sqrt{2}) + O(n^2)\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="primality-testing">4. Primality Testing</h2>
+<h3 id="algebra-background">4.1 Algebra Background</h3>
+<p>By the <em>prime number theorem</em>, the density of primes near <span class="math inline">\(n\)</span> is <span class="math inline">\(\sim 1/\ln n\)</span>, so finding large primes is feasible by random sampling and testing. The challenge is the test itself.</p>
+<p><strong>Key algebraic structures:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Object</th>
+<th>Definition</th>
+<th>Key property</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbb{Z}_n^+\)</span></td>
+<td><span class="math inline">\(\{0, \ldots, n-1\}\)</span> under addition mod <span class="math inline">\(n\)</span></td>
+<td>Always a group; cyclic (generated by 1)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbb{Z}_n^*\)</span></td>
+<td><span class="math inline">\(\{a &lt; n : \gcd(a,n) = 1\}\)</span> under multiplication mod <span class="math inline">\(n\)</span></td>
+<td>Group; <span class="math inline">\(|\mathbb{Z}_n^*| = \phi(n)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Generator of <span class="math inline">\(\mathbb{Z}_n^*\)</span></td>
+<td><span class="math inline">\(g\)</span> s.t. <span class="math inline">\(\{g, g^2, \ldots, g^{|\mathbb{Z}_n^*|}\} = \mathbb{Z}_n^*\)</span></td>
+<td>Exists iff <span class="math inline">\(n\)</span> is prime (or <span class="math inline">\(n = 1, 2, 4, p^k, 2p^k\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fact (Lagrange’s Theorem).</strong> For any group <span class="math inline">\(G\)</span> and subgroup <span class="math inline">\(H \subsetneq G\)</span>: <span class="math inline">\(|H|\)</span> divides <span class="math inline">\(|G|\)</span>, and <span class="math inline">\(|H| \leq |G|/2\)</span>.</p>
+<p><strong>Fact (Fermat’s Little Theorem).</strong> For prime <span class="math inline">\(n\)</span> and any <span class="math inline">\(a \in \mathbb{Z}_n^*\)</span>:
+<span class="math display">\[a^{n-1} \equiv 1 \pmod{n}.\]</span></p>
+<p><em>Proof sketch:</em> <span class="math inline">\(\mathbb{Z}_n^*\)</span> has order <span class="math inline">\(n-1\)</span>. By Lagrange, the order of any element divides <span class="math inline">\(n-1\)</span>, so <span class="math inline">\(a^{n-1} = (a^{\text{ord}(a)})^{(n-1)/\text{ord}(a)} = 1\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Carmichael numbers
+Fermat’s Little Theorem is <strong>not</strong> a characterization of primes. <em>Carmichael numbers</em> are composite <span class="math inline">\(n\)</span> such that <span class="math inline">\(a^{n-1} \equiv 1 \pmod{n}\)</span> for all <span class="math inline">\(a \in \mathbb{Z}_n^*\)</span>. The smallest is <span class="math inline">\(561 = 3 \cdot 11 \cdot 17\)</span>. There are infinitely many; Fermat’s test fails on all of them.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 5
+<em>This problem develops properties of <span class="math inline">\(\mathbb{Z}_n^*\)</span> needed for the primality tests.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.1-algebra-background/">#4.1 Algebra Background</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Compute <span class="math inline">\(|\mathbb{Z}_{15}^*|\)</span> and list its elements.</p></li>
+<li><p>Show that <span class="math inline">\(H = \{a \in \mathbb{Z}_n^* : a^{n-1} \equiv 1 \pmod{n}\}\)</span> is a subgroup of <span class="math inline">\(\mathbb{Z}_n^*\)</span>.</p></li>
+<li><p>Suppose <span class="math inline">\(n\)</span> is composite and not a Carmichael number. Show that <span class="math inline">\(|H| \leq |\mathbb{Z}_n^*|/2\)</span>, and conclude that Fermat’s test (see next section) succeeds with probability <span class="math inline">\(\geq 1/2\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 5
+<strong>(a)</strong> <span class="math inline">\(|\mathbb{Z}_{15}^*| = \phi(15) = \phi(3)\phi(5) = 2 \cdot 4 = 8\)</span>. Elements: <span class="math inline">\(\{1, 2, 4, 7, 8, 11, 13, 14\}\)</span> (integers <span class="math inline">\(&lt; 15\)</span> coprime to 15).</p>
+<p><strong>(b)</strong> <span class="math inline">\(H\)</span> is a subset of <span class="math inline">\(\mathbb{Z}_n^*\)</span>. Closure: if <span class="math inline">\(a^{n-1} \equiv b^{n-1} \equiv 1\)</span>, then <span class="math inline">\((ab)^{n-1} = a^{n-1}b^{n-1} \equiv 1\)</span>. Identity: <span class="math inline">\(1^{n-1} = 1\)</span>. Inverses: if <span class="math inline">\(a^{n-1} \equiv 1\)</span>, then <span class="math inline">\(a \cdot a^{n-2} = 1\)</span>, so <span class="math inline">\(a^{-1} = a^{n-2} \in \mathbb{Z}_n^*\)</span>; and <span class="math inline">\((a^{-1})^{n-1} = (a^{n-1})^{-1} = 1^{-1} = 1\)</span>. So <span class="math inline">\(H \leq \mathbb{Z}_n^*\)</span>.</p>
+<p><strong>(c)</strong> <span class="math inline">\(n\)</span> not Carmichael <span class="math inline">\(\Rightarrow\)</span> <span class="math inline">\(\exists a \in \mathbb{Z}_n^*\)</span> with <span class="math inline">\(a \notin H\)</span>, so <span class="math inline">\(H \subsetneq \mathbb{Z}_n^*\)</span>. By Lagrange, <span class="math inline">\(|H| \leq |\mathbb{Z}_n^*|/2\)</span>. Fermat’s test picks <span class="math inline">\(x\)</span> uniformly from <span class="math inline">\(\{1,\ldots,n-1\}\)</span>; it outputs “composite” unless <span class="math inline">\(x \in H\)</span> (or <span class="math inline">\(\gcd(x,n) &gt; 1\)</span>, which also witnesses compositeness). So <span class="math inline">\(\Pr[\text{correct}] \geq 1/2\)</span>.</p>
+</blockquote>
+<hr />
+<h3 id="fermats-test">4.2 Fermat’s Test</h3>
+<p><strong>Algorithm (Fermat’s Test).</strong>
+Given <span class="math inline">\(n\)</span>:
+1. Choose <span class="math inline">\(x \in \{1, \ldots, n-1\}\)</span> uniformly at random.
+2. If <span class="math inline">\(x^{n-1} \equiv 1 \pmod{n}\)</span>: output “prime”; else output “composite.”</p>
+<p><em>Runtime:</em> <span class="math inline">\(O(\log^2 n)\)</span> via repeated squaring (computes <span class="math inline">\(x^{n-1} \bmod n\)</span> with <span class="math inline">\(O(\log n)\)</span> multiplications of <span class="math inline">\(O(\log n)\)</span>-bit numbers).</p>
+<p><strong>Proposition.</strong> For any composite <span class="math inline">\(n\)</span> that is <strong>not</strong> a Carmichael number, Fermat’s test outputs “composite” with probability <span class="math inline">\(\geq 1/2\)</span>.</p>
+<p><em>Proof:</em> From Exercise 5(c) above. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-danger">
+<p> Fermat’s test is not secure for cryptographic use
+Because Carmichael numbers exist infinitely often and could be chosen adversarially, Fermat’s test is inappropriate for generating cryptographic primes. Use Miller-Rabin instead.</p>
+</div>
+<h3 id="miller-rabin-algorithm">4.3 Miller-Rabin Algorithm</h3>
+<p><strong>Key observation.</strong> For prime <span class="math inline">\(n\)</span>, the only square roots of <span class="math inline">\(1\)</span> in <span class="math inline">\(\mathbb{Z}_n^*\)</span> are <span class="math inline">\(\pm 1\)</span>.</p>
+<p><em>Proof:</em> If <span class="math inline">\(a^2 \equiv 1 \pmod{n}\)</span> for prime <span class="math inline">\(n\)</span>, then <span class="math inline">\(n \mid (a-1)(a+1)\)</span>. Since <span class="math inline">\(n\)</span> is prime, <span class="math inline">\(n \mid (a-1)\)</span> or <span class="math inline">\(n \mid (a+1)\)</span>, i.e., <span class="math inline">\(a \equiv \pm 1\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>For composite <span class="math inline">\(n = s \cdot t\)</span> with <span class="math inline">\(\gcd(s,t) = 1\)</span>, there can be <em>four</em> square roots of <span class="math inline">\(1\)</span> (via CRT). The Miller-Rabin test searches for these nontrivial roots.</p>
+<p><strong>Write</strong> <span class="math inline">\(n - 1 = 2^k m\)</span> with <span class="math inline">\(m\)</span> odd.</p>
+<p><strong>Algorithm (Miller-Rabin / Rabin-Miller).</strong>
+Given <span class="math inline">\(n\)</span>:
+1. If <span class="math inline">\(n\)</span> is even or a prime power, output “composite.”
+2. Compute <span class="math inline">\(k, m\)</span> with <span class="math inline">\(n - 1 = 2^k m\)</span>, <span class="math inline">\(m\)</span> odd.
+3. Choose <span class="math inline">\(x \in \{1, \ldots, n-1\}\)</span> uniformly at random. Compute the sequence:
+<span class="math display">\[\left(x^m,\; x^{2m},\; x^{4m},\; \ldots,\; x^{2^k m}\right) \pmod{n}.\]</span>
+4. If <span class="math inline">\(x^{2^k m} \not\equiv 1\)</span>: output “composite” (fails Fermat’s test).
+5. If any <span class="math inline">\(x^{2^i m} \not\equiv \pm 1\)</span> but <span class="math inline">\(x^{2^{i+1} m} \equiv 1\)</span>: output “composite” (nontrivial square root found).
+6. Else: output “prime.”</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> miller_rabin(n, trials<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">&lt;</span> <span class="dv">2</span>: <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">2</span>: <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>: <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># write n-1 = 2^k * m</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    k, m <span class="op">=</span> <span class="dv">0</span>, n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> m <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        k <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        m <span class="op">//=</span> <span class="dv">2</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> random</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(trials):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> random.randrange(<span class="dv">2</span>, n)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        seq <span class="op">=</span> [<span class="bu">pow</span>(x, m, n)]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(k):</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            seq.append(<span class="bu">pow</span>(seq[<span class="op">-</span><span class="dv">1</span>], <span class="dv">2</span>, n))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> seq[<span class="op">-</span><span class="dv">1</span>] <span class="op">!=</span> <span class="dv">1</span>:</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span>  <span class="co"># fails Fermat</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(k):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> seq[i] <span class="kw">not</span> <span class="kw">in</span> (<span class="dv">1</span>, n<span class="op">-</span><span class="dv">1</span>) <span class="kw">and</span> seq[i<span class="op">+</span><span class="dv">1</span>] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="va">False</span>  <span class="co"># nontrivial sqrt of 1</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span></code></pre></div>
+<p><strong>Theorem (Rabin, 1976; Miller, 1976).</strong> <em>If <span class="math inline">\(n\)</span> is prime, Miller-Rabin always outputs “prime.” If <span class="math inline">\(n\)</span> is composite (and not a prime power), Miller-Rabin outputs “composite” with probability <span class="math inline">\(\geq 1/2\)</span> over <span class="math inline">\(x\)</span>.</em></p>
+<p><em>Proof sketch.</em> Define <span class="math inline">\(b\)</span> = largest <span class="math inline">\(i &lt; k\)</span> such that <span class="math inline">\(\exists y \in \mathbb{Z}_n^*\)</span> with <span class="math inline">\(y^{2^i m} \equiv -1 \pmod{n}\)</span>. The set <span class="math inline">\(S = \{x \in \mathbb{Z}_n^* : x^{2^b m} \equiv \pm 1\}\)</span> is a proper subgroup of <span class="math inline">\(\mathbb{Z}_n^*\)</span> (via a CRT-based argument that constructs an element not in <span class="math inline">\(S\)</span>). If Miller-Rabin outputs “prime,” then <span class="math inline">\(x \in S\)</span>. By Lagrange, <span class="math inline">\(|S| \leq |\mathbb{Z}_n^*|/2\)</span>, so <span class="math inline">\(\Pr[x \in S] \leq 1/2\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Historical note
+The 1976 Miller-Rabin algorithm is the workhorse of practical primality testing today. The 2002 AKS algorithm (Agrawal, Kayal, Saxena) gave the first <em>deterministic</em> polynomial-time test, settling a decades-old open problem, but is slower in practice than Miller-Rabin with many trials.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 6
+<em>This problem traces through the Miller-Rabin witness-checking on a Carmichael number.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.3-miller-rabin-algorithm/">#4.3 Miller-Rabin Algorithm</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(n = 561 = 3 \cdot 11 \cdot 17\)</span> (the first Carmichael number). Note <span class="math inline">\(n - 1 = 560 = 2^4 \cdot 35\)</span>.</p>
+<ol type="a">
+<li><p>For <span class="math inline">\(x = 23\)</span>: compute the sequence <span class="math inline">\((23^{35}, 23^{70}, 23^{140}, 23^{280}, 23^{560}) \bmod 561\)</span>. The sequence is <span class="math inline">\((386, 331, 166, 67, 1)\)</span>. Explain why this witnesses compositeness.</p></li>
+<li><p>For <span class="math inline">\(x = 458\)</span>: the sequence is <span class="math inline">\((560, 1, 1, 1, 1)\)</span>. Does this witness compositeness? Why or why not?</p></li>
+<li><p>What fraction of <span class="math inline">\(x \in \{1, \ldots, 560\}\)</span> are witnesses to the compositeness of <span class="math inline">\(561\)</span>? (You don’t need an exact count — just argue it’s at least <span class="math inline">\(1/2\)</span>.)</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 6
+<strong>(a)</strong> The second-to-last element is <span class="math inline">\(67 \not\equiv \pm 1 \pmod{561}\)</span>, but <span class="math inline">\(67^2 \equiv 1 \pmod{561}\)</span> (since the last element is 1). This is a nontrivial square root of 1 in <span class="math inline">\(\mathbb{Z}_{561}^*\)</span>. By the key observation, no prime can have a nontrivial square root of 1, so <span class="math inline">\(561\)</span> must be composite.</p>
+<p><strong>(b)</strong> The sequence starts at <span class="math inline">\(560 \equiv -1 \pmod{561}\)</span>, which is <span class="math inline">\(\pm 1\)</span>, and subsequent squares of <span class="math inline">\(-1\)</span> are all <span class="math inline">\(1\)</span>. No nontrivial square root is found, and the last element is <span class="math inline">\(1\)</span> (passes Fermat). So <span class="math inline">\(x = 458\)</span> is <strong>not</strong> a witness — this run is consistent with <span class="math inline">\(561\)</span> being prime. Miller-Rabin outputs “prime” for this particular <span class="math inline">\(x\)</span>.</p>
+<p><strong>(c)</strong> From the theory, <span class="math inline">\(S = \{x \in \mathbb{Z}_{561}^*: x^{2^b \cdot 35} \equiv \pm 1\}\)</span> is a proper subgroup of <span class="math inline">\(\mathbb{Z}_{561}^*\)</span>, so <span class="math inline">\(|S| \leq |\mathbb{Z}_{561}^*|/2 = \phi(561)/2 = (2 \cdot 10 \cdot 16)/2 = 160\)</span>. The algorithm outputs “prime” only for <span class="math inline">\(x \in S\)</span>, so at least <span class="math inline">\(\phi(561) - 160 = 160\)</span> elements are witnesses. Since <span class="math inline">\(\phi(561)/561 \approx 0.57\)</span>, at least <span class="math inline">\(160/561 \approx 0.28 &gt; 0\)</span> fraction of all <span class="math inline">\(x \in [561]\)</span> are witnesses. More precisely: at least half of elements of <span class="math inline">\(\mathbb{Z}_{561}^*\)</span> are witnesses, and <span class="math inline">\(|\mathbb{Z}_{561}^*| = 320 &gt; 561/2\)</span>, so at least <span class="math inline">\(160/561 &gt; 0.28\)</span> of all integers are witnesses. The bound <span class="math inline">\(\geq 1/2\)</span> refers to the fraction within <span class="math inline">\(\mathbb{Z}_n^*\)</span>.</p>
+</blockquote>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 7
+<em>This problem completes the proof of correctness for Miller-Rabin by proving the key subgroup claim.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.3-miller-rabin-algorithm/">#4.3 Miller-Rabin Algorithm</a>, <a href="../../../../notes/#4.1-algebra-background/">#4.1 Algebra Background</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(n = s \cdot t\)</span> be composite with <span class="math inline">\(\gcd(s,t) = 1\)</span>. Let <span class="math inline">\(b\)</span> be as defined in the proof sketch. Let <span class="math inline">\(c \in \mathbb{Z}_n^*\)</span> satisfy <span class="math inline">\(c^{2^b m} \equiv -1 \pmod{n}\)</span>.</p>
+<ol type="a">
+<li><p>By CRT, find <span class="math inline">\(y \in \mathbb{Z}_n^*\)</span> with <span class="math inline">\(y \equiv c \pmod{s}\)</span> and <span class="math inline">\(y \equiv 1 \pmod{t}\)</span>. Verify <span class="math inline">\(y \in \mathbb{Z}_n^*\)</span>.</p></li>
+<li><p>Show <span class="math inline">\(y^{2^b m} \not\equiv \pm 1 \pmod{n}\)</span>, and conclude <span class="math inline">\(y \notin S\)</span>.</p></li>
+<li><p>Conclude <span class="math inline">\(S \subsetneq \mathbb{Z}_n^*\)</span>, and hence by Lagrange <span class="math inline">\(|S| \leq |\mathbb{Z}_n^*|/2\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 7
+<strong>(a)</strong> CRT guarantees <span class="math inline">\(y\)</span> exists with <span class="math inline">\(y \equiv c \pmod{s}\)</span>, <span class="math inline">\(y \equiv 1 \pmod{t}\)</span>. Since <span class="math inline">\(\gcd(c,s)=1\)</span> (as <span class="math inline">\(c \in \mathbb{Z}_n^*\)</span> implies <span class="math inline">\(\gcd(c,n)=1\)</span> implies <span class="math inline">\(\gcd(c,s)=1\)</span>) and <span class="math inline">\(\gcd(1,t)=1\)</span>, we get <span class="math inline">\(\gcd(y,s)=\gcd(y,t)=1\)</span>, so <span class="math inline">\(\gcd(y,n)=\gcd(y,st)=1\)</span>, hence <span class="math inline">\(y \in \mathbb{Z}_n^*\)</span>.</p>
+<p><strong>(b)</strong> <span class="math inline">\(y^{2^b m} \equiv c^{2^b m} \equiv -1 \pmod{s}\)</span>, and <span class="math inline">\(y^{2^b m} \equiv 1^{2^b m} = 1 \pmod{t}\)</span>. If <span class="math inline">\(y^{2^b m} \equiv -1 \pmod{n}\)</span>, then reducing mod <span class="math inline">\(t\)</span> gives <span class="math inline">\(-1 \equiv 1 \pmod{t}\)</span>, so <span class="math inline">\(t \mid 2\)</span>, contradiction (since <span class="math inline">\(t \geq 3\)</span>). If <span class="math inline">\(y^{2^b m} \equiv 1 \pmod{n}\)</span>, then reducing mod <span class="math inline">\(s\)</span> gives <span class="math inline">\(1 \equiv -1 \pmod{s}\)</span>, same contradiction. So <span class="math inline">\(y^{2^b m} \not\equiv \pm 1 \pmod{n}\)</span>, meaning <span class="math inline">\(y \notin S\)</span>.</p>
+<p><strong>(c)</strong> <span class="math inline">\(y \in \mathbb{Z}_n^* \setminus S\)</span>, so <span class="math inline">\(S \subsetneq \mathbb{Z}_n^*\)</span>. Since <span class="math inline">\(S\)</span> is a proper subgroup (it’s a subgroup by the group structure of <span class="math inline">\(\mathbb{Z}_n^*\)</span>), Lagrange gives <span class="math inline">\(|S| \leq |\mathbb{Z}_n^*|/2\)</span>.</p>
+</blockquote>
+<hr />
+<h3 id="fingerprinting-with-primes">4.4 Fingerprinting with Primes</h3>
+<p>A beautiful application of primality testing to <em>string comparison</em>:</p>
+<p><strong>Problem.</strong> Alice has an <span class="math inline">\(n\)</span>-bit file <span class="math inline">\(A\)</span>; Bob has <span class="math inline">\(B\)</span>. They want to check <span class="math inline">\(A \stackrel{?}{=} B\)</span> using minimal communication.</p>
+<p><strong>Algorithm (Random Prime Fingerprinting).</strong>
+1. Pick <span class="math inline">\(p\)</span> uniformly at random from primes <span class="math inline">\(&lt; N\)</span>.
+2. Check if <span class="math inline">\(A \equiv B \pmod{p}\)</span>.</p>
+<p><strong>Proposition.</strong> If <span class="math inline">\(A \neq B\)</span>, for <span class="math inline">\(N = cn\log n\)</span>, <span class="math inline">\(\Pr[\text{false positive}] \leq 3/c\)</span>.</p>
+<p><em>Proof sketch.</em> <span class="math inline">\(|A - B| \leq 2^n\)</span>, so <span class="math inline">\(A - B\)</span> has at most <span class="math inline">\(n\)</span> distinct prime factors. By the prime number theorem, the number of primes <span class="math inline">\(&lt; N\)</span> is <span class="math inline">\(\sim N/\ln N\)</span>. Thus:
+<span class="math display">\[\Pr[\text{fail}] \leq \frac{n}{\pi(N)} \leq \frac{n \cdot \ln(cn\log n)}{cn\log n} \leq \frac{3}{c}. \quad \square\]</span></p>
+<p><strong>Communication cost:</strong> Alice sends just <span class="math inline">\(\log_2 N \approx \log_2(cn\log n) = O(\log n)\)</span> bits — a single <span class="math inline">\(O(\log n)\)</span>-bit prime and the <span class="math inline">\(O(\log n)\)</span>-bit fingerprint. For a 1 GB file (<span class="math inline">\(n \approx 2^{30}\)</span>), this is about 60 bits total!</p>
+<hr />
+<h2 id="quicksort-analysis-via-linearity-of-expectation">5. QuickSort Analysis via Linearity of Expectation</h2>
+<p><strong>Algorithm (QuickSort with Random Pivot).</strong>
+1. If <span class="math inline">\(|S| \leq 1\)</span>, return <span class="math inline">\(S\)</span>.
+2. Pick a pivot <span class="math inline">\(x_i\)</span> uniformly at random from <span class="math inline">\(S\)</span>.
+3. Partition into <span class="math inline">\(S_{&lt;} = \{s &lt; x_i\}\)</span> and <span class="math inline">\(S_{&gt;} = \{s &gt; x_i\}\)</span>.
+4. Recurse on <span class="math inline">\(S_&lt;\)</span> and <span class="math inline">\(S_&gt;\)</span>; concatenate with <span class="math inline">\(x_i\)</span> in the middle.</p>
+<p><strong>Theorem.</strong> <span class="math inline">\(\mathbb{E}[\text{number of comparisons}] \leq 2n\log n + O(n)\)</span>.</p>
+<p><em>Proof.</em> Let <span class="math inline">\(z_1 &lt; z_2 &lt; \cdots &lt; z_n\)</span> be the sorted input. Define <span class="math inline">\(X_{ij} = \mathbf{1}[z_i \text{ is compared to } z_j]\)</span> for <span class="math inline">\(i &lt; j\)</span>.</p>
+<p><strong>Key observation:</strong> <span class="math inline">\(z_i\)</span> and <span class="math inline">\(z_j\)</span> are compared at most once. They are compared iff the first element of <span class="math inline">\(\{z_i, z_{i+1}, \ldots, z_j\}\)</span> chosen as a pivot is either <span class="math inline">\(z_i\)</span> or <span class="math inline">\(z_j\)</span>. (Before that, they remain in the same subarray; after, they are separated forever.)</p>
+<p><span class="math display">\[\Pr[X_{ij} = 1] = \frac{2}{j - i + 1}.\]</span></p>
+<p>By linearity of expectation:</p>
+<p><span class="math display">\[\mathbb{E}[\text{comparisons}] = \sum_{i &lt; j} \frac{2}{j-i+1} = \sum_{k=2}^{n} \frac{2(n+1-k)}{k} \leq 2(n+1)\sum_{k=2}^n \frac{1}{k} &lt; 2n\log n + O(n). \quad \square\]</span></p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 8
+<em>This problem connects the QuickSort analysis to the coupon-collector calculation and derives a tail bound on QuickSort’s runtime.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.-quicksort-analysis-via-linearity-of-expectation/">#5. QuickSort Analysis via Linearity of Expectation</a>, <a href="../../../../notes/#1.2-coupon-collector-problem/">#1.2 Coupon Collector Problem</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Show that the probability that the first pivot chosen is the minimum or maximum element of a size-<span class="math inline">\(k\)</span> subarray is <span class="math inline">\(2/k\)</span>. Explain why this means QuickSort degrades to <span class="math inline">\(O(n^2)\)</span> comparisons in the worst case.</p></li>
+<li><p>Show that <span class="math inline">\(\Pr[\text{comparisons} \geq 4n\log n] \leq 1/2\)</span> using Markov’s inequality.</p></li>
+<li><p>Give a randomized algorithm that <em>always</em> sorts in <span class="math inline">\(O(n\log n)\)</span> comparisons <em>(Las Vegas style)</em>. <em>(Hint: run QuickSort; if it exceeds <span class="math inline">\(4n\log n\)</span> comparisons, restart.)</em></p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<strong>(a)</strong> The first pivot is chosen uniformly; probability of picking the min or max is <span class="math inline">\(2/k\)</span>. If we always pick the min (or max), the recursion depth is <span class="math inline">\(n\)</span> with <span class="math inline">\(n, n-1, \ldots, 1\)</span> comparisons per level, totaling <span class="math inline">\(n(n-1)/2 = \Theta(n^2)\)</span>.</p>
+<p><strong>(b)</strong> <span class="math inline">\(\mathbb{E}[\text{comparisons}] \leq 2n\log n + O(n) \leq 3n\log n\)</span> for large <span class="math inline">\(n\)</span>. By Markov: <span class="math inline">\(\Pr[\text{comparisons} \geq 4n\log n] \leq \frac{3n\log n}{4n\log n} = 3/4\)</span>. (Slightly weaker than <span class="math inline">\(1/2\)</span>; tighter bounds use Chernoff.) More carefully, one can show the bound is <span class="math inline">\(\leq 2n\ln n + O(n)\)</span>, so <span class="math inline">\(\Pr[\geq 4n\ln n] \leq 1/2\)</span>.</p>
+<p><strong>(c)</strong> Run QuickSort. If it completes within <span class="math inline">\(4n\log n\)</span> comparisons, return the result. Otherwise, restart with a fresh random seed. By (b), each trial succeeds with probability <span class="math inline">\(\geq 1/2\)</span>, so expected restarts <span class="math inline">\(\leq 2\)</span>. Expected total comparisons <span class="math inline">\(\leq 2 \cdot 4n\log n = O(n\log n)\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture2/l2.pdf">CS 265 Lecture 2 (Valiant/Wootters)</a></td>
+<td>Linearity of expectation, Karger’s algorithm, QuickSort analysis</td>
+<td>PDF</td>
+</tr>
+<tr class="even">
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture2/class2-sols.pdf">CS 265 Class 2 Solutions</a></td>
+<td>Coupon collector, Karger-Stein group work solutions</td>
+<td>PDF</td>
+</tr>
+<tr class="odd">
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture3/l3.pdf">CS 265 Lecture 3 (Valiant/Wootters)</a></td>
+<td>Primality testing: Fermat, Miller-Rabin, fingerprinting</td>
+<td>PDF</td>
+</tr>
+<tr class="even">
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture3/class3-sols.pdf">CS 265 Class 3 Solutions</a></td>
+<td>Miller-Rabin group work and Carmichael number examples</td>
+<td>PDF</td>
+</tr>
+<tr class="odd">
+<td><a href="https://dl.acm.org/doi/10.1145/234533.234534">Karger (1993)</a></td>
+<td>Original Karger min-cut algorithm and analysis</td>
+<td>ACM DL</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/cs/9812007">Karger (2000)</a></td>
+<td>Karger’s near-linear time min-cut algorithm</td>
+<td>arXiv</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.sciencedirect.com/science/article/pii/0022314X80900840">Rabin (1980)</a></td>
+<td>Probabilistic primality test (Miller-Rabin)</td>
+<td>Journal of Number Theory</td>
+</tr>
+<tr class="even">
+<td><a href="https://annals.math.princeton.edu/wp-content/uploads/annals-v160-n2-p12.pdf">Agrawal, Kayal, Saxena (2004)</a></td>
+<td>AKS: first deterministic polynomial-time primality test</td>
+<td>Annals of Mathematics</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

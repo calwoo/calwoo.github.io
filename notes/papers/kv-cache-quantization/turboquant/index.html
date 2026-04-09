@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>turboquant - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>turboquant</h1>
+            <article>
+    <section>
+        <p><strong>Amir Zandieh, Majid Daliri, Majid Hadian, Vahab Mirrokni</strong> — arXiv:2504.19874 [cs.LG], April 2025</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 27%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MSE distortion rate</td>
+<td>No prior data-oblivious method had tight <span class="math inline">\(O(1/4^b)\)</span> dependence</td>
+<td>Random rotation → Beta distribution → scalar Lloyd-Max quantizer</td>
+<td><span class="math inline">\(D_{\text{mse}} \leq \frac{2\sqrt{3\pi}}{1} \cdot 4^{-b}\)</span>, within <span class="math inline">\(2.7\times\)</span> of information-theoretic lower bound</td>
+</tr>
+<tr class="even">
+<td>Inner product bias</td>
+<td>MSE-optimal quantizers are biased for inner products (bias <span class="math inline">\(= 2/\pi\)</span> at <span class="math inline">\(b=1\)</span>)</td>
+<td>Two-stage: <span class="math inline">\((b-1)\)</span>-bit MSE quantizer + 1-bit QJL on residual</td>
+<td>Unbiased estimator; <span class="math inline">\(D_{\text{prod}} \leq \frac{3\pi^2\|y\|_2^2}{d} \cdot 4^{-b}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Information-theoretic lower bound</td>
+<td>Not formally proved for expected distortion of randomized quantizers</td>
+<td>Yao minimax + Shannon lower bound</td>
+<td>Any <span class="math inline">\(b\)</span>-bit quantizer satisfies <span class="math inline">\(D_{\text{mse}} \geq 4^{-b}\)</span>, <span class="math inline">\(D_{\text{prod}} \geq \frac{1}{d} 4^{-b}\)</span></td>
+</tr>
+<tr class="even">
+<td>KV cache quality neutrality</td>
+<td>KIVI achieves neutrality at 3 bits</td>
+<td>TurboQuant achieves neutrality at <strong>3.5 bits</strong>, marginal degradation at 2.5 bits</td>
+<td>Tighter distortion-rate trade-off</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a> (used as inner-product bias-correction subroutine)
+<strong>Builds on:</strong> <a href="../../../../notes/papers/kv-cache-quantization/polarquant%7Cpolarquant/">papers/kv-cache-quantization/polarquant|PolarQuant</a> <em>(parallel work; same random-rotation approach)</em>
+<strong>Concepts used:</strong> <a href="../../../../notes/concepts/randomized-algorithms/metric-geometry-and-dimension-reduction%7Cjl-transform-and-metric-dimension-reduction/">concepts/randomized-algorithms/metric-geometry-and-dimension-reduction|JL Transform and Metric Dimension Reduction</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-problem-definition%7C1.-problem-definition/">#1. Problem Definition|1. Problem Definition</a></li>
+<li><a href="../../../../notes/#2.-information-theoretic-lower-bounds%7C2.-information-theoretic-lower-bounds/">#2. Information-Theoretic Lower Bounds|2. Information-Theoretic Lower Bounds</a>
+<ul>
+<li><a href="../../../../notes/#2.1-shannon-distortion-rate-function%7C2.1-shannon-distortion-rate-function/">#2.1 Shannon Distortion-Rate Function|2.1 Shannon Distortion-Rate Function</a></li>
+<li><a href="../../../../notes/#2.2-lower-bound-via-yao-minimax-(theorem-3)%7C2.2-lower-bound-via-yao-minimax-(theorem-3)/">#2.2 Lower Bound via Yao Minimax (Theorem 3)|2.2 Lower Bound via Yao Minimax (Theorem 3)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-turboquantmse:-mse-optimal-quantization%7C3.-turboquantmse:-mse-optimal-quantization/">#3. TurboQuantmse: MSE-Optimal Quantization|3. TurboQuantmse: MSE-Optimal Quantization</a>
+<ul>
+<li><a href="../../../../notes/#3.1-beta-distribution-from-random-rotation%7C3.1-beta-distribution-from-random-rotation/">#3.1 Beta Distribution from Random Rotation|3.1 Beta Distribution from Random Rotation</a></li>
+<li><a href="../../../../notes/#3.2-near-independence-of-coordinates%7C3.2-near-independence-of-coordinates/">#3.2 Near-Independence of Coordinates|3.2 Near-Independence of Coordinates</a></li>
+<li><a href="../../../../notes/#3.3-scalar-lloyd-max-quantizer%7C3.3-scalar-lloyd-max-quantizer/">#3.3 Scalar Lloyd-Max Quantizer|3.3 Scalar Lloyd-Max Quantizer</a></li>
+<li><a href="../../../../notes/#3.4-mse-distortion-bound-(theorem-1)%7C3.4-mse-distortion-bound-(theorem-1)/">#3.4 MSE Distortion Bound (Theorem 1)|3.4 MSE Distortion Bound (Theorem 1)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-turboquantprod:-unbiased-inner-product-quantization%7C4.-turboquantprod:-unbiased-inner-product-quantization/">#4. TurboQuantprod: Unbiased Inner Product Quantization|4. TurboQuantprod: Unbiased Inner Product Quantization</a>
+<ul>
+<li><a href="../../../../notes/#4.1-bias-of-mse-quantizers%7C4.1-bias-of-mse-quantizers/">#4.1 Bias of MSE Quantizers|4.1 Bias of MSE Quantizers</a></li>
+<li><a href="../../../../notes/#4.2-two-stage-qjl-residual-scheme%7C4.2-two-stage-qjl-residual-scheme/">#4.2 Two-Stage QJL Residual Scheme|4.2 Two-Stage QJL Residual Scheme</a></li>
+<li><a href="../../../../notes/#4.3-inner-product-distortion-bound-(theorem-2)%7C4.3-inner-product-distortion-bound-(theorem-2)/">#4.3 Inner Product Distortion Bound (Theorem 2)|4.3 Inner Product Distortion Bound (Theorem 2)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-experiments%7C5.-experiments/">#5. Experiments|5. Experiments</a></li>
+<li><a href="../../../../notes/#6.-references%7C6.-references/">#6. References|6. References</a></li>
+</ul>
+<hr />
+<h2 id="problem-definition">1. Problem Definition</h2>
+<p>🔑 <strong>Problem setup.</strong> A <em><span class="math inline">\(b\)</span>-bit vector quantizer</em> is a pair <span class="math inline">\((Q, Q^{-1})\)</span> where <span class="math inline">\(Q : \mathbb{R}^d \to \{0,1\}^{bd}\)</span> compresses <span class="math inline">\(x\)</span> into <span class="math inline">\(bd\)</span> bits and <span class="math inline">\(Q^{-1}: \{0,1\}^{bd} \to \mathbb{R}^d\)</span> reconstructs an approximation. Two distortion objectives:</p>
+<p><span class="math display">\[D_{\text{mse}}(Q) := \mathbb{E}_Q\!\left[\|x - Q^{-1}(Q(x))\|_2^2\right] \quad \text{(MSE distortion)}\]</span></p>
+<p><span class="math display">\[D_{\text{prod}}(Q) := \mathbb{E}_Q\!\left[(\langle y, x\rangle - \langle y, Q^{-1}(Q(x))\rangle)^2\right] \quad \text{(inner product distortion)}\]</span></p>
+<p>For the inner product objective, we additionally require <em>unbiasedness</em>: <span class="math inline">\(\mathbb{E}_Q[\langle y, Q^{-1}(Q(x))\rangle] = \langle y, x\rangle\)</span> for all <span class="math inline">\(y\)</span>.</p>
+<div class="callout callout-note">
+<p> Why two separate objectives?
+MSE measures average reconstruction error in <span class="math inline">\(\ell_2\)</span> norm. Inner product distortion directly measures how well attention scores (which are inner products) are preserved. <em>MSE-optimal quantizers are not unbiased for inner products</em> — TurboQuant addresses both with different algorithms (<span class="math inline">\(Q_{\text{mse}}\)</span> and <span class="math inline">\(Q_{\text{prod}}\)</span>).</p>
+</div>
+<p>The goal is <em>online</em> (data-oblivious, no offline training) quantizers achieving near-optimal distortion rate, expressed as a function of bit-width <span class="math inline">\(b\)</span>.</p>
+<hr />
+<h2 id="information-theoretic-lower-bounds">2. Information-Theoretic Lower Bounds</h2>
+<h3 id="shannon-distortion-rate-function">2.1 Shannon Distortion-Rate Function</h3>
+<p>Shannon’s source coding theory establishes that for a source <span class="math inline">\(X \sim P\)</span> and distortion measure <span class="math inline">\(D\)</span>, the minimum achievable distortion at rate <span class="math inline">\(R\)</span> bits is</p>
+<p><span class="math display">\[D^*(R) = \min_{P_{\hat{X}|X}: I(X;\hat{X}) \leq R} \mathbb{E}[d(X, \hat{X})].\]</span></p>
+<p>For <span class="math inline">\(X\)</span> uniform on <span class="math inline">\(S^{d-1}\)</span> with MSE distortion, a classical result (Zador 1963, via sphere packing) gives <span class="math inline">\(D_{\text{mse}}^*(b) = \Theta(4^{-b})\)</span>. TurboQuant’s lower bound is proved for the <em>expected</em> distortion of randomized quantizers, which is more directly comparable to its upper bounds.</p>
+<h3 id="lower-bound-via-yao-minimax-theorem-3">2.2 Lower Bound via Yao Minimax (Theorem 3)</h3>
+<p>🔑 <strong>Theorem 3 (Lower bound on best achievable distortion).</strong> For any randomized quantizer <span class="math inline">\(Q : S^{d-1} \to \{0,1\}^{bd}\)</span> and any reconstruction map <span class="math inline">\(Q^{-1}\)</span>, there exists <span class="math inline">\(x \in S^{d-1}\)</span> such that</p>
+<p><span class="math display">\[D_{\text{mse}}(Q) \geq \frac{1}{4^b}.\]</span></p>
+<p>Furthermore, there exists <span class="math inline">\(y \in S^{d-1}\)</span> such that</p>
+<p><span class="math display">\[D_{\text{prod}}(Q) \geq \frac{1}{d} \cdot \frac{1}{4^b}.\]</span></p>
+<p>📐 <em>Proof.</em> By <strong>Yao’s minimax principle</strong>: the worst-case expected error of the best <em>randomized</em> algorithm equals the average-case error of the best <em>deterministic</em> algorithm under the hardest input distribution. So</p>
+<p><span class="math display">\[\min_{\text{randomized } Q} \max_x \mathbb{E}[D(Q, x)] = \min_{\text{deterministic } Q} \mathbb{E}_{x \sim \pi^*}[D(Q, x)],\]</span></p>
+<p>where <span class="math inline">\(\pi^*\)</span> is the hardest input distribution. By Shannon’s lower bound (Lemma 3 in the paper), the RHS is <span class="math inline">\(\geq 4^{-b}\)</span> when <span class="math inline">\(x\)</span> is uniform on <span class="math inline">\(S^{d-1}\)</span>.</p>
+<p>For the inner product bound: from the MSE bound <span class="math inline">\(D_{\text{mse}} \geq 4^{-b}\)</span> we have <span class="math inline">\(\sum_{j=1}^d \mathbb{E}[(\langle e_j, x\rangle - \langle e_j, \hat{x}\rangle)^2] \geq 4^{-b}\)</span>. By the pigeonhole principle, some coordinate <span class="math inline">\(j^*\)</span> satisfies <span class="math inline">\(\mathbb{E}[(\langle e_{j^*}, x\rangle - \langle e_{j^*}, \hat{x}\rangle)^2] \geq \frac{1}{d} \cdot 4^{-b}\)</span>, completing the proof. <span class="math inline">\(\square\)</span></p>
+<p><strong>Optimality gap:</strong> TurboQuant achieves <span class="math inline">\(D_{\text{mse}} \leq \frac{2\sqrt{3\pi}}{1} \cdot 4^{-b} \approx 2.7 \cdot 4^{-b}\)</span>, so the gap is at most a factor of <span class="math inline">\(2\sqrt{3\pi} \approx 2.7\)</span> — and much smaller at low bit-widths (<span class="math inline">\(b=1\)</span>: gap is <span class="math inline">\(\approx 1.45\times\)</span>).</p>
+<hr />
+<h2 id="turboquantmse-mse-optimal-quantization">3. TurboQuantmse: MSE-Optimal Quantization</h2>
+<h3 id="beta-distribution-from-random-rotation">3.1 Beta Distribution from Random Rotation</h3>
+<p>The core technique: apply a random orthogonal rotation <span class="math inline">\(\Pi \in \mathbb{R}^{d \times d}\)</span> (<span class="math inline">\(\Pi^\top \Pi = I\)</span>) to <span class="math inline">\(x \in S^{d-1}\)</span> before quantizing. By rotational invariance of the uniform distribution on <span class="math inline">\(S^{d-1}\)</span>, <span class="math inline">\(\Pi x\)</span> is again uniform on <span class="math inline">\(S^{d-1}\)</span>.</p>
+<p><strong>Key fact:</strong> If <span class="math inline">\(z = \Pi x\)</span> with <span class="math inline">\(x \in S^{d-1}\)</span> and <span class="math inline">\(\Pi\)</span> a random rotation, each coordinate <span class="math inline">\(z_i\)</span> follows a distribution with</p>
+<p><span class="math display">\[z_i^2 \sim \text{Beta}\!\left(\tfrac{1}{2}, \tfrac{d-1}{2}\right), \quad z_i \in [-1, 1].\]</span></p>
+<p>In high dimensions <span class="math inline">\(d \gg 1\)</span>, by concentration of measure (CLT):</p>
+<p><span class="math display">\[z_i \approx \mathcal{N}\!\left(0, \frac{1}{d}\right),\]</span></p>
+<p>with the distribution concentrating tightly around 0. The Beta distribution provides the exact analytical form needed to design an optimal scalar quantizer.</p>
+<div class="callout callout-example">
+<p> Why Beta?
+On <span class="math inline">\(S^{d-1}\)</span>, the marginal distribution of a single coordinate is known by the classical “shadow” computation: integrating out <span class="math inline">\(d-1\)</span> coordinates of the uniform sphere gives <span class="math inline">\(f(z_1) \propto (1 - z_1^2)^{(d-3)/2}\)</span>, which is precisely <span class="math inline">\(\text{Beta}(1/2, (d-1)/2)\)</span> after the change of variables <span class="math inline">\(t = z_1^2\)</span>.</p>
+</div>
+<h3 id="near-independence-of-coordinates">3.2 Near-Independence of Coordinates</h3>
+<p>A deeper fact is that, for large <span class="math inline">\(d\)</span>, any two distinct coordinates <span class="math inline">\(z_i, z_j\)</span> of a uniform random unit vector are <em>nearly independent</em> — not just uncorrelated. Formally, their total variation distance from independence vanishes as <span class="math inline">\(d \to \infty\)</span>. This <em>near-independence</em> justifies applying a separate 1D optimal quantizer to each coordinate independently, without incurring significant loss from ignoring cross-coordinate structure.</p>
+<div class="callout callout-note">
+<p> Near-independence vs. uncorrelatedness
+In general, uncorrelated random variables need not be independent. The near-independence of sphere coordinates requires a finer argument using hypercontractivity of the Bonami-Beckner operator on the sphere. The practical upshot is that optimizing each coordinate’s quantizer independently is (asymptotically) as good as optimizing their joint quantizer.</p>
+</div>
+<h3 id="scalar-lloyd-max-quantizer">3.3 Scalar Lloyd-Max Quantizer</h3>
+<p>Given the analytical distribution <span class="math inline">\(f_b := \text{Beta}(1/2, (d-1)/2)\)</span> for each coordinate, we find the optimal <span class="math inline">\(2^b\)</span>-level scalar quantizer by solving a 1D continuous <span class="math inline">\(k\)</span>-means problem:</p>
+<p><span class="math display">\[\min_{\{I_k, c_k\}_{k=1}^{2^b}} \mathbb{E}_{z \sim f_b}\!\left[\sum_k \mathbf{1}[z \in I_k]\,(z - c_k)^2\right].\]</span></p>
+<p>This is solved by the <em>Lloyd-Max algorithm</em>: iterate between assigning each point to the nearest centroid and recomputing centroids as conditional expectations. The resulting codebooks are precomputed offline for practically useful bit-widths <span class="math inline">\(b \in \{1, 2, 3, 4\}\)</span> — a constant-size lookup table.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lloyd_max_quantizer(pdf, support, num_levels, n_iter<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Solve 1D continuous k-means for optimal scalar quantizer.&quot;&quot;&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize centroids uniformly</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    centroids <span class="op">=</span> np.linspace(support[<span class="dv">0</span>], support[<span class="dv">1</span>], num_levels)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_iter):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># E-step: compute Voronoi boundaries (midpoints between centroids)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        boundaries <span class="op">=</span> (centroids[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> centroids[<span class="dv">1</span>:]) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        boundaries <span class="op">=</span> np.concatenate([support[<span class="dv">0</span>](<span class="op">/</span>notes<span class="op">/</span>support[<span class="dv">0</span><span class="op">/</span>), boundaries, [support[<span class="dv">1</span>]]])</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># M-step: recompute centroids as conditional expectations</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        new_centroids <span class="op">=</span> []</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(num_levels):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            lo, hi <span class="op">=</span> boundaries[k], boundaries[k<span class="op">+</span><span class="dv">1</span>]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            mass <span class="op">=</span> quad(pdf, lo, hi)[<span class="dv">0</span>]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            mean <span class="op">=</span> quad(<span class="kw">lambda</span> z: z <span class="op">*</span> pdf(z), lo, hi)[<span class="dv">0</span>] <span class="op">/</span> mass</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            new_centroids.append(mean)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        centroids <span class="op">=</span> np.array(new_centroids)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> centroids, boundaries</span></code></pre></div>
+<h3 id="mse-distortion-bound-theorem-1">3.4 MSE Distortion Bound (Theorem 1)</h3>
+<p>🔑 <strong>Theorem 1.</strong> The <span class="math inline">\(b\)</span>-bit TurboQuant<span class="math inline">\(_{\text{mse}}\)</span> quantizer <span class="math inline">\(Q_{\text{mse}} : \mathbb{R}^d \to \{0,1\}^{bd}\)</span> satisfies, for any <span class="math inline">\(x \in S^{d-1}\)</span>:</p>
+<p><span class="math display">\[D_{\text{mse}}(Q_{\text{mse}}) \leq \frac{2\sqrt{3\pi}}{1} \cdot \frac{1}{4^b}.\]</span></p>
+<p>For small bit-widths: <span class="math inline">\(b=1,2,3,4\)</span> gives <span class="math inline">\(D_{\text{mse}} \approx 0.36, 0.117, 0.03, 0.009\)</span>.</p>
+<p>The constant <span class="math inline">\(2\sqrt{3\pi} \approx 6.1\)</span> translates to a factor of <span class="math inline">\(\approx 2.7\)</span> over the lower bound <span class="math inline">\(4^{-b}\)</span>.</p>
+<p><img src="figures/turboquant/turboquant-fig3b-mse-vs-bounds.png" alt="Figure 3b from Zandieh et al. (2025): MSE distortion of TurboQuantmse vs theoretical upper and lower bounds across bit-widths 1-5" />
+<em>Figure 3b (Zandieh et al., 2025): MSE distortion <span class="math inline">\(D_{\text{mse}}\)</span> of TurboQuant<span class="math inline">\(_{\text{mse}}\)</span> (solid blue) plotted against the information-theoretic lower bound <span class="math inline">\(4^{-b}\)</span> (green dashed) and the theoretical upper bound <span class="math inline">\(\sqrt{3\pi/2} \cdot 4^{-b}\)</span> (red dashed) on a log scale. All three scale with the same <span class="math inline">\(4^{-b}\)</span> exponent, and the actual distortion stays tightly sandwiched within the <span class="math inline">\(\approx 2.7\times\)</span> gap.</em></p>
+<hr />
+<h2 id="turboquantprod-unbiased-inner-product-quantization">4. TurboQuantprod: Unbiased Inner Product Quantization</h2>
+<h3 id="bias-of-mse-quantizers">4.1 Bias of MSE Quantizers</h3>
+<p>MSE-optimal quantizers are <em>not</em> unbiased for inner products. Consider <span class="math inline">\(b=1\)</span>: the optimal 1-bit MSE codebook for coordinates of a unit sphere consists of <span class="math inline">\(\pm\sqrt{2/(\pi d)}\)</span>. This means <span class="math inline">\(Q_{\text{mse}}(x) = \text{sign}(\Pi x)\)</span> and the dequantization map is <span class="math inline">\(Q_{\text{mse}}^{-1}(z) = \sqrt{2/(\pi d)} \cdot \Pi^\top z\)</span>. Then:</p>
+<p><span class="math display">\[\mathbb{E}[\langle y, Q_{\text{mse}}^{-1}(Q_{\text{mse}}(x))\rangle] = \frac{2}{\pi} \langle y, x\rangle \neq \langle y, x\rangle.\]</span></p>
+<p><strong>The bias is <span class="math inline">\(2/\pi \approx 0.637\)</span></strong>, a significant multiplicative error. This bias decreases as <span class="math inline">\(b\)</span> increases (the MSE quantizer converges to identity), but is present for all finite <span class="math inline">\(b\)</span>.</p>
+<p><img src="figures/turboquant/turboquant-fig1a-inner-product-distortion-prod.png" alt="Figure 1 from Zandieh et al. (2025): inner product distortion histograms for TurboQuantprod and TurboQuantmse at b=1,2,3,4" />
+<em>Figure 1a (Zandieh et al., 2025): Inner product distortion histogram for TurboQuant<span class="math inline">\(_{\text{prod}}\)</span> at bit-widths <span class="math inline">\(b=1,2,3,4\)</span>. The distribution is symmetric and centered at zero, confirming the unbiasedness of the two-stage scheme.</em></p>
+<p><img src="figures/turboquant/turboquant-fig1b-inner-product-distortion-mse.png" alt="Figure 1b from Zandieh et al. (2025): inner product distortion histogram for TurboQuantmse at b=1,2,3,4" />
+<em>Figure 1b (Zandieh et al., 2025): Inner product distortion histogram for TurboQuant<span class="math inline">\(_{\text{mse}}\)</span> at the same bit-widths. The distribution is visibly skewed with a non-zero mean, showing the systematic bias of the MSE-optimal quantizer when used for inner product estimation.</em></p>
+<div class="callout callout-danger">
+<p> Why bias matters in applications
+In nearest-neighbor search, a biased estimator would score all database points systematically low relative to the true inner products, distorting rankings and reducing recall. In KV cache quantization, a multiplicative bias on attention logits directly distorts attention weights and degrades generation quality.</p>
+</div>
+<h3 id="two-stage-qjl-residual-scheme">4.2 Two-Stage QJL Residual Scheme</h3>
+<p>The fix: compose <span class="math inline">\(Q_{\text{mse}}\)</span> at bit-width <span class="math inline">\(b-1\)</span> with a <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a> 1-bit sketch on the <em>residual</em>.</p>
+<p>Let <span class="math inline">\(r := x - Q_{\text{mse}}^{-1}(Q_{\text{mse}}(x))\)</span> be the quantization residual. Define</p>
+<p><span class="math display">\[Q_{\text{prod}}(x) := \bigl(Q_{\text{mse}}(x),\; Q_{\text{qjl}}(r),\; \|r\|_2\bigr),\]</span></p>
+<p>where <span class="math inline">\(Q_{\text{qjl}}\)</span> is a QJL sketch matrix <span class="math inline">\(S \in \mathbb{R}^{d \times d}\)</span> followed by sign-bit quantization. Dequantization:</p>
+<p><span class="math display">\[Q_{\text{prod}}^{-1}(\cdot) = Q_{\text{mse}}^{-1}(Q_{\text{mse}}(x)) + \|r\|_2 \cdot Q_{\text{qjl}}^{-1}(Q_{\text{qjl}}(r)),\]</span></p>
+<p>where the QJL dequantization is the <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl-asymmetric-inner-product-estimator/">papers/kv-cache-quantization/qjl|QJL asymmetric inner product estimator</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> turbo_quant_prod(x, codebook_b_minus_1, S):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Two-stage: MSE quantizer at (b-1) bits + QJL on residual.&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Stage 1: MSE quantization at (b-1) bits</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    idx_mse <span class="op">=</span> quantize(x, codebook_b_minus_1)          <span class="co"># d × (b-1) bits</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    x_mse <span class="op">=</span> dequantize(idx_mse, codebook_b_minus_1)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Stage 2: QJL on residual</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> x <span class="op">-</span> x_mse</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    gamma <span class="op">=</span> np.linalg.norm(r)                           <span class="co"># 1 FP16 scalar</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    qjl_bits <span class="op">=</span> np.sign(S <span class="op">@</span> r)                           <span class="co"># d × 1 bits</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> idx_mse, qjl_bits, gamma</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> inner_product_estimate(y, idx_mse, qjl_bits, gamma, codebook, S):</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    x_mse <span class="op">=</span> dequantize(idx_mse, codebook)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    qjl_estimate <span class="op">=</span> (np.sqrt(np.pi <span class="op">/</span> <span class="dv">2</span>) <span class="op">/</span> <span class="bu">len</span>(qjl_bits)) <span class="op">*</span> gamma <span class="op">*</span> np.dot(S <span class="op">@</span> y, qjl_bits)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.dot(y, x_mse) <span class="op">+</span> qjl_estimate             <span class="co"># unbiased!</span></span></code></pre></div>
+<p><img src="figures/turboquant/turboquant-fig2a-variance-vs-inner-product-prod.png" alt="Figure 2 from Zandieh et al. (2025): inner product error variance vs average inner product for TurboQuantprod and TurboQuantmse" />
+<em>Figure 2a (Zandieh et al., 2025): Inner product error distribution for TurboQuant<span class="math inline">\(_{\text{prod}}\)</span> conditioned on different average inner product values (b=2). The spread remains constant regardless of the average IP, confirming homoskedasticity.</em></p>
+<p><img src="figures/turboquant/turboquant-fig2b-variance-vs-inner-product-mse.png" alt="Figure 2b from Zandieh et al. (2025): inner product error variance vs average inner product for TurboQuantmse" />
+<em>Figure 2b (Zandieh et al., 2025): Inner product error distribution for TurboQuant<span class="math inline">\(_{\text{mse}}\)</span> at the same settings. The variance grows with the average inner product — a direct consequence of the multiplicative bias: the error <span class="math inline">\(\langle y,x\rangle(1 - 2/\pi)\)</span> scales with the true inner product.</em></p>
+<h3 id="inner-product-distortion-bound-theorem-2">4.3 Inner Product Distortion Bound (Theorem 2)</h3>
+<p>🔑 <strong>Theorem 2.</strong> <span class="math inline">\(Q_{\text{prod}}\)</span> at bit-width <span class="math inline">\(b\)</span> satisfies, for any <span class="math inline">\(x \in S^{d-1}\)</span> and any <span class="math inline">\(y\)</span>:</p>
+<ol type="1">
+<li><p><strong>Unbiasedness:</strong> <span class="math inline">\(\mathbb{E}[\langle y, Q_{\text{prod}}^{-1}(Q_{\text{prod}}(x))\rangle] = \langle y, x\rangle\)</span>.</p></li>
+<li><p><strong>Distortion:</strong> <span class="math inline">\(D_{\text{prod}} \leq \dfrac{3\pi^2 \|y\|_2^2}{d} \cdot \dfrac{1}{4^b}\)</span>.</p></li>
+</ol>
+<p>For <span class="math inline">\(b = 1,2,3,4\)</span>: <span class="math inline">\(D_{\text{prod}} \approx 1.57/d,\; 0.56/d,\; 0.18/d,\; 0.047/d\)</span>.</p>
+<p>📐 <em>Proof sketch.</em> Let <span class="math inline">\(\tilde{x}_{\text{mse}} = Q_{\text{mse}}^{-1}(Q_{\text{mse}}(x))\)</span> and <span class="math inline">\(r = x - \tilde{x}_{\text{mse}}\)</span>.</p>
+<p><strong>Unbiasedness:</strong> By law of total expectation and linearity,</p>
+<p><span class="math display">\[\mathbb{E}[\langle y, \hat{x}\rangle \mid \tilde{x}_{\text{mse}}] = \langle y, \tilde{x}_{\text{mse}}\rangle + \mathbb{E}[\langle y, \hat{x}_{\text{qjl}}\rangle \mid \tilde{x}_{\text{mse}}] = \langle y, \tilde{x}_{\text{mse}}\rangle + \langle y, r\rangle = \langle y, x\rangle,\]</span></p>
+<p>using QJL unbiasedness for the middle step. Taking the outer expectation gives unbiasedness.</p>
+<p><strong>Distortion:</strong> Conditioning on <span class="math inline">\(\tilde{x}_{\text{mse}}\)</span> and applying the QJL variance bound (Lemma 3.5 of <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a>):</p>
+<p><span class="math display">\[\mathbb{E}\bigl[|\langle y, x\rangle - \langle y, \hat{x}\rangle|^2 \mid \tilde{x}_{\text{mse}}\bigr] = \text{Var}[\langle y, \hat{x}_{\text{qjl}}\rangle] \leq \frac{\pi}{2d} \|r\|_2^2 \|y\|_2^2.\]</span></p>
+<p>Averaging over <span class="math inline">\(\tilde{x}_{\text{mse}}\)</span> and applying Theorem 1 at bit-width <span class="math inline">\(b-1\)</span>:</p>
+<p><span class="math display">\[D_{\text{prod}} \leq \frac{\pi \|y\|_2^2}{2d} \cdot D_{\text{mse}}(b-1) \leq \frac{\pi \|y\|_2^2}{2d} \cdot \frac{2\sqrt{3\pi}}{4^{b-1}} = \frac{3\pi^2 \|y\|_2^2}{d} \cdot \frac{1}{4^b}. \quad \square\]</span></p>
+<p><img src="figures/turboquant/turboquant-fig3a-inner-prod-error-vs-bounds.png" alt="Figure 3a from Zandieh et al. (2025): inner product error D_prod vs bitwidth for TurboQuantprod and TurboQuantmse with theoretical bounds" />
+<em>Figure 3a (Zandieh et al., 2025): Inner product error <span class="math inline">\(D_{\text{prod}}\)</span> vs bit-width <span class="math inline">\(b\)</span> for TurboQuant<span class="math inline">\(_{\text{prod}}\)</span> (purple) and TurboQuant<span class="math inline">\(_{\text{mse}}\)</span> (blue), plotted against the information-theoretic lower bound <span class="math inline">\(\frac{1}{d}4^{-b}\)</span> (green dashed) and the theoretical upper bound <span class="math inline">\(\frac{\sqrt{3}\pi^2}{d}4^{-b}\)</span> (red dashed). TurboQuant<span class="math inline">\(_{\text{prod}}\)</span> consistently outperforms the unbiased-but-lossy MSE approach at all bit-widths, and both track the <span class="math inline">\(4^{-b}\)</span> scaling law.</em></p>
+<hr />
+<h2 id="experiments">5. Experiments</h2>
+<p>All experiments on a single NVIDIA A100 GPU.</p>
+<p><strong>KV Cache Quantization (Llama-3.1 and Llama-3.2 families):</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Bits</th>
+<th>Quality</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FP16 (exact)</td>
+<td>16</td>
+<td>Neutral baseline</td>
+</tr>
+<tr class="even">
+<td>TurboQuant<span class="math inline">\(_{\text{prod}}\)</span></td>
+<td><strong>3.5</strong></td>
+<td>Absolute quality neutrality</td>
+</tr>
+<tr class="odd">
+<td>TurboQuant<span class="math inline">\(_{\text{prod}}\)</span></td>
+<td><strong>2.5</strong></td>
+<td>Marginal quality degradation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nearest Neighbor Search (DBpedia, 1536-dim OpenAI embeddings):</strong></p>
+<ul>
+<li>At the same bit budget, TurboQuant<span class="math inline">\(_{\text{prod}}\)</span> outperforms product quantization (PQ) and ScaNN variants in recall@1.</li>
+<li>Indexing time is <em>virtually zero</em> (no offline <span class="math inline">\(k\)</span>-means training required) vs. hours for PQ.</li>
+</ul>
+<p><img src="figures/turboquant/turboquant-fig5b-recall-openai-1536.png" alt="Figure 5b from Zandieh et al. (2025): Recall@1@k comparison on OpenAI 1536-dim embeddings for TurboQuant, PQ, and RabitQ at 2 and 4 bits" />
+<em>Figure 5b (Zandieh et al., 2025): Recall@1 at top-<span class="math inline">\(k\)</span> on OpenAI 1536-dimensional embeddings. TurboQuant at 2 bits matches or exceeds PQ and RabitQ at 2 bits across all values of <span class="math inline">\(k\)</span>, and at 4 bits it converges to near-perfect recall at <span class="math inline">\(k=4\)</span>. Crucially, TurboQuant requires no offline training while PQ requires expensive <span class="math inline">\(k\)</span>-means clustering.</em></p>
+<div class="callout callout-note">
+<p> Empirical validation of the Beta distribution
+The paper verifies that after random rotation, the coordinate histogram of actual LLM key embeddings matches the predicted Beta distribution closely. This confirms that the theoretical analysis — designed for worst-case unit sphere vectors — accurately predicts behavior on real LLM activations.</p>
+</div>
+<hr />
+<h2 id="references">6. References</h2>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 46%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zandieh et al. (TurboQuant, 2025)</td>
+<td>This paper</td>
+<td><a href="https://arxiv.org/abs/2504.19874">arXiv:2504.19874</a></td>
+</tr>
+<tr class="even">
+<td>Zandieh et al. (QJL, 2024)</td>
+<td>1-bit JL quantizer used as subroutine</td>
+<td><a href="https://arxiv.org/abs/2406.03482">arXiv:2406.03482</a></td>
+</tr>
+<tr class="odd">
+<td>Shannon (1948, 1959)</td>
+<td>Source coding and rate-distortion theory</td>
+<td>Classic</td>
+</tr>
+<tr class="even">
+<td>Zador (1963)</td>
+<td>High-resolution VQ distortion-rate theory</td>
+<td><a href="https://ieeexplore.ieee.org/document/1057613">Paper</a></td>
+</tr>
+<tr class="odd">
+<td>Lloyd (1982), Max (1960)</td>
+<td>Scalar quantizer optimization (Lloyd-Max algorithm)</td>
+<td>Classic</td>
+</tr>
+<tr class="even">
+<td>Gersho (1979)</td>
+<td>Vector quantization theory and Gersho’s conjecture</td>
+<td><a href="https://ieeexplore.ieee.org/document/1095832">Paper</a></td>
+</tr>
+<tr class="odd">
+<td>Han et al. (PolarQuant, 2025)</td>
+<td>Parallel work using random preconditioning + polar transform</td>
+<td><a href="https://arxiv.org/abs/2502.02617">arXiv:2502.02617</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

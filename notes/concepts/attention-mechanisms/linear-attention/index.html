@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>linear-attention - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>linear-attention</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-introduction:-beyond-quadratic-compute-and-linear-memory%7C1.-introduction:-beyond-quadratic-compute-and-linear-memory/">#1. Introduction: Beyond Quadratic Compute and Linear Memory|1. Introduction: Beyond Quadratic Compute and Linear Memory</a></li>
+<li><a href="../../../../notes/#2.-linear-attention:-removing-softmax%7C2.-linear-attention:-removing-softmax/">#2. Linear Attention: Removing Softmax|2. Linear Attention: Removing Softmax</a>
+<ul>
+<li><a href="../../../../notes/#2.1-factored-dot-product-attention%7C2.1-factored-dot-product-attention/">#2.1 Factored Dot-Product Attention|2.1 Factored Dot-Product Attention</a></li>
+<li><a href="../../../../notes/#2.2-the-state-matrix-and-recurrence-relation%7C2.2-the-state-matrix-and-recurrence-relation/">#2.2 The State Matrix and Recurrence Relation|2.2 The State Matrix and Recurrence Relation</a></li>
+<li><a href="../../../../notes/#2.3-linear-rnn-interpretation%7C2.3-linear-rnn-interpretation/">#2.3 Linear RNN Interpretation|2.3 Linear RNN Interpretation</a></li>
+<li><a href="../../../../notes/#2.4-memory-complexity-comparison%7C2.4-memory-complexity-comparison/">#2.4 Memory Complexity Comparison|2.4 Memory Complexity Comparison</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-training-efficiency-challenges%7C3.-training-efficiency-challenges/">#3. Training Efficiency Challenges|3. Training Efficiency Challenges</a>
+<ul>
+<li><a href="../../../../notes/#3.1-sequential-recurrence-bottleneck%7C3.1-sequential-recurrence-bottleneck/">#3.1 Sequential Recurrence Bottleneck|3.1 Sequential Recurrence Bottleneck</a></li>
+<li><a href="../../../../notes/#3.2-outer-product-operations-and-gpu-utilization%7C3.2-outer-product-operations-and-gpu-utilization/">#3.2 Outer-Product Operations and GPU Utilization|3.2 Outer-Product Operations and GPU Utilization</a></li>
+<li><a href="../../../../notes/#3.3-io-overhead-from-state-materialization%7C3.3-io-overhead-from-state-materialization/">#3.3 IO Overhead from State Materialization|3.3 IO Overhead from State Materialization</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-chunkwise-parallel-form%7C4.-chunkwise-parallel-form/">#4. Chunkwise-Parallel Form|4. Chunkwise-Parallel Form</a>
+<ul>
+<li><a href="../../../../notes/#4.1-splitting-into-chunks%7C4.1-splitting-into-chunks/">#4.1 Splitting into Chunks|4.1 Splitting into Chunks</a></li>
+<li><a href="../../../../notes/#4.2-intra-chunk:-parallel-output-computation%7C4.2-intra-chunk:-parallel-output-computation/">#4.2 Intra-Chunk: Parallel Output Computation|4.2 Intra-Chunk: Parallel Output Computation</a></li>
+<li><a href="../../../../notes/#4.3-inter-chunk:-recurrent-state-passing%7C4.3-inter-chunk:-recurrent-state-passing/">#4.3 Inter-Chunk: Recurrent State Passing|4.3 Inter-Chunk: Recurrent State Passing</a></li>
+<li><a href="../../../../notes/#4.4-output-decomposition-into-two-parts%7C4.4-output-decomposition-into-two-parts/">#4.4 Output Decomposition into Two Parts|4.4 Output Decomposition into Two Parts</a></li>
+<li><a href="../../../../notes/#4.5-io-aware-implementation%7C4.5-io-aware-implementation/">#4.5 IO-Aware Implementation|4.5 IO-Aware Implementation</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-decay-and-gating-mechanisms%7C5.-decay-and-gating-mechanisms/">#5. Decay and Gating Mechanisms|5. Decay and Gating Mechanisms</a>
+<ul>
+<li><a href="../../../../notes/#5.1-motivation:-recency-bias-and-bounded-memory%7C5.1-motivation:-recency-bias-and-bounded-memory/">#5.1 Motivation: Recency Bias and Bounded Memory|5.1 Motivation: Recency Bias and Bounded Memory</a></li>
+<li><a href="../../../../notes/#5.2-constant-scalar-decay:-retnet%7C5.2-constant-scalar-decay:-retnet/">#5.2 Constant Scalar Decay: RetNet|5.2 Constant Scalar Decay: RetNet</a></li>
+<li><a href="../../../../notes/#5.3-scalar-data-dependent-decay:-mamba-2%7C5.3-scalar-data-dependent-decay:-mamba-2/">#5.3 Scalar Data-Dependent Decay: Mamba-2|5.3 Scalar Data-Dependent Decay: Mamba-2</a></li>
+<li><a href="../../../../notes/#5.4-vector-data-dependent-gating:-gla%7C5.4-vector-data-dependent-gating:-gla/">#5.4 Vector Data-Dependent Gating: GLA|5.4 Vector Data-Dependent Gating: GLA</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-neural-memory-perspective%7C6.-neural-memory-perspective/">#6. Neural Memory Perspective|6. Neural Memory Perspective</a>
+<ul>
+<li><a href="../../../../notes/#6.1-standard-attention-as-associative-memory%7C6.1-standard-attention-as-associative-memory/">#6.1 Standard Attention as Associative Memory|6.1 Standard Attention as Associative Memory</a></li>
+<li><a href="../../../../notes/#6.2-linear-attention-as-online-linear-regression%7C6.2-linear-attention-as-online-linear-regression/">#6.2 Linear Attention as Online Linear Regression|6.2 Linear Attention as Online Linear Regression</a></li>
+<li><a href="../../../../notes/#6.3-fast-weights-and-slow-weights%7C6.3-fast-weights-and-slow-weights/">#6.3 Fast Weights and Slow Weights|6.3 Fast Weights and Slow Weights</a></li>
+<li><a href="../../../../notes/#6.4-the-delta-rule:-squared-error-loss-and-its-gradient%7C6.4-the-delta-rule:-squared-error-loss-and-its-gradient/">#6.4 The Delta Rule: Squared-Error Loss and Its Gradient|6.4 The Delta Rule: Squared-Error Loss and Its Gradient</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ul>
+<hr />
+<h2 id="introduction-beyond-quadratic-compute-and-linear-memory">1. Introduction: Beyond Quadratic Compute and Linear Memory</h2>
+<p>Standard softmax attention (see companion note <code>standard-attention.md</code>) operates with <span class="math inline">\(O(T^2 d_k)\)</span> time and <span class="math inline">\(O(T^2)\)</span> memory per layer, where <span class="math inline">\(T\)</span> is the sequence length. During training this is managed by FlashAttention-style tiling, but during autoregressive inference a separate bottleneck emerges: the <em>KV cache</em>, which stores all <span class="math inline">\(T\)</span> key and value vectors seen so far and grows as <span class="math inline">\(O(T \cdot (d_k + d_v))\)</span> per layer. For a model with <span class="math inline">\(L\)</span> layers, a sequence of length <span class="math inline">\(T = 128\text{k}\)</span>, and <span class="math inline">\(d_k = d_v = 128\)</span>, this is tens of gigabytes per forward pass — limiting the batch size and thus throughput.</p>
+<p>This note addresses the family of architectures that replace softmax attention with a computation that:</p>
+<ol type="1">
+<li>Maintains a <em>state matrix</em> of fixed size <span class="math inline">\(d_k \times d_v\)</span> regardless of <span class="math inline">\(T\)</span>, eliminating KV-cache growth.</li>
+<li>Is expressible as a <em>recurrence</em>, enabling <span class="math inline">\(O(1)\)</span> inference-time memory per layer.</li>
+<li>Admits a <em>chunkwise-parallel</em> training algorithm that recovers near-full GPU utilization while remaining mathematically equivalent to the recurrence.</li>
+</ol>
+<p>We derive all recurrences from first principles, compare the decay and gating variants introduced by RetNet, Mamba-2, GLA, and RWKV, and close with the <em>neural memory</em> / <em>fast weight programmer</em> interpretation that places linear attention in a long line of associative memory research.</p>
+<p><strong>Notation.</strong> Scalars are italic (<span class="math inline">\(t\)</span>, <span class="math inline">\(\gamma\)</span>, <span class="math inline">\(\beta\)</span>), vectors are bold (<span class="math inline">\(\mathbf{q}_t\)</span>, <span class="math inline">\(\mathbf{k}_t\)</span>, <span class="math inline">\(\mathbf{v}_t\)</span>), and matrices are bold uppercase (<span class="math inline">\(S_t\)</span>, <span class="math inline">\(Q_i\)</span>, <span class="math inline">\(K_i\)</span>). The sequence length is <span class="math inline">\(T\)</span>, chunk size is <span class="math inline">\(C\)</span>, key/query dimension is <span class="math inline">\(d_k\)</span>, and value dimension is <span class="math inline">\(d_v\)</span>. The outer product of column vectors <span class="math inline">\(\mathbf{a} \in \mathbb{R}^m\)</span> and <span class="math inline">\(\mathbf{b} \in \mathbb{R}^n\)</span> is denoted <span class="math inline">\(\mathbf{a} \mathbf{b}^\top \in \mathbb{R}^{m \times n}\)</span>; for row vectors <span class="math inline">\(\mathbf{k}_t \in \mathbb{R}^{1 \times d_k}\)</span> we write <span class="math inline">\(\mathbf{k}_t^\top \mathbf{v}_t \in \mathbb{R}^{d_k \times d_v}\)</span>. We treat all token vectors as row vectors throughout to align with convention in the literature.</p>
+<hr />
+<h2 id="linear-attention-removing-softmax">2. Linear Attention: Removing Softmax</h2>
+<h3 id="factored-dot-product-attention">2.1 Factored Dot-Product Attention</h3>
+<p>Recall standard causal (autoregressive) attention. For token <span class="math inline">\(t\)</span>, the output is:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\sum_{j=1}^{t} \exp(\mathbf{q}_t \mathbf{k}_j^\top / \sqrt{d_k})\, \mathbf{v}_j}{\sum_{j=1}^{t} \exp(\mathbf{q}_t \mathbf{k}_j^\top / \sqrt{d_k})}\]</span></p>
+<p>The softmax nonlinearity prevents factorization: because the normalization denominator couples all <span class="math inline">\(j\)</span>, one cannot separate the sum over <span class="math inline">\(j\)</span> from the query <span class="math inline">\(\mathbf{q}_t\)</span>.</p>
+<p>Katharopoulos et al. (2020) propose replacing the kernel <span class="math inline">\(\exp(\mathbf{q}\mathbf{k}^\top / \sqrt{d_k})\)</span> with a <em>factored</em> similarity <span class="math inline">\(\phi(\mathbf{q})\phi(\mathbf{k})^\top\)</span>, where <span class="math inline">\(\phi : \mathbb{R}^{d_k} \to \mathbb{R}^r\)</span> is a feature map. This gives:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\sum_{j=1}^{t} \phi(\mathbf{q}_t)\phi(\mathbf{k}_j)^\top\, \mathbf{v}_j}{\sum_{j=1}^{t} \phi(\mathbf{q}_t)\phi(\mathbf{k}_j)^\top \cdot \mathbf{1}}\]</span></p>
+<p>Since <span class="math inline">\(\phi(\mathbf{q}_t)\)</span> does not depend on <span class="math inline">\(j\)</span>, it factors out of both numerator and denominator:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\phi(\mathbf{q}_t) \left(\sum_{j=1}^{t} \phi(\mathbf{k}_j)^\top \mathbf{v}_j\right)}{\phi(\mathbf{q}_t) \left(\sum_{j=1}^{t} \phi(\mathbf{k}_j)^\top\right)}\]</span></p>
+<p>The denominator is a scalar normalizer. In much of the subsequent literature — and throughout this note — the normalizer is dropped or absorbed, and the simplest feature map <span class="math inline">\(\phi(\mathbf{x}) = \mathbf{x}\)</span> (identity) is used. This yields what is most commonly called <em>linear attention</em>:</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{o}_t} = \textcolor{#D35400}{\mathbf{q}_t} \sum_{j=1}^{t} \textcolor{#2E86C1}{\mathbf{k}_j}^\top \textcolor{#2E86C1}{\mathbf{v}_j}\]</span></p>
+<p><em>This identity-feature-map form is the starting point for all recurrences below.</em></p>
+<h3 id="the-state-matrix-and-recurrence-relation">2.2 The State Matrix and Recurrence Relation</h3>
+<p>Define the <em>state matrix</em> at time <span class="math inline">\(t\)</span> as the running sum of outer products:</p>
+<p>📐 <strong>Definition (Linear Attention State).</strong> Let <span class="math inline">\(\mathbf{k}_j \in \mathbb{R}^{1 \times d_k}\)</span> and <span class="math inline">\(\mathbf{v}_j \in \mathbb{R}^{1 \times d_v}\)</span> be the key and value row vectors at position <span class="math inline">\(j\)</span>. The state matrix is:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \sum_{j=1}^{t} \textcolor{#2E86C1}{\mathbf{k}_j}^\top \textcolor{#2E86C1}{\mathbf{v}_j} \in \mathbb{R}^{d_k \times d_v}\]</span></p>
+<p>Each term <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{k}_j}^\top \textcolor{#2E86C1}{\mathbf{v}_j}\)</span> is a rank-1 outer product. The output of linear attention for token <span class="math inline">\(t\)</span> is then:</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{o}_t} = \textcolor{#D35400}{\mathbf{q}_t} \textcolor{#2E86C1}{S_t} \in \mathbb{R}^{1 \times d_v}\]</span></p>
+<p>From the definition of <span class="math inline">\(\textcolor{#2E86C1}{S_t}\)</span>, we immediately derive the recurrence:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#2E86C1}{S_{t-1}} + \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{v}_t}, \qquad \textcolor{#2E86C1}{S_0} = \mathbf{0}\]</span></p>
+<p>This is a <em>rank-1 update</em>: the new state equals the old state plus a single outer product. The update costs <span class="math inline">\(O(d_k \cdot d_v)\)</span> time and the output computation <span class="math inline">\(\textcolor{#D35400}{\mathbf{o}_t} = \textcolor{#D35400}{\mathbf{q}_t} \textcolor{#2E86C1}{S_t}\)</span> costs the same — both are independent of <span class="math inline">\(T\)</span>.</p>
+<h3 id="linear-rnn-interpretation">2.3 Linear RNN Interpretation</h3>
+<p>The pair <span class="math inline">\((S_t, \mathbf{o}_t)\)</span> defines a <em>recurrent neural network</em> whose hidden state is the matrix <span class="math inline">\(S_t \in \mathbb{R}^{d_k \times d_v}\)</span>:</p>
+<p><span class="math display">\[S_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t, \qquad \mathbf{o}_t = \mathbf{q}_t S_t\]</span></p>
+<p>The transition is linear in <span class="math inline">\(S_{t-1}\)</span> (the coefficient is the identity map), hence the name <em>linear</em> attention / linear RNN. This stands in contrast to LSTMs and GRUs, which have nonlinear gating in the state transition. The keys <span class="math inline">\(\mathbf{k}_t\)</span> and values <span class="math inline">\(\mathbf{v}_t\)</span> are the “write” operands and the query <span class="math inline">\(\mathbf{q}_t\)</span> is the “read” operand — a clean read/write decomposition of memory.</p>
+<p><em>Crucially, the hidden state <span class="math inline">\(S_t\)</span> has dimension <span class="math inline">\(d_k \times d_v\)</span> at every step, regardless of <span class="math inline">\(T\)</span>.</em> During inference one need only store <span class="math inline">\(S_t\)</span>, not all past keys and values.</p>
+<p><img src="figures/sun2023-fig3b-recurrent-retention.png" alt="Figure 3b from Sun et al. (2023): recurrent retention mechanism showing state update and read" />
+<em>Figure 3b (Sun et al., 2023): The recurrent form of the retention mechanism. At each step the recurrent state <span class="math inline">\(S_{n-1}\)</span> is scaled by the decay <span class="math inline">\(\gamma\)</span>, incremented by the outer product <span class="math inline">\(K_n^\top V_n\)</span> (write), and then read by <span class="math inline">\(Q_n\)</span> to produce output <span class="math inline">\(O_n\)</span>. This is exactly the linear attention recurrence <span class="math inline">\(S_t = \gamma S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span>, <span class="math inline">\(\mathbf{o}_t = \mathbf{q}_t S_t\)</span>, making the RNN structure of the state matrix explicit.</em></p>
+<h3 id="memory-complexity-comparison">2.4 Memory Complexity Comparison</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Scheme</th>
+<th>Inference memory per layer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Softmax attention (KV cache)</td>
+<td><span class="math inline">\(O(T \cdot (d_k + d_v))\)</span> — grows with <span class="math inline">\(T\)</span></td>
+</tr>
+<tr class="even">
+<td>Linear attention (state matrix)</td>
+<td><span class="math inline">\(O(d_k \cdot d_v)\)</span> — constant in <span class="math inline">\(T\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>🔑 <strong>During inference, the linear attention state matrix costs <span class="math inline">\(O(d_k \cdot d_v)\)</span> memory regardless of sequence length, eliminating the KV-cache growth bottleneck.</strong></p>
+<p>For typical values <span class="math inline">\(d_k = d_v = 128\)</span>, this is a matrix of <span class="math inline">\(128 \times 128 = 16{,}384\)</span> floats (<span class="math inline">\(\approx 64\)</span> KB per head) — fixed, no matter how long the sequence grows.</p>
+<p><img src="figures/katharopoulos2020-fig1-compute-comparison.png" alt="Figure 1 from Katharopoulos et al. (2020): time scaling comparison of softmax, linear, and Reformer attention" />
+<em>Figure 1 (Katharopoulos et al., 2020): Wall-clock time (ms) versus sequence length for softmax attention (blue, dashed, <span class="math inline">\(O(T^2)\)</span> slope), linear attention (black solid, <span class="math inline">\(O(T)\)</span> slope), and Reformer LSH variants (blue dotted). Linear attention’s time grows linearly with <span class="math inline">\(T\)</span>, while softmax attention grows quadratically — directly reflecting the constant-memory recurrence versus the KV-cache growth shown in the table above.</em></p>
+<hr />
+<h2 id="training-efficiency-challenges">3. Training Efficiency Challenges</h2>
+<h3 id="sequential-recurrence-bottleneck">3.1 Sequential Recurrence Bottleneck</h3>
+<p>⚠️ The recurrence <span class="math inline">\(S_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span> is inherently sequential: <span class="math inline">\(S_t\)</span> depends on <span class="math inline">\(S_{t-1}\)</span>, which depends on <span class="math inline">\(S_{t-2}\)</span>, and so on. During training, where all <span class="math inline">\(T\)</span> tokens are available simultaneously, naive execution of this recurrence requires <span class="math inline">\(T\)</span> sequential steps. This defeats the parallel computation advantage that made softmax attention fast to train via matrix multiplications on GPUs.</p>
+<p>By contrast, standard softmax attention processes the full sequence as a single <span class="math inline">\(T \times T\)</span> matrix multiply — all entries of <span class="math inline">\(Q K^\top\)</span> are computed in parallel. The linear recurrence sacrifices this parallelism for the memory advantage.</p>
+<h3 id="outer-product-operations-and-gpu-utilization">3.2 Outer-Product Operations and GPU Utilization</h3>
+<p>Each state update <span class="math inline">\(S_t \leftarrow S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span> involves a <span class="math inline">\(d_k \times d_v\)</span> outer product. On a GPU, this is a rank-1 update to an <span class="math inline">\(O(d^2)\)</span> matrix — a <em>memory-bound</em> operation. The arithmetic intensity (FLOPs per byte transferred) is too low to saturate the tensor cores designed for large matrix multiplies. Running <span class="math inline">\(T\)</span> such updates sequentially compounds the problem: total wall time scales with <span class="math inline">\(T\)</span> even though the total FLOPs are low.</p>
+<h3 id="io-overhead-from-state-materialization">3.3 IO Overhead from State Materialization</h3>
+<p>If one materializes the full state trajectory <span class="math inline">\(\{S_0, S_1, \ldots, S_T\}\)</span> for backpropagation, the memory cost is <span class="math inline">\(O(T \cdot d_k \cdot d_v)\)</span> — the very bottleneck linear attention was meant to avoid. The alternative is gradient checkpointing: recompute <span class="math inline">\(S_t\)</span> from <span class="math inline">\(S_0\)</span> during the backward pass, paying <span class="math inline">\(O(T)\)</span> recomputation cost. Neither option is fully satisfactory for long sequences.</p>
+<p>The chunkwise-parallel form in Section 4 resolves all three challenges simultaneously.</p>
+<hr />
+<h2 id="chunkwise-parallel-form">4. Chunkwise-Parallel Form</h2>
+<p>The key insight is that the linear recurrence can be re-expressed in a <em>block</em> form that separates within-chunk (parallel) from between-chunk (sequential) computation. The resulting algorithm — known as the <em>chunkwise</em> or <em>chunkwise-recurrent</em> form — is mathematically identical to the full recurrence; no approximation is involved.</p>
+<h3 id="splitting-into-chunks">4.1 Splitting into Chunks</h3>
+<p>Partition the <span class="math inline">\(T\)</span> tokens into <span class="math inline">\(N = T/C\)</span> non-overlapping chunks of size <span class="math inline">\(C\)</span>, where <span class="math inline">\(C\)</span> divides <span class="math inline">\(T\)</span>. Chunk <span class="math inline">\(i\)</span> contains positions <span class="math inline">\(\{(i-1)C + 1, \ldots, iC\}\)</span>. Denote the stacked query, key, and value matrices for chunk <span class="math inline">\(i\)</span> as:</p>
+<p><span class="math display">\[Q_i \in \mathbb{R}^{C \times d_k}, \quad K_i \in \mathbb{R}^{C \times d_k}, \quad V_i \in \mathbb{R}^{C \times d_v}\]</span></p>
+<p>Let <span class="math inline">\(S_{i}^\text{end}\)</span> denote the state at the end of chunk <span class="math inline">\(i\)</span> (i.e., at position <span class="math inline">\(iC\)</span>), and <span class="math inline">\(S_i^\text{start} = S_{i-1}^\text{end}\)</span> the state entering chunk <span class="math inline">\(i\)</span>. Define <span class="math inline">\(S_0^\text{end} = \mathbf{0}\)</span>.</p>
+<h3 id="intra-chunk-parallel-output-computation">4.2 Intra-Chunk: Parallel Output Computation</h3>
+<p>Within chunk <span class="math inline">\(i\)</span>, each token <span class="math inline">\(t\)</span> attends only to tokens within the same chunk that precede it (causal masking within the chunk). The output for the <span class="math inline">\(s\)</span>-th token inside chunk <span class="math inline">\(i\)</span> (local index <span class="math inline">\(s \in \{1, \ldots, C\}\)</span>) from tokens within the same chunk is:</p>
+<p><span class="math display">\[\mathbf{o}_s^\text{intra} = \sum_{j=1}^{s} \mathbf{q}_s \mathbf{k}_j^\top \mathbf{v}_j = \mathbf{q}_s \underbrace{\left(\sum_{j=1}^{s} \mathbf{k}_j^\top \mathbf{v}_j\right)}_{\text{partial state within chunk}}\]</span></p>
+<p>In matrix form, stacking all <span class="math inline">\(C\)</span> outputs:</p>
+<p><span class="math display">\[O_i^\text{intra} = \underbrace{(Q_i K_i^\top \odot M)}_{\text{lower-triangular masked scores}} V_i \in \mathbb{R}^{C \times d_v}\]</span></p>
+<p>where <span class="math inline">\(M \in \{0, 1\}^{C \times C}\)</span> is a lower-triangular causal mask (<span class="math inline">\(M_{s,j} = 1\)</span> iff <span class="math inline">\(s \geq j\)</span>). This is a standard dense matrix multiply — GPU-friendly and fully parallel across all <span class="math inline">\(C \times C\)</span> pairs.</p>
+<h3 id="inter-chunk-recurrent-state-passing">4.3 Inter-Chunk: Recurrent State Passing</h3>
+<p>The state at the end of chunk <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[S_i^\text{end} = S_{i-1}^\text{end} + K_i^\top V_i\]</span></p>
+<p>where <span class="math inline">\(K_i^\top V_i = \sum_{s=1}^{C} \mathbf{k}_{(i-1)C+s}^\top \mathbf{v}_{(i-1)C+s}\)</span> sums the <span class="math inline">\(C\)</span> outer products in chunk <span class="math inline">\(i\)</span>. The computation <span class="math inline">\(K_i^\top V_i \in \mathbb{R}^{d_k \times d_v}\)</span> is a matrix multiply of shape <span class="math inline">\((d_k \times C) \cdot (C \times d_v)\)</span> — again GPU-friendly.</p>
+<p>The recurrence <span class="math inline">\(S_i^\text{end} = S_{i-1}^\text{end} + K_i^\top V_i\)</span> is sequential in <span class="math inline">\(i\)</span>, but now runs only <span class="math inline">\(N = T/C\)</span> steps rather than <span class="math inline">\(T\)</span> steps. For <span class="math inline">\(C = 64\)</span>, this reduces the sequential depth by a factor of 64.</p>
+<h3 id="output-decomposition-into-two-parts">4.4 Output Decomposition into Two Parts</h3>
+<p>Each token inside chunk <span class="math inline">\(i\)</span> also receives contributions from all tokens in chunks <span class="math inline">\(0, 1, \ldots, i-1\)</span> — captured by the state <span class="math inline">\(S_{i-1}^\text{end}\)</span> entering chunk <span class="math inline">\(i\)</span>. The inter-chunk contribution for all tokens in chunk <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[O_i^\text{inter} = Q_i \, S_{i-1}^\text{end} \in \mathbb{R}^{C \times d_v}\]</span></p>
+<p>This is a single matrix multiply <span class="math inline">\((C \times d_k) \cdot (d_k \times d_v)\)</span>, again fully parallel.</p>
+<p>The total output for chunk <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[O_i = O_i^\text{inter} + O_i^\text{intra} = Q_i S_{i-1}^\text{end} + (Q_i K_i^\top \odot M) V_i\]</span></p>
+<p><strong>This decomposition is exact: it equals the output one would obtain by running the full token-level recurrence, with no approximation.</strong></p>
+<p><em>Proof sketch.</em> For the <span class="math inline">\(s\)</span>-th token in chunk <span class="math inline">\(i\)</span> (absolute index <span class="math inline">\(t = (i-1)C + s\)</span>):</p>
+<p><span class="math display">\[\mathbf{o}_t = \mathbf{q}_t S_t = \mathbf{q}_t \left( S_{i-1}^\text{end} + \sum_{j=1}^{s} \mathbf{k}_{(i-1)C+j}^\top \mathbf{v}_{(i-1)C+j} \right) = \underbrace{\mathbf{q}_t S_{i-1}^\text{end}}_{\text{inter}} + \underbrace{\mathbf{q}_t \sum_{j=1}^{s} \mathbf{k}_j^\top \mathbf{v}_j}_{\text{intra}}\]</span></p>
+<p>Stacking over <span class="math inline">\(s = 1, \ldots, C\)</span> gives <span class="math inline">\(O_i = O_i^\text{inter} + O_i^\text{intra}\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="io-aware-implementation">4.5 IO-Aware Implementation</h3>
+<p>The chunkwise form lends itself to a FlashAttention-style tiling strategy (used in FlashLinearAttention / GLA). The key observations are:</p>
+<ol type="1">
+<li>The state <span class="math inline">\(S_i^\text{end} \in \mathbb{R}^{d_k \times d_v}\)</span> is reused for <span class="math inline">\(O_i^\text{inter}\)</span> of the next chunk. It fits in SRAM for typical head dimensions.</li>
+<li>The intra-chunk computation <span class="math inline">\((Q_i K_i^\top \odot M) V_i\)</span> is a local <span class="math inline">\((C \times C)\)</span> attention with <span class="math inline">\(C \ll T\)</span>, fitting the <span class="math inline">\(Q_i, K_i, V_i\)</span> blocks in SRAM.</li>
+<li>The inter-chunk state update <span class="math inline">\(S_i \leftarrow S_{i-1} + K_i^\top V_i\)</span> reduces to a single <span class="math inline">\((d_k \times C) \cdot (C \times d_v)\)</span> GEMM per chunk.</li>
+</ol>
+<p>By fusing all four operations (state update, <span class="math inline">\(O_i^\text{inter}\)</span>, masked intra-chunk attention, output accumulation) into a single kernel, HBM reads/writes are minimized. This is the approach of Yang et al.’s FlashLinearAttention algorithm.</p>
+<p><img src="figures/dao2024-ssd-algorithm.png" alt="Figure from Dao &amp; Gu (2024): SSD semiseparable matrix block decomposition and chunkwise algorithm" />
+<em>Figure (Dao &amp; Gu, 2024): The SSD chunkwise algorithm. Top: the output matrix <span class="math inline">\(Y = MX\)</span> where <span class="math inline">\(M\)</span> is a semiseparable matrix, shown tiled into four block types — orange (diagonal intra-chunk, computed as masked attention), green (low-rank input-to-state), yellow (low-rank state-to-state recurrence), and blue (low-rank state-to-output). Bottom: the corresponding data-flow — inputs <span class="math inline">\(X\)</span> are processed within each chunk (intra), states <span class="math inline">\(H\)</span> accumulate across chunks (inter), and outputs <span class="math inline">\(Y\)</span> combine both contributions. This decomposition is exactly the chunkwise form <span class="math inline">\(O_i = Q_i S_{i-1}^\text{end} + (Q_i K_i^\top \odot M)V_i\)</span> derived above.</em></p>
+<hr />
+<h2 id="decay-and-gating-mechanisms">5. Decay and Gating Mechanisms</h2>
+<h3 id="motivation-recency-bias-and-bounded-memory">5.1 Motivation: Recency Bias and Bounded Memory</h3>
+<p>In pure linear attention, all past tokens contribute equally to the state <span class="math inline">\(S_t\)</span>: older outer products are never discounted. For long sequences this causes the state to be dominated by the earliest tokens, since contributions accumulate without bound. A <em>decay</em> factor <span class="math inline">\(\gamma \in (0, 1)\)</span> multiplies the state at each step, exponentially downweighting older information and introducing a <em>recency bias</em>.</p>
+<p>Algebraically, the state with decay satisfies:</p>
+<p><span class="math display">\[S_t = \gamma S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\]</span></p>
+<p>Unrolling <span class="math inline">\(n\)</span> steps: <span class="math inline">\(S_t = \sum_{j=1}^{t} \gamma^{t-j} \mathbf{k}_j^\top \mathbf{v}_j\)</span>. The contribution of token <span class="math inline">\(j\)</span> decays exponentially as <span class="math inline">\(\gamma^{t-j}\)</span>, so the effective memory horizon is <span class="math inline">\(\approx (1-\gamma)^{-1}\)</span> tokens.</p>
+<h3 id="constant-scalar-decay-retnet">5.2 Constant Scalar Decay: RetNet</h3>
+<p>Sun et al. (2023) introduced the <em>Retentive Network</em> (RetNet), in which the state transition uses a fixed scalar decay <span class="math inline">\(\gamma \in (0,1)\)</span> combined with complex-valued rotary encodings. In the simplified scalar form:</p>
+<p>📐 <strong>Definition (RetNet Retention).</strong> The retention state satisfies:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#1E8449}{\gamma} \textcolor{#2E86C1}{S_{t-1}} + \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{v}_t}, \qquad \textcolor{#D35400}{\mathbf{o}_t} = \textcolor{#D35400}{\mathbf{q}_t} \textcolor{#2E86C1}{S_t}\]</span></p>
+<p>where <span class="math inline">\(\textcolor{#1E8449}{\gamma}\)</span> is a head-specific constant (different heads use different decay values). The parallel form writes the full-sequence output as:</p>
+<p><span class="math display">\[O = (Q K^\top \odot D) V\]</span></p>
+<p>where <span class="math inline">\(D \in \mathbb{R}^{T \times T}\)</span> is the decay mask with <span class="math inline">\(D_{t,j} = \gamma^{t-j}\)</span> for <span class="math inline">\(t \geq j\)</span> and <span class="math inline">\(0\)</span> otherwise. RetNet assigns <span class="math inline">\(\gamma_h = 1 - 2^{-(5+h)}\)</span> for head <span class="math inline">\(h\)</span>, giving a geometric spread of memory horizons across heads.</p>
+<p>The chunkwise form of RetNet accumulates the decayed state at chunk boundaries. Letting <span class="math inline">\(B = C\)</span> be chunk size and <span class="math inline">\(R_{i-1}\)</span> the state entering chunk <span class="math inline">\(i\)</span>:</p>
+<p><span class="math display">\[R_i = \gamma^C R_{i-1} + K_i^\top (V_i \odot \zeta_i)\]</span></p>
+<p>where <span class="math inline">\(\zeta_i\)</span> is a per-token decay weight within the chunk. The factor <span class="math inline">\(\gamma^C\)</span> discounts the entire previous state by the chunk length.</p>
+<p>💡 <em>The constant <span class="math inline">\(\gamma\)</span> is never updated at inference time — it is a fixed hyperparameter, not a learned function of the input.</em> This is both its strength (no input-dependent overhead) and its weakness (the effective memory horizon is fixed and cannot adapt to content).</p>
+<p><img src="figures/sun2023-fig3a-parallel-retention.png" alt="Figure 3a from Sun et al. (2023): parallel retention form showing the masked attention computation" />
+<em>Figure 3a (Sun et al., 2023): The parallel representation of retention. Input <span class="math inline">\(X\)</span> is projected to <span class="math inline">\(Q\)</span>, <span class="math inline">\(K\)</span>, <span class="math inline">\(V\)</span>; the output is <span class="math inline">\((QK^\top \odot D)V\)</span> where <span class="math inline">\(D\)</span> is the decay mask with <span class="math inline">\(D_{t,j} = \gamma^{t-j}\)</span>; GroupNorm (GN) normalizes the result. This is the training-time parallel form of the RetNet recurrence — a standard masked matrix multiply with a geometric decay mask in place of the usual binary causal mask.</em></p>
+<h3 id="scalar-data-dependent-decay-mamba-2">5.3 Scalar Data-Dependent Decay: Mamba-2</h3>
+<p>Dao and Gu (2024) introduce the <em>State Space Duality</em> (SSD) framework in Mamba-2. The key architectural change is making the decay a <em>scalar</em> function of the input at each step:</p>
+<p>📐 <strong>Definition (SSD Layer).</strong> The SSD recurrence is:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#1E8449}{a_t} \textcolor{#2E86C1}{S_{t-1}} + \mathbf{b}_t^\top x_t, \qquad y_t = \mathbf{c}_t \textcolor{#2E86C1}{S_t}\]</span></p>
+<p>where <span class="math inline">\(a_t \in \mathbb{R}\)</span> is a scalar derived from input <span class="math inline">\(x_t\)</span> (typically <span class="math inline">\(a_t = \sigma(w_a^\top x_t)\)</span> for some learned vector <span class="math inline">\(w_a\)</span>), and <span class="math inline">\(\mathbf{b}_t, \mathbf{c}_t\)</span> are the data-dependent key and query analogues.</p>
+<p>The <em>scalar-times-identity</em> constraint on <span class="math inline">\(A\)</span> — that is, <span class="math inline">\(A_t = a_t I_{d_k}\)</span> where <span class="math inline">\(I_{d_k}\)</span> is the identity matrix — distinguishes SSD from earlier SSMs (which allow fully diagonal or even dense <span class="math inline">\(A_t\)</span>). This constraint is what makes the connection to linear attention exact and enables a tensor-core-friendly chunkwise algorithm.</p>
+<p>In attention notation with <span class="math inline">\(a_t = \textcolor{#1E8449}{\gamma_t}\)</span> (data-dependent scalar decay):</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#1E8449}{\gamma_t} \textcolor{#2E86C1}{S_{t-1}} + \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{v}_t}, \qquad \textcolor{#D35400}{\mathbf{o}_t} = \textcolor{#D35400}{\mathbf{q}_t} \textcolor{#2E86C1}{S_t}\]</span></p>
+<p>The parallel (attention-form) dual constructs a lower-triangular matrix <span class="math inline">\(L \in \mathbb{R}^{T \times T}\)</span>:</p>
+<p><span class="math display">\[L_{t,j} = \prod_{s=j+1}^{t} \gamma_s \quad (t \geq j), \qquad L_{t,j} = 0 \quad (t &lt; j)\]</span></p>
+<p>Then <span class="math inline">\(O = (L \odot Q K^\top) V\)</span>, which is a <em>structured masked attention</em> that generalizes RetNet’s geometric decay mask. 🔑 <strong>The scalar constraint on <span class="math inline">\(A_t\)</span> is precisely what preserves the matrix-multiply structure in <span class="math inline">\(L\)</span></strong>, keeping the chunkwise algorithm hardware-efficient.</p>
+<p><img src="figures/dao2024-mamba2-architecture.png" alt="Figure from Dao &amp; Gu (2024): Mamba-2 block architecture comparing sequential and parallel forms" />
+<em>Figure (Dao &amp; Gu, 2024): The Mamba-2 block in sequential (left) and parallel (right) forms. The SSM parameters <span class="math inline">\(A\)</span> (scalar decay), <span class="math inline">\(X\)</span> (input), <span class="math inline">\(B\)</span> (key analogue), and <span class="math inline">\(C\)</span> (query analogue) are produced by learned projections; the gating <span class="math inline">\(\sigma\)</span> on the right branch creates the SiLU-gated output. The key architectural change from Mamba-1 is that <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(C\)</span> are now computed in parallel from the same input, making the block compatible with the tensor-parallel training setup required by the SSD chunkwise algorithm.</em></p>
+<h3 id="vector-data-dependent-gating-gla">5.4 Vector Data-Dependent Gating: GLA</h3>
+<p>Yang et al. (2024) introduce <em>Gated Linear Attention</em> (GLA), which generalizes the scalar gate to a vector-valued gate while preserving the outer-product structure of the state update:</p>
+<p>📐 <strong>Definition (GLA State Update).</strong> The GLA recurrence uses element-wise gates:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = (\textcolor{#1E8449}{\boldsymbol{\alpha}_t} \textcolor{#1E8449}{\boldsymbol{\beta}_t}^\top) \odot \textcolor{#2E86C1}{S_{t-1}} + \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{v}_t}\]</span></p>
+<p>where <span class="math inline">\(\textcolor{#1E8449}{\boldsymbol{\alpha}_t} \in \mathbb{R}^{d_k}\)</span> and <span class="math inline">\(\textcolor{#1E8449}{\boldsymbol{\beta}_t} \in \mathbb{R}^{d_v}\)</span> are data-dependent vectors, and <span class="math inline">\(\odot\)</span> denotes element-wise (Hadamard) multiplication. The gate matrix <span class="math inline">\(\textcolor{#1E8449}{\boldsymbol{\alpha}_t} \textcolor{#1E8449}{\boldsymbol{\beta}_t}^\top \in \mathbb{R}^{d_k \times d_v}\)</span> is rank-1, which is the crucial structural property.</p>
+<p>💡 <em>Why must the gate be rank-1?</em> If the gate were an arbitrary matrix <span class="math inline">\(G_t \in \mathbb{R}^{d_k \times d_v}\)</span>, the state update <span class="math inline">\(G_t \odot S_{t-1}\)</span> would break the outer-product recurrence: the chunkwise state <span class="math inline">\(K_i^\top V_i\)</span> would no longer have a clean matrix-multiply form when propagated through the gate. The rank-1 factorization <span class="math inline">\(\boldsymbol{\alpha}_t \boldsymbol{\beta}_t^\top\)</span> ensures the cumulative gate across a chunk is still an outer product, preserving the <span class="math inline">\((d_k \times C)(C \times d_v)\)</span> GEMM structure in the FlashLinearAttention kernel.</p>
+<p>Computing <span class="math inline">\(\boldsymbol{\alpha}_t\)</span> and <span class="math inline">\(\boldsymbol{\beta}_t\)</span> from input <span class="math inline">\(x_t\)</span> via a learned linear map adds minimal overhead. GLA empirically outperforms RetNet and standard linear attention while achieving training speed competitive with FlashAttention-2.</p>
+<p>RWKV-6 (Peng et al., 2024) uses a related vector gating scheme, applying data-dependent linear interpolation (<em>ddlerp</em>) to construct per-channel decay vectors, combined with LoRA-style low-rank adaptation for efficiency.</p>
+<!-- Figure from Yang et al. (2024) "Gated Linear Attention" (arXiv 2312.06635) unavailable: ar5iv HTML conversion failed with fatal error; no accessible preprint figure source found -->
+<hr />
+<h2 id="neural-memory-perspective">6. Neural Memory Perspective</h2>
+<h3 id="standard-attention-as-associative-memory">6.1 Standard Attention as Associative Memory</h3>
+<p>Softmax attention can be viewed as a <em>content-addressable memory</em> (Hopfield network interpretation). The context stores <span class="math inline">\(T\)</span> key-value pairs <span class="math inline">\(\{(\mathbf{k}_j, \mathbf{v}_j)\}_{j=1}^T\)</span>. Given a query <span class="math inline">\(\mathbf{q}_t\)</span>, the attention mechanism retrieves:</p>
+<p><span class="math display">\[\mathbf{o}_t = \sum_{j=1}^{t} \underbrace{\text{softmax}_j(\mathbf{q}_t \mathbf{k}_j^\top / \sqrt{d_k})}_{\text{retrieval weight}} \mathbf{v}_j\]</span></p>
+<p>With high temperature, this approaches nearest-neighbor retrieval: all weight concentrates on the most similar key. The key-value pairs are stored <em>explicitly</em> in memory (the KV cache), so retrieval is exact but memory cost is <span class="math inline">\(O(T)\)</span>.</p>
+<h3 id="linear-attention-as-online-linear-regression">6.2 Linear Attention as Online Linear Regression</h3>
+<p>The linear attention state matrix <span class="math inline">\(S_t\)</span> can be interpreted as the weight matrix of a <em>linear regression model</em> trained online to map keys to values.</p>
+<p>📐 <strong>Claim:</strong> The recurrence <span class="math inline">\(S_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span> is a single step of stochastic gradient descent on the loss <span class="math inline">\(\mathcal{L}_t(S) = -\mathbf{q}_t \cdot \mathbf{k}_t S^\top\)</span> (with <span class="math inline">\(\mathbf{q}_t = \mathbf{k}_t\)</span> and unit step size).</p>
+<p><em>Derivation.</em> Consider the negative dot-product loss:</p>
+<p><span class="math display">\[\mathcal{L}_t(S) = -\langle S \mathbf{k}_t^\top, \mathbf{v}_t^\top \rangle = -\mathbf{v}_t S \mathbf{k}_t^\top\]</span></p>
+<p>Taking the gradient with respect to <span class="math inline">\(S\)</span>:</p>
+<p><span class="math display">\[\nabla_S \mathcal{L}_t = -\mathbf{k}_t^\top \mathbf{v}_t\]</span></p>
+<p>The gradient descent update with step size <span class="math inline">\(\eta = 1\)</span> is:</p>
+<p><span class="math display">\[S_t = S_{t-1} - \nabla_S \mathcal{L}_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\]</span></p>
+<p>which is exactly the linear attention update. <em>However, this loss is unconstrained and can decrease without bound</em>, making training unstable. The squared error loss in Section 6.4 corrects this.</p>
+<h3 id="fast-weights-and-slow-weights">6.3 Fast Weights and Slow Weights</h3>
+<p>Schmidhuber (1992) introduced the <em>fast weight</em> concept: a neural system with two timescales of weight change. The <em>slow weights</em> (<span class="math inline">\(W_Q, W_K, W_V, W_O\)</span>) are learned by gradient descent over many training examples and encode general-purpose inductive biases. The <em>fast weights</em> (<span class="math inline">\(S_t\)</span>) are updated at inference time, within a single forward pass, to encode information from the current context.</p>
+<p>In the linear attention framework:</p>
+<ul>
+<li><strong>Slow weights:</strong> <span class="math inline">\(W_Q\)</span>, <span class="math inline">\(W_K\)</span>, <span class="math inline">\(W_V\)</span>, <span class="math inline">\(W_O\)</span> — learned at training time, fixed at inference time.</li>
+<li><strong>Fast weights:</strong> <span class="math inline">\(S_t\)</span> — initialized to zero at the start of each sequence, updated at every token via <span class="math inline">\(S_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span> (or with gating/decay).</li>
+</ul>
+<p>The query <span class="math inline">\(\mathbf{q}_t = \mathbf{x}_t W_Q\)</span> reads from the fast weight memory: <span class="math inline">\(\mathbf{o}_t = \mathbf{q}_t S_t\)</span>. The key-value pair <span class="math inline">\((\mathbf{k}_t, \mathbf{v}_t)\)</span> writes to it.</p>
+<p><em>Schlag et al. (2021) formalized this connection</em>, proving that linear transformers are exactly fast weight programmers with additive outer-product update rules.</p>
+<h3 id="the-delta-rule-squared-error-loss-and-its-gradient">6.4 The Delta Rule: Squared-Error Loss and Its Gradient</h3>
+<p>The instability of the negative dot-product loss motivates using the squared error:</p>
+<p>📐 <strong>Definition (Online Squared-Error Loss).</strong> At step <span class="math inline">\(t\)</span>, define the loss as the squared discrepancy between the current prediction of <span class="math inline">\(S_{t-1}\)</span> applied to <span class="math inline">\(\mathbf{k}_t\)</span> and the target value <span class="math inline">\(\mathbf{v}_t\)</span>:</p>
+<p><span class="math display">\[\mathcal{L}_t(S) = \frac{1}{2} \| S_{t-1} \mathbf{k}_t^\top - \mathbf{v}_t^\top \|^2\]</span></p>
+<p><em>Derivation of the update rule.</em> The gradient of <span class="math inline">\(\mathcal{L}_t\)</span> with respect to <span class="math inline">\(S\)</span> evaluated at <span class="math inline">\(S = S_{t-1}\)</span> is:</p>
+<p><span class="math display">\[\nabla_S \mathcal{L}_t\big|_{S=S_{t-1}} = (S_{t-1} \mathbf{k}_t^\top - \mathbf{v}_t^\top) \mathbf{k}_t = S_{t-1} \mathbf{k}_t^\top \mathbf{k}_t - \mathbf{v}_t^\top \mathbf{k}_t\]</span></p>
+<p>Transposing (to match the <span class="math inline">\(d_k \times d_v\)</span> convention for <span class="math inline">\(S\)</span>):</p>
+<p><span class="math display">\[\nabla_S \mathcal{L}_t = \mathbf{k}_t^\top (S_{t-1} \mathbf{k}_t^\top)^\top \mathbf{k}_t - \mathbf{k}_t^\top \mathbf{v}_t\]</span></p>
+<p>Gradient descent with step size <span class="math inline">\(\beta_t\)</span> gives:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#2E86C1}{S_{t-1}} - \beta_t \nabla_S \mathcal{L}_t = \textcolor{#2E86C1}{S_{t-1}} + \beta_t \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{v}_t} - \beta_t \textcolor{#2E86C1}{\mathbf{k}_t}^\top \textcolor{#2E86C1}{\mathbf{k}_t} \textcolor{#2E86C1}{S_{t-1}}\]</span></p>
+<p>Factoring:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{S_t} = \textcolor{#2E86C1}{S_{t-1}} + \beta_t \textcolor{#2E86C1}{\mathbf{k}_t}^\top (\textcolor{#2E86C1}{\mathbf{v}_t} - \textcolor{#2E86C1}{\mathbf{k}_t} \textcolor{#2E86C1}{S_{t-1}})\]</span></p>
+<p>🔑 <strong>Definition (Delta Rule Update).</strong> The update <span class="math inline">\(S_t = S_{t-1} + \beta_t \mathbf{k}_t^\top (\mathbf{v}_t - \mathbf{k}_t S_{t-1})\)</span> is the <em>delta rule</em> (Widrow-Hoff rule) applied to fast weight memory.</p>
+<p>The term <span class="math inline">\(\mathbf{k}_t S_{t-1}\)</span> is the <em>current prediction</em>: what the memory <span class="math inline">\(S_{t-1}\)</span> would output if queried with <span class="math inline">\(\mathbf{k}_t\)</span>. The correction <span class="math inline">\(\mathbf{v}_t - \mathbf{k}_t S_{t-1}\)</span> is the <em>prediction error</em>. The state is updated proportionally to this error, projected back via <span class="math inline">\(\mathbf{k}_t^\top\)</span>.</p>
+<p>Comparing to standard linear attention:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>Update Rule</th>
+<th>Loss</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear attention</td>
+<td><span class="math inline">\(S_t = S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t\)</span></td>
+<td>Negative dot-product</td>
+<td>Additive, no error correction</td>
+</tr>
+<tr class="even">
+<td>Delta rule (DeltaNet)</td>
+<td><span class="math inline">\(S_t = S_{t-1} + \beta_t \mathbf{k}_t^\top (\mathbf{v}_t - \mathbf{k}_t S_{t-1})\)</span></td>
+<td>Squared error</td>
+<td>Corrects prediction error before writing</td>
+</tr>
+</tbody>
+</table>
+<p><em>When <span class="math inline">\(\mathbf{k}_t S_{t-1} = \mathbf{0}\)</span> (empty memory or orthogonal keys), the delta rule reduces to linear attention.</em> When memory is non-empty, the delta rule first subtracts the existing association before writing the new one — preventing overwriting conflicts and maintaining better key-value fidelity over long contexts.</p>
+<p>🔑 <strong>The delta rule introduces an implicit “erase-then-write” dynamic that linear attention lacks, giving the state matrix higher effective capacity at the cost of a <span class="math inline">\(\mathbf{k}_t S_{t-1}\)</span> matrix-vector product per step.</strong></p>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Katharopoulos et al. (2020), “Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention”</td>
+<td>Introduces linear attention via kernel feature maps; proves equivalence to RNNs; derives the state matrix recurrence</td>
+<td><a href="https://arxiv.org/abs/2006.16236">arxiv.org/abs/2006.16236</a></td>
+</tr>
+<tr class="even">
+<td>Sun et al. (2023), “Retentive Network: A Successor to Transformer for Large Language Models”</td>
+<td>Introduces RetNet with constant scalar decay <span class="math inline">\(\gamma\)</span>; parallel, recurrent, and chunkwise computation paradigms</td>
+<td><a href="https://arxiv.org/abs/2307.08621">arxiv.org/abs/2307.08621</a></td>
+</tr>
+<tr class="odd">
+<td>Dao &amp; Gu (2024), “Transformers are SSMs: Generalized Models and Efficient Algorithms through Structured State Space Duality”</td>
+<td>Unifies SSMs and attention via SSD; scalar data-dependent decay; chunkwise algorithm leveraging matrix multiplies</td>
+<td><a href="https://arxiv.org/abs/2405.21060">arxiv.org/abs/2405.21060</a></td>
+</tr>
+<tr class="even">
+<td>Yang et al. (2024), “Gated Linear Attention Transformers with Hardware-Efficient Training”</td>
+<td>Introduces GLA with vector data-dependent gating (rank-1 gate structure); FlashLinearAttention kernel</td>
+<td><a href="https://arxiv.org/abs/2312.06635">arxiv.org/abs/2312.06635</a></td>
+</tr>
+<tr class="odd">
+<td>Peng et al. (2024), “Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence”</td>
+<td>RWKV-5/6 architecture; data-dependent vector gating via ddlerp and LoRA-style adaptation</td>
+<td><a href="https://arxiv.org/abs/2404.05892">arxiv.org/abs/2404.05892</a></td>
+</tr>
+<tr class="even">
+<td>Schlag, Irie &amp; Schmidhuber (2021), “Linear Transformers Are Secretly Fast Weight Programmers”</td>
+<td>Proves formal equivalence between linear transformers and fast weight programmers; introduces delta rule update</td>
+<td><a href="https://arxiv.org/abs/2102.11174">arxiv.org/abs/2102.11174</a></td>
+</tr>
+<tr class="odd">
+<td>Schmidhuber (1992), “Learning to Control Fast-Weight Memories: An Alternative to Dynamic Recurrent Networks”</td>
+<td>Original fast weight paper: two-timescale network where one net programs weights of another via outer products</td>
+<td><a href="https://people.idsia.ch/~juergen/fastweights/ncfastweightsrev.html">people.idsia.ch/~juergen/fastweights</a></td>
+</tr>
+<tr class="even">
+<td>Yang, Songlin — “DeltaNet Explained (Part I)”</td>
+<td>Blog derivation of the delta rule from squared-error loss; comparison with linear attention update</td>
+<td><a href="https://sustcsonglin.github.io/blog/2024/deltanet-1/">sustcsonglin.github.io/blog/2024/deltanet-1</a></td>
+</tr>
+<tr class="odd">
+<td>Goomba Lab — “State Space Duality (Mamba-2) Part I: The Model”</td>
+<td>Official blog post; scalar-times-identity <span class="math inline">\(A\)</span> constraint; attention-form dual of SSD</td>
+<td><a href="https://goombalab.github.io/blog/2024/mamba2-part1-model/">goombalab.github.io/blog/2024/mamba2-part1-model</a></td>
+</tr>
+<tr class="even">
+<td>Goomba Lab — “State Space Duality (Mamba-2) Part III: The Algorithm”</td>
+<td>Four-step chunkwise algorithm for SSD; intra-chunk parallel, inter-chunk sequential; IO analysis</td>
+<td><a href="https://goombalab.github.io/blog/2024/mamba2-part3-algorithm/">goombalab.github.io/blog/2024/mamba2-part3-algorithm</a></td>
+</tr>
+<tr class="odd">
+<td>Ba et al. (2016), “Using Fast Weights to Attend to the Recent Past”</td>
+<td>NeurIPS 2016 paper reviving fast-weight memories as a context-attention mechanism; key conceptual bridge between Schmidhuber (1992) and modern linear attention</td>
+<td><a href="https://arxiv.org/abs/1610.06258">arxiv.org/abs/1610.06258</a></td>
+</tr>
+<tr class="even">
+<td>Irie et al. (2021), “Going Beyond Linear Transformers with Recurrent Fast Weight Programmers”</td>
+<td>Adds recurrence to both the slow and fast networks; demonstrates gating and non-linear state updates improve expressivity — conceptually anticipates GLA decay mechanisms</td>
+<td><a href="https://arxiv.org/abs/2106.06295">arxiv.org/abs/2106.06295</a></td>
+</tr>
+<tr class="odd">
+<td>Choromanski et al. (2021), “Rethinking Attention with Performers”</td>
+<td>Introduces FAVOR+, approximating the softmax kernel via positive random orthogonal features to yield unbiased linear-complexity attention; the random-feature complement to deterministic kernel maps</td>
+<td><a href="https://arxiv.org/abs/2009.14794">arxiv.org/abs/2009.14794</a></td>
+</tr>
+<tr class="even">
+<td>Gu et al. (2022), “Efficiently Modeling Long Sequences with Structured State Spaces” (S4)</td>
+<td>Establishes the structured SSM framework with HiPPO initialization and Cauchy kernel computation; the mathematical backbone that Mamba-1 and Mamba-2 build on</td>
+<td><a href="https://arxiv.org/abs/2111.00396">arxiv.org/abs/2111.00396</a></td>
+</tr>
+<tr class="odd">
+<td>Peng et al. (2023), “RWKV: Reinventing RNNs for the Transformer Era”</td>
+<td>RWKV-4 with a time-decay mechanism on keys enabling parallel training and O(1) RNN inference; direct architectural precursor to RWKV-6</td>
+<td><a href="https://arxiv.org/abs/2305.13048">arxiv.org/abs/2305.13048</a></td>
+</tr>
+<tr class="even">
+<td>Behrouz et al. (2025), “Titans: Learning to Memorize at Test Time”</td>
+<td>Introduces a neural long-term memory module trained via gradient-based test-time updates, framing attention as short-term memory and the fast-weight store as long-term memory</td>
+<td><a href="https://arxiv.org/abs/2501.00663">arxiv.org/abs/2501.00663</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>05-kan-extensions - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../../">Home</a>
+                <a href="../../../../../about.html">About</a>
+                <a href="../../../../../contact.html">Contact</a>
+                <a href="../../../../../archive.html">Archive</a>
+                <a href="../../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>05-kan-extensions</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../../notes/#1.-motivation:-extending-functors-along-a-third-category%7C1.-motivation:-extending-functors-along-a-third-category/">#1. Motivation: Extending Functors Along a Third Category|1. Motivation: Extending Functors Along a Third Category</a></li>
+<li><a href="../../../../../notes/#2.-definition-of-kan-extensions%7C2.-definition-of-kan-extensions/">#2. Definition of Kan Extensions|2. Definition of Kan Extensions</a>
+<ul>
+<li><a href="../../../../../notes/#2.1-left-kan-extension%7C2.1-left-kan-extension/">#2.1 Left Kan Extension|2.1 Left Kan Extension</a></li>
+<li><a href="../../../../../notes/#2.2-right-kan-extension%7C2.2-right-kan-extension/">#2.2 Right Kan Extension|2.2 Right Kan Extension</a></li>
+<li><a href="../../../../../notes/#2.3-kan-extensions-as-adjoints-to-precomposition%7C2.3-kan-extensions-as-adjoints-to-precomposition/">#2.3 Kan Extensions as Adjoints to Precomposition|2.3 Kan Extensions as Adjoints to Precomposition</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#3.-the-pointwise-formula%7C3.-the-pointwise-formula/">#3. The Pointwise Formula|3. The Pointwise Formula</a>
+<ul>
+<li><a href="../../../../../notes/#3.1-comma-categories-recalled%7C3.1-comma-categories-recalled/">#3.1 Comma Categories Recalled|3.1 Comma Categories Recalled</a></li>
+<li><a href="../../../../../notes/#3.2-the-colimit-formula-for-left-kan-extensions%7C3.2-the-colimit-formula-for-left-kan-extensions/">#3.2 The Colimit Formula for Left Kan Extensions|3.2 The Colimit Formula for Left Kan Extensions</a></li>
+<li><a href="../../../../../notes/#3.3-the-limit-formula-for-right-kan-extensions%7C3.3-the-limit-formula-for-right-kan-extensions/">#3.3 The Limit Formula for Right Kan Extensions|3.3 The Limit Formula for Right Kan Extensions</a></li>
+<li><a href="../../../../../notes/#3.4-the-coend-formula%7C3.4-the-coend-formula/">#3.4 The Coend Formula|3.4 The Coend Formula</a></li>
+<li><a href="../../../../../notes/#3.5-proof-sketch:-the-colimit-formula-satisfies-the-universal-property%7C3.5-proof-sketch:-the-colimit-formula-satisfies-the-universal-property/">#3.5 Proof Sketch: The Colimit Formula Satisfies the Universal Property|3.5 Proof Sketch: The Colimit Formula Satisfies the Universal Property</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#4.-pointwise-kan-extensions%7C4.-pointwise-kan-extensions/">#4. Pointwise Kan Extensions|4. Pointwise Kan Extensions</a>
+<ul>
+<li><a href="../../../../../notes/#4.1-definition-and-characterisation%7C4.1-definition-and-characterisation/">#4.1 Definition and Characterisation|4.1 Definition and Characterisation</a></li>
+<li><a href="../../../../../notes/#4.2-preservation-by-right-adjoints%7C4.2-preservation-by-right-adjoints/">#4.2 Preservation by Right Adjoints|4.2 Preservation by Right Adjoints</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#5.-all-concepts-are-kan-extensions%7C5.-all-concepts-are-kan-extensions/">#5. All Concepts are Kan Extensions|5. All Concepts are Kan Extensions</a>
+<ul>
+<li><a href="../../../../../notes/#5.1-limits-and-colimits-as-kan-extensions%7C5.1-limits-and-colimits-as-kan-extensions/">#5.1 Limits and Colimits as Kan Extensions|5.1 Limits and Colimits as Kan Extensions</a></li>
+<li><a href="../../../../../notes/#5.2-adjoints-as-kan-extensions%7C5.2-adjoints-as-kan-extensions/">#5.2 Adjoints as Kan Extensions|5.2 Adjoints as Kan Extensions</a></li>
+<li><a href="../../../../../notes/#5.3-the-yoneda-lemma-and-the-density-theorem%7C5.3-the-yoneda-lemma-and-the-density-theorem/">#5.3 The Yoneda Lemma and the Density Theorem|5.3 The Yoneda Lemma and the Density Theorem</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#6.-derived-functors-as-kan-extensions%7C6.-derived-functors-as-kan-extensions/">#6. Derived Functors as Kan Extensions|6. Derived Functors as Kan Extensions</a></li>
+<li><a href="../../../../../notes/#7.-ends,-coends,-and-the-ninja-yoneda-lemma%7C7.-ends,-coends,-and-the-ninja-yoneda-lemma/">#7. Ends, Coends, and the Ninja Yoneda Lemma|7. Ends, Coends, and the Ninja Yoneda Lemma</a>
+<ul>
+<li><a href="../../../../../notes/#7.1-ends%7C7.1-ends/">#7.1 Ends|7.1 Ends</a></li>
+<li><a href="../../../../../notes/#7.2-coends%7C7.2-coends/">#7.2 Coends|7.2 Coends</a></li>
+<li><a href="../../../../../notes/#7.3-the-ninja-yoneda-lemma%7C7.3-the-ninja-yoneda-lemma/">#7.3 The Ninja Yoneda Lemma|7.3 The Ninja Yoneda Lemma</a></li>
+<li><a href="../../../../../notes/#7.4-natural-transformations-as-ends%7C7.4-natural-transformations-as-ends/">#7.4 Natural Transformations as Ends|7.4 Natural Transformations as Ends</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<div class="callout callout-info">
+<p> Series context
+This is File 5 of 5 in a self-study series based on Emily Riehl’s <em>Category Theory in Context</em> (Chapter 6). This file presupposes <a href="../../../../../notes/concepts/category-theory/01-categories-functors-natural-transformations%7Cfile-1/">concepts/category-theory/01-categories-functors-natural-transformations|File 1</a> (categories and functors), <a href="../../../../../notes/concepts/category-theory/02-adjoints-representables%7Cfile-2/">concepts/category-theory/02-adjoints-representables|File 2</a> (adjoints and representables), <a href="../../../../../notes/concepts/category-theory/03-limits-colimits%7Cfile-3/">concepts/category-theory/03-limits-colimits|File 3</a> (limits and colimits), and <a href="../../../../../notes/concepts/category-theory/04-adjoint-functor-theorems-monads%7Cfile-4/">concepts/category-theory/04-adjoint-functor-theorems-monads|File 4</a> (adjoint functor theorems and monads). The central theme is Mac Lane’s maxim: <em>“All concepts are Kan extensions.”</em></p>
+</div>
+<hr />
+<h2 id="motivation-extending-functors-along-a-third-category">1. Motivation: Extending Functors Along a Third Category 🔍</h2>
+<p>Suppose <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span> is a functor and <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span> is another functor. The <em>extension problem</em> asks: does there exist a functor <span class="math inline">\(\mathcal{D} \to \mathcal{E}\)</span> that, when precomposed with <span class="math inline">\(K\)</span>, agrees with <span class="math inline">\(F\)</span> (or is as close to agreeing as possible)?</p>
+<p><span class="math display">\[\begin{array}{c}
+\mathcal{C} \xrightarrow{K} \mathcal{D} \\
+\searrow^{F} \quad \downarrow^{?} \\
+\mathcal{E}
+\end{array}\]</span></p>
+<p>More precisely: if <span class="math inline">\(K\)</span> is injective on objects (e.g. a full inclusion), can we extend <span class="math inline">\(F\)</span> to a functor defined on all of <span class="math inline">\(\mathcal{D}\)</span>? If <span class="math inline">\(K\)</span> is not injective, the question is subtler: we ask for the <em>best approximation</em> to an extension, in a universal sense. This is the <em>Kan extension</em> problem.</p>
+<div class="callout callout-info">
+<p> Historical context
+Daniel Kan introduced these constructions in his 1958 paper “Adjoint functors,” studying them in the context of simplicial sets and homotopy theory. The phrase “all concepts are Kan extensions” appears in Mac Lane’s <em>Categories for the Working Mathematician</em> (Chapter X, §7) as a programmatic slogan. Riehl’s Chapter 6, whose title borrows this phrase, makes it precise by showing that limits, colimits, and adjoints are all instances.</p>
+</div>
+<p><strong>Motivating example: geometric realization.</strong> The standard <span class="math inline">\(n\)</span>-simplex <span class="math inline">\(\Delta^n \subset \mathbb{R}^{n+1}\)</span> defines a functor <span class="math inline">\(\Delta^\bullet: \mathbf{\Delta} \to \mathbf{Top}\)</span> from the simplex category. The Yoneda embedding <span class="math inline">\(y: \mathbf{\Delta} \to [\mathbf{\Delta}^{op}, \mathbf{Set}]\)</span> sends <span class="math inline">\([n]\)</span> to the representable presheaf <span class="math inline">\(\mathbf{\Delta}(-,[n])\)</span>. Geometric realization <span class="math inline">\(|{-}|: [\mathbf{\Delta}^{op}, \mathbf{Set}] \to \mathbf{Top}\)</span> is the <em>left Kan extension</em> of <span class="math inline">\(\Delta^\bullet\)</span> along <span class="math inline">\(y\)</span>: it extends the functor <span class="math inline">\(\Delta^\bullet\)</span> from the simplex category to all simplicial sets in the “most efficient” way compatible with colimits.</p>
+<p><strong>Notation for this file.</strong> Throughout:
+- <span class="math inline">\(\mathcal{C}, \mathcal{D}, \mathcal{E}\)</span> denote categories (locally small unless stated otherwise).
+- <span class="math inline">\([\mathcal{C}, \mathcal{E}]\)</span> denotes the functor category with objects the functors <span class="math inline">\(\mathcal{C} \to \mathcal{E}\)</span> and morphisms the natural transformations.
+- <span class="math inline">\(K^*: [\mathcal{D}, \mathcal{E}] \to [\mathcal{C}, \mathcal{E}]\)</span> denotes the <em>precomposition functor</em> sending <span class="math inline">\(G \mapsto G \circ K\)</span>.
+- For objects <span class="math inline">\(d \in \mathcal{D}\)</span>, <span class="math inline">\((K \downarrow d)\)</span> denotes the <em>comma category</em> of <span class="math inline">\(K\)</span> over <span class="math inline">\(d\)</span>; see §3.1.</p>
+<hr />
+<h2 id="definition-of-kan-extensions">2. Definition of Kan Extensions 📐</h2>
+<h3 id="left-kan-extension">2.1 Left Kan Extension</h3>
+<p><strong>Definition (Left Kan Extension).</strong> Let <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span> be functors. A <em>left Kan extension of <span class="math inline">\(F\)</span> along <span class="math inline">\(K\)</span></em> is a functor <span class="math inline">\(\mathrm{Lan}_K F: \mathcal{D} \to \mathcal{E}\)</span> together with a natural transformation</p>
+<p><span class="math display">\[\eta: F \Rightarrow (\mathrm{Lan}_K F) \circ K,\]</span></p>
+<p>called the <em>unit</em>, satisfying the following universal property: for any functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{E}\)</span> and any natural transformation <span class="math inline">\(\alpha: F \Rightarrow G \circ K\)</span>, there exists a <em>unique</em> natural transformation <span class="math inline">\(\bar{\alpha}: \mathrm{Lan}_K F \Rightarrow G\)</span> such that <span class="math inline">\((\bar{\alpha} \star K) \circ \eta = \alpha\)</span>, i.e. the composite</p>
+<p><span class="math display">\[F \xRightarrow{\eta} (\mathrm{Lan}_K F) \circ K \xRightarrow{\bar{\alpha} \star K} G \circ K\]</span></p>
+<p>equals <span class="math inline">\(\alpha\)</span>. Here <span class="math inline">\(\bar{\alpha} \star K\)</span> denotes the <em>whiskering</em> of <span class="math inline">\(\bar{\alpha}\)</span> by <span class="math inline">\(K\)</span>.</p>
+<p>In other words, <span class="math inline">\(\mathrm{Lan}_K F\)</span> is the <em>initial</em> functor under <span class="math inline">\(K\)</span> equipped with a natural transformation from <span class="math inline">\(F\)</span>: it is initial in the category of pairs <span class="math inline">\((G, \alpha: F \Rightarrow G \circ K)\)</span>.</p>
+<p>The situation is depicted by the following diagram, in which the dashed arrow is the unique fill-in:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">\mathcal</span>{C} <span class="fu">\arrow</span>[r, &quot;K&quot;] <span class="fu">\arrow</span>[dr, &quot;F&quot;'] &amp; <span class="fu">\mathcal</span>{D} <span class="fu">\arrow</span>[d, &quot;{<span class="fu">\mathrm</span>{Lan}_K F}&quot;, dashed] <span class="fu">\arrow</span>[d, bend left=50, &quot;G&quot; description] <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>&amp; <span class="fu">\mathcal</span>{E}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>The natural transformation <span class="math inline">\(\eta\)</span> fills the triangle on the left (from <span class="math inline">\(F\)</span> to <span class="math inline">\((\mathrm{Lan}_K F) \circ K\)</span>), and any other filling <span class="math inline">\(\alpha\)</span> factors uniquely through <span class="math inline">\(\eta\)</span> via <span class="math inline">\(\bar{\alpha}\)</span>.</p>
+<div class="callout callout-note">
+<p> Uniqueness up to isomorphism
+As with any construction defined by a universal property, <span class="math inline">\(\mathrm{Lan}_K F\)</span> is unique up to canonical isomorphism. If <span class="math inline">\((L, \eta)\)</span> and <span class="math inline">\((L', \eta')\)</span> both satisfy the universal property, the unique maps <span class="math inline">\(\bar{\eta}': L \to L'\)</span> and <span class="math inline">\(\bar{\eta}: L' \to L\)</span> are mutually inverse by uniqueness.</p>
+</div>
+<div class="callout callout-note">
+<p> Riehl Exercise: Unit of a discrete Kan extension
+Let <span class="math inline">\(K: \mathbf{1} \to \mathcal{D}\)</span> pick out an object <span class="math inline">\(d_0 \in \mathcal{D}\)</span>, and let <span class="math inline">\(F: \mathbf{1} \to \mathcal{E}\)</span> pick out an object <span class="math inline">\(e_0 \in \mathcal{E}\)</span>. Describe <span class="math inline">\((\mathrm{Lan}_K F)(d)\)</span> explicitly for any <span class="math inline">\(d \in \mathcal{D}\)</span>, and verify the universal property directly. What is the unit <span class="math inline">\(\eta: e_0 \Rightarrow (\mathrm{Lan}_K F)(d_0)\)</span>?</p>
+</div>
+<h3 id="right-kan-extension">2.2 Right Kan Extension</h3>
+<p><strong>Definition (Right Kan Extension).</strong> A <em>right Kan extension of <span class="math inline">\(F\)</span> along <span class="math inline">\(K\)</span></em> is a functor <span class="math inline">\(\mathrm{Ran}_K F: \mathcal{D} \to \mathcal{E}\)</span> together with a natural transformation</p>
+<p><span class="math display">\[\varepsilon: (\mathrm{Ran}_K F) \circ K \Rightarrow F,\]</span></p>
+<p>called the <em>counit</em>, satisfying the dual universal property: for any functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{E}\)</span> and any natural transformation <span class="math inline">\(\beta: G \circ K \Rightarrow F\)</span>, there exists a unique natural transformation <span class="math inline">\(\bar{\beta}: G \Rightarrow \mathrm{Ran}_K F\)</span> such that <span class="math inline">\(\varepsilon \circ (\bar{\beta} \star K) = \beta\)</span>.</p>
+<p>That is, <span class="math inline">\(\mathrm{Ran}_K F\)</span> is the <em>terminal</em> functor over <span class="math inline">\(K\)</span> equipped with a natural transformation to <span class="math inline">\(F\)</span>: it is terminal in the category of pairs <span class="math inline">\((G, \beta: G \circ K \Rightarrow F)\)</span>.</p>
+<div class="callout callout-tip">
+<p> The mnemonic
+Left extension: <span class="math inline">\(\eta\)</span> goes <em>from</em> <span class="math inline">\(F\)</span> (upward), so <span class="math inline">\(\mathrm{Lan}_K F\)</span> is “larger than” <span class="math inline">\(F\)</span>. Right extension: <span class="math inline">\(\varepsilon\)</span> goes <em>to</em> <span class="math inline">\(F\)</span> (downward), so <span class="math inline">\(\mathrm{Ran}_K F\)</span> is “smaller than” <span class="math inline">\(F\)</span>. This mirrors the left–right convention for adjoints: left adjoints have units <span class="math inline">\(\eta: \mathrm{id} \Rightarrow GF\)</span>, right adjoints have counits <span class="math inline">\(\varepsilon: FG \Rightarrow \mathrm{id}\)</span>.</p>
+</div>
+<h3 id="kan-extensions-as-adjoints-to-precomposition">2.3 Kan Extensions as Adjoints to Precomposition</h3>
+<p>The defining universal properties state precisely that <span class="math inline">\(\mathrm{Lan}_K\)</span> and <span class="math inline">\(\mathrm{Ran}_K\)</span> are adjoints to the precomposition functor.</p>
+<p><strong>Proposition (Kan Extensions as Adjoints).</strong> If <span class="math inline">\(\mathrm{Lan}_K F\)</span> exists for every <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span>, then <span class="math inline">\(\mathrm{Lan}_K: [\mathcal{C}, \mathcal{E}] \to [\mathcal{D}, \mathcal{E}]\)</span> is left adjoint to the precomposition functor <span class="math inline">\(K^*: [\mathcal{D}, \mathcal{E}] \to [\mathcal{C}, \mathcal{E}]\)</span>:</p>
+<p><span class="math display">\[\mathrm{Lan}_K \dashv K^*.\]</span></p>
+<p>More precisely, the universal property of <span class="math inline">\(\mathrm{Lan}_K F\)</span> gives a natural bijection:</p>
+<p><span class="math display">\[[\mathcal{D}, \mathcal{E}](\mathrm{Lan}_K F,\, G) \;\cong\; [\mathcal{C}, \mathcal{E}](F,\, G \circ K) = [\mathcal{C}, \mathcal{E}](F,\, K^* G).\]</span></p>
+<p>Dually, if <span class="math inline">\(\mathrm{Ran}_K F\)</span> exists for every <span class="math inline">\(F\)</span>, then <span class="math inline">\(\mathrm{Ran}_K \dashv\)</span> no — rather, <span class="math inline">\(K^* \dashv \mathrm{Ran}_K\)</span>:</p>
+<p><span class="math display">\[K^* \dashv \mathrm{Ran}_K,\]</span></p>
+<p>with the natural bijection <span class="math inline">\([\mathcal{C}, \mathcal{E}](K^* G,\, F) \cong [\mathcal{D}, \mathcal{E}](G,\, \mathrm{Ran}_K F)\)</span>.</p>
+<p><em>Proof sketch.</em> The unit of the adjunction <span class="math inline">\(\mathrm{Lan}_K \dashv K^*\)</span> at <span class="math inline">\(F\)</span> is exactly <span class="math inline">\(\eta: F \Rightarrow K^*(\mathrm{Lan}_K F)\)</span>, and the counit at <span class="math inline">\(G\)</span> is the unique map <span class="math inline">\(\overline{\mathrm{id}}: \mathrm{Lan}_K(G \circ K) \Rightarrow G\)</span> induced by the identity <span class="math inline">\(\mathrm{id}: G \circ K \Rightarrow G \circ K\)</span> and the universal property of <span class="math inline">\(\mathrm{Lan}_K(G \circ K)\)</span>. One checks the triangle identities. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Size issues
+The functor categories <span class="math inline">\([\mathcal{C}, \mathcal{E}]\)</span> and <span class="math inline">\([\mathcal{D}, \mathcal{E}]\)</span> may be large. The adjunction <span class="math inline">\(\mathrm{Lan}_K \dashv K^*\)</span> holds at the level of categories of <em>small</em> functors, or when all relevant Kan extensions exist. We ignore set-theoretic subtleties throughout, as is standard in this context.</p>
+</div>
+<hr />
+<h2 id="the-pointwise-formula">3. The Pointwise Formula ⚙️</h2>
+<p>The abstract universal property tells us <em>what</em> <span class="math inline">\(\mathrm{Lan}_K F\)</span> is, but not <em>how to compute it</em>. When the target category <span class="math inline">\(\mathcal{E}\)</span> has enough colimits, there is an explicit formula.</p>
+<h3 id="comma-categories-recalled">3.1 Comma Categories Recalled</h3>
+<p>The <em>comma category</em> <span class="math inline">\((K \downarrow d)\)</span> for a fixed <span class="math inline">\(d \in \mathcal{D}\)</span> has:
+- <strong>Objects:</strong> pairs <span class="math inline">\((c, f)\)</span> with <span class="math inline">\(c \in \mathcal{C}\)</span> and <span class="math inline">\(f: Kc \to d\)</span> a morphism in <span class="math inline">\(\mathcal{D}\)</span>.
+- <strong>Morphisms:</strong> a morphism <span class="math inline">\((c, f) \to (c', f')\)</span> is a morphism <span class="math inline">\(g: c \to c'\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that <span class="math inline">\(f' \circ Kg = f\)</span>, i.e. the triangle</p>
+<p><span class="math display">\[Kc \xrightarrow{Kg} Kc' \xrightarrow{f'} d \quad \text{equals} \quad Kc \xrightarrow{f} d.\]</span></p>
+<p>There is a canonical <em>projection functor</em> <span class="math inline">\(\Pi_d: (K \downarrow d) \to \mathcal{C}\)</span> sending <span class="math inline">\((c, f) \mapsto c\)</span> and <span class="math inline">\(g \mapsto g\)</span>. The composite <span class="math inline">\(F \circ \Pi_d: (K \downarrow d) \to \mathcal{E}\)</span> is the diagram whose colimit will compute <span class="math inline">\((\mathrm{Lan}_K F)(d)\)</span>.</p>
+<p>Dually, the comma category <span class="math inline">\((d \downarrow K)\)</span> has objects <span class="math inline">\((c, f)\)</span> with <span class="math inline">\(f: d \to Kc\)</span>, and the composite <span class="math inline">\(F \circ \Pi_d^{op}: (d \downarrow K) \to \mathcal{E}\)</span> is the diagram whose limit computes <span class="math inline">\((\mathrm{Ran}_K F)(d)\)</span>.</p>
+<div class="callout callout-example">
+<p> Comma category in a concrete case
+Let <span class="math inline">\(\mathcal{C} = \mathbf{\Delta}\)</span>, <span class="math inline">\(\mathcal{D} = [\mathbf{\Delta}^{op}, \mathbf{Set}]\)</span>, <span class="math inline">\(K = y\)</span> (Yoneda embedding), and <span class="math inline">\(d = X\)</span> a simplicial set. An object of <span class="math inline">\((y \downarrow X)\)</span> is a pair <span class="math inline">\(([n], f: y[n] \to X)\)</span>; by Yoneda, <span class="math inline">\(f\)</span> corresponds to an element <span class="math inline">\(x \in X_n\)</span>. So <span class="math inline">\((y \downarrow X)\)</span> is the <em>category of elements</em> of <span class="math inline">\(X\)</span>, whose objects are pairs <span class="math inline">\(([n], x \in X_n)\)</span>. The colimit formula then says: <span class="math inline">\((\mathrm{Lan}_y \Delta^\bullet)(X) = \mathrm{colim}_{([n], x) \in \int X} \Delta^n = |X|\)</span> (geometric realization).</p>
+</div>
+<h3 id="the-colimit-formula-for-left-kan-extensions">3.2 The Colimit Formula for Left Kan Extensions</h3>
+<p><strong>Theorem (Pointwise Left Kan Extension).</strong> Let <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span>. If <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> has all colimits of shape <span class="math inline">\((K \downarrow d)\)</span> for each <span class="math inline">\(d \in \mathcal{D}\)</span>, then the left Kan extension <span class="math inline">\(\mathrm{Lan}_K F\)</span> exists and is computed <em>pointwise</em> by:</p>
+<p><span class="math display">\[(\mathrm{Lan}_K F)(d) \;=\; \mathrm{colim}\bigl(F \circ \Pi_d: (K \downarrow d) \to \mathcal{E}\bigr).\]</span></p>
+<p>More explicitly, <span class="math inline">\((\mathrm{Lan}_K F)(d)\)</span> is the colimit of the diagram that sends each pair <span class="math inline">\((c, f: Kc \to d)\)</span> to <span class="math inline">\(Fc \in \mathcal{E}\)</span>.</p>
+<p><strong>Functoriality:</strong> For a morphism <span class="math inline">\(g: d \to d'\)</span> in <span class="math inline">\(\mathcal{D}\)</span>, the map <span class="math inline">\((\mathrm{Lan}_K F)(g): (\mathrm{Lan}_K F)(d) \to (\mathrm{Lan}_K F)(d')\)</span> is induced by the functor <span class="math inline">\((K \downarrow d) \to (K \downarrow d')\)</span> sending <span class="math inline">\((c, f: Kc \to d) \mapsto (c, g \circ f: Kc \to d')\)</span>, which gives a morphism of diagrams, hence a unique map between their colimits by universality.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Computing a left Kan extension explicitly
+Let <span class="math inline">\(K: \mathbf{2} \to \mathbf{3}\)</span> be the inclusion of the two-object discrete category <span class="math inline">\(\{0, 1\}\)</span> into the three-object discrete category <span class="math inline">\(\{0, 1, 2\}\)</span> sending <span class="math inline">\(0 \mapsto 0\)</span>, <span class="math inline">\(1 \mapsto 1\)</span>. Let <span class="math inline">\(F: \mathbf{2} \to \mathbf{Ab}\)</span> send <span class="math inline">\(0 \mapsto \mathbb{Z}\)</span> and <span class="math inline">\(1 \mapsto \mathbb{Z}/2\)</span>. Compute <span class="math inline">\((\mathrm{Lan}_K F)(2)\)</span> explicitly using the comma category formula, and verify it satisfies the universal property.</p>
+</div>
+<h3 id="the-limit-formula-for-right-kan-extensions">3.3 The Limit Formula for Right Kan Extensions</h3>
+<p><strong>Theorem (Pointwise Right Kan Extension).</strong> Dually, if <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> has all limits of shape <span class="math inline">\((d \downarrow K)\)</span> for each <span class="math inline">\(d \in \mathcal{D}\)</span>, then:</p>
+<p><span class="math display">\[(\mathrm{Ran}_K F)(d) \;=\; \mathrm{lim}\bigl(F \circ \Pi_d^{op}: (d \downarrow K) \to \mathcal{E}\bigr).\]</span></p>
+<p>The limit is over all pairs <span class="math inline">\((c, f: d \to Kc)\)</span> with value <span class="math inline">\(Fc\)</span>.</p>
+<div class="callout callout-warning">
+<p> Existence is not automatic
+The formulas require <span class="math inline">\(\mathcal{E}\)</span> to have specific classes of colimits (resp. limits). If <span class="math inline">\(\mathcal{E}\)</span> lacks these, neither the formula nor the Kan extension need exist. When <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> is cocomplete, the left Kan extension always exists. When <span class="math inline">\(\mathcal{E}\)</span> is complete, the right Kan extension always exists.</p>
+</div>
+<h3 id="the-coend-formula">3.4 The Coend Formula</h3>
+<p>The pointwise formula has a cleaner reformulation in terms of <em>coends</em> (to be defined in §7). When <span class="math inline">\(\mathcal{E}\)</span> is <em>tensored</em> over <span class="math inline">\(\mathbf{Set}\)</span> — meaning for each set <span class="math inline">\(S\)</span> and object <span class="math inline">\(e \in \mathcal{E}\)</span> there is an object <span class="math inline">\(S \otimes e = \coprod_{s \in S} e\)</span> (the <em>copower</em> or <em>tensor</em> of <span class="math inline">\(S\)</span> with <span class="math inline">\(e\)</span>) — the left Kan extension formula takes the form:</p>
+<p><span class="math display">\[(\mathrm{Lan}_K F)(d) \;=\; \int^{c \in \mathcal{C}} \mathcal{D}(Kc, d) \otimes Fc.\]</span></p>
+<p>Here <span class="math inline">\(\mathcal{D}(Kc, d)\)</span> is a set, <span class="math inline">\(\otimes\)</span> is the copower, and <span class="math inline">\(\int^c\)</span> denotes the coend (§7.2). In the special case <span class="math inline">\(\mathcal{E} = \mathbf{Set}\)</span>:</p>
+<p><span class="math display">\[(\mathrm{Lan}_K F)(d) \;=\; \int^{c \in \mathcal{C}} \mathcal{D}(Kc, d) \times Fc.\]</span></p>
+<p>This is the <em>density formula</em> for left Kan extensions in <span class="math inline">\(\mathbf{Set}\)</span>.</p>
+<p>Dually, the right Kan extension in a <em>cotensored</em> category uses an end:</p>
+<p><span class="math display">\[(\mathrm{Ran}_K F)(d) \;=\; \int_{c \in \mathcal{C}} Fc^{\mathcal{D}(d, Kc)},\]</span></p>
+<p>where <span class="math inline">\(e^S = \prod_{s \in S} e\)</span> denotes the <em>power</em> (cotensor) of <span class="math inline">\(e\)</span> with <span class="math inline">\(S\)</span>.</p>
+<div class="callout callout-example">
+<p> Left Kan extension in Set
+Let <span class="math inline">\(K = \mathrm{id}_{\mathcal{C}}: \mathcal{C} \to \mathcal{C}\)</span> and <span class="math inline">\(F: \mathcal{C} \to \mathbf{Set}\)</span>. The comma category <span class="math inline">\((\mathrm{id} \downarrow c)\)</span> has objects <span class="math inline">\((c', f: c' \to c)\)</span>, and <span class="math inline">\(F \circ \Pi_c\)</span> sends <span class="math inline">\((c', f) \mapsto Fc'\)</span>. The colimit of this diagram is the <em>category of elements coend</em>: <span class="math inline">\(\int^{c'} \mathcal{C}(c', c) \times Fc'\)</span>. The Yoneda lemma (in coend form, §7.3) tells us this is exactly <span class="math inline">\(Fc\)</span>. So <span class="math inline">\(\mathrm{Lan}_{\mathrm{id}} F \cong F\)</span>, as expected.</p>
+</div>
+<h3 id="proof-sketch-the-colimit-formula-satisfies-the-universal-property">3.5 Proof Sketch: The Colimit Formula Satisfies the Universal Property</h3>
+<p><em>Claim:</em> Setting <span class="math inline">\(L(d) := \mathrm{colim}_{(K \downarrow d)} (F \circ \Pi_d)\)</span> defines a functor <span class="math inline">\(L: \mathcal{D} \to \mathcal{E}\)</span>, and there is a natural transformation <span class="math inline">\(\eta: F \Rightarrow L \circ K\)</span> such that <span class="math inline">\((L, \eta)\)</span> is the left Kan extension.</p>
+<p><em>Proof sketch (in three steps):</em></p>
+<p><strong>Step 1 (Unit construction).</strong> For each <span class="math inline">\(c \in \mathcal{C}\)</span>, the pair <span class="math inline">\((c, \mathrm{id}_{Kc}: Kc \to Kc)\)</span> is an object of <span class="math inline">\((K \downarrow Kc)\)</span>. The colimit cocone at <span class="math inline">\(d = Kc\)</span> therefore includes a canonical leg <span class="math inline">\(\lambda^{Kc}_{(c, \mathrm{id}_{Kc})}: Fc \to L(Kc)\)</span>. Set <span class="math inline">\(\eta_c := \lambda^{Kc}_{(c, \mathrm{id}_{Kc})}\)</span>. Naturality of <span class="math inline">\(\eta\)</span> in <span class="math inline">\(c\)</span> follows from the naturality of the colimit construction.</p>
+<p><strong>Step 2 (Universality).</strong> Given any <span class="math inline">\(G: \mathcal{D} \to \mathcal{E}\)</span> and <span class="math inline">\(\alpha: F \Rightarrow G \circ K\)</span>, we must produce a unique <span class="math inline">\(\bar{\alpha}: L \Rightarrow G\)</span>. For each <span class="math inline">\(d \in \mathcal{D}\)</span>, a cocone from the diagram <span class="math inline">\(F \circ \Pi_d\)</span> to <span class="math inline">\(Gd\)</span> is given by the family indexed by <span class="math inline">\((c, f: Kc \to d)\)</span>:</p>
+<p><span class="math display">\[Fc \xrightarrow{\alpha_c} G(Kc) \xrightarrow{G(f)} Gd.\]</span></p>
+<p>This is indeed a cocone (check: for <span class="math inline">\(g: (c,f) \to (c', f')\)</span> in <span class="math inline">\((K \downarrow d)\)</span>, the composites agree by naturality of <span class="math inline">\(\alpha\)</span> and functoriality of <span class="math inline">\(G\)</span>). By the universal property of <span class="math inline">\(L(d) = \mathrm{colim}_{(K \downarrow d)} F \circ \Pi_d\)</span>, there is a unique map <span class="math inline">\(\bar{\alpha}_d: L(d) \to Gd\)</span> such that <span class="math inline">\(\bar{\alpha}_d \circ \lambda^d_{(c,f)} = G(f) \circ \alpha_c\)</span> for all <span class="math inline">\((c,f)\)</span>.</p>
+<p><strong>Step 3 (Uniqueness).</strong> Any <span class="math inline">\(\bar{\alpha}': L \Rightarrow G\)</span> with <span class="math inline">\((\bar{\alpha}' \star K) \circ \eta = \alpha\)</span> satisfies <span class="math inline">\(\bar{\alpha}'_d \circ \lambda^d_{(c,f)} = G(f) \circ \alpha_c\)</span> for all <span class="math inline">\((c,f)\)</span> (by a short diagram chase using the cocone property). Hence <span class="math inline">\(\bar{\alpha}' = \bar{\alpha}\)</span> by uniqueness of colimit maps. <span class="math inline">\(\square\)</span></p>
+<hr />
+<h2 id="pointwise-kan-extensions">4. Pointwise Kan Extensions 🎯</h2>
+<h3 id="definition-and-characterisation">4.1 Definition and Characterisation</h3>
+<p><strong>Definition (Pointwise Kan Extension).</strong> A left Kan extension <span class="math inline">\((L, \eta)\)</span> of <span class="math inline">\(F\)</span> along <span class="math inline">\(K\)</span> is <em>pointwise</em> if it is computed by the colimit formula of §3.2: <span class="math inline">\(L(d) = \mathrm{colim}_{(K \downarrow d)} F \circ \Pi_d\)</span> for every <span class="math inline">\(d \in \mathcal{D}\)</span>.</p>
+<p>An equivalent intrinsic characterisation: <span class="math inline">\((L, \eta)\)</span> is pointwise if and only if it is <em>preserved by all representable functors</em>: for every object <span class="math inline">\(e \in \mathcal{E}\)</span>, the functor <span class="math inline">\(\mathcal{E}(e, -): \mathcal{E} \to \mathbf{Set}\)</span> sends <span class="math inline">\((L, \eta)\)</span> to the left Kan extension of <span class="math inline">\(\mathcal{E}(e, F-): \mathcal{C} \to \mathbf{Set}\)</span> along <span class="math inline">\(K\)</span>. That is, the natural map</p>
+<p><span class="math display">\[\mathcal{E}(e, L(d)) \;\longrightarrow\; \mathrm{Lan}_K\bigl[\mathcal{E}(e, F-)\bigr](d)\]</span></p>
+<p>is an isomorphism for all <span class="math inline">\(e \in \mathcal{E}\)</span> and <span class="math inline">\(d \in \mathcal{D}\)</span>.</p>
+<div class="callout callout-warning">
+<p> Non-pointwise Kan extensions exist
+It is possible for a Kan extension to exist without being pointwise. This occurs when the unit <span class="math inline">\(\eta: F \Rightarrow L \circ K\)</span> is not a colimit-computing cocone at each <span class="math inline">\(d\)</span>. Non-pointwise Kan extensions satisfy the abstract universal property but cannot be computed by the local formula, and they are typically less well-behaved. In practice, virtually every Kan extension arising in mathematics is pointwise.</p>
+</div>
+<p><strong>Theorem (Existence of Pointwise Left Kan Extensions).</strong> If <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> is cocomplete, then for any <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span>, the pointwise left Kan extension <span class="math inline">\(\mathrm{Lan}_K F\)</span> exists.</p>
+<h3 id="preservation-by-right-adjoints">4.2 Preservation by Right Adjoints</h3>
+<p><strong>Proposition (Pointwise Kan Extensions are Preserved by Right Adjoints).</strong> If <span class="math inline">\((L, \eta)\)</span> is a pointwise left Kan extension of <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span> along <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span>, and <span class="math inline">\(H: \mathcal{E} \to \mathcal{E}'\)</span> is a functor that preserves the relevant colimits (e.g. <span class="math inline">\(H\)</span> has a right adjoint), then <span class="math inline">\((H \circ L, H \star \eta)\)</span> is the pointwise left Kan extension of <span class="math inline">\(H \circ F\)</span> along <span class="math inline">\(K\)</span>:</p>
+<p><span class="math display">\[H \circ \mathrm{Lan}_K F \;\cong\; \mathrm{Lan}_K(H \circ F).\]</span></p>
+<p><em>Proof sketch.</em> Since right adjoints preserve limits (by <a href="../../../../../notes/concepts/category-theory/03-limits-colimits%7Cfile-3/">concepts/category-theory/03-limits-colimits|File 3</a>, §5), left adjoints preserve colimits by duality. The formula <span class="math inline">\((H \circ L)(d) = H(\mathrm{colim}_{(K \downarrow d)} F \circ \Pi_d) \cong \mathrm{colim}_{(K \downarrow d)} H \circ F \circ \Pi_d\)</span> follows. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Preservation and composition of Kan extensions
+Let <span class="math inline">\(K: \mathcal{C} \to \mathcal{D}\)</span>, <span class="math inline">\(J: \mathcal{D} \to \mathcal{D}'\)</span>, and <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span>. Assuming all relevant Kan extensions exist and are pointwise, prove that <span class="math inline">\(\mathrm{Lan}_{J \circ K} F \cong \mathrm{Lan}_J (\mathrm{Lan}_K F)\)</span>. (Hint: use the comma category <span class="math inline">\((J \circ K \downarrow d')\)</span> and show it is equivalent to <span class="math inline">\((K \downarrow -)\)</span> integrated over <span class="math inline">\((J \downarrow d')\)</span>.)</p>
+</div>
+<hr />
+<h2 id="all-concepts-are-kan-extensions">5. All Concepts are Kan Extensions 🔑</h2>
+<p>Mac Lane’s slogan becomes a theorem once we identify the correct choice of <span class="math inline">\(K\)</span>, <span class="math inline">\(F\)</span>, and <span class="math inline">\(\mathcal{E}\)</span> in each case.</p>
+<h3 id="limits-and-colimits-as-kan-extensions">5.1 Limits and Colimits as Kan Extensions</h3>
+<p>Let <span class="math inline">\(\mathbf{1}\)</span> denote the <em>terminal category</em> with one object <span class="math inline">\(*\)</span> and one (identity) morphism. For any category <span class="math inline">\(\mathcal{I}\)</span>, there is a unique functor <span class="math inline">\(!: \mathcal{I} \to \mathbf{1}\)</span>.</p>
+<p><strong>Proposition (Limits and Colimits as Kan Extensions).</strong> Let <span class="math inline">\(F: \mathcal{I} \to \mathcal{C}\)</span> be a diagram.</p>
+<ol type="1">
+<li><p><em>Colimits as left Kan extensions:</em> <span class="math inline">\(\mathrm{colim}\, F = (\mathrm{Lan}_! F)(*)\)</span>. That is, the left Kan extension of <span class="math inline">\(F\)</span> along <span class="math inline">\(!: \mathcal{I} \to \mathbf{1}\)</span>, evaluated at the unique object <span class="math inline">\(*\)</span>, is the colimit of <span class="math inline">\(F\)</span>.</p></li>
+<li><p><em>Limits as right Kan extensions:</em> <span class="math inline">\(\mathrm{lim}\, F = (\mathrm{Ran}_! F)(*)\)</span>.</p></li>
+</ol>
+<p><em>Proof sketch.</em> The comma category <span class="math inline">\((! \downarrow *) \cong \mathcal{I}\)</span> (since there is only one object in <span class="math inline">\(\mathbf{1}\)</span>, every map in <span class="math inline">\(\mathbf{1}\)</span> is <span class="math inline">\(\mathrm{id}_*\)</span>, and the objects of <span class="math inline">\((! \downarrow *)\)</span> are pairs <span class="math inline">\((i \in \mathcal{I},\, !i = * \to *)\)</span> i.e. just objects <span class="math inline">\(i \in \mathcal{I}\)</span>). Therefore:</p>
+<p><span class="math display">\[(\mathrm{Lan}_! F)(*) = \mathrm{colim}_{(! \downarrow *)} F \circ \Pi_* = \mathrm{colim}_{\mathcal{I}} F.\]</span></p>
+<p>The right Kan extension case is dual. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary.</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>cocomplete</em> if and only if <span class="math inline">\(\mathrm{Lan}_!\)</span> exists for every small diagram shape <span class="math inline">\(\mathcal{I}\)</span> and every <span class="math inline">\(F: \mathcal{I} \to \mathcal{C}\)</span>.</p>
+<div class="callout callout-example">
+<p> The empty colimit
+The colimit of the empty diagram <span class="math inline">\(F: \mathbf{0} \to \mathcal{C}\)</span> (empty category) is the initial object of <span class="math inline">\(\mathcal{C}\)</span>. As a Kan extension: <span class="math inline">\(\mathrm{Lan}_! F\)</span> where <span class="math inline">\(!: \mathbf{0} \to \mathbf{1}\)</span>. The comma category <span class="math inline">\((! \downarrow *) = \mathbf{0}\)</span>, so the colimit is the empty colimit — the initial object. This recovers the standard fact that the initial object is the colimit of the empty diagram.</p>
+</div>
+<div class="callout callout-note">
+<p> Riehl Exercise: Limits as right Kan extensions
+Prove carefully that the limit of <span class="math inline">\(F: \mathcal{I} \to \mathcal{C}\)</span> is <span class="math inline">\((\mathrm{Ran}_! F)(*)\)</span> by working through the universal property. Specifically, show that a cone over <span class="math inline">\(F\)</span> with vertex <span class="math inline">\(c \in \mathcal{C}\)</span> corresponds precisely to a natural transformation <span class="math inline">\(\Delta_c \Rightarrow F\)</span> (where <span class="math inline">\(\Delta_c: \mathcal{I} \to \mathcal{C}\)</span> is the constant functor), and verify this matches the universal property of <span class="math inline">\(\mathrm{Ran}_! F\)</span>.</p>
+</div>
+<h3 id="adjoints-as-kan-extensions">5.2 Adjoints as Kan Extensions</h3>
+<p>This is the deepest unification result. Every adjoint functor <em>is</em> a Kan extension — of the identity functor.</p>
+<p><strong>Theorem (Adjoints as Kan Extensions).</strong> Let <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span> with <span class="math inline">\(F \dashv G\)</span>. Then:</p>
+<ol type="1">
+<li><span class="math inline">\(G \cong \mathrm{Ran}_F \mathrm{id}_{\mathcal{D}}\)</span>: the right adjoint <span class="math inline">\(G\)</span> is the right Kan extension of the identity functor on <span class="math inline">\(\mathcal{D}\)</span> along <span class="math inline">\(F\)</span>.</li>
+<li><span class="math inline">\(F \cong \mathrm{Lan}_G \mathrm{id}_{\mathcal{C}}\)</span>: the left adjoint <span class="math inline">\(F\)</span> is the left Kan extension of the identity functor on <span class="math inline">\(\mathcal{C}\)</span> along <span class="math inline">\(G\)</span>.</li>
+</ol>
+<p><em>Proof sketch (for part 1).</em> We show <span class="math inline">\(G\)</span> satisfies the universal property of <span class="math inline">\(\mathrm{Ran}_F \mathrm{id}_{\mathcal{D}}\)</span>. The counit is <span class="math inline">\(\varepsilon: G \circ F \Rightarrow \mathrm{id}_{\mathcal{D}} \circ F = F\)</span>… wait, let us be careful about variance. We need a natural transformation <span class="math inline">\(\varepsilon': (\mathrm{Ran}_F \mathrm{id}_{\mathcal{D}}) \circ F \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span>. Take <span class="math inline">\(\varepsilon': GF \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span> to be the counit of the adjunction <span class="math inline">\(F \dashv G\)</span>. For any <span class="math inline">\(H: \mathcal{D} \to \mathcal{C}\)</span> and <span class="math inline">\(\beta: HF \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span>, the adjunction bijection gives a natural transformation <span class="math inline">\(\bar{\beta}: H \Rightarrow G\)</span> as the composite:</p>
+<p><span class="math display">\[H \xrightarrow{\eta \star H} GFH \xrightarrow{G \star \beta} G \cdot \mathrm{id}_{\mathcal{D}} = G.\]</span></p>
+<p>One verifies <span class="math inline">\(\varepsilon' \circ (\bar{\beta} \star F) = \beta\)</span> using the triangle identities for <span class="math inline">\(F \dashv G\)</span>. Uniqueness of <span class="math inline">\(\bar{\beta}\)</span> follows from the bijectivity of the adjunction hom-set bijection. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Conceptual meaning
+This theorem says: given <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span>, the right adjoint (if it exists) is the “best approximation” to extending the identity <span class="math inline">\(\mathrm{id}_{\mathcal{D}}\)</span> backwards along <span class="math inline">\(F\)</span>. This is the abstract sense in which <span class="math inline">\(G\)</span> is a “pseudo-inverse” to <span class="math inline">\(F\)</span>: it extends <span class="math inline">\(\mathrm{id}\)</span> as far as possible.</p>
+</div>
+<div class="callout callout-note">
+<p> Riehl Exercise: Adjoints as Kan extensions
+Prove part 2 of the theorem: if <span class="math inline">\(F \dashv G\)</span>, then <span class="math inline">\(F \cong \mathrm{Lan}_G \mathrm{id}_\mathcal{C}\)</span>. Use the pointwise formula: for each <span class="math inline">\(d \in \mathcal{D}\)</span>, compute <span class="math inline">\(\mathrm{colim}_{(G \downarrow d)} \mathrm{id}_\mathcal{C} \circ \Pi_d\)</span> and show it equals <span class="math inline">\(Fd\)</span>. (Hint: the comma category <span class="math inline">\((G \downarrow d)\)</span> has a terminal object <span class="math inline">\((Fd, \varepsilon_d: GFd \to d)\)</span>; colimits over categories with a terminal object are evaluated at the terminal object.)</p>
+</div>
+<p><strong>Converse.</strong> The converse also holds: if <span class="math inline">\(\mathrm{Ran}_F \mathrm{id}_{\mathcal{D}}\)</span> exists and is <em>preserved by <span class="math inline">\(F\)</span></em> (i.e. <span class="math inline">\(F \circ \mathrm{Ran}_F \mathrm{id}_{\mathcal{D}} \cong \mathrm{id}_{\mathcal{D}}\)</span> in the appropriate sense), then <span class="math inline">\(\mathrm{Ran}_F \mathrm{id}_{\mathcal{D}}\)</span> is a right adjoint to <span class="math inline">\(F\)</span>. This gives a Kan-extension-based criterion for the existence of adjoints, complementing the adjoint functor theorems of <a href="../../../../../notes/concepts/category-theory/04-adjoint-functor-theorems-monads%7Cfile-4/">concepts/category-theory/04-adjoint-functor-theorems-monads|File 4</a>.</p>
+<h3 id="the-yoneda-lemma-and-the-density-theorem">5.3 The Yoneda Lemma and the Density Theorem</h3>
+<p>Let <span class="math inline">\(y: \mathcal{C} \to [\mathcal{C}^{op}, \mathbf{Set}]\)</span> denote the <em>Yoneda embedding</em> <span class="math inline">\(c \mapsto \mathcal{C}(-, c)\)</span> (as established in <a href="../../../../../notes/concepts/category-theory/02-adjoints-representables%7Cfile-2/">concepts/category-theory/02-adjoints-representables|File 2</a>, §4).</p>
+<p><strong>Theorem (Density Theorem).</strong> For any small category <span class="math inline">\(\mathcal{C}\)</span>:</p>
+<p><span class="math display">\[\mathrm{id}_{[\mathcal{C}^{op}, \mathbf{Set}]} \;\cong\; \mathrm{Lan}_y\, y.\]</span></p>
+<p>That is, the identity functor on the presheaf category is (isomorphic to) the left Kan extension of the Yoneda embedding along itself.</p>
+<p><em>Equivalently:</em> every presheaf <span class="math inline">\(P: \mathcal{C}^{op} \to \mathbf{Set}\)</span> is canonically a colimit of representable presheaves:</p>
+<p><span class="math display">\[P \;\cong\; \mathrm{colim}\bigl(y \circ \pi: \textstyle\int_\mathcal{C} P \to [\mathcal{C}^{op}, \mathbf{Set}]\bigr),\]</span></p>
+<p>where <span class="math inline">\(\int_\mathcal{C} P\)</span> is the <em>category of elements</em> of <span class="math inline">\(P\)</span> (objects are pairs <span class="math inline">\((c, x)\)</span> with <span class="math inline">\(x \in P(c)\)</span>; morphisms <span class="math inline">\((c,x) \to (c', x')\)</span> are <span class="math inline">\(f: c \to c'\)</span> with <span class="math inline">\(P(f)(x') = x\)</span>) and <span class="math inline">\(\pi: \int_\mathcal{C} P \to \mathcal{C}\)</span> is the projection.</p>
+<p><em>Proof sketch.</em> The pointwise formula gives:</p>
+<p><span class="math display">\[(\mathrm{Lan}_y\, y)(P) = \mathrm{colim}_{(y \downarrow P)} y \circ \Pi_P.\]</span></p>
+<p>By the Yoneda lemma, an object of the comma category <span class="math inline">\((y \downarrow P)\)</span> is a pair <span class="math inline">\((c, \alpha: y(c) \Rightarrow P)\)</span>, which by Yoneda corresponds to an element <span class="math inline">\(x \in P(c)\)</span>. Thus <span class="math inline">\((y \downarrow P) \cong \int_\mathcal{C} P\)</span> (category of elements). The colimit of <span class="math inline">\(y \circ \Pi_P: \int_\mathcal{C} P \to [\mathcal{C}^{op}, \mathbf{Set}]\)</span> is the colimit of representables indexed by elements of <span class="math inline">\(P\)</span>, which is <span class="math inline">\(P\)</span> by the density theorem. <span class="math inline">\(\square\)</span></p>
+<p><strong>The co-Yoneda lemma</strong> (§7.3 below) gives the coend form:</p>
+<p><span class="math display">\[P(c) \;\cong\; \int^{c' \in \mathcal{C}} \mathcal{C}(c', c) \times P(c'),\]</span></p>
+<p>which says: the presheaf <span class="math inline">\(P\)</span> evaluated at <span class="math inline">\(c\)</span> is recovered as the coend of all hom-sets <span class="math inline">\(\mathcal{C}(c', c)\)</span> weighted by <span class="math inline">\(P(c')\)</span>.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Density theorem via the universal property
+Let <span class="math inline">\(y: \mathcal{C} \to [\mathcal{C}^{op}, \mathbf{Set}]\)</span> be the Yoneda embedding, and let <span class="math inline">\(L = \mathrm{Lan}_y\, y\)</span>. Without using the pointwise formula, verify that <span class="math inline">\(L \cong \mathrm{id}\)</span> by showing: (a) any functor <span class="math inline">\(G: [\mathcal{C}^{op}, \mathbf{Set}] \to [\mathcal{C}^{op}, \mathbf{Set}]\)</span> with <span class="math inline">\(G \circ y \cong y\)</span> must receive a natural transformation <span class="math inline">\(L \Rightarrow G\)</span>, and (b) the identity functor has this property with <span class="math inline">\(\eta = \mathrm{id}_y\)</span>. Conclude <span class="math inline">\(L \cong \mathrm{id}\)</span>.</p>
+</div>
+<hr />
+<h2 id="derived-functors-as-kan-extensions">6. Derived Functors as Kan Extensions 🧮</h2>
+<p>The framework of Kan extensions subsumes the classical theory of derived functors in homological algebra. This section sketches the connection; see Riehl §6.4 for a full treatment.</p>
+<p><strong>Setup.</strong> Let <span class="math inline">\(\mathcal{A}\)</span> be an abelian category with enough projectives (e.g. <span class="math inline">\(\mathbf{Ab}\)</span>, <span class="math inline">\(R\text{-}\mathbf{Mod}\)</span>). Let <span class="math inline">\(F: \mathcal{A} \to \mathcal{B}\)</span> be a <em>right-exact</em> functor. The <em>left derived functors</em> <span class="math inline">\(L_n F: \mathcal{A} \to \mathcal{B}\)</span> are defined classically by choosing a projective resolution <span class="math inline">\(P_\bullet \xrightarrow{\sim} A\)</span> and setting <span class="math inline">\(L_n F(A) = H_n(F(P_\bullet))\)</span>.</p>
+<p><strong>Kan extension formulation.</strong> Let <span class="math inline">\(\gamma: \mathcal{A} \to \mathbf{D}^-(\mathcal{A})\)</span> be the <em>localization functor</em> from <span class="math inline">\(\mathcal{A}\)</span> to its bounded-above <em>derived category</em> (obtained by inverting quasi-isomorphisms). The total left derived functor <span class="math inline">\(\mathbf{L}F: \mathbf{D}^-(\mathcal{A}) \to \mathbf{D}^-(\mathcal{B})\)</span> is, when it exists, the left Kan extension of the composite <span class="math inline">\(\mathcal{A} \xrightarrow{F} \mathcal{B} \xrightarrow{\gamma_\mathcal{B}} \mathbf{D}^-(\mathcal{B})\)</span> along <span class="math inline">\(\gamma_\mathcal{A}\)</span>:</p>
+<p><span class="math display">\[\mathbf{L}F \;=\; \mathrm{Lan}_{\gamma_\mathcal{A}}\,(\gamma_\mathcal{B} \circ F).\]</span></p>
+<p>The individual classical derived functors are recovered as <span class="math inline">\(L_n F(A) = H_n(\mathbf{L}F(A))\)</span>.</p>
+<p><strong>Key property.</strong> The Kan extension <span class="math inline">\(\mathbf{L}F\)</span> is characterized by the fact that it <em>agrees with <span class="math inline">\(F\)</span> on projective objects</em>: if <span class="math inline">\(P \in \mathcal{A}\)</span> is projective, then <span class="math inline">\(\gamma_\mathcal{A}(P)\)</span> already has a projective resolution <span class="math inline">\(P \xrightarrow{\mathrm{id}} P\)</span> (a one-term resolution), so <span class="math inline">\((\mathbf{L}F)(\gamma P) \cong \gamma_\mathcal{B}(FP)\)</span>. This is the abstract counterpart to the classical fact that “derived functors of <span class="math inline">\(F\)</span> agree with <span class="math inline">\(F\)</span> on projective objects.”</p>
+<p><strong>Quillen’s perspective.</strong> In a <em>model category</em> <span class="math inline">\(\mathcal{M}\)</span> (Quillen 1967), the localization <span class="math inline">\(\gamma: \mathcal{M} \to \mathrm{Ho}(\mathcal{M})\)</span> inverts all <em>weak equivalences</em>. For a left Quillen functor <span class="math inline">\(F: \mathcal{M} \to \mathcal{N}\)</span>, the total left derived functor <span class="math inline">\(\mathbf{L}F: \mathrm{Ho}(\mathcal{M}) \to \mathrm{Ho}(\mathcal{N})\)</span> is the left Kan extension of <span class="math inline">\(\gamma_\mathcal{N} \circ F\)</span> along <span class="math inline">\(\gamma_\mathcal{M}\)</span>, computed by <em>cofibrant replacement</em>: <span class="math inline">\(\mathbf{L}F(X) = \gamma_\mathcal{N}(F(QX))\)</span> where <span class="math inline">\(QX \xrightarrow{\sim} X\)</span> is a cofibrant replacement.</p>
+<div class="callout callout-info">
+<p> Grothendieck and Verdier’s contribution
+Alexander Grothendieck and Jean-Louis Verdier introduced derived categories around 1960 as the correct framework for sheaf cohomology and duality. Verdier’s key observation was that morphisms in the derived category are computed by a <em>calculus of fractions</em>, making the localization manageable. The Kan extension perspective — that derived functors are universal among functors inverting quasi-isomorphisms — formalizes the sense in which they are the “best possible” extensions of exact functors to the derived category.</p>
+</div>
+<div class="callout callout-note">
+<p> Riehl Exercise: Derived functors via Kan extensions
+Let <span class="math inline">\(\mathcal{A} = \mathbf{Ab}\)</span> and <span class="math inline">\(F = \mathbf{Hom}_{\mathbb{Z}}(A, -): \mathbf{Ab} \to \mathbf{Ab}\)</span> for a fixed abelian group <span class="math inline">\(A\)</span>. The classical right derived functors are <span class="math inline">\(R^n F = \mathrm{Ext}^n_{\mathbb{Z}}(A, -)\)</span>. Identify the localization functor <span class="math inline">\(\gamma: \mathbf{Ab} \to \mathbf{D}^+(\mathbf{Ab})\)</span> and state (without full proof) how <span class="math inline">\(\mathbf{R}F = \mathrm{Ran}_\gamma (\gamma \circ F)\)</span> recovers the Ext groups. What property of <span class="math inline">\(F\)</span> ensures the right (rather than left) Kan extension is relevant?</p>
+</div>
+<div class="callout callout-warning">
+<p> Subtlety: existence vs. Kan extension
+A subtlety noted by Maltsiniotis and others: a functor can have a Kan extension along a localization without that Kan extension being the “correct” derived functor (it may fail to preserve quasi-isomorphisms on all objects). The correct derived functor requires the Kan extension to be <em>computed on resolutions</em>, which is an additional condition equivalent to requiring that the Kan extension is preserved by <span class="math inline">\(F\)</span> on cofibrant/fibrant objects.</p>
+</div>
+<hr />
+<h2 id="ends-coends-and-the-ninja-yoneda-lemma">7. Ends, Coends, and the Ninja Yoneda Lemma 🔬</h2>
+<p>Ends and coends are the “weighted” generalisations of limits and colimits that handle functors of mixed variance, <span class="math inline">\(T: \mathcal{C}^{op} \times \mathcal{C} \to \mathcal{E}\)</span>. They are the natural language for the Kan extension coend formula of §3.4.</p>
+<h3 id="ends">7.1 Ends</h3>
+<p><strong>Definition (Wedge).</strong> Let <span class="math inline">\(T: \mathcal{C}^{op} \times \mathcal{C} \to \mathcal{E}\)</span> be a functor. A <em>wedge</em> from an object <span class="math inline">\(e \in \mathcal{E}\)</span> to <span class="math inline">\(T\)</span> is a family of morphisms <span class="math inline">\(\{w_c: e \to T(c, c)\}_{c \in \mathcal{C}}\)</span> such that for every morphism <span class="math inline">\(f: c \to c'\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, the following <em>dinatural</em> (diagonal naturality) condition holds:</p>
+<p><span class="math display">\[T(\mathrm{id}_c, f) \circ w_c = T(f, \mathrm{id}_{c'}) \circ w_{c'}: e \to T(c, c').\]</span></p>
+<p>That is, both composites <span class="math inline">\(e \to T(c, c) \to T(c, c')\)</span> and <span class="math inline">\(e \to T(c', c') \to T(c, c')\)</span> agree.</p>
+<p><strong>Definition (End).</strong> The <em>end</em> of <span class="math inline">\(T\)</span>, written <span class="math inline">\(\int_{c \in \mathcal{C}} T(c, c)\)</span> or <span class="math inline">\(\int_c T(c, c)\)</span>, is the <em>universal</em> wedge: an object <span class="math inline">\(\int_c T(c,c) \in \mathcal{E}\)</span> together with wedge maps <span class="math inline">\(\{\pi_c: \int_c T(c,c) \to T(c,c)\}\)</span> such that any other wedge <span class="math inline">\(\{w_c: e \to T(c,c)\}\)</span> factors uniquely through a map <span class="math inline">\(e \to \int_c T(c,c)\)</span>.</p>
+<p>When <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> is complete, <span class="math inline">\(\int_c T(c,c)\)</span> is computed as the <em>equaliser</em> of two maps between products:</p>
+<p><span class="math display">\[\int_c T(c,c) = \mathrm{eq}\Biggl(\prod_{c \in \mathcal{C}} T(c,c) \rightrightarrows \prod_{f: c \to c' \in \mathcal{C}} T(c, c')\Biggr),\]</span></p>
+<p>where the two maps send the component indexed by <span class="math inline">\(c\)</span> to the two morphisms <span class="math inline">\(T(\mathrm{id},f)\)</span> and <span class="math inline">\(T(f, \mathrm{id})\)</span>.</p>
+<h3 id="coends">7.2 Coends</h3>
+<p><strong>Definition (Coend).</strong> The <em>coend</em> of <span class="math inline">\(T: \mathcal{C}^{op} \times \mathcal{C} \to \mathcal{E}\)</span>, written <span class="math inline">\(\int^{c \in \mathcal{C}} T(c,c)\)</span> or <span class="math inline">\(\int^c T(c,c)\)</span>, is the <em>initial</em> cowedge: an object <span class="math inline">\(\int^c T(c,c)\)</span> with morphisms <span class="math inline">\(\{i_c: T(c,c) \to \int^c T(c,c)\}\)</span> such that for every <span class="math inline">\(f: c \to c'\)</span>:</p>
+<p><span class="math display">\[i_{c'} \circ T(f, \mathrm{id}_{c'}) = i_c \circ T(\mathrm{id}_c, f): T(c, c') \to \int^c T(c,c),\]</span></p>
+<p>and any other such cowedge factors uniquely through <span class="math inline">\(\int^c T(c,c)\)</span>.</p>
+<p>When <span class="math inline">\(\mathcal{C}\)</span> is small and <span class="math inline">\(\mathcal{E}\)</span> is cocomplete, <span class="math inline">\(\int^c T(c,c)\)</span> is computed as the <em>coequaliser</em>:</p>
+<p><span class="math display">\[\mathrm{coeq}\Biggl(\coprod_{f: c \to c'} T(c, c') \rightrightarrows \coprod_{c} T(c,c)\Biggr) = \int^c T(c,c),\]</span></p>
+<p>where the two maps are <span class="math inline">\(T(\mathrm{id},f)\)</span> and <span class="math inline">\(T(f,\mathrm{id})\)</span>.</p>
+<div class="callout callout-info">
+<p> Twisted arrow category
+The coend <span class="math inline">\(\int^c T(c,c)\)</span> is the colimit of <span class="math inline">\(T\)</span> over the <em>twisted arrow category</em> <span class="math inline">\(\mathrm{tw}(\mathcal{C})\)</span>, whose objects are morphisms <span class="math inline">\(f: c \to c'\)</span> in <span class="math inline">\(\mathcal{C}\)</span> and whose morphisms <span class="math inline">\((f: c \to c') \to (g: d \to d')\)</span> are pairs <span class="math inline">\((h: d \to c, k: c' \to d')\)</span> with <span class="math inline">\(g = k \circ f \circ h\)</span>. This makes the mixed-variance “twisting” precise.</p>
+</div>
+<h3 id="the-ninja-yoneda-lemma">7.3 The Ninja Yoneda Lemma</h3>
+<p>The <em>co-Yoneda lemma</em> (sometimes called the <em>ninja Yoneda lemma</em> in the coend-calculus literature) is the coend version of the Yoneda lemma.</p>
+<p><strong>Theorem (Co-Yoneda / Ninja Yoneda Lemma).</strong> For any functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{E}\)</span> (with <span class="math inline">\(\mathcal{C}\)</span> small and <span class="math inline">\(\mathcal{E}\)</span> cocomplete) and any <span class="math inline">\(c \in \mathcal{C}\)</span>:</p>
+<p><span class="math display">\[\int^{c' \in \mathcal{C}} \mathcal{C}(c', c) \otimes Fc' \;\cong\; Fc,\]</span></p>
+<p>naturally in <span class="math inline">\(c\)</span>. Here <span class="math inline">\(S \otimes e = \coprod_{s \in S} e\)</span> is the copower of <span class="math inline">\(e\)</span> with a set <span class="math inline">\(S\)</span>.</p>
+<p><em>Proof sketch.</em> This is exactly the left Kan extension formula with <span class="math inline">\(K = \mathrm{id}_\mathcal{C}\)</span>, <span class="math inline">\(d = c\)</span>: <span class="math inline">\((\mathrm{Lan}_{\mathrm{id}} F)(c) = \int^{c'} \mathcal{C}(c', c) \otimes Fc'\)</span>. But <span class="math inline">\(\mathrm{Lan}_{\mathrm{id}} F \cong F\)</span> (extending along the identity recovers the functor), so the coend equals <span class="math inline">\(Fc\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Alternatively</em>, this follows directly from the ordinary Yoneda lemma: <span class="math inline">\([\mathcal{C}, \mathbf{Set}](y(c), F) \cong Fc\)</span> where <span class="math inline">\(y(c) = \mathcal{C}(-, c)\)</span>… but via coend calculus, the bijection is expressed as an isomorphism of coends.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: The co-Yoneda lemma
+Verify the co-Yoneda lemma directly for <span class="math inline">\(\mathcal{E} = \mathbf{Set}\)</span> (no copowers needed, as <span class="math inline">\(S \otimes X = S \times X\)</span> for sets). Show that the natural map <span class="math inline">\(\int^{c'} \mathcal{C}(c', c) \times Fc' \to Fc\)</span> sending <span class="math inline">\((f: c' \to c, x \in Fc')\)</span> to <span class="math inline">\(F(f)(x) \in Fc\)</span> is an isomorphism. (Hint: construct the inverse using <span class="math inline">\(x \in Fc \mapsto (\mathrm{id}_c, x) \in \mathcal{C}(c, c) \times Fc\)</span>, and check the coend relations.)</p>
+</div>
+<h3 id="natural-transformations-as-ends">7.4 Natural Transformations as Ends</h3>
+<p><strong>Proposition.</strong> For functors <span class="math inline">\(F, G: \mathcal{C} \to \mathcal{D}\)</span> (with <span class="math inline">\(\mathcal{C}\)</span> small), the set of natural transformations is computed as an end:</p>
+<p><span class="math display">\[[\mathcal{C}, \mathcal{D}](F, G) \;=\; \int_{c \in \mathcal{C}} \mathcal{D}(Fc, Gc).\]</span></p>
+<p><em>Proof sketch.</em> A natural transformation <span class="math inline">\(\alpha: F \Rightarrow G\)</span> is a family <span class="math inline">\(\{\alpha_c: Fc \to Gc\}_{c \in \mathcal{C}}\)</span> such that for every <span class="math inline">\(f: c \to c'\)</span>, the naturality square <span class="math inline">\(G(f) \circ \alpha_c = \alpha_{c'} \circ F(f)\)</span> commutes. This is precisely the condition for <span class="math inline">\(\{\alpha_c\}\)</span> to be a wedge into <span class="math inline">\(T(c, c') = \mathcal{D}(Fc, Gc')\)</span> (where <span class="math inline">\(T(c,c) = \mathcal{D}(Fc, Gc)\)</span>). The universal such wedge is the set of natural transformations. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-tip">
+<p> The coend formula for Kan extensions, revisited
+Putting the pieces together: the left Kan extension formula <span class="math inline">\((\mathrm{Lan}_K F)(d) = \int^c \mathcal{D}(Kc, d) \otimes Fc\)</span> now reads as “coend over <span class="math inline">\(c\)</span> of the copower of <span class="math inline">\(Fc\)</span> by the hom-set <span class="math inline">\(\mathcal{D}(Kc, d)\)</span>.” The dual end formula <span class="math inline">\((\mathrm{Ran}_K F)(d) = \int_c Fc^{\mathcal{D}(d, Kc)}\)</span> reads as “end over <span class="math inline">\(c\)</span> of the power of <span class="math inline">\(Fc\)</span> by the hom-set <span class="math inline">\(\mathcal{D}(d, Kc)\)</span>.” These are the canonical expressions for Kan extensions in terms of the coend calculus.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://emilyriehl.github.io/files/context.pdf">Riehl, <em>Category Theory in Context</em>, Ch. 6</a></td>
+<td>The primary source for this file; Chapter 6 “All Concepts are Kan Extensions” covers the full theory of Kan extensions including the pointwise formula, derived functors, and density theorem</td>
+<td>https://emilyriehl.github.io/files/context.pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://link.springer.com/book/10.1007/978-1-4757-4721-8">Mac Lane, <em>Categories for the Working Mathematician</em>, Ch. X</a></td>
+<td>Original development of Kan extensions including the slogan “all concepts are Kan extensions”; Chapter X §7 is the locus classicus</td>
+<td>https://link.springer.com/book/10.1007/978-1-4757-4721-8</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1612.09375">Leinster, <em>Basic Category Theory</em></a></td>
+<td>Concise treatment of category theory through Kan extensions; Chapter 6 covers Kan extensions in a streamlined style</td>
+<td>https://arxiv.org/abs/1612.09375</td>
+</tr>
+<tr class="even">
+<td><a href="https://ncatlab.org/nlab/show/Kan+extension">nLab: Kan extension</a></td>
+<td>Comprehensive reference with formal definitions, pointwise characterisations, and many examples</td>
+<td>https://ncatlab.org/nlab/show/Kan+extension</td>
+</tr>
+<tr class="odd">
+<td><a href="https://ncatlab.org/nlab/show/co-Yoneda+lemma">nLab: co-Yoneda lemma</a></td>
+<td>Precise statement and proof of the ninja Yoneda lemma in terms of coends</td>
+<td>https://ncatlab.org/nlab/show/co-Yoneda+lemma</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1501.02503">Loregian, <em>Coend Calculus</em> (arXiv:1501.02503)</a></td>
+<td>Comprehensive reference for ends, coends, the Fubini theorem for coends, and the coend formula for Kan extensions</td>
+<td>https://arxiv.org/abs/1501.02503</td>
+</tr>
+<tr class="odd">
+<td><a href="https://legacy-www.math.harvard.edu/theses/senior/lehner/lehner.pdf">Lehner, “All Concepts are Kan Extensions” (Harvard Senior Thesis)</a></td>
+<td>Expository treatment of Kan extensions focusing on their role as the universal concept in category theory</td>
+<td>https://legacy-www.math.harvard.edu/theses/senior/lehner/lehner.pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://webhomes.maths.ed.ac.uk/~v1ranick/papers/keller.pdf">Keller, “Derived Categories and Their Uses”</a></td>
+<td>Reference for derived categories, derived functors, and their relationship to Kan extensions via localization</td>
+<td>https://webhomes.maths.ed.ac.uk/~v1ranick/papers/keller.pdf</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1811.12255">Maltsiniotis, “So, What is a Derived Functor?” (arXiv:1811.12255)</a></td>
+<td>Modern treatment clarifying the relationship between derived functors and Kan extensions, with subtleties about existence</td>
+<td>https://arxiv.org/abs/1811.12255</td>
+</tr>
+<tr class="even">
+<td><a href="https://ncatlab.org/nlab/show/density+theorem">nLab: density theorem</a></td>
+<td>Statement and proof of the density theorem (every presheaf is a colimit of representables) in Kan extension language</td>
+<td>https://ncatlab.org/nlab/show/density+theorem</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>p-values - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>p-values</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-orientation:-one-test,-not-many%7C1.-orientation:-one-test,-not-many/">#1. Orientation: One Test, Not Many|1. Orientation: One Test, Not Many</a></li>
+<li><a href="../../../../notes/#2.-the-null-world-framing%7C2.-the-null-world-framing/">#2. The Null World Framing|2. The Null World Framing</a>
+<ul>
+<li><a href="../../../../notes/#2.1-what-a-null-world-is%7C2.1-what-a-null-world-is/">#2.1 What a Null World Is|2.1 What a Null World Is</a></li>
+<li><a href="../../../../notes/#2.2-the-five-step-simulation-protocol%7C2.2-the-five-step-simulation-protocol/">#2.2 The Five-Step Simulation Protocol|2.2 The Five-Step Simulation Protocol</a></li>
+<li><a href="../../../../notes/#2.3-why-simulation-and-analytic-tests-are-the-same-thing%7C2.3-why-simulation-and-analytic-tests-are-the-same-thing/">#2.3 Why Simulation and Analytic Tests Are the Same Thing|2.3 Why Simulation and Analytic Tests Are the Same Thing</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-the-unified-structure-of-hypothesis-tests%7C3.-the-unified-structure-of-hypothesis-tests/">#3. The Unified Structure of Hypothesis Tests|3. The Unified Structure of Hypothesis Tests</a>
+<ul>
+<li><a href="../../../../notes/#3.1-downey's-three-part-decomposition%7C3.1-downey's-three-part-decomposition/">#3.1 Downey’s Three-Part Decomposition|3.1 Downey’s Three-Part Decomposition</a></li>
+<li><a href="../../../../notes/#3.2-named-tests-as-special-cases%7C3.2-named-tests-as-special-cases/">#3.2 Named Tests as Special Cases|3.2 Named Tests as Special Cases</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-formal-definition-of-the-p-value%7C4.-formal-definition-of-the-p-value/">#4. Formal Definition of the P-Value|4. Formal Definition of the P-Value</a>
+<ul>
+<li><a href="../../../../notes/#4.1-setup-and-notation%7C4.1-setup-and-notation/">#4.1 Setup and Notation|4.1 Setup and Notation</a></li>
+<li><a href="../../../../notes/#4.2-the-p-value-as-a-random-variable%7C4.2-the-p-value-as-a-random-variable/">#4.2 The P-Value as a Random Variable|4.2 The P-Value as a Random Variable</a></li>
+<li><a href="../../../../notes/#4.3-uniformity-under-the-null:-proof%7C4.3-uniformity-under-the-null:-proof/">#4.3 Uniformity Under the Null: Proof|4.3 Uniformity Under the Null: Proof</a></li>
+<li><a href="../../../../notes/#4.4-consequences-of-uniformity%7C4.4-consequences-of-uniformity/">#4.4 Consequences of Uniformity|4.4 Consequences of Uniformity</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-type-i-and-type-ii-errors%7C5.-type-i-and-type-ii-errors/">#5. Type I and Type II Errors|5. Type I and Type II Errors</a>
+<ul>
+<li><a href="../../../../notes/#5.1-definitions%7C5.1-definitions/">#5.1 Definitions|5.1 Definitions</a></li>
+<li><a href="../../../../notes/#5.2-the-significance-level-as-a-pre-committed-error-rate%7C5.2-the-significance-level-as-a-pre-committed-error-rate/">#5.2 The Significance Level as a Pre-committed Error Rate|5.2 The Significance Level as a Pre-committed Error Rate</a></li>
+<li><a href="../../../../notes/#5.3-the-fundamental-tradeoff%7C5.3-the-fundamental-tradeoff/">#5.3 The Fundamental Tradeoff|5.3 The Fundamental Tradeoff</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-common-misinterpretations%7C6.-common-misinterpretations/">#6. Common Misinterpretations|6. Common Misinterpretations</a>
+<ul>
+<li><a href="../../../../notes/#6.1-the-prosecutor's-fallacy%7C6.1-the-prosecutor's-fallacy/">#6.1 The Prosecutor’s Fallacy|6.1 The Prosecutor’s Fallacy</a></li>
+<li><a href="../../../../notes/#6.2-significance-is-not-effect-size%7C6.2-significance-is-not-effect-size/">#6.2 Significance Is Not Effect Size|6.2 Significance Is Not Effect Size</a></li>
+<li><a href="../../../../notes/#6.3-failure-to-reject-is-not-acceptance%7C6.3-failure-to-reject-is-not-acceptance/">#6.3 Failure to Reject Is Not Acceptance|6.3 Failure to Reject Is Not Acceptance</a></li>
+<li><a href="../../../../notes/#6.4-the-p-value-is-not-%22the-probability-the-result-occurred-by-chance%22%7C6.4-the-p-value-is-not-%22the-probability-the-result-occurred-by-chance%22/">#6.4 The p-Value Is Not “The Probability the Result Occurred by Chance”|6.4 The p-Value Is Not “The Probability the Result Occurred by Chance”</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-the-permutation-test:-downey's-canonical-example%7C7.-the-permutation-test:-downey's-canonical-example/">#7. The Permutation Test: Downey’s Canonical Example|7. The Permutation Test: Downey’s Canonical Example</a>
+<ul>
+<li><a href="../../../../notes/#7.1-exchangeability-under-the-null%7C7.1-exchangeability-under-the-null/">#7.1 Exchangeability Under the Null|7.1 Exchangeability Under the Null</a></li>
+<li><a href="../../../../notes/#7.2-exact-permutation-distribution%7C7.2-exact-permutation-distribution/">#7.2 Exact Permutation Distribution|7.2 Exact Permutation Distribution</a></li>
+<li><a href="../../../../notes/#7.3-monte-carlo-approximation%7C7.3-monte-carlo-approximation/">#7.3 Monte Carlo Approximation|7.3 Monte Carlo Approximation</a></li>
+<li><a href="../../../../notes/#7.4-relationship-to-the-two-sample-z-test%7C7.4-relationship-to-the-two-sample-z-test/">#7.4 Relationship to the Two-Sample Z-test|7.4 Relationship to the Two-Sample Z-test</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-relationship-to-frequentist-testing.md%7C8.-relationship-to-frequentist-testing.md/">#8. Relationship to Frequentist-Testing.md|8. Relationship to Frequentist-Testing.md</a></li>
+<li><a href="../../../../notes/#9.-references%7C9.-references/">#9. References|9. References</a></li>
+</ol>
+<hr />
+<h2 id="orientation-one-test-not-many">1. Orientation: One Test, Not Many 🗺️</h2>
+<p>The standard statistics curriculum presents hypothesis testing as a taxonomy problem: is the outcome binary? Use a Z-test. Are variances unknown and unequal? Use Welch’s t. Are you comparing more than two groups? Use ANOVA. This framing is pedagogically unfortunate. It suggests that hypothesis testing is a lookup table, and that the various named procedures are fundamentally different objects.</p>
+<p><a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">Allen Downey’s argument</a>, made in a 2016 blog post and developed further in interactive form by <a href="https://nullworlds.andrewheiss.com/">Andrew Heiss</a>, is that this picture is wrong. Every hypothesis test — from Student’s t to the log-rank test for survival data — is an instance of one underlying logical structure:</p>
+<ol type="1">
+<li>Choose a <em>test statistic</em> that summarizes the deviation of the data from <span class="math inline">\(H_0\)</span>.</li>
+<li>Compute the <em>null distribution</em>: the sampling distribution of that statistic if <span class="math inline">\(H_0\)</span> were true.</li>
+<li>Compute the <em>p-value</em> as the probability, under the null distribution, of observing a statistic at least as extreme as the one computed from the data.</li>
+</ol>
+<p>💡 The named tests differ only in how they accomplish steps 1 and 2 — the logical skeleton is invariant. This note builds that skeleton rigorously, explains what p-values actually are (and are not), and uses the permutation test as a transparent demonstration of the unified structure.</p>
+<p>For the specific analytic procedures (Z-test, Welch’s t-test, F-test) that populate step 2 via closed-form null distributions, see <a href="../../../../notes/frequentist-testing.md/">frequentist-testing.md</a>. For the Bayesian alternative to this entire framework, see <a href="../../../../notes/bayesian-testing.md/">bayesian-testing.md</a>.</p>
+<hr />
+<h2 id="the-null-world-framing">2. The Null World Framing 🌍</h2>
+<h3 id="what-a-null-world-is">2.1 What a Null World Is</h3>
+<p>📐 <strong>Definition (Null World).</strong> A <em>null world</em> is a hypothetical data-generating process in which the null hypothesis <span class="math inline">\(H_0\)</span> holds exactly. It is a stochastic model <span class="math inline">\(\mathcal{M}_0\)</span> that specifies the joint distribution of observables under the assumption of no effect.</p>
+<p>The framing, due to <a href="https://nullworlds.andrewheiss.com/">Heiss’s interactive guide</a>, is deliberately concrete: rather than invoking asymptotic theory, it asks the analyst to imagine physically re-running the experiment many times in a universe where the treatment does nothing. The collection of test statistic values accumulated over those re-runs constitutes the null distribution.</p>
+<p>💡 This language matters because it clarifies exactly what a p-value measures. A p-value does not tell us anything about the probability that <span class="math inline">\(H_0\)</span> is true in our actual world. It tells us how well our observed data fits inside the null world — how ordinary or extraordinary our result would be if we were, in fact, living in that world.</p>
+<h3 id="the-five-step-simulation-protocol">2.2 The Five-Step Simulation Protocol 🔬</h3>
+<p><a href="https://nullworlds.andrewheiss.com/">Heiss’s interactive guide</a> operationalizes the null world as a five-step computational procedure:</p>
+<ol type="1">
+<li><p><strong>Compute the observed statistic.</strong> From the actual data, compute a scalar <span class="math inline">\(\delta_{\text{obs}}\)</span> that measures the effect of interest (difference in means, ratio of proportions, Spearman correlation, etc.).</p></li>
+<li><p><strong>Specify the null world model.</strong> Construct a stochastic model <span class="math inline">\(\mathcal{M}_0\)</span> under <span class="math inline">\(H_0\)</span>. The key modeling choice is: what symmetry does <span class="math inline">\(H_0\)</span> impose on the data?</p></li>
+<li><p><strong>Simulate many null-world datasets.</strong> Draw <span class="math inline">\(B\)</span> independent datasets <span class="math inline">\(\mathbf{x}^{(1)}, \ldots, \mathbf{x}^{(B)}\)</span> from <span class="math inline">\(\mathcal{M}_0\)</span>, and compute <span class="math inline">\(\delta^{(b)} = \delta(\mathbf{x}^{(b)})\)</span> for each.</p></li>
+<li><p><strong>Locate <span class="math inline">\(\delta_{\text{obs}}\)</span> in the null distribution.</strong> Overlay <span class="math inline">\(\delta_{\text{obs}}\)</span> on the histogram of <span class="math inline">\(\{\delta^{(b)}\}_{b=1}^B\)</span>.</p></li>
+<li><p><strong>Compute the Monte Carlo p-value.</strong> Count the fraction of simulated statistics at least as extreme as <span class="math inline">\(\delta_{\text{obs}}\)</span>:</p></li>
+</ol>
+<p><span class="math display">\[\hat{p} = \frac{1}{B} \sum_{b=1}^{B} \mathbf{1}\bigl[\delta^{(b)} \geq \delta_{\text{obs}}\bigr]\]</span></p>
+<p>As <span class="math inline">\(B \to \infty\)</span>, <span class="math inline">\(\hat{p}\)</span> converges almost surely to the true p-value <span class="math inline">\(p = P_{H_0}(\delta \geq \delta_{\text{obs}})\)</span>.</p>
+<p><img src="figures/heiss-only-one-test.png" alt="The null world simulation pipeline: collected data produces an observed test statistic δ; simulated null-world datasets produce a null distribution; the p-value is the fraction of simulated δ values that exceed the observed one." />
+<em>The null world simulation pipeline (Heiss, nullworlds.andrewheiss.com). Left: the observed test statistic δ (red) is computed from the collected data. Center: many null-world datasets are simulated under H₀, each yielding a δ. Right: the resulting null distribution (histogram) is compared to δ_obs; the p-value is the fraction of simulated statistics that meet or exceed δ_obs — the shaded right tail.</em></p>
+<h3 id="why-simulation-and-analytic-tests-are-the-same-thing">2.3 Why Simulation and Analytic Tests Are the Same Thing 🔗</h3>
+<p>The simulation protocol above and the formula-based tests in textbooks are not different procedures — they are two ways of computing the same quantity. A two-sample Z-test computes the p-value via <span class="math inline">\(p = 1 - \Phi(z_{\text{obs}})\)</span>, where <span class="math inline">\(\Phi\)</span> is the standard normal CDF. This is analytically exact in the limit <span class="math inline">\(n \to \infty\)</span> because the Central Limit Theorem guarantees that the standardized difference in sample means converges in distribution to <span class="math inline">\(N(0, 1)\)</span> under <span class="math inline">\(H_0\)</span>. The simulation protocol approximates the same null distribution numerically rather than deriving it mathematically.</p>
+<p><em>The simulation approach is not a heuristic substitute for analytic tests. When the analytic null distribution is exact (e.g., Fisher’s exact test for contingency tables, or the permutation test in Section 7), the simulation approximation converges to the exact answer. When the analytic null distribution is itself an approximation (as with asymptotic tests), the simulation approach based on the exact null model can be strictly more accurate for small <span class="math inline">\(n\)</span>.</em></p>
+<hr />
+<h2 id="the-unified-structure-of-hypothesis-tests">3. The Unified Structure of Hypothesis Tests 🏗️</h2>
+<h3 id="downeys-three-part-decomposition">3.1 Downey’s Three-Part Decomposition</h3>
+<p>📐 <strong>Theorem (Unified Test Structure, <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">Downey 2016</a>).</strong> Every valid frequentist hypothesis test can be decomposed into exactly three choices:</p>
+<ol type="1">
+<li><p><strong>Test statistic</strong> <span class="math inline">\(T: \mathcal{X}^n \to \mathbb{R}\)</span>. A measurable function of the data that is large when the data are inconsistent with <span class="math inline">\(H_0\)</span>.</p></li>
+<li><p><strong>Null distribution</strong> <span class="math inline">\(\mathcal{L}_{H_0}(T)\)</span>. The distribution of <span class="math inline">\(T\)</span> under the probability model <span class="math inline">\(P_{H_0}\)</span> specified by the null hypothesis. This may be derived analytically (CLT, exact combinatorics) or approximated via simulation.</p></li>
+<li><p><strong>P-value</strong> <span class="math inline">\(p = P_{H_0}(T \geq t_{\text{obs}})\)</span>. The tail probability of the null distribution beyond the observed value.</p></li>
+</ol>
+<p>The test rejects <span class="math inline">\(H_0\)</span> at level <span class="math inline">\(\alpha\)</span> if and only if <span class="math inline">\(p \leq \alpha\)</span>.</p>
+<p>💡 <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">Downey’s</a> claim is that <em>all</em> named tests — t-test, chi-square, log-rank, Mann-Whitney U, F-test — are instances of this decomposition with specific choices for (1) and (2). The conceptual unity is obscured by the historical practice of giving each (statistic, null distribution) pair its own name and table.</p>
+<p><img src="figures/downey2016-unified-test-framework.png" alt="Downey’s three-part framework: data feeds into a test statistic producing the observed effect δ; a model of H₀ generates simulated datasets whose test statistics form the null distribution; the p-value is the shaded tail area beyond δ." />
+<em>Downey’s unified test framework (Downey, 2016). Every hypothesis test is the composition of these three steps: (1) compute a test statistic from the data to get the observed effect δ</em>; (2) use a model of H₀ to generate simulated datasets and apply the same statistic to each, building the null distribution; (3) the p-value is the area of the null distribution to the right of δ* (shaded region).*</p>
+<h3 id="named-tests-as-special-cases">3.2 Named Tests as Special Cases 📋</h3>
+<p>To make the unification concrete, the table below instantiates the three choices for several common tests.</p>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 24%" />
+<col style="width: 54%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Test</th>
+<th>Test Statistic <span class="math inline">\(T\)</span></th>
+<th>Null Distribution <span class="math inline">\(\mathcal{L}_{H_0}(T)\)</span></th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Two-sample Z-test</td>
+<td>Pooled <span class="math inline">\(Z = \frac{\hat{p}_A - \hat{p}_B}{\sqrt{\hat{p}(1-\hat{p})(1/n_A + 1/n_B)}}\)</span></td>
+<td><span class="math inline">\(N(0,1)\)</span> asymptotically</td>
+<td>Binary outcomes, large <span class="math inline">\(n\)</span></td>
+</tr>
+<tr class="even">
+<td>Welch’s t-test</td>
+<td><span class="math inline">\(t = \frac{\bar{X}_A - \bar{X}_B}{\sqrt{s_A^2/n_A + s_B^2/n_B}}\)</span></td>
+<td><span class="math inline">\(t_\nu\)</span> with Welch-Satterthwaite <span class="math inline">\(\nu\)</span></td>
+<td>Continuous outcomes, unequal variances</td>
+</tr>
+<tr class="odd">
+<td>One-way ANOVA F-test</td>
+<td><span class="math inline">\(F = \frac{\text{SS}_{\text{between}}/(k-1)}{\text{SS}_{\text{within}}/(n-k)}\)</span></td>
+<td><span class="math inline">\(F_{k-1,\, n-k}\)</span></td>
+<td><span class="math inline">\(k &gt; 2\)</span> groups, continuous outcomes</td>
+</tr>
+<tr class="even">
+<td>Permutation test</td>
+<td>Any <span class="math inline">\(T(\mathbf{x})\)</span>, e.g. <span class="math inline">\(\bar{X}_A - \bar{X}_B\)</span></td>
+<td>Empirical distribution over all label permutations</td>
+<td>Any statistic; exact under exchangeability</td>
+</tr>
+<tr class="odd">
+<td>Chi-square test</td>
+<td><span class="math inline">\(\chi^2 = \sum_{i,j} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}\)</span></td>
+<td><span class="math inline">\(\chi^2_{(r-1)(c-1)}\)</span> asymptotically</td>
+<td>Categorical outcomes, contingency tables</td>
+</tr>
+</tbody>
+</table>
+<p>The permutation test is the purest instantiation of the unified structure because it constructs the null distribution directly from the data without invoking any asymptotic approximation, as we develop in Section 7.</p>
+<hr />
+<h2 id="formal-definition-of-the-p-value">4. Formal Definition of the P-Value 📐</h2>
+<h3 id="setup-and-notation">4.1 Setup and Notation</h3>
+<p>Let <span class="math inline">\(\mathbf{X} = (X_1, \ldots, X_n)\)</span> be a random sample from a distribution <span class="math inline">\(P_\theta\)</span> indexed by a parameter <span class="math inline">\(\theta \in \Theta\)</span>. Partition <span class="math inline">\(\Theta = \Theta_0 \cup \Theta_1\)</span> and define:</p>
+<ul>
+<li><span class="math inline">\(H_0: \theta \in \Theta_0\)</span> — the <em>null hypothesis</em></li>
+<li><span class="math inline">\(H_1: \theta \in \Theta_1\)</span> — the <em>alternative hypothesis</em></li>
+</ul>
+<p>Let <span class="math inline">\(T = T(\mathbf{X}): \mathcal{X}^n \to \mathbb{R}\)</span> be a test statistic with CDF <span class="math inline">\(F_\theta(t) = P_\theta(T \leq t)\)</span>. Under a simple null <span class="math inline">\(H_0: \theta = \theta_0\)</span>, write <span class="math inline">\(F_0 = F_{\theta_0}\)</span>.</p>
+<p>🔑 <strong>Definition (P-Value).</strong> Let <span class="math inline">\(t_{\text{obs}} = T(\mathbf{x})\)</span> be the realized test statistic from the observed data <span class="math inline">\(\mathbf{x}\)</span>. The <em>p-value</em> for an upper-tailed test is:</p>
+<p><span class="math display">\[p(\mathbf{x}) = P_{\theta_0}\bigl(T(\mathbf{X}) \geq t_{\text{obs}}\bigr) = 1 - F_0(t_{\text{obs}})\]</span></p>
+<p>For a two-tailed test, assuming the null distribution of <span class="math inline">\(T\)</span> is symmetric about zero:</p>
+<p><span class="math display">\[p(\mathbf{x}) = P_{\theta_0}\bigl(|T(\mathbf{X})| \geq |t_{\text{obs}}|\bigr) = 2\bigl(1 - F_0(|t_{\text{obs}}|)\bigr)\]</span></p>
+<p>The decision rule is: reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(p(\mathbf{x}) \leq \alpha\)</span>.</p>
+<p><img src="figures/heiss-null-dist-observed.png" alt="Simulation-based null distribution (histogram of 5000 permuted differences in means) with the observed statistic δ_obs = −1359 g marked as a red vertical line far to the left of the null distribution mass." />
+<em>P-value as tail probability (Heiss, nullworlds.andrewheiss.com). The histogram shows the null distribution of the difference in means under H₀: F_A = F_B, constructed from 5000 random permutations of group labels. The red vertical line marks the observed statistic δ_obs ≈ −1359 g (Gentoo vs. Chinstrap penguins). Because δ_obs falls entirely outside the support of the null distribution, the p-value — the fraction of simulated statistics at least as extreme — is effectively zero, providing decisive evidence against H₀.</em></p>
+<p><strong>Remark.</strong> This is consistent with the rejection region formulation in <a href="../../../../notes/frequentist-testing.md#1.4-rejection-regions-and-critical-values/">frequentist-testing.md#1.4 Rejection Regions and Critical Values</a>. Specifically, <span class="math inline">\(p(\mathbf{x}) \leq \alpha\)</span> if and only if <span class="math inline">\(t_{\text{obs}} \geq c_\alpha\)</span>, where <span class="math inline">\(c_\alpha = F_0^{-1}(1 - \alpha)\)</span> is the critical value.</p>
+<h3 id="the-p-value-as-a-random-variable">4.2 The P-Value as a Random Variable</h3>
+<p>A subtle but essential point: the p-value <span class="math inline">\(p(\mathbf{X})\)</span> is a function of the random sample <span class="math inline">\(\mathbf{X}\)</span>, hence it is itself a random variable — before data are collected. This is the correct object of analysis when reasoning about the operating characteristics of a test across repeated experiments.</p>
+<p>📐 <strong>Definition (P-Value as Random Variable).</strong> Define <span class="math inline">\(P = p(\mathbf{X}) = 1 - F_0(T(\mathbf{X}))\)</span>, viewed as a random variable over the distribution <span class="math inline">\(P_{\theta_0}\)</span> of <span class="math inline">\(\mathbf{X}\)</span>.</p>
+<p>The question “what is the distribution of <span class="math inline">\(P\)</span> under <span class="math inline">\(H_0\)</span>?” has a clean and consequential answer.</p>
+<h3 id="uniformity-under-the-null-proof">4.3 Uniformity Under the Null: Proof 🔬</h3>
+<p>📐 <strong>Proposition (Uniformity of the P-Value).</strong> Let <span class="math inline">\(T(\mathbf{X})\)</span> be a test statistic with continuous CDF <span class="math inline">\(F_0\)</span> under <span class="math inline">\(H_0: \theta = \theta_0\)</span>. Then the p-value <span class="math inline">\(P = 1 - F_0(T(\mathbf{X}))\)</span> satisfies:</p>
+<p><span class="math display">\[P \overset{H_0}{\sim} \mathrm{Uniform}(0, 1)\]</span></p>
+<p><strong>Proof.</strong> Let <span class="math inline">\(U = F_0(T(\mathbf{X}))\)</span>. For any <span class="math inline">\(u \in [0, 1]\)</span>:</p>
+<p><span class="math display">\[P_{H_0}(U \leq u) = P_{H_0}\bigl(F_0(T(\mathbf{X})) \leq u\bigr) = P_{H_0}\bigl(T(\mathbf{X}) \leq F_0^{-1}(u)\bigr) = F_0\bigl(F_0^{-1}(u)\bigr) = u\]</span></p>
+<p>where the third equality uses the definition of the CDF and the continuity of <span class="math inline">\(F_0\)</span> (which guarantees <span class="math inline">\(F_0^{-1}\)</span> is well-defined and <span class="math inline">\(F_0(F_0^{-1}(u)) = u\)</span> everywhere). Thus <span class="math inline">\(U \sim \mathrm{Uniform}(0,1)\)</span>, and since <span class="math inline">\(P = 1 - U\)</span>, we have <span class="math inline">\(P \sim \mathrm{Uniform}(0, 1)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>This is a special case of the <em>probability integral transform</em>: if <span class="math inline">\(W\)</span> is a continuous random variable with CDF <span class="math inline">\(G\)</span>, then <span class="math inline">\(G(W) \sim \mathrm{Uniform}(0,1)\)</span>.</p>
+<p>⚠️ <em>This result requires continuity of <span class="math inline">\(F_0\)</span>. For discrete test statistics (e.g., the number of successes in a small binomial experiment), <span class="math inline">\(F_0\)</span> has jumps, so the p-value distribution is stochastically larger than uniform — the test is conservative. This is why the exact binomial test at level <span class="math inline">\(\alpha = 0.05\)</span> may have actual size <span class="math inline">\(&lt; 0.05\)</span>.</em></p>
+<h3 id="consequences-of-uniformity">4.4 Consequences of Uniformity 🔑</h3>
+<p><strong>Consequence 1: Calibration.</strong> Under <span class="math inline">\(H_0\)</span>, the probability that <span class="math inline">\(P \leq \alpha\)</span> is exactly <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[P_{H_0}(P \leq \alpha) = \alpha\]</span></p>
+<p><strong>The significance level <span class="math inline">\(\alpha\)</span> is literally the Type I error rate — not an approximation, not a heuristic threshold.</strong></p>
+<p><strong>Consequence 2: Multiple comparisons.</strong> If <span class="math inline">\(k\)</span> independent tests are conducted simultaneously and <span class="math inline">\(H_0\)</span> holds for all of them, then the p-values <span class="math inline">\(P_1, \ldots, P_k \overset{\text{iid}}{\sim} \mathrm{Uniform}(0,1)\)</span>. The probability that at least one <span class="math inline">\(P_i \leq 0.05\)</span> is:</p>
+<p><span class="math display">\[1 - (1 - 0.05)^k \to 1 \quad \text{as } k \to \infty\]</span></p>
+<p>This is the statistical basis of the <em>multiple comparisons problem</em>. The Bonferroni correction — reject only when <span class="math inline">\(P_i \leq \alpha/k\)</span> — controls the <em>familywise error rate</em> by restoring calibration across all <span class="math inline">\(k\)</span> tests.</p>
+<p>💡 <strong>Consequence 3: P-value histograms as diagnostics.</strong> Because <span class="math inline">\(P \sim \mathrm{Uniform}(0,1)\)</span> under <span class="math inline">\(H_0\)</span> and is stochastically smaller than uniform under <span class="math inline">\(H_1\)</span> (when the test has power), a histogram of p-values from many independent experiments should be approximately flat if all nulls hold, and should show a spike near zero if a fraction of nulls are false. This makes p-value histograms a standard tool for detecting signal in large-scale multiple-testing settings (e.g., GWAS, online experimentation platforms).</p>
+<hr />
+<h2 id="type-i-and-type-ii-errors">5. Type I and Type II Errors ⚖️</h2>
+<h3 id="definitions">5.1 Definitions</h3>
+<p>Fix a test with rejection region <span class="math inline">\(\mathcal{R} = \{T &gt; c_\alpha\}\)</span>.</p>
+<p>📐 <strong>Definition (Type I Error).</strong> A <em>Type I error</em> (false positive) occurs when <span class="math inline">\(H_0\)</span> is true but the test rejects:</p>
+<p><span class="math display">\[\alpha = P_{\theta_0}(T \in \mathcal{R}) = P_{H_0}(\text{reject } H_0)\]</span></p>
+<p>📐 <strong>Definition (Type II Error).</strong> A <em>Type II error</em> (false negative) occurs when <span class="math inline">\(H_0\)</span> is false but the test fails to reject. For a specific alternative <span class="math inline">\(\theta = \theta_1 \in \Theta_1\)</span>:</p>
+<p><span class="math display">\[\beta(\theta_1) = P_{\theta_1}(T \notin \mathcal{R}) = P_{\theta_1}(\text{fail to reject } H_0)\]</span></p>
+<p>📐 <strong>Definition (Power).</strong> The <em>power</em> of the test at <span class="math inline">\(\theta_1\)</span> is the probability of correctly rejecting <span class="math inline">\(H_0\)</span> when the alternative is true:</p>
+<p><span class="math display">\[\pi(\theta_1) = 1 - \beta(\theta_1) = P_{\theta_1}(T \in \mathcal{R})\]</span></p>
+<h3 id="the-significance-level-as-a-pre-committed-error-rate">5.2 The Significance Level as a Pre-committed Error Rate ⚠️</h3>
+<p>The significance level <span class="math inline">\(\alpha\)</span> must be fixed before data collection. This is not a stylistic convention — it is logically required for the frequentist framework to be coherent. The calibration property in Section 4.4 holds only for pre-specified <span class="math inline">\(\alpha\)</span>; choosing <span class="math inline">\(\alpha\)</span> after seeing the data (e.g., reporting <span class="math inline">\(p = 0.049\)</span> and choosing <span class="math inline">\(\alpha = 0.05\)</span>) is <em>p-hacking</em>, which inflates the true Type I error rate above the nominal <span class="math inline">\(\alpha\)</span>.</p>
+<p>⚠️ Formally: if <span class="math inline">\(\alpha\)</span> is chosen after observing <span class="math inline">\(t_{\text{obs}}\)</span>, then the decision rule “reject if <span class="math inline">\(p \leq \alpha\)</span>” becomes “reject if <span class="math inline">\(p \leq p + \epsilon\)</span>” for some <span class="math inline">\(\epsilon &gt; 0\)</span>, which always rejects and has Type I error rate 1.</p>
+<h3 id="the-fundamental-tradeoff">5.3 The Fundamental Tradeoff</h3>
+<p>For a fixed sample size <span class="math inline">\(n\)</span> and a fixed test statistic, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta(\theta_1)\)</span> cannot both be made arbitrarily small simultaneously.</p>
+<p><strong>Heuristic argument.</strong> The critical value <span class="math inline">\(c_\alpha = F_0^{-1}(1 - \alpha)\)</span> is a monotone decreasing function of <span class="math inline">\(\alpha\)</span>: smaller <span class="math inline">\(\alpha\)</span> demands a larger critical value, which means the rejection region shrinks. A smaller rejection region is harder to reach under <span class="math inline">\(H_1\)</span>, so <span class="math inline">\(\beta(\theta_1)\)</span> increases. Formally, the power function <span class="math inline">\(\pi(\theta_1)\)</span> is a decreasing function of <span class="math inline">\(c_\alpha\)</span>.</p>
+<p>💡 The standard resolution in A/B testing is to fix <span class="math inline">\(\alpha = 0.05\)</span> and <span class="math inline">\(\pi = 1 - \beta = 0.80\)</span>, and then solve for the minimum sample size <span class="math inline">\(n\)</span> that achieves both constraints simultaneously. This is the sample size formula derived in <a href="../../../../notes/frequentist-testing.md#5.1-derivation-from-the-power-equation/">frequentist-testing.md#5.1 Derivation from the Power Equation</a>.</p>
+<hr />
+<h2 id="common-misinterpretations">6. Common Misinterpretations ⚠️</h2>
+<p>The p-value is among the most frequently misinterpreted quantities in applied statistics. This section catalogs the principal errors with formal diagnoses.</p>
+<h3 id="the-prosecutors-fallacy">6.1 The Prosecutor’s Fallacy</h3>
+<p><strong>Misconception:</strong> “The p-value <span class="math inline">\(p\)</span> is the probability that <span class="math inline">\(H_0\)</span> is true given the data.”</p>
+<p><strong>Formal diagnosis.</strong> The p-value is <span class="math inline">\(P(\text{data at least this extreme} \mid H_0)\)</span>, which is the conditional probability of data given hypothesis. The misconception conflates this with <span class="math inline">\(P(H_0 \mid \text{data})\)</span>, i.e., the posterior probability of the hypothesis given the data. These are related by Bayes’ theorem:</p>
+<p><span class="math display">\[P(H_0 \mid \text{data}) = \frac{P(\text{data} \mid H_0) \cdot P(H_0)}{P(\text{data})}\]</span></p>
+<p>Computing <span class="math inline">\(P(H_0 \mid \text{data})\)</span> requires a prior <span class="math inline">\(P(H_0)\)</span>, which is a Bayesian quantity. The frequentist framework treats <span class="math inline">\(H_0\)</span> as either true or false — it has no probability. For the Bayesian alternative, see <a href="../../../../notes/bayesian-testing.md/">bayesian-testing.md</a>.</p>
+<p>This confusion is sometimes called the <em>prosecutor’s fallacy</em> in the legal literature: the probability of the evidence given innocence is not the same as the probability of innocence given the evidence.</p>
+<h3 id="significance-is-not-effect-size">6.2 Significance Is Not Effect Size</h3>
+<p><strong>Misconception:</strong> “A smaller p-value means a larger effect.”</p>
+<p><strong>Formal diagnosis.</strong> For a two-sample Z-test, the p-value is a monotone decreasing function of the test statistic <span class="math inline">\(Z\)</span>, which scales as:</p>
+<p><span class="math display">\[Z \approx \frac{\delta}{\sigma} \cdot \sqrt{\frac{n_A n_B}{n_A + n_B}}\]</span></p>
+<p>where <span class="math inline">\(\delta = \mu_A - \mu_B\)</span> is the true effect size and <span class="math inline">\(\sigma\)</span> is the pooled standard deviation. The test statistic — and hence the p-value — is a function of both <span class="math inline">\(\delta\)</span> and the sample sizes <span class="math inline">\(n_A, n_B\)</span>. With <span class="math inline">\(n = 10^7\)</span> and <span class="math inline">\(\delta = 10^{-4}\)</span>, the test may return <span class="math inline">\(p &lt; 10^{-10}\)</span>; the effect is statistically significant but substantively irrelevant. Effect size must be assessed separately through standardized measures (Cohen’s <span class="math inline">\(d\)</span>, relative lift) and confidence intervals.</p>
+<h3 id="failure-to-reject-is-not-acceptance">6.3 Failure to Reject Is Not Acceptance</h3>
+<p><strong>Misconception:</strong> “<span class="math inline">\(p &gt; \alpha\)</span> means <span class="math inline">\(H_0\)</span> is true” or “the null hypothesis is accepted.”</p>
+<p><strong>Formal diagnosis.</strong> Failing to reject <span class="math inline">\(H_0\)</span> means only that <span class="math inline">\(t_{\text{obs}}\)</span> did not fall in the rejection region <span class="math inline">\(\mathcal{R}\)</span>. This can happen because (a) <span class="math inline">\(H_0\)</span> is true, (b) <span class="math inline">\(H_0\)</span> is false but the test has low power (small <span class="math inline">\(n\)</span>, small <span class="math inline">\(\delta\)</span>, or high variance), or (c) the test statistic is a poor choice. The probability of case (b) is <span class="math inline">\(\beta(\theta_1) = 1 - \pi(\theta_1)\)</span>, which can be large for underpowered experiments. “We found no significant effect” and “the effect is zero” are not equivalent statements.</p>
+<h3 id="the-p-value-is-not-the-probability-the-result-occurred-by-chance">6.4 The p-Value Is Not “The Probability the Result Occurred by Chance”</h3>
+<p><strong>Misconception:</strong> “The p-value tells us the probability that the observed result was due to chance.”</p>
+<p><strong>Formal diagnosis.</strong> The p-value is not a statement about a single observed result. Once the data are in hand, the result is fixed — it is not a random outcome that either did or did not occur by chance. The randomness that defines the p-value lives entirely in the hypothetical sampling distribution of <span class="math inline">\(T\)</span> under <span class="math inline">\(H_0\)</span>: we imagine <span class="math inline">\(\mathbf{X}\)</span> being re-drawn repeatedly from <span class="math inline">\(P_{H_0}\)</span>, and ask what fraction of those imaginary draws would produce a statistic at least as extreme. The observed data <span class="math inline">\(\mathbf{x}\)</span> itself is treated as fixed throughout this thought experiment.</p>
+<hr />
+<h2 id="the-permutation-test-downeys-canonical-example">7. The Permutation Test: Downey’s Canonical Example 🔀</h2>
+<p>The permutation test is the most transparent instantiation of the unified test structure because it constructs the null distribution directly from the data using only the logic of the null hypothesis, without invoking any distributional assumptions.</p>
+<h3 id="exchangeability-under-the-null">7.1 Exchangeability Under the Null</h3>
+<p>Consider two independent samples:</p>
+<p><span class="math display">\[A = (X_1^A, \ldots, X_{n_A}^A) \overset{\text{iid}}{\sim} F_A, \qquad B = (X_1^B, \ldots, X_{n_B}^B) \overset{\text{iid}}{\sim} F_B\]</span></p>
+<p>The null hypothesis is <span class="math inline">\(H_0: F_A = F_B\)</span> — the two groups have the same distribution. Under <span class="math inline">\(H_0\)</span>, the group labels carry no information: if we pooled all <span class="math inline">\(n = n_A + n_B\)</span> observations and randomly re-assigned them to groups of sizes <span class="math inline">\(n_A\)</span> and <span class="math inline">\(n_B\)</span>, the resulting labeled dataset would have the same joint distribution as the original.</p>
+<p>📐 <strong>Definition (Exchangeability Under the Null).</strong> The pooled observations <span class="math inline">\(\mathbf{z} = (z_1, \ldots, z_n)\)</span> are <em>exchangeable under <span class="math inline">\(H_0\)</span></em> if, for every permutation <span class="math inline">\(\sigma \in S_n\)</span>, the relabeled dataset <span class="math inline">\((z_{\sigma(1)}, \ldots, z_{\sigma(n)})\)</span> with the same group size split <span class="math inline">\((n_A, n_B)\)</span> has the same distribution as the original under <span class="math inline">\(P_{H_0}\)</span>.</p>
+<p>This exchangeability is exactly the symmetry that justifies using permutations of the data to construct the null distribution.</p>
+<h3 id="exact-permutation-distribution">7.2 Exact Permutation Distribution 📐</h3>
+<p>Let <span class="math inline">\(t_{\text{obs}} = T(\mathbf{x})\)</span> be any test statistic computed from the observed data. Define the <em>permutation null distribution</em> as the uniform distribution over all <span class="math inline">\(\binom{n}{n_A}\)</span> distinct relabelings of the pooled sample. For permutation <span class="math inline">\(\sigma\)</span>, let <span class="math inline">\(T^{(\sigma)}\)</span> denote the test statistic computed after applying <span class="math inline">\(\sigma\)</span>.</p>
+<p>🔑 <strong>Definition (Exact Permutation P-Value).</strong> The exact permutation p-value is:</p>
+<p><span class="math display">\[p_{\text{perm}} = \frac{\#\left\{\sigma \in S_n : T^{(\sigma)} \geq t_{\text{obs}}\right\}}{\binom{n}{n_A}}\]</span></p>
+<p><strong>Proposition.</strong> Under <span class="math inline">\(H_0\)</span> (exchangeability), <span class="math inline">\(p_{\text{perm}}\)</span> is exactly uniformly distributed on the set <span class="math inline">\(\left\{\frac{k}{\binom{n}{n_A}} : k = 0, 1, \ldots, \binom{n}{n_A}\right\}\)</span>, which is an exact discrete analog of <span class="math inline">\(\mathrm{Uniform}(0,1)\)</span>.</p>
+<p><strong>Proof sketch.</strong> Under <span class="math inline">\(H_0\)</span>, all <span class="math inline">\(\binom{n}{n_A}\)</span> labelings of the pooled data are equally likely (by exchangeability). The rank of <span class="math inline">\(t_{\text{obs}}\)</span> among the <span class="math inline">\(\binom{n}{n_A}\)</span> permuted statistics is therefore uniform over <span class="math inline">\(\{1, \ldots, \binom{n}{n_A}\}\)</span>, and <span class="math inline">\(p_{\text{perm}}\)</span> is the fraction of statistics at or above <span class="math inline">\(t_{\text{obs}}\)</span>, which is uniform on the stated grid. <span class="math inline">\(\square\)</span></p>
+<p>💡 This is a <em>finite-population</em> version of the probability integral transform from Section 4.3.</p>
+<h3 id="monte-carlo-approximation">7.3 Monte Carlo Approximation 🎲</h3>
+<p>For <span class="math inline">\(n_A + n_B\)</span> as small as 30, <span class="math inline">\(\binom{30}{15} \approx 1.55 \times 10^8\)</span>, making exact enumeration infeasible. The standard approach is Monte Carlo approximation:</p>
+<ol type="1">
+<li>Draw <span class="math inline">\(B\)</span> random permutations <span class="math inline">\(\sigma_1, \ldots, \sigma_B\)</span> uniformly from <span class="math inline">\(S_n\)</span>.</li>
+<li>Compute <span class="math inline">\(T^{(b)} = T^{(\sigma_b)}\)</span> for each.</li>
+<li>Estimate: <span class="math inline">\(\hat{p}_{\text{perm}} = \frac{1}{B} \sum_{b=1}^B \mathbf{1}[T^{(b)} \geq t_{\text{obs}}]\)</span></li>
+</ol>
+<p>By the law of large numbers, <span class="math inline">\(\hat{p}_{\text{perm}} \to p_{\text{perm}}\)</span> almost surely as <span class="math inline">\(B \to \infty\)</span>. The standard error of the Monte Carlo estimate is <span class="math inline">\(\sqrt{p(1-p)/B}\)</span>, which is at most <span class="math inline">\(1/(2\sqrt{B})\)</span>. For <span class="math inline">\(B = 10{,}000\)</span> and a true p-value near <span class="math inline">\(0.05\)</span>, the standard error is approximately <span class="math inline">\(0.002\)</span> — sufficient precision for a <span class="math inline">\(\alpha = 0.05\)</span> threshold.</p>
+<p><img src="figures/heiss-null-dist-permuted.png" alt="Simulation-based null distribution: a histogram of 5000 permuted differences in means, approximately bell-shaped and centered at zero, representing the null distribution under H₀: F_A = F_B." />
+<em>Monte Carlo permutation null distribution (Heiss, nullworlds.andrewheiss.com). Each bar counts how many of the 5000 random label permutations produced a given difference in sample means. The distribution is centered near zero (as required under H₀: F_A = F_B) and approximately normal — consistent with Section 7.4’s asymptotic result. The observed statistic δ_obs is located relative to this histogram to compute <span class="math inline">\(\hat{p}_{\text{perm}}\)</span>.</em></p>
+<h3 id="relationship-to-the-two-sample-z-test">7.4 Relationship to the Two-Sample Z-test 🔗</h3>
+<p><em>Surprisingly,</em> for large samples, the permutation test and the two-sample Z-test yield nearly identical p-values, even though they use completely different machinery to construct the null distribution.</p>
+<p><strong>Heuristic argument.</strong> Under <span class="math inline">\(H_0: F_A = F_B\)</span>, the permutation distribution of <span class="math inline">\(\bar{X}_A - \bar{X}_B\)</span> has mean zero and variance:</p>
+<p><span class="math display">\[\text{Var}_{\text{perm}}\bigl(\bar{X}_A - \bar{X}_B\bigr) = S^2 \left(\frac{1}{n_A} + \frac{1}{n_B}\right)\]</span></p>
+<p>where <span class="math inline">\(S^2 = \frac{1}{n-1}\sum_{i=1}^n (z_i - \bar{z})^2\)</span> is the pooled sample variance of the combined data. By a combinatorial central limit theorem, the standardized permutation statistic converges in distribution to <span class="math inline">\(N(0,1)\)</span> as <span class="math inline">\(n \to \infty\)</span>. The Z-test’s asymptotic null distribution is also <span class="math inline">\(N(0,1)\)</span>. Hence both tests compute approximately the same p-value for large <span class="math inline">\(n\)</span>.</p>
+<p>💡 <strong>The practical implication:</strong> for large samples, use the analytic Z-test for speed. For small samples or non-standard statistics, use the permutation test for exactness. The choice is computational, not logical — the underlying null hypothesis structure is identical.</p>
+<hr />
+<h2 id="relationship-to-frequentist-testing.md">8. Relationship to Frequentist-Testing.md 🗂️</h2>
+<p>This note and <a href="../../../../notes/frequentist-testing.md/">frequentist-testing.md</a> cover complementary layers of the same framework.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 25%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concern</th>
+<th>This note</th>
+<th>frequentist-testing.md</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What a p-value is</td>
+<td>Section 4 (formal definition, uniformity, proof)</td>
+<td>Section 5 (brief definition, decision rule)</td>
+</tr>
+<tr class="even">
+<td>Unified structure of all tests</td>
+<td>Section 3 (Downey decomposition)</td>
+<td>Section 1 (test statistic requirements)</td>
+</tr>
+<tr class="odd">
+<td>Null world framing</td>
+<td>Section 2 (simulation-based)</td>
+<td>Not covered</td>
+</tr>
+<tr class="even">
+<td>Permutation test</td>
+<td>Section 7 (full development)</td>
+<td>Not covered</td>
+</tr>
+<tr class="odd">
+<td>Z-test for proportions</td>
+<td>Cross-reference only</td>
+<td>Section 2 (full derivation with CLT proof)</td>
+</tr>
+<tr class="even">
+<td>Welch’s t-test</td>
+<td>Cross-reference only</td>
+<td>Section 3 (full derivation with Welch-Satterthwaite)</td>
+</tr>
+<tr class="odd">
+<td>ANOVA F-test</td>
+<td>Mentioned in table</td>
+<td>Section 6 (full SS decomposition)</td>
+</tr>
+<tr class="even">
+<td>Sample size formulas</td>
+<td>Section 5.3 (error tradeoff framing)</td>
+<td>Section 5 (full derivation and rule of thumb)</td>
+</tr>
+<tr class="odd">
+<td>Confidence intervals</td>
+<td>Not covered</td>
+<td>Section 4 (duality with tests, CI formulas)</td>
+</tr>
+</tbody>
+</table>
+<p>The reading order is: <a href="../../../../notes/foundations.md/">foundations.md</a> for the experimental design context and a first pass at p-values, then this note for the conceptual depth and unified framing, then <a href="../../../../notes/frequentist-testing.md/">frequentist-testing.md</a> for the specific analytic machinery.</p>
+<hr />
+<h2 id="references">9. References 📚</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Heiss, “Null Worlds” (interactive guide)</td>
+<td>Simulation-based introduction to p-values via the “null world” framing; all hypothesis tests follow a five-step protocol of computing a statistic, simulating the null, and locating the observed statistic</td>
+<td><a href="https://nullworlds.andrewheiss.com/">nullworlds.andrewheiss.com</a></td>
+</tr>
+<tr class="even">
+<td>Downey, “There Is Still Only One Test” (2016)</td>
+<td>Argues that every hypothesis test is an instance of one three-part structure: choose statistic, compute null distribution, compute p-value; named tests differ only in how they instantiate these choices</td>
+<td><a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">allendowney.blogspot.com</a></td>
+</tr>
+<tr class="odd">
+<td>Lehmann &amp; Romano, <em>Testing Statistical Hypotheses</em>, 3rd ed. (2005)</td>
+<td>Rigorous treatment of hypothesis testing including p-values, uniformity under the null, UMP tests, and the Neyman-Pearson lemma</td>
+<td><a href="https://link.springer.com/book/10.1007/0-387-27605-X">Springer</a></td>
+</tr>
+<tr class="even">
+<td>Good, <em>Permutation, Parametric, and Bootstrap Tests of Hypotheses</em>, 3rd ed. (2005)</td>
+<td>Comprehensive reference on permutation and resampling tests; formal development of exchangeability, exact p-values, and Monte Carlo approximation</td>
+<td><a href="https://link.springer.com/book/10.1007/b138696">Springer</a></td>
+</tr>
+<tr class="odd">
+<td>Wasserstein &amp; Lazar, “The ASA Statement on p-Values” (2016)</td>
+<td>American Statistical Association’s official guidance on correct and incorrect interpretations of p-values; addresses all major misconceptions formally</td>
+<td><a href="https://doi.org/10.1080/00031305.2016.1154108">The American Statistician</a></td>
+</tr>
+<tr class="even">
+<td>Probability Integral Transform — Wikipedia</td>
+<td>Statement and proof of the probability integral transform; the core result underlying p-value uniformity</td>
+<td><a href="https://en.wikipedia.org/wiki/Probability_integral_transform">en.wikipedia.org</a></td>
+</tr>
+<tr class="odd">
+<td>Vasishth, “A simple proof that the p-value distribution is uniform when the null hypothesis is true” (2016)</td>
+<td>Accessible blog-post proof of p-value uniformity via the probability integral transform</td>
+<td><a href="https://vasishth-statistics.blogspot.com/2016/04/a-simple-proof-that-p-value.html">vasishth-statistics.blogspot.com</a></td>
+</tr>
+<tr class="even">
+<td>Permutation Test — Wikipedia</td>
+<td>Overview of permutation tests, exchangeability conditions, exact vs. Monte Carlo p-values, and connection to parametric tests</td>
+<td><a href="https://en.wikipedia.org/wiki/Permutation_test">en.wikipedia.org</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

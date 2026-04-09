@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>sampling-bias-corrected-retrieval-exercises - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>sampling-bias-corrected-retrieval-exercises</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#mathematical-development%7Cmathematical-development/">#Mathematical Development|Mathematical Development</a>
+<ul>
+<li><a href="../../../notes/#problem-1-gradient-of-the-full-softmax-loss%7Cproblem-1:-gradient-of-the-full-softmax-loss/">#Problem 1 Gradient of the Full Softmax Loss|Problem 1: Gradient of the Full Softmax Loss</a></li>
+<li><a href="../../../notes/#problem-2-bias-of-the-uncorrected-batch-softmax%7Cproblem-2:-bias-of-the-uncorrected-batch-softmax/">#Problem 2 Bias of the Uncorrected Batch Softmax|Problem 2: Bias of the Uncorrected Batch Softmax</a></li>
+<li><a href="../../../notes/#problem-3-formal-derivation-of-the-expected-batch-softmax-objective%7Cproblem-3:-formal-derivation-of-the-expected-batch-softmax-objective/">#Problem 3 Formal Derivation of the Expected Batch Softmax Objective|Problem 3: Formal Derivation of the Expected Batch Softmax Objective</a></li>
+<li><a href="../../../notes/#problem-4-logq-correction-as-importance-weighted-estimation%7Cproblem-4:-logq-correction-as-importance-weighted-estimation/">#Problem 4 LogQ Correction as Importance-Weighted Estimation|Problem 4: LogQ Correction as Importance-Weighted Estimation</a></li>
+<li><a href="../../../notes/#problem-5-consistency-of-the-sbc-estimator%7Cproblem-5:-consistency-of-the-sbc-estimator/">#Problem 5 Consistency of the SBC Estimator|Problem 5: Consistency of the SBC Estimator</a></li>
+<li><a href="../../../notes/#problem-6-variance-of-the-logq-correction-term%7Cproblem-6:-variance-of-the-logq-correction-term/">#Problem 6 Variance of the LogQ Correction Term|Problem 6: Variance of the LogQ Correction Term</a></li>
+<li><a href="../../../notes/#problem-7-streaming-estimator-bias-and-variance%7Cproblem-7:-streaming-estimator-bias-and-variance/">#Problem 7 Streaming Estimator Bias and Variance|Problem 7: Streaming Estimator Bias and Variance</a></li>
+<li><a href="../../../notes/#problem-8-bias-variance-tradeoff-and-optimal-learning-rate%7Cproblem-8:-bias-variance-tradeoff-and-optimal-learning-rate/">#Problem 8 Bias-Variance Tradeoff and Optimal Learning Rate|Problem 8: Bias-Variance Tradeoff and Optimal Learning Rate</a></li>
+<li><a href="../../../notes/#problem-9-tracking-lag-under-distribution-shift%7Cproblem-9:-tracking-lag-under-distribution-shift/">#Problem 9 Tracking Lag Under Distribution Shift|Problem 9: Tracking Lag Under Distribution Shift</a></li>
+<li><a href="../../../notes/#problem-10-equivalence-between-sbc-and-importance-sampling-from-uniform%7Cproblem-10:-equivalence-between-sbc-and-importance-sampling-from-uniform/">#Problem 10 Equivalence Between SBC and Importance Sampling from Uniform|Problem 10: Equivalence Between SBC and Importance Sampling from Uniform</a></li>
+<li><a href="../../../notes/#problem-11-effect-of-in-batch-negatives-on-gradient-variance%7Cproblem-11:-effect-of-in-batch-negatives-on-gradient-variance/">#Problem 11 Effect of In-Batch Negatives on Gradient Variance|Problem 11: Effect of In-Batch Negatives on Gradient Variance</a></li>
+<li><a href="../../../notes/#problem-12-temperature-and-softmax-entropy%7Cproblem-12:-temperature-and-softmax-entropy/">#Problem 12 Temperature and Softmax Entropy|Problem 12: Temperature and Softmax Entropy</a></li>
+<li><a href="../../../notes/#problem-13-lower-bound-on-recall-at-k-from-bias-magnitude%7Cproblem-13:-lower-bound-on-recall-at-k-from-bias-magnitude/">#Problem 13 Lower Bound on Recall at K from Bias Magnitude|Problem 13: Lower Bound on Recall at K from Bias Magnitude</a></li>
+<li><a href="../../../notes/#problem-14-inner-product-decomposability-and-mips-indexing%7Cproblem-14:-inner-product-decomposability-and-mips-indexing/">#Problem 14 Inner Product Decomposability and MIPS Indexing|Problem 14: Inner Product Decomposability and MIPS Indexing</a></li>
+<li><a href="../../../notes/#problem-15-multiple-hashings-vs.-larger-single-array%7Cproblem-15:-multiple-hashings-vs.-larger-single-array/">#Problem 15 Multiple Hashings vs. Larger Single Array|Problem 15: Multiple Hashings vs. Larger Single Array</a></li>
+<li><a href="../../../notes/#problem-16-reward-weighting-and-the-learned-distribution%7Cproblem-16:-reward-weighting-and-the-learned-distribution/">#Problem 16 Reward Weighting and the Learned Distribution|Problem 16: Reward Weighting and the Learned Distribution</a></li>
+<li><a href="../../../notes/#problem-17-sequential-training-under-distribution-shift%7Cproblem-17:-sequential-training-under-distribution-shift/">#Problem 17 Sequential Training Under Distribution Shift|Problem 17: Sequential Training Under Distribution Shift</a></li>
+</ul></li>
+<li><a href="../../../notes/#algorithmic-applications%7Calgorithmic-applications/">#Algorithmic Applications|Algorithmic Applications</a>
+<ul>
+<li><a href="../../../notes/#problem-18-corrected-batch-softmax-loss%7Cproblem-18:-corrected-batch-softmax-loss/">#Problem 18 Corrected Batch Softmax Loss|Problem 18: Corrected Batch Softmax Loss</a></li>
+<li><a href="../../../notes/#problem-19-distributed-streaming-frequency-estimation%7Cproblem-19:-distributed-streaming-frequency-estimation/">#Problem 19 Distributed Streaming Frequency Estimation|Problem 19: Distributed Streaming Frequency Estimation</a></li>
+<li><a href="../../../notes/#problem-20-multiple-hashing-frequency-estimator%7Cproblem-20:-multiple-hashing-frequency-estimator/">#Problem 20 Multiple-Hashing Frequency Estimator|Problem 20: Multiple-Hashing Frequency Estimator</a></li>
+<li><a href="../../../notes/#problem-21-recall-at-k-evaluation-against-a-full-corpus%7Cproblem-21:-recall-at-k-evaluation-against-a-full-corpus/">#Problem 21 Recall at K Evaluation Against a Full Corpus|Problem 21: Recall at K Evaluation Against a Full Corpus</a></li>
+<li><a href="../../../notes/#problem-22-sequential-training-with-online-frequency-updates%7Cproblem-22:-sequential-training-with-online-frequency-updates/">#Problem 22 Sequential Training with Online Frequency Updates|Problem 22: Sequential Training with Online Frequency Updates</a></li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="mathematical-development">Mathematical Development</h2>
+<h3 id="problem-1-gradient-of-the-full-softmax-loss">Problem 1: Gradient of the Full Softmax Loss</h3>
+<p><em>This problem establishes the contrastive structure of the softmax gradient that motivates the entire retrieval training framework. Understanding this structure clarifies why popular negatives distort training.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#full-softmax-objective%7C§2-—-full-softmax-objective/">note#Full Softmax Objective|§2 — Full Softmax Objective</a></p>
+</blockquote>
+<ol type="a">
+<li>Fix a single training example <span class="math inline">\((x, y^+, r)\)</span> with <span class="math inline">\(r = 1\)</span> and <span class="math inline">\(M\)</span> candidate items <span class="math inline">\(\{y_j\}_{j=1}^M\)</span>. Let <span class="math inline">\(p_j = P(y_j \mid x;\, \theta)\)</span> and <span class="math inline">\(s_j = s(x, y_j)\)</span>. Show that the gradient of the per-example loss <span class="math inline">\(\ell = -\log P(y^+ \mid x;\, \theta)\)</span> with respect to the score <span class="math inline">\(s_j\)</span> is:</li>
+</ol>
+<p><span class="math display">\[\frac{\partial \ell}{\partial s_j} = p_j - \mathbf{1}[y_j = y^+]\]</span></p>
+<ol start="2" type="a">
+<li>Using the chain rule <span class="math inline">\(\partial \ell / \partial v(y_j) = (\partial \ell / \partial s_j) \cdot u(x, \theta)\)</span>, show that the total gradient of <span class="math inline">\(\ell\)</span> with respect to the query embedding <span class="math inline">\(u(x, \theta)\)</span> is:</li>
+</ol>
+<p><span class="math display">\[\frac{\partial \ell}{\partial u(x, \theta)} = \mathbb{E}_{j \sim P(\cdot \mid x;\,\theta)}[v(y_j, \theta)] - v(y^+, \theta)\]</span></p>
+<p>Interpret this contrastive form: what does the gradient push <span class="math inline">\(u\)</span> toward and away from?</p>
+<ol start="3" type="a">
+<li>Suppose negatives are drawn from a biased distribution <span class="math inline">\(q \neq \text{Uniform}\)</span> and you form the approximate gradient using only <span class="math inline">\(K\)</span> sampled negatives. Write the Monte Carlo gradient estimator and state its expected value. Show that when <span class="math inline">\(q\)</span> is proportional to item frequency, the estimated gradient is biased toward over-penalizing popular items.</li>
+</ol>
+<hr />
+<h3 id="problem-2-bias-of-the-uncorrected-batch-softmax">Problem 2: Bias of the Uncorrected Batch Softmax</h3>
+<p><em>This problem formally derives the bias introduced by using in-batch negatives sampled from the training distribution, establishing that batch softmax implicitly minimizes a reweighted objective rather than the intended full-corpus softmax.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#batch-softmax-and-the-sampling-bias-problem%7C§2-—-batch-softmax-and-the-sampling-bias-problem/">note#Batch Softmax and the Sampling Bias Problem|§2 — Batch Softmax and the Sampling Bias Problem</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Let <span class="math inline">\(q_j\)</span> denote the marginal probability of item <span class="math inline">\(y_j\)</span> in the training distribution. In a batch of size <span class="math inline">\(B\)</span> drawn i.i.d. from the training distribution, show that the probability of item <span class="math inline">\(j\)</span> appearing as a negative for query <span class="math inline">\(x_i\)</span> is approximately <span class="math inline">\((B-1) q_j\)</span> for large <span class="math inline">\(M \gg B\)</span>. Hence state the effective negative distribution of the uncorrected batch softmax.</p></li>
+<li><p>The uncorrected batch softmax log-loss for query <span class="math inline">\(i\)</span> is <span class="math inline">\(-\log P_B(y_i \mid x_i;\,\theta)\)</span> where:</p></li>
+</ol>
+<p><span class="math display">\[P_B(y_i \mid x_i;\,\theta) = \frac{e^{s_{ii}}}{\sum_{j=1}^B e^{s_{ij}}}\]</span></p>
+<p>Taking expectation over random batches, show that:</p>
+<p><span class="math display">\[\mathbb{E}\!\left[-\log P_B(y_i \mid x_i)\right] \approx -s_{ii} + \log\!\left(\frac{1}{B}\sum_{j} e^{s_{ij}} \cdot \frac{q_j}{\bar{q}}\right) + C\]</span></p>
+<p>for some constant <span class="math inline">\(C\)</span> and normalization <span class="math inline">\(\bar{q}\)</span>, identifying the effective partition function being estimated. This shows that batch softmax is an unbiased estimator of the wrong (reweighted) objective.</p>
+<ol start="3" type="a">
+<li>Suppose item frequencies follow a Zipf law <span class="math inline">\(q_j \propto j^{-\alpha}\)</span> for <span class="math inline">\(j = 1, \ldots, M\)</span>. Define the bias magnitude as <span class="math inline">\(\mathrm{TV}(q, \mathrm{Uniform}) = \frac{1}{2}\sum_j |q_j - 1/M|\)</span>. Show that <span class="math inline">\(\mathrm{TV}(q, \mathrm{Uniform}) \to 1/2\)</span> as <span class="math inline">\(\alpha \to \infty\)</span> (all mass on one item) and <span class="math inline">\(\mathrm{TV}(q, \mathrm{Uniform}) = 0\)</span> for <span class="math inline">\(\alpha = 0\)</span> (uniform). Conclude that the bias is a monotone increasing function of the power-law concentration.</li>
+</ol>
+<hr />
+<h3 id="problem-3-formal-derivation-of-the-expected-batch-softmax-objective">Problem 3: Formal Derivation of the Expected Batch Softmax Objective</h3>
+<p><em>This problem makes precise what objective the uncorrected batch softmax actually minimizes in expectation, confirming that it targets a frequency-reweighted partition function rather than the uniform-negative full softmax.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#batch-softmax-and-the-sampling-bias-problem%7C§2-—-batch-softmax-and-the-sampling-bias-problem/">note#Batch Softmax and the Sampling Bias Problem|§2 — Batch Softmax and the Sampling Bias Problem</a>; requires Problem 2</p>
+</blockquote>
+<ol type="a">
+<li><p>For a fixed query <span class="math inline">\(x_i\)</span> with positive item <span class="math inline">\(y_i\)</span>, let the batch items <span class="math inline">\(\{y_j : j \neq i\}\)</span> be drawn i.i.d. from the item frequency distribution <span class="math inline">\(q\)</span>. Define the random variable <span class="math inline">\(\hat{Z}_i = \sum_{j \neq i} e^{s_{ij}}\)</span>. Show that <span class="math inline">\(\mathbb{E}[\hat{Z}_i] = (B-1)\sum_j q_j e^{s_{ij}}\)</span>, identifying the (weighted) partition function being estimated.</p></li>
+<li><p>Using the approximation <span class="math inline">\(\log \mathbb{E}[\hat{Z}_i] \approx \mathbb{E}[\log \hat{Z}_i]\)</span> (valid when <span class="math inline">\(\mathrm{Var}(\hat{Z}_i)/\mathbb{E}[\hat{Z}_i]^2 \ll 1\)</span>), show that the expected batch loss satisfies:</p></li>
+</ol>
+<p><span class="math display">\[\mathbb{E}[-\log P_B(y_i \mid x_i)] \approx -s_{ii} + \log\!\left(\sum_j q_j e^{s_{ij}}\right) + C\]</span></p>
+<p>where <span class="math inline">\(C\)</span> is a constant independent of <span class="math inline">\(\theta\)</span>. Identify this as a softmax loss with partition function <span class="math inline">\(\sum_j q_j e^{s_{ij}}\)</span> (frequency-weighted, not uniform-weighted).</p>
+<ol start="3" type="a">
+<li>The corrected objective targets the partition function <span class="math inline">\(\sum_j e^{s_{ij}}\)</span> (uniform weights). Show that the ratio of the two partition functions is <span class="math inline">\(\sum_j q_j e^{s_{ij}} / \sum_j e^{s_{ij}}\)</span>, and interpret what the model must learn in each case. When does the gap between the two objectives vanish?</li>
+</ol>
+<hr />
+<h3 id="problem-4-logq-correction-as-importance-weighted-estimation">Problem 4: LogQ Correction as Importance-Weighted Estimation</h3>
+<p><em>This problem derives the logQ correction from the importance-sampling identity, showing it implements an unbiased estimator of the full-corpus partition function in log-space.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#the-logq-correction%7C§3-—-the-logq-correction/">note#The LogQ Correction|§3 — The LogQ Correction</a>; cf. note <a href="../../../notes/note#connection-to-importance-sampling%7C§3-—-connection-to-importance-sampling/">note#Connection to Importance Sampling|§3 — Connection to Importance Sampling</a></p>
+</blockquote>
+<ol type="a">
+<li>The full softmax partition function is <span class="math inline">\(Z(x) = \sum_{j=1}^M e^{s(x, y_j)}\)</span>. In-batch items are sampled with probabilities <span class="math inline">\(\{p_j\}\)</span>. Show that the importance-weighted estimator:</li>
+</ol>
+<p><span class="math display">\[\hat{Z}_{\mathrm{IS}}(x) = \frac{1}{B}\sum_{j \in \mathrm{batch}} \frac{e^{s(x, y_j)}}{p_j}\]</span></p>
+<p>satisfies <span class="math inline">\(\mathbb{E}[\hat{Z}_{\mathrm{IS}}(x)] = Z(x)\)</span>. Write <span class="math inline">\(e^{s(x,y_j)}/p_j = e^{s(x,y_j) - \log p_j}\)</span> to show the logQ correction implements this in log-space.</p>
+<ol start="2" type="a">
+<li>Show that the corrected batch softmax probability:</li>
+</ol>
+<p><span class="math display">\[P_B^c(y_i \mid x_i;\,\theta) = \frac{e^{s^c_{ii}}}{e^{s^c_{ii}} + \sum_{j \neq i} e^{s^c_{ij}}}\]</span></p>
+<p>where <span class="math inline">\(s^c_{ij} = s_{ij} - \log p_j\)</span>, is an approximately unbiased estimator of the full softmax <span class="math inline">\(P(y_i \mid x_i;\,\theta)\)</span>. Identify the residual source of bias: the log of an average is not the average of logs (Jensen’s inequality for the concave <span class="math inline">\(\log\)</span> function).</p>
+<ol start="3" type="a">
+<li><p>Consider the case where all items are equally frequent: <span class="math inline">\(p_j = B/M\)</span> for all <span class="math inline">\(j\)</span>. Show that the logQ correction reduces to subtracting a constant from all logits, which does not change the softmax output. Conclude that the correction is only non-trivial when <span class="math inline">\(\{p_j\}\)</span> is non-uniform, and that the effective magnitude of the correction scales with the variance of <span class="math inline">\(\log p_j\)</span> across batch items.</p></li>
+<li><p>In practice, <span class="math inline">\(p_j\)</span> is estimated with noise: <span class="math inline">\(\hat{p}_j = p_j + \epsilon_j\)</span>. Using a first-order Taylor expansion, show that the corrected logit with noisy <span class="math inline">\(\hat{p}_j\)</span> is <span class="math inline">\(\hat{s}^c_j \approx s_j - \log p_j - \epsilon_j / p_j\)</span>. Conclude that estimation error in the correction is amplified by <span class="math inline">\(1/p_j\)</span>: rare items (small <span class="math inline">\(p_j\)</span>) are far more sensitive to frequency estimation error than popular items.</p></li>
+</ol>
+<hr />
+<h3 id="problem-5-consistency-of-the-sbc-estimator">Problem 5: Consistency of the SBC Estimator</h3>
+<p><em>This problem proves that the sampling-bias-corrected batch loss is a consistent estimator of the full softmax loss as batch size grows, formalizing the claim that the correction asymptotically eliminates the sampling bias.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#corrected-batch-loss%7C§3-—-corrected-batch-loss/">note#Corrected Batch Loss|§3 — Corrected Batch Loss</a>; requires Problem 4</p>
+</blockquote>
+<ol type="a">
+<li><p>Let <span class="math inline">\(\hat{Z}^c(x_i) = e^{s^c_{ii}} + \sum_{j \neq i} e^{s^c_{ij}}\)</span> denote the corrected denominator for query <span class="math inline">\(i\)</span> in a batch of size <span class="math inline">\(B\)</span>. Show that <span class="math inline">\(\mathbb{E}[\hat{Z}^c(x_i)]\)</span> equals <span class="math inline">\(e^{s^c_{ii}} + (B-1) Z(x_i)\)</span> where <span class="math inline">\(Z(x_i) = \sum_j e^{s_{ij}}\)</span> is the full partition function. Hence <span class="math inline">\(\hat{Z}^c(x_i)/B \to Z(x_i)\)</span> in probability as <span class="math inline">\(B \to \infty\)</span> by the law of large numbers.</p></li>
+<li><p>Using part (a) and the continuous mapping theorem applied to <span class="math inline">\(\log(\cdot)\)</span>, show that:</p></li>
+</ol>
+<p><span class="math display">\[-\log P_B^c(y_i \mid x_i;\,\theta) \xrightarrow{p} -\log P(y_i \mid x_i;\,\theta) \quad \text{as } B \to \infty\]</span></p>
+<p>This confirms consistency: the corrected batch loss converges in probability to the full softmax loss as batch size increases.</p>
+<ol start="3" type="a">
+<li>For the uncorrected batch softmax, show that <span class="math inline">\(\hat{Z}(x_i)/B \to \sum_j q_j e^{s_{ij}}\)</span> rather than <span class="math inline">\(Z(x_i)\)</span>, confirming that the uncorrected estimator is inconsistent (converges to the wrong quantity even as <span class="math inline">\(B \to \infty\)</span>).</li>
+</ol>
+<hr />
+<h3 id="problem-6-variance-of-the-logq-correction-term">Problem 6: Variance of the LogQ Correction Term</h3>
+<p><em>This problem analyzes how the logQ correction term itself contributes to gradient variance, revealing the intrinsic cost of bias correction.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#the-logq-correction%7C§3-—-the-logq-correction/">note#The LogQ Correction|§3 — The LogQ Correction</a>; requires Problem 4</p>
+</blockquote>
+<ol type="a">
+<li><p>In a batch of size <span class="math inline">\(B\)</span>, the corrected denominator for query <span class="math inline">\(i\)</span> is <span class="math inline">\(\sum_{j \neq i} e^{s_{ij} - \log p_j} = \sum_{j \neq i} e^{s_{ij}}/p_j\)</span>. Let <span class="math inline">\(W_j = e^{s_{ij}}/p_j\)</span> for the random batch item <span class="math inline">\(j\)</span>. Show that <span class="math inline">\(\mathrm{Var}(W_j) = \mathbb{E}[e^{2s_{ij}}/p_j^2] \cdot \mathrm{Var}(p_j) + \ldots\)</span> and that <span class="math inline">\(\mathrm{Var}(W_j)\)</span> is larger when item frequency is more heterogeneous.</p></li>
+<li><p>The variance of the corrected partition function estimate is <span class="math inline">\(\mathrm{Var}(\hat{Z}^c) = (B-1)\,\mathrm{Var}(W_j)\)</span>. Show that the variance of the corrected log-loss is approximately:</p></li>
+</ol>
+<p><span class="math display">\[\mathrm{Var}(-\log P_B^c) \approx \frac{\mathrm{Var}(\hat{Z}^c)}{(\mathbb{E}[\hat{Z}^c])^2} = \frac{\mathrm{Var}(W_j)}{(B-1)\,Z(x_i)^2}\]</span></p>
+<p>using the delta method for the variance of <span class="math inline">\(\log(\cdot)\)</span>.</p>
+<ol start="3" type="a">
+<li>Compare the variance of the corrected and uncorrected batch loss. In what regime (large <span class="math inline">\(B\)</span>, very non-uniform <span class="math inline">\(q\)</span>, or very uniform <span class="math inline">\(q\)</span>) does the correction substantially increase variance? Argue that the bias-reduction benefit outweighs the variance increase when the item distribution is heavily skewed.</li>
+</ol>
+<hr />
+<h3 id="problem-7-streaming-estimator-bias-and-variance">Problem 7: Streaming Estimator Bias and Variance</h3>
+<p><em>This problem fills in the details of Proposition 4.1, providing exact closed forms for the bias and variance of the exponential moving average estimator of inter-arrival times.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#proposition-4.1:-bias-and-variance-analysis%7C§4-—-proposition-4.1:-bias-and-variance-analysis/">note#Proposition 4.1: Bias and Variance Analysis|§4 — Proposition 4.1: Bias and Variance Analysis</a></p>
+</blockquote>
+<ol type="a">
+<li>Let <span class="math inline">\(\delta_t = (1-\alpha)\delta_{t-1} + \alpha\Delta_t\)</span> with <span class="math inline">\(\{\Delta_t\}\)</span> i.i.d., mean <span class="math inline">\(\delta\)</span>, variance <span class="math inline">\(\sigma^2\)</span>, and initial value <span class="math inline">\(\delta_0\)</span>. Prove by induction that:</li>
+</ol>
+<p><span class="math display">\[\delta_t = (1-\alpha)^t \delta_0 + \alpha \sum_{k=1}^t (1-\alpha)^{t-k} \Delta_k\]</span></p>
+<p>Hence compute <span class="math inline">\(\mathbb{E}[\delta_t]\)</span> and derive the exact bias <span class="math inline">\(\mathbb{E}[\delta_t] - \delta = (1-\alpha)^t(\delta_0 - \delta)\)</span>. Reconcile this with equation (7) of the paper, which states <span class="math inline">\(\mathbb{E}[\delta_t] - \delta = (1-\alpha)^t \delta_0 - (1-\alpha)^{t-1}\delta\)</span>.</p>
+<ol start="2" type="a">
+<li>Using the representation from (a) and independence of <span class="math inline">\(\Delta_1, \ldots, \Delta_t\)</span>, compute <span class="math inline">\(\mathrm{Var}(\delta_t)\)</span> exactly. Show that it equals:</li>
+</ol>
+<p><span class="math display">\[\mathrm{Var}(\delta_t) = \frac{\alpha\sigma^2}{2-\alpha}\left[1-(1-\alpha)^{2t}\right]\]</span></p>
+<p>As <span class="math inline">\(t \to \infty\)</span>, identify the steady-state variance <span class="math inline">\(\sigma_\infty^2 = \alpha\sigma^2/(2-\alpha) \approx \alpha\sigma^2/2\)</span> for small <span class="math inline">\(\alpha\)</span>.</p>
+<ol start="3" type="a">
+<li>Find the ideal initialization <span class="math inline">\(\delta_0^*\)</span> that makes <span class="math inline">\(\mathbb{E}[\delta_t] = \delta\)</span> for all <span class="math inline">\(t \geq 0\)</span> (unbiased at every step, not just in the limit). Show that <span class="math inline">\(\delta_0^* = \delta/(1-\alpha)\)</span>. Since <span class="math inline">\(\delta\)</span> is unknown in practice, discuss which direction of initialization error (over vs. under) is less harmful and why.</li>
+</ol>
+<hr />
+<h3 id="problem-8-bias-variance-tradeoff-and-optimal-learning-rate">Problem 8: Bias-Variance Tradeoff and Optimal Learning Rate</h3>
+<p><em>This problem characterizes the optimal learning rate for the streaming estimator, showing it depends on the signal-to-noise ratio of the inter-arrival time distribution.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#proposition-4.1:-bias-and-variance-analysis%7C§4-—-proposition-4.1:-bias-and-variance-analysis/">note#Proposition 4.1: Bias and Variance Analysis|§4 — Proposition 4.1: Bias and Variance Analysis</a>; requires Problem 7</p>
+</blockquote>
+<ol type="a">
+<li><p>Define the steady-state mean squared error of the estimator as <span class="math inline">\(\mathrm{MSE}_\infty(\alpha) = \lim_{t \to \infty} \mathrm{MSE}(\delta_t)\)</span>. Using your results from Problem 7, show that the steady-state bias is zero and <span class="math inline">\(\mathrm{MSE}_\infty(\alpha) = \alpha\sigma^2/(2-\alpha)\)</span>.</p></li>
+<li><p>Now suppose the true mean undergoes a step change at step <span class="math inline">\(t_0\)</span>: <span class="math inline">\(\delta \to \delta'\)</span> for <span class="math inline">\(t &gt; t_0\)</span>. After the change, the estimator has a transient bias. Show that the post-change tracking bias at step <span class="math inline">\(t_0 + \tau\)</span> is <span class="math inline">\((1-\alpha)^\tau(\delta - \delta')\)</span> and that the total MSE (bias squared plus variance) is minimized by choosing <span class="math inline">\(\alpha\)</span> to balance these terms.</p></li>
+<li><p>In the regime where distribution shift occurs at rate <span class="math inline">\(\beta\)</span> per step (i.e., the true <span class="math inline">\(\delta\)</span> changes by <span class="math inline">\(\beta\)</span> per step), show that the optimal <span class="math inline">\(\alpha^*\)</span> scales as <span class="math inline">\((\beta^2/\sigma^2)^{1/3}\)</span> (heuristic). Interpret: when the signal changes slowly (<span class="math inline">\(\beta \to 0\)</span>), optimal <span class="math inline">\(\alpha^* \to 0\)</span>; when the signal is very noisy (<span class="math inline">\(\sigma^2 \to \infty\)</span>), <span class="math inline">\(\alpha^* \to 0\)</span> as well. Conclude that <span class="math inline">\(\alpha = 0.01\)</span> as used in the paper is conservative in both directions.</p></li>
+</ol>
+<hr />
+<h3 id="problem-9-tracking-lag-under-distribution-shift">Problem 9: Tracking Lag Under Distribution Shift</h3>
+<p><em>This problem quantifies the delay with which the streaming estimator adapts after a distributional change, establishing the half-life formula for the exponential moving average.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#algorithm-2:-single-hash-estimation%7C§4-—-algorithm-2:-single-hash-estimation/">note#Algorithm 2: Single Hash Estimation|§4 — Algorithm 2: Single Hash Estimation</a>; requires Problem 7</p>
+</blockquote>
+<ol type="a">
+<li><p>At step <span class="math inline">\(t_0\)</span> the true mean changes from <span class="math inline">\(\delta\)</span> to <span class="math inline">\(\delta + \Delta\delta\)</span>. Starting from <span class="math inline">\(\mathbb{E}[\delta_{t_0}] = \delta\)</span>, derive the expected value <span class="math inline">\(\mathbb{E}[\delta_{t_0+\tau}]\)</span> for <span class="math inline">\(\tau \geq 1\)</span>. Show that the tracking error <span class="math inline">\(|\mathbb{E}[\delta_{t_0+\tau}] - (\delta + \Delta\delta)|\)</span> decays as <span class="math inline">\((1-\alpha)^\tau |\Delta\delta|\)</span>.</p></li>
+<li><p>Define the half-life <span class="math inline">\(\tau_{1/2}\)</span> as the number of steps after which the tracking error has halved: <span class="math inline">\((1-\alpha)^{\tau_{1/2}} = 1/2\)</span>. Solve to get <span class="math inline">\(\tau_{1/2} = \log(2)/|\log(1-\alpha)|\)</span>. Show that for small <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\tau_{1/2} \approx \log(2)/\alpha \approx 0.693/\alpha\)</span>.</p></li>
+<li><p>For the paper’s choice of <span class="math inline">\(\alpha = 0.01\)</span>, compute <span class="math inline">\(\tau_{1/2}\)</span>. Given that the paper’s system processes many items per batch and many batches per day, interpret whether this half-life is short or long relative to the timescale of distribution shift in YouTube (which operates on a timescale of days). What would happen if <span class="math inline">\(\alpha\)</span> were set to <span class="math inline">\(0.1\)</span>?</p></li>
+</ol>
+<hr />
+<h3 id="problem-10-equivalence-between-sbc-and-importance-sampling-from-uniform">Problem 10: Equivalence Between SBC and Importance Sampling from Uniform</h3>
+<p><em>This problem establishes that sampling-bias-corrected batch softmax and importance sampling from the uniform distribution over items are two descriptions of the same estimator, grounding the correction in classical statistical theory.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#connection-to-importance-sampling%7C§3-—-connection-to-importance-sampling/">note#Connection to Importance Sampling|§3 — Connection to Importance Sampling</a>; requires Problem 4</p>
+</blockquote>
+<ol type="a">
+<li>Let <span class="math inline">\(U\)</span> denote the uniform distribution over <span class="math inline">\(M\)</span> items. An importance sampling estimator of <span class="math inline">\(Z(x) = \sum_j e^{s(x,y_j)}\)</span> using samples from item frequency distribution <span class="math inline">\(q\)</span> reweights by <span class="math inline">\(u_j/q_j = (1/M)/q_j\)</span>. Show that the self-normalized importance sampling (SNIS) estimator from <span class="math inline">\(q\)</span>:</li>
+</ol>
+<p><span class="math display">\[\hat{Z}_{\mathrm{SNIS}}(x) = \frac{\sum_{j \in S} e^{s_{ij}}/q_j}{\sum_{j \in S} 1/q_j}\]</span></p>
+<p>is a consistent but biased estimator of <span class="math inline">\(Z(x)\)</span>. Contrast with the (unnormalized) importance sampling estimator <span class="math inline">\(\hat{Z}_{\mathrm{IS}}\)</span> from Problem 4(a).</p>
+<ol start="2" type="a">
+<li><p>Show that the SBC correction (subtracting <span class="math inline">\(\log p_j \approx \log(B \cdot q_j)\)</span> from each logit) is equivalent to reweighting from the training distribution <span class="math inline">\(q\)</span> back toward uniform. Specifically, the corrected weight <span class="math inline">\(e^{s_{ij} - \log p_j} = e^{s_{ij}}/p_j\)</span> matches the importance weight <span class="math inline">\(e^{s_{ij}} \cdot (1/p_j)\)</span> from <span class="math inline">\(p\)</span> to uniform.</p></li>
+<li><p>The unnormalized IS estimator from (a) is unbiased but has potentially infinite variance when <span class="math inline">\(q_j \to 0\)</span> for some items. Argue that in the batch setting this infinite-variance issue is naturally bounded by the batch size <span class="math inline">\(B\)</span>: items with <span class="math inline">\(q_j \approx 0\)</span> almost never appear in the batch, so their infinite importance weights have negligible probability of appearing. Formalize using the truncation: the effective IS weights in a batch are bounded by <span class="math inline">\(1/q_{\min}\)</span> where <span class="math inline">\(q_{\min} = \min_j q_j\)</span>.</p></li>
+</ol>
+<hr />
+<h3 id="problem-11-effect-of-in-batch-negatives-on-gradient-variance">Problem 11: Effect of In-Batch Negatives on Gradient Variance</h3>
+<p><em>This problem analyzes how the choice of negative sampling distribution affects gradient variance, showing the fundamental tension between computational efficiency and estimation quality.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#batch-softmax-and-the-sampling-bias-problem%7C§2-—-batch-softmax-and-the-sampling-bias-problem/">note#Batch Softmax and the Sampling Bias Problem|§2 — Batch Softmax and the Sampling Bias Problem</a>; requires Problem 1</p>
+</blockquote>
+<ol type="a">
+<li><p>For a fixed query <span class="math inline">\(x_i\)</span>, consider the gradient of the per-example loss with respect to the query embedding. In the full softmax, this gradient is <span class="math inline">\(\nabla_{u_i}\ell_i = \mathbb{E}_{j \sim P(\cdot|x_i)}[v_j] - v_{y_i}\)</span>. With batch negatives, it is approximated by <span class="math inline">\(\hat{\nabla}_{u_i}\ell_i = \frac{1}{B-1}\sum_{j \neq i} p_j^B v_j - v_{y_i}\)</span> where <span class="math inline">\(p_j^B\)</span> is the batch softmax probability. Show that this is an unbiased estimator of the full gradient only when the negative sampling distribution equals <span class="math inline">\(P(\cdot|x_i;\,\theta)\)</span>.</p></li>
+<li><p>The gradient variance for a single query is <span class="math inline">\(\mathrm{Var}(\hat{\nabla}) = \mathrm{Var}\!\left(\frac{1}{B-1}\sum_{j \neq i} W_j v_j\right)\)</span> where <span class="math inline">\(W_j = p_j^B - \mathbf{1}[j = i]\)</span> are stochastic weights. Show that this variance decreases as <span class="math inline">\(O(1/B)\)</span> and increases when the negative sampling distribution is far from the model distribution (more variance is introduced by the mismatch in weights).</p></li>
+<li><p>Sampling negatives from the training distribution <span class="math inline">\(q\)</span> rather than from the model distribution <span class="math inline">\(P(\cdot|x_i;\,\theta)\)</span> introduces bias (as shown in Problem 2) but may reduce variance if <span class="math inline">\(q\)</span> is close to <span class="math inline">\(P\)</span>. Argue that early in training when <span class="math inline">\(P\)</span> is close to uniform, sampling from <span class="math inline">\(q\)</span> with power-law concentration can substantially increase gradient variance relative to uniform sampling, because very popular items dominate the denominator.</p></li>
+</ol>
+<hr />
+<h3 id="problem-12-temperature-and-softmax-entropy">Problem 12: Temperature and Softmax Entropy</h3>
+<p><em>This problem characterizes how temperature controls the entropy of the softmax distribution and, through that, the sharpness of the gradient signal during training.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#formal-setup%7C§2-—-formal-setup/">note#Formal Setup|§2 — Formal Setup</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Let <span class="math inline">\(P_\tau(j) = e^{s_j/\tau} / \sum_k e^{s_k/\tau}\)</span> over scores <span class="math inline">\(\{s_j\}_{j=1}^M\)</span>. Compute the entropy <span class="math inline">\(H(P_\tau)\)</span> and show it is increasing in <span class="math inline">\(\tau\)</span>. Verify the limiting cases: <span class="math inline">\(H(P_\tau) \to \log M\)</span> as <span class="math inline">\(\tau \to \infty\)</span> and <span class="math inline">\(H(P_\tau) \to 0\)</span> as <span class="math inline">\(\tau \to 0^+\)</span>.</p></li>
+<li><p>Show that the gradient of the per-example loss <span class="math inline">\(\ell = -\log P_\tau(y^+)\)</span> with respect to <span class="math inline">\(\tau\)</span> is:</p></li>
+</ol>
+<p><span class="math display">\[\frac{\partial \ell}{\partial \tau} = \frac{1}{\tau^2}\left(\mathbb{E}_{j \sim P_\tau}[s_j] - s_{y^+}\right)\]</span></p>
+<p>Interpret: when the positive item score <span class="math inline">\(s_{y^+}\)</span> is above the model-weighted average, reducing <span class="math inline">\(\tau\)</span> reduces the loss. Identify when decreasing <span class="math inline">\(\tau\)</span> increases the loss.</p>
+<ol start="3" type="a">
+<li><p>Recall@<span class="math inline">\(K\)</span> is a deterministic function of item rankings. Show that ranking is invariant to positive rescaling of all logits by <span class="math inline">\(1/\tau\)</span>, so Recall@<span class="math inline">\(K\)</span> at evaluation time is independent of <span class="math inline">\(\tau\)</span> for a fixed trained model. However, explain why <span class="math inline">\(\tau\)</span> matters during training: it controls the relative gradient magnitude for hard negatives (items with scores close to <span class="math inline">\(s_{y^+}\)</span>) versus easy negatives (items with scores far below <span class="math inline">\(s_{y^+}\)</span>).</p></li>
+<li><p>Show that the InfoNCE loss <span class="math inline">\(\mathcal{L}_{\mathrm{InfoNCE}} = -\mathbb{E}[\log \frac{e^{s(x,y^+)/\tau}}{e^{s(x,y^+)/\tau} + \sum_{j=1}^K e^{s(x,y_j^-)/\tau}}]\)</span> with <span class="math inline">\(K\)</span> negatives drawn uniformly converges as <span class="math inline">\(K \to \infty\)</span> to the full softmax cross-entropy loss (up to a constant), establishing batch softmax as a special case of InfoNCE.</p></li>
+</ol>
+<hr />
+<h3 id="problem-13-lower-bound-on-recall-at-k-from-bias-magnitude">Problem 13: Lower Bound on Recall at K from Bias Magnitude</h3>
+<p><em>This problem derives a formal relationship between the magnitude of the sampling bias and the degradation in Recall@K, providing a theoretical justification for why the correction improves retrieval metrics.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#batch-softmax-and-the-sampling-bias-problem%7C§2-—-batch-softmax-and-the-sampling-bias-problem/">note#Batch Softmax and the Sampling Bias Problem|§2 — Batch Softmax and the Sampling Bias Problem</a>; cf. note <a href="../../../notes/note#wikipedia-link-prediction%7C§6-—-wikipedia-link-prediction/">note#Wikipedia Link Prediction|§6 — Wikipedia Link Prediction</a>; requires Problem 3</p>
+</blockquote>
+<ol type="a">
+<li><p>Let <span class="math inline">\(s_j^*(\theta)\)</span> be the score of the <span class="math inline">\(j\)</span>-th item under the model trained with full softmax, and let <span class="math inline">\(s_j^B(\theta^B)\)</span> be the score under the model trained with uncorrected batch softmax. The bias in the objective causes the two models to converge to different parameter values. Formalize: the uncorrected model converges to <span class="math inline">\(\theta^B = \arg\min_\theta \mathbb{E}[-\log P_B(y \mid x)]\)</span>, which by Problem 3 targets a frequency-weighted loss. Show that the optimal score function under the biased objective satisfies <span class="math inline">\(s^B(x,y) = s^*(x,y) - \log q_y + C(x)\)</span> for some query-dependent constant <span class="math inline">\(C(x)\)</span>, where <span class="math inline">\(q_y\)</span> is item frequency.</p></li>
+<li><p>For a query <span class="math inline">\(x\)</span> with true positive <span class="math inline">\(y^+\)</span>, the rank of <span class="math inline">\(y^+\)</span> under the biased model is degraded relative to the unbiased model when the correction term <span class="math inline">\(\log q_{y^+}\)</span> differs significantly from <span class="math inline">\(\log q_{y^-}\)</span> for competing items <span class="math inline">\(y^-\)</span>. Show that the rank of <span class="math inline">\(y^+\)</span> under the biased model is at most its rank under the corrected model plus the number of items <span class="math inline">\(y^-\)</span> satisfying <span class="math inline">\(s^*(x,y^-) &gt; s^*(x,y^+) - (\log q_{y^+} - \log q_{y^-})\)</span>.</p></li>
+<li><p>Define the bias gap for a positive item as <span class="math inline">\(\Delta_{\mathrm{bias}}(y^+) = \mathbb{E}_{y^- \sim q}[\log q_{y^-}] - \log q_{y^+}\)</span> (the expected log-frequency advantage of negatives over the positive). Show that Recall@1 under the biased model is upper-bounded by <span class="math inline">\(\mathbb{P}[\Delta_{\mathrm{bias}}(y^+) &lt; s^*(x,y^+) - \max_{y^-} s^*(x,y^-)]\)</span>. Interpret: if the positive item is rare and competing negatives are popular, the bias gap is large and Recall@1 degrades.</p></li>
+</ol>
+<hr />
+<h3 id="problem-14-inner-product-decomposability-and-mips-indexing">Problem 14: Inner Product Decomposability and MIPS Indexing</h3>
+<p><em>This problem derives the mathematical condition under which a scoring function is compatible with precomputed item embeddings, establishing the inner product as the canonical indexable scoring function.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#the-two-phase-retrieval-ranking-architecture%7C§1-—-the-two-phase-retrieval-ranking-architecture/">note#The Two-Phase Retrieval-Ranking Architecture|§1 — The Two-Phase Retrieval-Ranking Architecture</a>; cf. note <a href="../../../notes/note#formal-setup%7C§2-—-formal-setup/">note#Formal Setup|§2 — Formal Setup</a></p>
+</blockquote>
+<ol type="a">
+<li><p>A scoring function <span class="math inline">\(f(x, y)\)</span> is called <em>decomposable</em> if it can be written as <span class="math inline">\(f(x,y) = g(u(x), v(y))\)</span> for independently computed maps <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> and some bivariate function <span class="math inline">\(g\)</span>. Show that <span class="math inline">\(f(x,y) = \langle u(x), v(y) \rangle\)</span> is decomposable, but <span class="math inline">\(f(x,y) = \text{ReLU}([u(x); v(y)]^\top W [u(x); v(y)])\)</span> (a bilinear form with concatenated features) is not decomposable in general.</p></li>
+<li><p>For L2-normalized embeddings, show algebraically that <span class="math inline">\(\langle u, v \rangle = \cos\theta(u,v)\)</span> (cosine similarity) and that <span class="math inline">\(\arg\max_j \langle u, v_j \rangle = \arg\min_j \|u - v_j\|_2^2\)</span> (exact nearest neighbor). This equivalence means MIPS reduces to nearest neighbor search for L2-normalized embeddings.</p></li>
+<li><p>Mercer’s theorem states that a symmetric positive-definite kernel <span class="math inline">\(K(u,v)\)</span> admits a representation <span class="math inline">\(K(u,v) = \langle \phi(u), \phi(v) \rangle_\mathcal{H}\)</span> in some (possibly infinite-dimensional) Hilbert space <span class="math inline">\(\mathcal{H}\)</span>. Conclude that any such kernel can in principle be approximated by a finite-dimensional inner product, making the two-tower inner product model a universal approximator for symmetric PD scoring functions. State the condition that fails for asymmetric scoring functions.</p></li>
+</ol>
+<hr />
+<h3 id="problem-15-multiple-hashings-vs.-larger-single-array">Problem 15: Multiple Hashings vs. Larger Single Array</h3>
+<p><em>This problem analyzes the count-min-sketch-style design of Algorithm 3, proving that multiple independent hashings reduce collision bias more efficiently than enlarging a single hash array.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#algorithm-3:-multiple-hashings%7C§4-—-algorithm-3:-multiple-hashings/">note#Algorithm 3: Multiple Hashings|§4 — Algorithm 3: Multiple Hashings</a></p>
+</blockquote>
+<ol type="a">
+<li><p>With a single hash array of size <span class="math inline">\(H\)</span> and corpus of <span class="math inline">\(M\)</span> items, the expected number of items colliding into a given bucket is <span class="math inline">\(M/H\)</span>. Show that the probability that item <span class="math inline">\(y\)</span> collides with at least one other item is <span class="math inline">\(1 - (1 - 1/H)^{M-1} \approx 1 - e^{-M/H}\)</span>. For <span class="math inline">\(M = 10^7\)</span> and <span class="math inline">\(H = 5000\)</span>, compute this probability.</p></li>
+<li><p>With <span class="math inline">\(m\)</span> arrays each of size <span class="math inline">\(H/m\)</span> (same total memory), each array has collision probability <span class="math inline">\(1 - e^{-Mm/H}\)</span> (higher per array, since arrays are smaller). However, Algorithm 3 takes <span class="math inline">\(\hat{\delta}(y) = \max_i B_i[h_i(y)]\)</span>. Show that the maximum of <span class="math inline">\(m\)</span> independent estimates is less biased than any single estimate when all estimates are biased downward (collisions pull <span class="math inline">\(B_i[h_i(y)]\)</span> below <span class="math inline">\(\delta_y\)</span>).</p></li>
+<li><p>Contrast Algorithm 3 with using a single array of size <span class="math inline">\(mH\)</span> (all the memory in one table). Compare on: (i) expected number of collisions per item (state formulas for both), and (ii) whether the maximum-over-hashings trick applies. Conclude which strategy is preferable when <span class="math inline">\(m \geq 2\)</span> and justify.</p></li>
+</ol>
+<hr />
+<h3 id="problem-16-reward-weighting-and-the-learned-distribution">Problem 16: Reward Weighting and the Learned Distribution</h3>
+<p><em>This problem characterizes the implicit target distribution of the reward-weighted training objective, showing it differs from the raw data distribution in a manner controlled by the reward function.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#full-softmax-objective%7C§2-—-full-softmax-objective/">note#Full Softmax Objective|§2 — Full Softmax Objective</a>; cf. note <a href="../../../notes/note#sequential-training%7C§5-—-sequential-training/">note#Sequential Training|§5 — Sequential Training</a></p>
+</blockquote>
+<ol type="a">
+<li><p>The reward-weighted log-likelihood is <span class="math inline">\(\mathcal{L}(\theta) = -\frac{1}{T}\sum_i r_i \log P(y_i \mid x_i;\,\theta)\)</span>. Show that minimizing this is equivalent to minimizing the KL divergence <span class="math inline">\(\mathrm{KL}(p_r \| P_\theta)\)</span> where <span class="math inline">\(p_r(x,y) \propto r(x,y) \cdot p_{\mathrm{data}}(x,y)\)</span> is a reward-reweighted distribution. Identify <span class="math inline">\(p_r\)</span> explicitly.</p></li>
+<li><p>In the limit of zero approximation error (expressive model), show that the optimal model satisfies <span class="math inline">\(P^*(y \mid x) \propto r(x,y) \cdot p_{\mathrm{data}}(y \mid x)\)</span>. When is this proportional to the pure conditional data distribution <span class="math inline">\(p_{\mathrm{data}}(y \mid x)\)</span>?</p></li>
+<li><p>The paper sets <span class="math inline">\(r_i = 0\)</span> for abandoned clicks and <span class="math inline">\(r_i = 1\)</span> for fully watched videos. Using your answer to (b), describe qualitatively how the retrieval distribution <span class="math inline">\(P^*(y \mid x)\)</span> differs between the reward-weighted model and a binary-click model. What types of content are relatively up-weighted or down-weighted?</p></li>
+</ol>
+<hr />
+<h3 id="problem-17-sequential-training-under-distribution-shift">Problem 17: Sequential Training Under Distribution Shift</h3>
+<p><em>This problem formalizes why sequential (non-shuffled) training is necessary for the streaming frequency estimator to work correctly, and quantifies the distribution-shift bias of a sliding-window approach.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#sequential-training%7C§5-—-sequential-training/">note#Sequential Training|§5 — Sequential Training</a>; cf. note <a href="../../../notes/note#algorithm-2:-single-hash-estimation%7C§4-—-algorithm-2:-single-hash-estimation/">note#Algorithm 2: Single Hash Estimation|§4 — Algorithm 2: Single Hash Estimation</a></p>
+</blockquote>
+<ol type="a">
+<li><p>If training data were randomly shuffled (mixing all days uniformly), the global step counter <span class="math inline">\(t\)</span> in Algorithm 2 would no longer correspond to temporal ordering. Show that the exponential moving average update <span class="math inline">\(B[h(y)] \leftarrow (1-\alpha)B[h(y)] + \alpha(t - A[h(y)])\)</span> would then track the average inter-arrival time under the time-averaged distribution, not the current distribution. Conclude that the recency weighting built into the EMA is destroyed by shuffling.</p></li>
+<li><p>Let <span class="math inline">\(\mathcal{D}_t\)</span> denote the item frequency distribution at day <span class="math inline">\(t\)</span>, and model drift as <span class="math inline">\(\mathcal{D}_t = (1-\beta)\mathcal{D}_{t-1} + \beta\mathcal{D}^{\mathrm{new}}\)</span> for some drift rate <span class="math inline">\(\beta \in (0,1)\)</span> per day. A sliding-window model trained equally on the past <span class="math inline">\(W\)</span> days uses the time-averaged distribution <span class="math inline">\(\bar{\mathcal{D}}_W = \frac{1}{W}\sum_{t'=t-W+1}^t \mathcal{D}_{t'}\)</span>. Show that the distribution shift bias relative to the current day is <span class="math inline">\(\|\bar{\mathcal{D}}_W - \mathcal{D}_t\|_1 = O(\beta W)\)</span>.</p></li>
+<li><p>The paper’s sequential training with EMA frequency estimation automatically upweights recent observations. Show that the effective weight given to observations from <span class="math inline">\(\tau\)</span> steps ago is <span class="math inline">\((1-\alpha)^\tau\)</span>, making the effective window length approximately <span class="math inline">\(1/\alpha\)</span> steps. For <span class="math inline">\(\alpha = 0.01\)</span>, compute this effective window length and compare to the paper’s description of training on 15+ days sequentially.</p></li>
+</ol>
+<hr />
+<h2 id="algorithmic-applications">Algorithmic Applications</h2>
+<h3 id="problem-18-corrected-batch-softmax-loss">Problem 18: Corrected Batch Softmax Loss</h3>
+<p><em>Sketch a complete, numerically stable algorithm for computing the corrected batch softmax loss from Equation (4) of the paper.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#corrected-batch-loss%7C§3-—-corrected-batch-loss/">note#Corrected Batch Loss|§3 — Corrected Batch Loss</a></p>
+</blockquote>
+<ol type="a">
+<li><p><strong>Inputs and data structures.</strong> Define the inputs: score matrix <span class="math inline">\(S \in \mathbb{R}^{B \times B}\)</span> where <span class="math inline">\(S_{ij} = s(x_i, y_j)\)</span>, log-sampling-probability vector <span class="math inline">\(\ell_p \in \mathbb{R}^B\)</span> where <span class="math inline">\(\ell_p[j] = \log \hat{p}_j\)</span>, and reward vector <span class="math inline">\(r \in \mathbb{R}^B\)</span>. State what each dimension of <span class="math inline">\(S\)</span> represents.</p></li>
+<li><p><strong>Logit correction.</strong> Describe how to form the corrected score matrix <span class="math inline">\(S^c\)</span> by broadcasting <span class="math inline">\(\ell_p\)</span> over the item dimension (columns). Write the element-wise operation: <span class="math inline">\(S^c[i,j] = S[i,j] - \ell_p[j]\)</span> for all <span class="math inline">\(i, j\)</span>. Explain why the subtraction is along the item (column) axis, not the query (row) axis.</p></li>
+<li><p><strong>Numerically stable log-softmax.</strong> Describe the log-sum-exp stabilization: subtract <span class="math inline">\(\max_j S^c[i,j]\)</span> from each row before exponentiation. Write pseudocode for <code>row_log_softmax(S_c)</code> and state why this is numerically equivalent to the naive formula but avoids overflow.</p></li>
+<li><p><strong>Diagonal extraction and loss.</strong> The positive for query <span class="math inline">\(i\)</span> is item <span class="math inline">\(i\)</span> (diagonal of <span class="math inline">\(S^c\)</span>). Extract the diagonal log-softmax values, multiply by rewards, negate, and average. Write complete pseudocode for <code>corrected_batch_loss(S, log_p_hat, r)</code> and state its time complexity in <span class="math inline">\(B\)</span>.</p></li>
+<li><p><strong>Self-negative handling.</strong> For each query <span class="math inline">\(i\)</span>, item <span class="math inline">\(i\)</span> appears in both the numerator and the denominator of the softmax. Explain whether this is correct (the self-negative is included in the denominator) or whether it should be masked out, and what the paper does.</p></li>
+</ol>
+<hr />
+<h3 id="problem-19-distributed-streaming-frequency-estimation">Problem 19: Distributed Streaming Frequency Estimation</h3>
+<p><em>Sketch Algorithm 2 adapted for a distributed training setting with multiple workers sharing state via a parameter server.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#algorithm-2:-single-hash-estimation%7C§4-—-algorithm-2:-single-hash-estimation/">note#Algorithm 2: Single Hash Estimation|§4 — Algorithm 2: Single Hash Estimation</a></p>
+</blockquote>
+<ol type="a">
+<li><p><strong>Data structure.</strong> Describe the shared state on the parameter server: arrays <span class="math inline">\(A[0..H-1]\)</span> (integer, last seen step) and <span class="math inline">\(B[0..H-1]\)</span> (float, EMA of inter-arrival times), global step counter <span class="math inline">\(t\)</span>, hash function <span class="math inline">\(h : \mathcal{Y} \to [H]\)</span>, and learning rate <span class="math inline">\(\alpha\)</span>.</p></li>
+<li><p><strong>Worker update protocol.</strong> Each worker processes one batch per step. Write pseudocode for the per-item update a worker performs for each item <span class="math inline">\(y\)</span> in its batch, including read, compute, and write steps. Note the non-atomic read-write and argue that race conditions only lose one sample rather than corrupting the estimate.</p></li>
+<li><p><strong>Inference.</strong> After updating, the worker needs <span class="math inline">\(\hat{p}(y) = 1/B[h(y)]\)</span> immediately for the logQ correction. Describe a caching strategy: use the locally computed new value of <span class="math inline">\(B[h(y)]\)</span> (before sending the write to the server) to avoid a second round-trip. State the staleness of this estimate.</p></li>
+<li><p><strong>Initialization.</strong> The note shows that <span class="math inline">\(\delta_0 = \delta/(1-\alpha)\)</span> makes the estimator unbiased from step one. Since <span class="math inline">\(\delta\)</span> is unknown, describe two practical initialization strategies: (i) initialize <span class="math inline">\(B[k] = 1\)</span> (assumes frequency = 1 per step); (ii) initialize <span class="math inline">\(B[k] = M/B\)</span> (uniform prior: each item appears on average every <span class="math inline">\(M/B\)</span> steps). Compare their initial bias.</p></li>
+</ol>
+<hr />
+<h3 id="problem-20-multiple-hashing-frequency-estimator">Problem 20: Multiple-Hashing Frequency Estimator</h3>
+<p><em>Sketch Algorithm 3 (multiple hashings for collision-robust frequency estimation) including data structure layout, update rule, and inference.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#algorithm-3:-multiple-hashings%7C§4-—-algorithm-3:-multiple-hashings/">note#Algorithm 3: Multiple Hashings|§4 — Algorithm 3: Multiple Hashings</a>; requires Problem 19</p>
+</blockquote>
+<ol type="a">
+<li><p><strong>Data structure.</strong> Maintain <span class="math inline">\(m\)</span> independent pairs of arrays <span class="math inline">\((A_i[0..H/m-1], B_i[0..H/m-1])\)</span> with independent hash functions <span class="math inline">\(h_i : \mathcal{Y} \to [H/m]\)</span> for <span class="math inline">\(i = 1, \ldots, m\)</span>. State total memory (in array entries) and confirm it equals the single-hashing baseline.</p></li>
+<li><p><strong>Update rule.</strong> For each item <span class="math inline">\(y\)</span> in the batch at step <span class="math inline">\(t\)</span>, update all <span class="math inline">\(m\)</span> arrays independently using the same rule as Algorithm 2. Write pseudocode. Explain why the <span class="math inline">\(m\)</span> updates are independent (no shared state across hash functions).</p></li>
+<li><p><strong>Inference.</strong> Compute <span class="math inline">\(\hat{p}(y) = 1/\max_i B_i[h_i(y)]\)</span>. Explain the directional argument: each <span class="math inline">\(B_i[h_i(y)]\)</span> underestimates <span class="math inline">\(\delta_y\)</span> due to collisions pulling the EMA downward, so the maximum over <span class="math inline">\(m\)</span> estimates is the least-biased. Relate this to the count-min sketch which takes the minimum of bucket counts (opposite direction because counts are over-estimated by collisions).</p></li>
+<li><p><strong>Complexity and tradeoffs.</strong> State the time complexity of the update for a batch of <span class="math inline">\(B\)</span> items with <span class="math inline">\(m\)</span> hash functions and the time complexity of inference. For <span class="math inline">\(m = 4\)</span> and <span class="math inline">\(H = 5000\)</span>, each array has <span class="math inline">\(H/m = 1250\)</span> buckets. Compute the expected collision probability for <span class="math inline">\(M = 10^7\)</span> items and compare to <span class="math inline">\(m = 1\)</span> with <span class="math inline">\(H = 5000\)</span> (using the formula from Problem 15(a)).</p></li>
+</ol>
+<hr />
+<h3 id="problem-21-recall-at-k-evaluation-against-a-full-corpus">Problem 21: Recall at K Evaluation Against a Full Corpus</h3>
+<p><em>Sketch an exact and approximate evaluation pipeline for Recall@K that handles both single-positive and multi-positive settings.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#wikipedia-link-prediction%7C§6-—-wikipedia-link-prediction/">note#Wikipedia Link Prediction|§6 — Wikipedia Link Prediction</a>; cf. note <a href="../../../notes/note#indexing-and-serving%7C§5-—-indexing-and-serving/">note#Indexing and Serving|§5 — Indexing and Serving</a></p>
+</blockquote>
+<ol type="a">
+<li><p><strong>Embedding computation.</strong> Describe how to compute query embeddings <span class="math inline">\(\{u_i\}_{i=1}^N\)</span> and item embeddings <span class="math inline">\(\{v_j\}_{j=1}^M\)</span> using the trained towers. Identify the computational bottleneck (hint: <span class="math inline">\(M \gg N\)</span>) and explain why item embeddings are precomputed and cached. State the total memory for embedding storage.</p></li>
+<li><p><strong>Exact Recall@K.</strong> For each query <span class="math inline">\(i\)</span> with positive item <span class="math inline">\(y_i^+\)</span>: compute scores <span class="math inline">\(\langle u_i, v_j \rangle\)</span> for all <span class="math inline">\(j\)</span>, find the rank of <span class="math inline">\(y_i^+\)</span>, and compute <span class="math inline">\(\mathrm{Hit}_i = \mathbf{1}[\mathrm{rank}(y_i^+) \leq K]\)</span>. State the time complexity in terms of <span class="math inline">\(N\)</span>, <span class="math inline">\(M\)</span>, <span class="math inline">\(k\)</span>.</p></li>
+<li><p><strong>Approximate Recall@K via ANN.</strong> Describe the ANN-based pipeline: build an index over <span class="math inline">\(\{v_j\}\)</span>, retrieve approximate top-<span class="math inline">\(K\)</span> for each <span class="math inline">\(u_i\)</span>, check whether <span class="math inline">\(y_i^+\)</span> is among the retrieved set. Define the ANN recall gap <span class="math inline">\(= \mathrm{Recall@}K^{\mathrm{exact}} - \mathrm{Recall@}K^{\mathrm{ANN}}\)</span> and name its two sources.</p></li>
+<li><p><strong>Multi-positive generalization.</strong> In YouTube, a query may have a set of positive items <span class="math inline">\(\mathcal{P}_i\)</span>. Define multi-positive Recall@<span class="math inline">\(K\)</span> as <span class="math inline">\(\frac{1}{N}\sum_i \frac{|\mathcal{P}_i \cap \mathrm{top}_K(u_i)|}{|\mathcal{P}_i|}\)</span>. Write pseudocode. State when this reduces to the single-positive definition.</p></li>
+</ol>
+<hr />
+<h3 id="problem-22-sequential-training-with-online-frequency-updates">Problem 22: Sequential Training with Online Frequency Updates</h3>
+<p><em>Sketch the full end-to-end training loop of the YouTube system combining sequential data ingestion, online frequency estimation, and corrected batch softmax.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> cf. note <a href="../../../notes/note#sequential-training%7C§5-—-sequential-training/">note#Sequential Training|§5 — Sequential Training</a>; cf. note <a href="../../../notes/note#algorithm-2:-single-hash-estimation%7C§4-—-algorithm-2:-single-hash-estimation/">note#Algorithm 2: Single Hash Estimation|§4 — Algorithm 2: Single Hash Estimation</a>; cf. note <a href="../../../notes/note#corrected-batch-loss%7C§3-—-corrected-batch-loss/">note#Corrected Batch Loss|§3 — Corrected Batch Loss</a></p>
+</blockquote>
+<ol type="a">
+<li><p><strong>Outer loop.</strong> Describe the day-level training loop: iterate over days from oldest to most recent; within each day, iterate over mini-batches. State what happens once the model catches up to the current day.</p></li>
+<li><p><strong>Inner loop.</strong> For each mini-batch of size <span class="math inline">\(B\)</span> at global step <span class="math inline">\(t\)</span>: (i) extract item IDs from the batch; (ii) update the frequency estimator arrays for all items (Algorithm 2); (iii) read <span class="math inline">\(\hat{p}(y_j)\)</span> for each item; (iv) compute corrected logits <span class="math inline">\(s^c_{ij} = s_{ij} - \log\hat{p}(y_j)\)</span>; (v) compute the corrected batch loss (Problem 18); (vi) backpropagate and update <span class="math inline">\(\theta\)</span>. Write pseudocode for this inner loop.</p></li>
+<li><p><strong>Ordering constraint.</strong> Explain why frequency estimator updates (step ii) must happen before logit correction (step iv) within the same batch. What would happen if the estimator were updated after the logit correction?</p></li>
+<li><p><strong>Complexity.</strong> State the time complexity of one inner-loop iteration in terms of <span class="math inline">\(B\)</span>, <span class="math inline">\(k\)</span> (embedding dimension), <span class="math inline">\(m\)</span> (number of hash functions), and <span class="math inline">\(H\)</span>. Identify the dominant term and argue that the frequency estimation overhead is negligible compared to the forward/backward pass through the two towers.</p></li>
+</ol>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

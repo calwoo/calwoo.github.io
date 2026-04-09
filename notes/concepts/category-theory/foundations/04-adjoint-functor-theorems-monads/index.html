@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>04-adjoint-functor-theorems-monads - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../../">Home</a>
+                <a href="../../../../../about.html">About</a>
+                <a href="../../../../../contact.html">Contact</a>
+                <a href="../../../../../archive.html">Archive</a>
+                <a href="../../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>04-adjoint-functor-theorems-monads</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../../notes/#1.-motivation:-when-does-a-functor-have-an-adjoint%7C1.-motivation:-when-does-a-functor-have-an-adjoint/">#1. Motivation: When Does a Functor Have an Adjoint|1. Motivation: When Does a Functor Have an Adjoint</a></li>
+<li><a href="../../../../../notes/#2.-adjoints-and-infima-in-posets%7C2.-adjoints-and-infima-in-posets/">#2. Adjoints and Infima in Posets|2. Adjoints and Infima in Posets</a></li>
+<li><a href="../../../../../notes/#3.-monads:-definition-and-first-examples%7C3.-monads:-definition-and-first-examples/">#3. Monads: Definition and First Examples|3. Monads: Definition and First Examples</a>
+<ul>
+<li><a href="../../../../../notes/#3.1-the-definition%7C3.1-the-definition/">#3.1 The Definition|3.1 The Definition</a></li>
+<li><a href="../../../../../notes/#3.2-every-adjunction-gives-a-monad%7C3.2-every-adjunction-gives-a-monad/">#3.2 Every Adjunction Gives a Monad|3.2 Every Adjunction Gives a Monad</a></li>
+<li><a href="../../../../../notes/#3.3-every-monad-arises-from-an-adjunction%7C3.3-every-monad-arises-from-an-adjunction/">#3.3 Every Monad Arises from an Adjunction|3.3 Every Monad Arises from an Adjunction</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#4.-eilenberg-moore-algebras%7C4.-eilenberg-moore-algebras/">#4. Eilenberg-Moore Algebras|4. Eilenberg-Moore Algebras</a>
+<ul>
+<li><a href="../../../../../notes/#4.1-t-algebras-and-their-morphisms%7C4.1-t-algebras-and-their-morphisms/">#4.1 T-Algebras and Their Morphisms|4.1 T-Algebras and Their Morphisms</a></li>
+<li><a href="../../../../../notes/#4.2-the-eilenberg-moore-category%7C4.2-the-eilenberg-moore-category/">#4.2 The Eilenberg-Moore Category|4.2 The Eilenberg-Moore Category</a></li>
+<li><a href="../../../../../notes/#4.3-the-comparison-functor%7C4.3-the-comparison-functor/">#4.3 The Comparison Functor|4.3 The Comparison Functor</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#5.-absolute-coequalizers-and-split-pairs%7C5.-absolute-coequalizers-and-split-pairs/">#5. Absolute Coequalizers and Split Pairs|5. Absolute Coequalizers and Split Pairs</a>
+<ul>
+<li><a href="../../../../../notes/#5.1-reflexive-pairs%7C5.1-reflexive-pairs/">#5.1 Reflexive Pairs|5.1 Reflexive Pairs</a></li>
+<li><a href="../../../../../notes/#5.2-split-coequalizers%7C5.2-split-coequalizers/">#5.2 Split Coequalizers|5.2 Split Coequalizers</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#6.-set-adjoint,-representable,-and-limit-preserving-functors%7C6.-set-adjoint,-representable,-and-limit-preserving-functors/">#6. Set-Adjoint, Representable, and Limit-Preserving Functors|6. Set-Adjoint, Representable, and Limit-Preserving Functors</a></li>
+<li><a href="../../../../../notes/#7.-the-general-adjoint-functor-theorem%7C7.-the-general-adjoint-functor-theorem/">#7. The General Adjoint Functor Theorem|7. The General Adjoint Functor Theorem</a>
+<ul>
+<li><a href="../../../../../notes/#7.1-the-solution-set-condition%7C7.1-the-solution-set-condition/">#7.1 The Solution Set Condition|7.1 The Solution Set Condition</a></li>
+<li><a href="../../../../../notes/#7.2-proof-sketch%7C7.2-proof-sketch/">#7.2 Proof Sketch|7.2 Proof Sketch</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#8.-well-powered-categories-and-the-subobject-functor%7C8.-well-powered-categories-and-the-subobject-functor/">#8. Well-Powered Categories and the Subobject Functor|8. Well-Powered Categories and the Subobject Functor</a></li>
+<li><a href="../../../../../notes/#9.-the-special-adjoint-functor-theorem%7C9.-the-special-adjoint-functor-theorem/">#9. The Special Adjoint Functor Theorem|9. The Special Adjoint Functor Theorem</a>
+<ul>
+<li><a href="../../../../../notes/#9.1-coseparating-sets%7C9.1-coseparating-sets/">#9.1 Coseparating Sets|9.1 Coseparating Sets</a></li>
+<li><a href="../../../../../notes/#9.2-proof-sketch-via-gaft%7C9.2-proof-sketch-via-gaft/">#9.2 Proof Sketch via GAFT|9.2 Proof Sketch via GAFT</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#10.-applications-of-gaft-and-saft%7C10.-applications-of-gaft-and-saft/">#10. Applications of GAFT and SAFT|10. Applications of GAFT and SAFT</a></li>
+<li><a href="../../../../../notes/#11.-the-eilenberg-moore-category:-creation-theorems%7C11.-the-eilenberg-moore-category:-creation-theorems/">#11. The Eilenberg-Moore Category: Creation Theorems|11. The Eilenberg-Moore Category: Creation Theorems</a>
+<ul>
+<li><a href="../../../../../notes/#11.1-creation-of-limits%7C11.1-creation-of-limits/">#11.1 Creation of Limits|11.1 Creation of Limits</a></li>
+<li><a href="../../../../../notes/#11.2-creation-of-coequalizers-for-absolute-pairs%7C11.2-creation-of-coequalizers-for-absolute-pairs/">#11.2 Creation of Coequalizers for Absolute Pairs|11.2 Creation of Coequalizers for Absolute Pairs</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#12.-idempotent-monads%7C12.-idempotent-monads/">#12. Idempotent Monads|12. Idempotent Monads</a></li>
+<li><a href="../../../../../notes/#13.-presheaves-are-monadic%7C13.-presheaves-are-monadic/">#13. Presheaves Are Monadic|13. Presheaves Are Monadic</a></li>
+<li><a href="../../../../../notes/#14.-the-beck-monadicity-theorem%7C14.-the-beck-monadicity-theorem/">#14. The Beck Monadicity Theorem|14. The Beck Monadicity Theorem</a>
+<ul>
+<li><a href="../../../../../notes/#14.1-the-huge-monadicity-theorem%7C14.1-the-huge-monadicity-theorem/">#14.1 The Huge Monadicity Theorem|14.1 The Huge Monadicity Theorem</a></li>
+<li><a href="../../../../../notes/#14.2-proof-strategy%7C14.2-proof-strategy/">#14.2 Proof Strategy|14.2 Proof Strategy</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#15.-the-comparison-functor-revisited%7C15.-the-comparison-functor-revisited/">#15. The Comparison Functor Revisited|15. The Comparison Functor Revisited</a></li>
+<li><a href="../../../../../notes/#16.-geometric-realization-via-saft%7C16.-geometric-realization-via-saft/">#16. Geometric Realization via SAFT|16. Geometric Realization via SAFT</a></li>
+<li><a href="../../../../../notes/#17.-comonads-from-adjunctions%7C17.-comonads-from-adjunctions/">#17. Comonads from Adjunctions|17. Comonads from Adjunctions</a></li>
+<li><a href="../../../../../notes/#18.-monadic-categories-over-set-and-top%7C18.-monadic-categories-over-set-and-top/">#18. Monadic Categories over Set and Top|18. Monadic Categories over Set and Top</a></li>
+<li><a href="../../../../../notes/#19.-canonical-presentations-and-the-bar-construction%7C19.-canonical-presentations-and-the-bar-construction-🔩/">#19. Canonical Presentations and the Bar Construction|19. Canonical Presentations and the Bar Construction 🔩</a></li>
+<li><a href="../../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<div class="callout callout-info">
+<p> Series context
+This is File 4 of 4 in a self-study series based on Tom Leinster’s Part III Cambridge course (Michaelmas 2000). This file presupposes <a href="../../../../../notes/concepts/category-theory/01-categories-functors-natural-transformations%7Cfile-1/">concepts/category-theory/01-categories-functors-natural-transformations|File 1</a> (categories and functors), <a href="../../../../../notes/concepts/category-theory/02-adjoints-representables%7Cfile-2/">concepts/category-theory/02-adjoints-representables|File 2</a> (adjoints and representables), and <a href="../../../../../notes/concepts/category-theory/03-limits-colimits%7Cfile-3/">concepts/category-theory/03-limits-colimits|File 3</a> (limits and colimits). All 17 exercises are taken verbatim in spirit from Sheet 4 of the course.</p>
+</div>
+<hr />
+<h2 id="motivation-when-does-a-functor-have-an-adjoint">1. Motivation: When Does a Functor Have an Adjoint 🔍</h2>
+<p>A central result proved in <a href="../../../../../notes/concepts/category-theory/03-limits-colimits%7Cfile-3/">concepts/category-theory/03-limits-colimits|File 3</a> is that right adjoints preserve limits. More precisely, if <span class="math inline">\(F \dashv G\)</span> with <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span>, then <span class="math inline">\(G\)</span> preserves all limits that exist in <span class="math inline">\(\mathcal{D}\)</span>.</p>
+<p>This raises the converse question: <strong>when does limit-preservation suffice to guarantee the existence of a left adjoint?</strong> The answer is the content of the <em>Adjoint Functor Theorems</em>, the main subject of this file.</p>
+<div class="callout callout-info">
+<p> Motivating example: reflective subcategories
+A full subcategory <span class="math inline">\(\mathcal{D} \hookrightarrow \mathcal{C}\)</span> is <em>reflective</em> if the inclusion functor <span class="math inline">\(i \colon \mathcal{D} \to \mathcal{C}\)</span> has a left adjoint <span class="math inline">\(L \colon \mathcal{C} \to \mathcal{D}\)</span> (the <em>reflector</em> or <em>localization</em>). The adjoint functor theorems tell us when a limit-preserving inclusion has a reflector, bypassing the need to construct <span class="math inline">\(L\)</span> by hand.</p>
+<p>Classical examples: abelian groups inside all groups, sheaves inside presheaves, compact Hausdorff spaces inside all topological spaces.</p>
+</div>
+<p>The plan is:
+1. Understand the poset case, where the theorem is transparent.
+2. State and prove the <em>General Adjoint Functor Theorem</em> (GAFT) using the <em>solution set condition</em>.
+3. Derive the <em>Special Adjoint Functor Theorem</em> (SAFT) using well-poweredness.
+4. Develop the theory of <em>monads</em> and prove <em>Beck’s Monadicity Theorem</em>.</p>
+<hr />
+<h2 id="adjoints-and-infima-in-posets">2. Adjoints and Infima in Posets 📊</h2>
+<p>A <em>poset</em> <span class="math inline">\((P, \leq)\)</span> is a category whose objects are elements of <span class="math inline">\(P\)</span> and whose hom-sets satisfy <span class="math inline">\(|P(p, q)| \leq 1\)</span>, with a morphism <span class="math inline">\(p \to q\)</span> iff <span class="math inline">\(p \leq q\)</span>. A functor between posets is exactly a <em>monotone map</em>.</p>
+<div class="callout callout-info">
+<p> Leinster on the poset case
+Leinster uses the poset case as the key model for understanding the adjoint functor theorem. In a poset, a limit is an infimum, a colimit is a supremum, and a left adjoint is a “best approximation from below.” The GAFT in the poset case reduces to: a monotone map <span class="math inline">\(g \colon Q \to P\)</span> (where <span class="math inline">\(Q\)</span> has all infima) has a left adjoint if and only if <span class="math inline">\(g\)</span> preserves all infima. This is a clean, verifiable condition — and the full GAFT in categories generalises this by replacing “preserves infima” with “preserves limits” and adding the solution set condition to handle size issues.</p>
+</div>
+<p><strong>Definition (Adjunction in a Poset).</strong> Let <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span> be posets. Monotone maps <span class="math inline">\(f \colon P \to Q\)</span> and <span class="math inline">\(g \colon Q \to P\)</span> form an adjunction <span class="math inline">\(f \dashv g\)</span> if and only if:
+<span class="math display">\[f(p) \leq q \iff p \leq g(q) \quad \text{for all } p \in P,\, q \in Q.\]</span>
+The map <span class="math inline">\(f\)</span> is called a <em>Galois connection</em> lower adjoint and <span class="math inline">\(g\)</span> the upper adjoint.</p>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(g \colon Q \to P\)</span> be a monotone map where <span class="math inline">\(Q\)</span> has all infima. Then <span class="math inline">\(g\)</span> has a left adjoint if and only if <span class="math inline">\(g\)</span> preserves all infima. In that case, the left adjoint is:
+<span class="math display">\[f(p) = \inf\{q \in Q : p \leq g(q)\}.\]</span></p>
+<p><em>Proof sketch.</em> If <span class="math inline">\(f \dashv g\)</span>, then for any <span class="math inline">\(p \in P\)</span> the set <span class="math inline">\(\{q \in Q : p \leq g(q)\} = \{q : f(p) \leq q\}\)</span>, and its infimum is <span class="math inline">\(f(p)\)</span>. This shows <span class="math inline">\(g\)</span> must preserve infima. Conversely, given that <span class="math inline">\(g\)</span> preserves infima, define <span class="math inline">\(f(p) = \inf\{q : p \leq g(q)\}\)</span>. One checks <span class="math inline">\(p \leq g(f(p))\)</span> (using infimum closure and preservation) and <span class="math inline">\(f(g(q)) \leq q\)</span>, establishing <span class="math inline">\(f \dashv g\)</span>.</p>
+<div class="callout callout-example">
+<p> The power set poset
+Let <span class="math inline">\(P = Q = \mathcal{P}(X)\)</span> ordered by inclusion, and let $g = $ the operation <span class="math inline">\(B \mapsto B^c\)</span> (complement). Then <span class="math inline">\(g\)</span> reverses order and does not preserve infima (which are intersections) in general. The poset example shows that infimum-preservation is the <em>exact</em> condition needed.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 1
+Let <span class="math inline">\(g \colon Y \to X\)</span> be a monotone map between posets where <span class="math inline">\(Y\)</span> has all infima and <span class="math inline">\(g\)</span> preserves them. Construct an explicit left adjoint <span class="math inline">\(f \colon X \to Y\)</span> to <span class="math inline">\(g\)</span>, and verify the adjunction identity <span class="math inline">\(f(x) \leq y \iff x \leq g(y)\)</span>.</p>
+<p>(Hint: set <span class="math inline">\(f(x) = \inf\{y \in Y : x \leq g(y)\}\)</span>. You will need to use infimum-preservation to establish <span class="math inline">\(x \leq g(f(x))\)</span>.)</p>
+</div>
+<hr />
+<h2 id="monads-definition-and-first-examples">3. Monads: Definition and First Examples 🔑</h2>
+<div class="callout callout-info">
+<p> Leinster on monads
+Leinster does not cover monads in <em>Basic Category Theory</em> (the book ends with Chapter 6 on adjoints and Chapter 7 on limits). However, his Part III Cambridge course (from which these notes derive) does cover monads in the later lectures. The material in this section is drawn from those lecture notes and from standard references (Mac Lane, Riehl). The “monad as monoid in endofunctors” slogan is due to Mac Lane.</p>
+</div>
+<h3 id="the-definition">3.1 The Definition</h3>
+<p>A <em>monad</em> is the categorical abstraction of a monoid acting on itself — or, as the slogan goes, “a monad is just a monoid in the category of endofunctors.”</p>
+<p><strong>Definition (Monad).</strong> A monad on a category <span class="math inline">\(\mathcal{C}\)</span> is a triple <span class="math inline">\((T, \eta, \mu)\)</span> consisting of:
+- an endofunctor <span class="math inline">\(T \colon \mathcal{C} \to \mathcal{C}\)</span>,
+- a natural transformation <span class="math inline">\(\eta \colon \mathrm{id}_{\mathcal{C}} \Rightarrow T\)</span> called the <em>unit</em>,
+- a natural transformation <span class="math inline">\(\mu \colon T^2 \Rightarrow T\)</span> (where <span class="math inline">\(T^2 = T \circ T\)</span>) called the <em>multiplication</em>,</p>
+<p>subject to the following two axioms, expressed as commutative diagrams:</p>
+<p><strong>Associativity:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>T^3 <span class="fu">\arrow</span>[r, &quot;T<span class="fu">\mu</span>&quot;] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\mu</span> T&quot;'] &amp; T^2 <span class="fu">\arrow</span>[d, &quot;<span class="fu">\mu</span>&quot;] <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>T^2 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\mu</span>&quot;'] &amp; T</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>That is: <span class="math inline">\(\mu \circ T\mu = \mu \circ \mu T\)</span> as natural transformations <span class="math inline">\(T^3 \Rightarrow T\)</span>.</p>
+<p><strong>Unit laws:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>T <span class="fu">\arrow</span>[r, &quot;<span class="fu">\eta</span> T&quot;] <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\mathrm</span>{id}_T&quot;'] &amp; T^2 <span class="fu">\arrow</span>[d, &quot;<span class="fu">\mu</span>&quot;] &amp; T <span class="fu">\arrow</span>[l, &quot;T<span class="fu">\eta</span>&quot;'] <span class="fu">\arrow</span>[dl, &quot;<span class="fu">\mathrm</span>{id}_T&quot;] <span class="fu">\\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>&amp; T &amp;</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>That is: <span class="math inline">\(\mu \circ \eta T = \mathrm{id}_T = \mu \circ T\eta\)</span>.</p>
+<div class="callout callout-info">
+<p> Monoids in endofunctor categories
+The monoidal category <span class="math inline">\([\mathcal{C}, \mathcal{C}]\)</span> of endofunctors of <span class="math inline">\(\mathcal{C}\)</span> under composition has unit object <span class="math inline">\(\mathrm{id}_{\mathcal{C}}\)</span> and tensor product <span class="math inline">\(\circ\)</span>. A monoid in this monoidal category is precisely a triple <span class="math inline">\((T, \eta, \mu)\)</span> satisfying the above axioms — the associativity and unit laws for monoids translate directly. This is the origin of the slogan “a monad is a monoid in the category of endofunctors.”</p>
+</div>
+<p><strong>Examples:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Monad <span class="math inline">\(T\)</span> on <span class="math inline">\(\mathbf{Set}\)</span></th>
+<th>Unit <span class="math inline">\(\eta_A\)</span></th>
+<th>Multiplication <span class="math inline">\(\mu_A\)</span></th>
+<th>Eilenberg-Moore algebras</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>$TA = $ free monoid on <span class="math inline">\(A\)</span> (lists)</td>
+<td><span class="math inline">\(a \mapsto [a]\)</span></td>
+<td>concatenation of lists of lists</td>
+<td>monoids</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(TA = \mathcal{P}(A)\)</span> (power set)</td>
+<td><span class="math inline">\(a \mapsto \{a\}\)</span></td>
+<td>union of a set of sets</td>
+<td>complete lattices (sup-semilattices)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(TA = A + E\)</span> (exception monad, <span class="math inline">\(E\)</span> fixed)</td>
+<td><span class="math inline">\(a \mapsto \mathrm{inl}(a)\)</span></td>
+<td>flatten double-layer</td>
+<td>sets with a distinguished element</td>
+</tr>
+<tr class="even">
+<td>$TA = $ free <span class="math inline">\(R\)</span>-module on <span class="math inline">\(A\)</span></td>
+<td><span class="math inline">\(a \mapsto 1 \cdot a\)</span></td>
+<td><span class="math inline">\(R\)</span>-linearity of evaluation</td>
+<td><span class="math inline">\(R\)</span>-modules</td>
+</tr>
+</tbody>
+</table>
+<h3 id="every-adjunction-gives-a-monad">3.2 Every Adjunction Gives a Monad</h3>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(F \dashv G\)</span> with <span class="math inline">\(F \colon \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span>, unit <span class="math inline">\(\eta \colon \mathrm{id}_{\mathcal{C}} \Rightarrow GF\)</span>, and counit <span class="math inline">\(\varepsilon \colon FG \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span>. Then <span class="math inline">\((T, \eta, \mu)\)</span> where <span class="math inline">\(T = GF\)</span> and <span class="math inline">\(\mu = G\varepsilon F \colon GFGF \Rightarrow GF\)</span> is a monad on <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p><em>Proof sketch.</em> The unit law <span class="math inline">\(\mu \circ \eta T = \mathrm{id}_T\)</span> follows from one of the triangle identities <span class="math inline">\(G\varepsilon \circ \eta G = \mathrm{id}_G\)</span>. The law <span class="math inline">\(\mu \circ T\eta = \mathrm{id}_T\)</span> follows from <span class="math inline">\(\varepsilon F \circ F\eta = \mathrm{id}_F\)</span> and applying <span class="math inline">\(G\)</span>. Associativity <span class="math inline">\(\mu \circ T\mu = \mu \circ \mu T\)</span> reduces to naturality of <span class="math inline">\(\varepsilon\)</span>.</p>
+<div class="callout callout-example">
+<p> The free-forgetful adjunction for groups
+Let <span class="math inline">\(F \colon \mathbf{Set} \to \mathbf{Grp}\)</span> be the free group functor and <span class="math inline">\(U \colon \mathbf{Grp} \to \mathbf{Set}\)</span> the forgetful functor, <span class="math inline">\(F \dashv U\)</span>. The monad <span class="math inline">\(T = UF\)</span> sends a set <span class="math inline">\(A\)</span> to the underlying set of the free group on <span class="math inline">\(A\)</span>: words in <span class="math inline">\(A \cup A^{-1}\)</span>. The unit <span class="math inline">\(\eta_A\)</span> embeds <span class="math inline">\(A\)</span> as length-one words; the multiplication <span class="math inline">\(\mu_A\)</span> flattens a word of words by concatenation and reduction.</p>
+</div>
+<h3 id="every-monad-arises-from-an-adjunction">3.3 Every Monad Arises from an Adjunction</h3>
+<p><strong>Theorem.</strong> Every monad <span class="math inline">\((T, \eta, \mu)\)</span> on <span class="math inline">\(\mathcal{C}\)</span> arises from at least one adjunction. In fact, it arises from (at least) two canonical ones:
+1. The <em>Kleisli adjunction</em> <span class="math inline">\(F_T \dashv U_T \colon \mathcal{C}_T \to \mathcal{C}\)</span> via the <em>Kleisli category</em> <span class="math inline">\(\mathcal{C}_T\)</span> (objects of <span class="math inline">\(\mathcal{C}\)</span>, morphisms <span class="math inline">\(A \to B\)</span> in <span class="math inline">\(\mathcal{C}_T\)</span> are morphisms <span class="math inline">\(A \to TB\)</span> in <span class="math inline">\(\mathcal{C}\)</span>).
+2. The <em>Eilenberg-Moore adjunction</em> <span class="math inline">\(F^T \dashv U^T \colon \mathcal{C}^T \to \mathcal{C}\)</span> via the <em>Eilenberg-Moore category</em> <span class="math inline">\(\mathcal{C}^T\)</span> of <span class="math inline">\(T\)</span>-algebras (defined in §4).</p>
+<p>The Kleisli adjunction is the <em>initial</em> adjunction giving rise to <span class="math inline">\((T, \eta, \mu)\)</span>; the Eilenberg-Moore adjunction is the <em>terminal</em> one.</p>
+<div class="callout callout-note">
+<p> Exercise 2
+(i) Define a monad <span class="math inline">\((T, \eta, \mu)\)</span> on a category <span class="math inline">\(\mathcal{C}\)</span>. State the monad axioms precisely. Explain how every adjunction <span class="math inline">\(F \dashv G \colon \mathcal{C} \rightleftharpoons \mathcal{D}\)</span> gives rise to a monad on <span class="math inline">\(\mathcal{C}\)</span>, verifying the axioms.</p>
+<ol start="2" type="i">
+<li>A functor <span class="math inline">\(U \colon \mathcal{D} \to \mathcal{C}\)</span> is <em>monadic</em> if it has a left adjoint <span class="math inline">\(F \dashv U\)</span> and the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> (where <span class="math inline">\(\mathcal{C}^T\)</span> is the Eilenberg-Moore category for <span class="math inline">\(T = UF\)</span>) is an equivalence of categories. Show that every monadic functor is faithful and reflects isomorphisms.</li>
+</ol>
+</div>
+<hr />
+<h2 id="eilenberg-moore-algebras">4. Eilenberg-Moore Algebras 🏗️</h2>
+<h3 id="t-algebras-and-their-morphisms">4.1 T-Algebras and Their Morphisms</h3>
+<p><strong>Definition (T-Algebra).</strong> Let <span class="math inline">\((T, \eta, \mu)\)</span> be a monad on <span class="math inline">\(\mathcal{C}\)</span>. A <em><span class="math inline">\(T\)</span>-algebra</em> (or <em>Eilenberg-Moore algebra</em>) is a pair <span class="math inline">\((A, a)\)</span> where <span class="math inline">\(A \in \mathcal{C}\)</span> and <span class="math inline">\(a \colon TA \to A\)</span> is a morphism in <span class="math inline">\(\mathcal{C}\)</span>, called the <em>structure map</em>, satisfying:</p>
+<ul>
+<li><strong>Unit law:</strong> <span class="math inline">\(a \circ \eta_A = \mathrm{id}_A\)</span> (the unit is a section of <span class="math inline">\(a\)</span>),</li>
+<li><strong>Multiplication law:</strong> <span class="math inline">\(a \circ \mu_A = a \circ Ta\)</span> (the two ways of collapsing <span class="math inline">\(T^2A\)</span> to <span class="math inline">\(A\)</span> agree).</li>
+</ul>
+<p>As commutative diagrams:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>A <span class="fu">\arrow</span>[r, &quot;<span class="fu">\eta</span>_A&quot;] <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\mathrm</span>{id}_A&quot;'] &amp; TA <span class="fu">\arrow</span>[d, &quot;a&quot;] <span class="fu">\\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>&amp; A</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>T^2A <span class="fu">\arrow</span>[r, &quot;<span class="fu">\mu</span>_A&quot;] <span class="fu">\arrow</span>[d, &quot;Ta&quot;'] &amp; TA <span class="fu">\arrow</span>[d, &quot;a&quot;] <span class="fu">\\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>TA <span class="fu">\arrow</span>[r, &quot;a&quot;'] &amp; A</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<div class="callout callout-example">
+<p> T-algebras for the list monad
+For the free-monoid monad on <span class="math inline">\(\mathbf{Set}\)</span>, a <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span> is a set <span class="math inline">\(A\)</span> together with a map <span class="math inline">\(a \colon A^* \to A\)</span> (evaluation of words in <span class="math inline">\(A\)</span>) satisfying: <span class="math inline">\(a([x]) = x\)</span> (unit law) and <span class="math inline">\(a\)</span> extends to concatenation in the expected way. These are precisely <em>monoids</em>: <span class="math inline">\(a\)</span> gives the multiplication and the unit is <span class="math inline">\(a([\,])\)</span>.</p>
+</div>
+<p><strong>Definition (T-Algebra Morphism).</strong> A <em>morphism of <span class="math inline">\(T\)</span>-algebras</em> <span class="math inline">\(f \colon (A, a) \to (B, b)\)</span> is a morphism <span class="math inline">\(f \colon A \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that <span class="math inline">\(f \circ a = b \circ Tf\)</span>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>TA <span class="fu">\arrow</span>[r, &quot;Tf&quot;] <span class="fu">\arrow</span>[d, &quot;a&quot;'] &amp; TB <span class="fu">\arrow</span>[d, &quot;b&quot;] <span class="fu">\\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>A <span class="fu">\arrow</span>[r, &quot;f&quot;'] &amp; B</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<h3 id="the-eilenberg-moore-category">4.2 The Eilenberg-Moore Category</h3>
+<p><strong>Definition (Eilenberg-Moore Category).</strong> The <em>Eilenberg-Moore category</em> <span class="math inline">\(\mathcal{C}^T\)</span> has:
+- Objects: <span class="math inline">\(T\)</span>-algebras <span class="math inline">\((A, a)\)</span>,
+- Morphisms: <span class="math inline">\(T\)</span>-algebra morphisms,
+- Composition and identities inherited from <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p>There is a canonical adjunction <span class="math inline">\(F^T \dashv U^T \colon \mathcal{C}^T \rightleftharpoons \mathcal{C}\)</span>:
+- The <em>forgetful functor</em> <span class="math inline">\(U^T \colon \mathcal{C}^T \to \mathcal{C}\)</span> sends <span class="math inline">\((A, a) \mapsto A\)</span>.
+- The <em>free <span class="math inline">\(T\)</span>-algebra functor</em> <span class="math inline">\(F^T \colon \mathcal{C} \to \mathcal{C}^T\)</span> sends <span class="math inline">\(A \mapsto (TA, \mu_A)\)</span>.</p>
+<p><em>Verification that <span class="math inline">\((TA, \mu_A)\)</span> is a <span class="math inline">\(T\)</span>-algebra:</em> unit law <span class="math inline">\(\mu_A \circ \eta_{TA} = \mathrm{id}_{TA}\)</span> is the monad unit law, and multiplication law <span class="math inline">\(\mu_A \circ \mu_{TA} = \mu_A \circ T\mu_A\)</span> is monad associativity.</p>
+<p>The monad induced by <span class="math inline">\(F^T \dashv U^T\)</span> is <span class="math inline">\(U^T F^T = T\)</span> with unit <span class="math inline">\(\eta\)</span> and multiplication <span class="math inline">\(\mu\)</span>, recovering the original monad.</p>
+<div class="callout callout-tip">
+<p> Intuition: free vs. presented algebras
+The free <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((TA, \mu_A)\)</span> is “purely formal” — it has no relations imposed. A general <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span> has the same structure but with the map <span class="math inline">\(a \colon TA \to A\)</span> imposing relations (quotienting the free algebra). The unit law says <span class="math inline">\(a\)</span> is a retraction of <span class="math inline">\(\eta_A\)</span>.</p>
+</div>
+<h3 id="the-comparison-functor">4.3 The Comparison Functor</h3>
+<p>For any adjunction <span class="math inline">\(F \dashv G \colon \mathcal{C} \rightleftharpoons \mathcal{D}\)</span> with counit <span class="math inline">\(\varepsilon\)</span> and induced monad <span class="math inline">\(T = GF\)</span> on <span class="math inline">\(\mathcal{C}\)</span>, the <em>comparison functor</em> <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> is defined by:
+<span class="math display">\[K(d) = (G(d),\, G(\varepsilon_d)) \quad \text{and} \quad K(f) = G(f).\]</span></p>
+<p>One checks that <span class="math inline">\((G(d), G(\varepsilon_d))\)</span> is indeed a <span class="math inline">\(T\)</span>-algebra: the unit law uses the triangle identity <span class="math inline">\(G\varepsilon \circ \eta G = \mathrm{id}_G\)</span>, and the multiplication law follows from naturality of <span class="math inline">\(\varepsilon\)</span>.</p>
+<p><strong>Definition (Monadic Functor).</strong> <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span> is <em>monadic</em> if it has a left adjoint and the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> is an equivalence of categories.</p>
+<div class="callout callout-warning">
+<p> Monadicity is a property of <span class="math inline">\(G\)</span>, not just of <span class="math inline">\(T\)</span>
+Different adjunctions can give the same monad. Being monadic is the assertion that <span class="math inline">\(\mathcal{D}\)</span> is, up to equivalence, the Eilenberg-Moore category for <span class="math inline">\(T\)</span> — i.e., <span class="math inline">\(\mathcal{D}\)</span> is the <em>terminal</em> resolution of <span class="math inline">\(T\)</span>.</p>
+</div>
+<hr />
+<h2 id="absolute-coequalizers-and-split-pairs">5. Absolute Coequalizers and Split Pairs ⚙️</h2>
+<h3 id="reflexive-pairs">5.1 Reflexive Pairs</h3>
+<p><strong>Definition (Reflexive Pair).</strong> A parallel pair <span class="math inline">\(f, g \colon A \rightrightarrows B\)</span> is <em>reflexive</em> if there exists a <em>common section</em> <span class="math inline">\(s \colon B \to A\)</span> with <span class="math inline">\(fs = \mathrm{id}_B = gs\)</span>.</p>
+<div class="callout callout-info">
+<p> Reflexive pairs in algebra
+In <span class="math inline">\(\mathbf{Grp}\)</span>, the kernel pair of a group homomorphism <span class="math inline">\(\phi \colon G \to H\)</span> is always reflexive (the diagonal <span class="math inline">\(G \to G \times_H G\)</span> is the section). Reflexive coequalizers are often better-behaved than arbitrary coequalizers in algebra.</p>
+</div>
+<h3 id="split-coequalizers">5.2 Split Coequalizers</h3>
+<p><strong>Definition (Split Coequalizer).</strong> A diagram
+<span class="math display">\[A \overset{f}{\underset{g}{\rightrightarrows}} B \xrightarrow{q} C\]</span>
+is a <em>split coequalizer</em> (or <em>absolute coequalizer</em>) if there exist morphisms <span class="math inline">\(s \colon B \to A\)</span> and <span class="math inline">\(t \colon C \to B\)</span> such that:
+1. <span class="math inline">\(q \circ f = q \circ g\)</span>,
+2. <span class="math inline">\(f \circ s = \mathrm{id}_B\)</span>,
+3. <span class="math inline">\(q \circ t = \mathrm{id}_C\)</span>,
+4. <span class="math inline">\(g \circ s = t \circ q\)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>A <span class="fu">\arrow</span>[r, &quot;f&quot;, shift left=2] <span class="fu">\arrow</span>[r, &quot;g&quot;', shift right=2] &amp; B <span class="fu">\arrow</span>[r, &quot;q&quot;] <span class="fu">\arrow</span>[l, &quot;s&quot;, bend right=40] &amp; C <span class="fu">\arrow</span>[l, &quot;t&quot;, bend right=40]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><em>Conditions 1–4 together imply <span class="math inline">\(q\)</span> is a coequalizer of <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>.</em></p>
+<p><strong>Proposition (Absoluteness).</strong> Every split coequalizer is preserved by every functor.</p>
+<p><em>Proof.</em> The conditions 1–4 are purely equational. Applying any functor <span class="math inline">\(H\)</span> preserves all equations, so <span class="math inline">\(H(A) \rightrightarrows H(B) \to H(C)\)</span> with <span class="math inline">\(H(s)\)</span> and <span class="math inline">\(H(t)\)</span> satisfies the same conditions, making <span class="math inline">\(H(q)\)</span> a split coequalizer.</p>
+<div class="callout callout-note">
+<p> Exercise 3
+(i) Define <em>absolute coequalizer pair</em> (split coequalizer). Define what it means for a functor <span class="math inline">\(U\)</span> to <em>preserve</em>, <em>reflect</em>, or <em>create</em> coequalizers of such pairs.</p>
+<ol start="2" type="i">
+<li>Prove the equivalence of the following three conditions on a functor <span class="math inline">\(U \colon \mathcal{D} \to \mathcal{C}\)</span>:</li>
+</ol>
+<ul>
+<li><ol type="a">
+<li><span class="math inline">\(U\)</span> creates coequalizers of <span class="math inline">\(U\)</span>-absolute pairs (pairs whose image under <span class="math inline">\(U\)</span> is a split coequalizer).</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li><span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> preserves and reflects them.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>Same as (b) but only <span class="math inline">\(U\)</span> preserves them (not necessarily reflects).</li>
+</ol></li>
+</ul>
+</div>
+<div class="callout callout-note">
+<p> Exercise 4
+Let <span class="math inline">\((T, \eta, \mu)\)</span> be a monad on <span class="math inline">\(\mathcal{C}\)</span> and let <span class="math inline">\((A, a \colon TA \to A)\)</span> be a <span class="math inline">\(T\)</span>-algebra. Consider the parallel pair
+<span class="math display">\[T^2A \overset{\mu_A}{\underset{Ta}{\rightrightarrows}} TA.\]</span>
+Show that this is a reflexive pair (exhibit a common section). Then show that with the additional morphisms <span class="math inline">\(s = \eta_{TA} \colon TA \to T^2A\)</span> and <span class="math inline">\(t = \eta_A \colon A \to TA\)</span>, the diagram
+<span class="math display">\[T^2A \overset{\mu_A}{\underset{Ta}{\rightrightarrows}} TA \xrightarrow{a} A\]</span>
+is a split coequalizer.</p>
+</div>
+<hr />
+<h2 id="set-adjoint-representable-and-limit-preserving-functors">6. Set-Adjoint, Representable, and Limit-Preserving Functors 🧩</h2>
+<p>Three conditions on a functor <span class="math inline">\(U \colon \mathcal{C} \to \mathbf{Set}\)</span> are naturally ordered by strength:</p>
+<ul>
+<li><strong>(A) Set-adjoint:</strong> <span class="math inline">\(U\)</span> has a left adjoint <span class="math inline">\(F \dashv U\)</span> (equivalently, for every set <span class="math inline">\(S\)</span> there is a “free object” <span class="math inline">\(F(S) \in \mathcal{C}\)</span> with <span class="math inline">\(\mathcal{C}(F(S), C) \cong \mathbf{Set}(S, UC)\)</span> naturally).</li>
+<li><strong>(R) Representable:</strong> <span class="math inline">\(U \cong \mathcal{C}(A, -)\)</span> for some <span class="math inline">\(A \in \mathcal{C}\)</span> (naturally in the <span class="math inline">\(\mathcal{C}\)</span> variable).</li>
+<li><strong>(L) Limit-preserving:</strong> <span class="math inline">\(U\)</span> preserves all small limits.</li>
+</ul>
+<p><strong>Proposition.</strong> <span class="math inline">\((A) \Rightarrow (R) \Rightarrow (L)\)</span>.</p>
+<p><em>Proof.</em> <span class="math inline">\((A) \Rightarrow (R)\)</span>: If <span class="math inline">\(F \dashv U\)</span> then <span class="math inline">\(U(C) \cong \mathbf{Set}(1, UC) \cong \mathcal{C}(F(1), C)\)</span> naturally, so <span class="math inline">\(U\)</span> is represented by <span class="math inline">\(F(1)\)</span>.</p>
+<p><span class="math inline">\((R) \Rightarrow (L)\)</span>: Representable functors are right adjoints to <span class="math inline">\(\mathcal{C}(-,A) \colon \mathcal{C}^{op} \to \mathbf{Set}\)</span>… more directly, <span class="math inline">\(\mathcal{C}(A,-)\)</span> preserves limits since limits in <span class="math inline">\(\mathbf{Set}\)</span> of hom-sets compute correctly (this is the standard fact that hom-functors preserve limits).</p>
+<p><strong>Proposition.</strong> If <span class="math inline">\(\mathcal{C}\)</span> has all small coproducts, then <span class="math inline">\((R) \Rightarrow (A)\)</span>.</p>
+<p><em>Proof sketch.</em> Given <span class="math inline">\(U \cong \mathcal{C}(A,-)\)</span>, define <span class="math inline">\(F(S) = \coprod_{s \in S} A\)</span> (coproduct of <span class="math inline">\(|S|\)</span> copies of <span class="math inline">\(A\)</span>). Then <span class="math inline">\(\mathcal{C}(F(S), C) \cong \prod_{s \in S} \mathcal{C}(A, C) \cong \mathbf{Set}(S, \mathcal{C}(A,C)) \cong \mathbf{Set}(S, UC)\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 5
+Let <span class="math inline">\(U \colon \mathcal{C} \to \mathbf{Set}\)</span>. Consider: (A) <span class="math inline">\(U\)</span> has a left adjoint; (R) <span class="math inline">\(U\)</span> is representable; (L) <span class="math inline">\(U\)</span> preserves all limits. Prove <span class="math inline">\(A \Rightarrow R \Rightarrow L\)</span>. If <span class="math inline">\(\mathcal{C}\)</span> has all small coproducts, prove <span class="math inline">\(R \Rightarrow A\)</span>. If <span class="math inline">\(\mathcal{C}\)</span> is complete, well-powered, and has a coseparating set, prove that all three conditions are equivalent.</p>
+</div>
+<hr />
+<h2 id="the-general-adjoint-functor-theorem">7. The General Adjoint Functor Theorem 📐</h2>
+<div class="callout callout-info">
+<p> Leinster’s proof strategy for GAFT
+Leinster’s formulation of the GAFT (which appears in the Cambridge lecture notes but not in <em>Basic Category Theory</em>) follows Freyd’s original proof via the “solution set condition.” The proof has two steps: (1) use the SSC to construct a <em>weakly initial</em> object in the comma category <span class="math inline">\((A \downarrow G)\)</span>; (2) apply a “reflex equalizer” argument (using completeness of <span class="math inline">\(\mathcal{D}\)</span>) to obtain a genuinely initial object. Step (2) is the technical heart: one equalises all endomorphisms of the weakly initial object simultaneously, exploiting local smallness to keep the equalizer diagram small.</p>
+</div>
+<h3 id="the-solution-set-condition">7.1 The Solution Set Condition</h3>
+<p><strong>Definition (Solution Set Condition).</strong> A functor <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span> satisfies the <em>solution set condition</em> if for every object <span class="math inline">\(A \in \mathcal{C}\)</span> there exists a small set <span class="math inline">\(I\)</span> and a family of morphisms <span class="math inline">\(\{f_i \colon A \to G(D_i)\}_{i \in I}\)</span> such that every morphism <span class="math inline">\(h \colon A \to G(D)\)</span> in <span class="math inline">\(\mathcal{C}\)</span> factors as
+<span class="math display">\[A \xrightarrow{f_i} G(D_i) \xrightarrow{G(k)} G(D)\]</span>
+for some <span class="math inline">\(i \in I\)</span> and some <span class="math inline">\(k \colon D_i \to D\)</span> in <span class="math inline">\(\mathcal{D}\)</span>.</p>
+<p>In categorical language: the full subcategory of <span class="math inline">\((A \downarrow G)\)</span> on <span class="math inline">\(\{(D_i, f_i)\}_{i \in I}\)</span> is a <em>weakly initial set</em> for the comma category.</p>
+<div class="callout callout-info">
+<p> Why “solution set”?
+For each object <span class="math inline">\(A\)</span>, one seeks a “left adjoint object” <span class="math inline">\(F(A)\)</span> with a universal morphism <span class="math inline">\(A \to GF(A)\)</span>. This is an initial object of <span class="math inline">\((A \downarrow G)\)</span>. The solution set condition is a weak version: instead of requiring one initial object, it only requires a small set through which all morphisms factor. The actual initial object is then constructed by taking a limit.</p>
+</div>
+<h3 id="proof-sketch">7.2 Proof Sketch</h3>
+<p><strong>Theorem (General Adjoint Functor Theorem, Freyd).</strong> Let <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span> where <span class="math inline">\(\mathcal{D}\)</span> is locally small and complete. Then <span class="math inline">\(G\)</span> has a left adjoint if and only if:
+1. <span class="math inline">\(G\)</span> preserves all small limits, and
+2. <span class="math inline">\(G\)</span> satisfies the solution set condition.</p>
+<p><em>Proof sketch (sufficiency).</em> Fix <span class="math inline">\(A \in \mathcal{C}\)</span>. We must construct an initial object of <span class="math inline">\((A \downarrow G)\)</span>.</p>
+<p><strong>Step 1: Weakly initial object.</strong> By the SSC, there is a small set <span class="math inline">\(\{(D_i, f_i \colon A \to GD_i)\}_{i \in I}\)</span>. Let <span class="math inline">\(W = \prod_{i \in I} D_i\)</span> (existing by completeness). The projections <span class="math inline">\(W \to D_i\)</span> give a morphism <span class="math inline">\(A \to GW\)</span> (using limit-preservation of <span class="math inline">\(G\)</span> and the <span class="math inline">\(f_i\)</span>). This makes <span class="math inline">\((W, A \to GW)\)</span> a weakly initial object in <span class="math inline">\((A \downarrow G)\)</span>: every <span class="math inline">\((D, h)\)</span> is hit via the relevant <span class="math inline">\(D_i \to D\)</span> composed with <span class="math inline">\(W \to D_i\)</span>.</p>
+<p><strong>Step 2: Reflexive equalizer to get an initial object.</strong> The comma category <span class="math inline">\((A \downarrow G)\)</span> is locally small (since <span class="math inline">\(\mathcal{D}\)</span> is locally small). Consider the set of all endomorphisms of <span class="math inline">\(W\)</span> in <span class="math inline">\((A \downarrow G)\)</span>. Take the <em>equalizer</em> of all of them simultaneously (a small diagram since <span class="math inline">\(\mathcal{D}(W,W)\)</span> is a set). The resulting object is an initial object of <span class="math inline">\((A \downarrow G)\)</span>, which is the required universal arrow <span class="math inline">\(A \to G(FA)\)</span>.</p>
+<p><strong>Necessity.</strong> Right adjoints preserve limits (File 3). For the SSC: take <span class="math inline">\(I = \{\ast\}\)</span> and <span class="math inline">\(f_\ast = \eta_A \colon A \to GF(A)\)</span>; every <span class="math inline">\(h \colon A \to GD\)</span> factors through <span class="math inline">\(\eta_A\)</span> by universality.</p>
+<p><strong>Key conclusion: <span class="math inline">\(G\)</span> has a left adjoint if and only if <span class="math inline">\(G\)</span> preserves limits and satisfies the SSC.</strong> This is the most general sufficient condition for existence of a left adjoint.</p>
+<div class="callout callout-note">
+<p> Exercise 6
+(i) State the General Adjoint Functor Theorem precisely, including all hypotheses.</p>
+<ol start="2" type="i">
+<li><p>Let <span class="math inline">\(\mathcal{D}\)</span> be complete and locally small, and suppose <span class="math inline">\(\mathcal{D}\)</span> has a <em>weakly initial object</em>: an object <span class="math inline">\(W\)</span> such that for every object <span class="math inline">\(D \in \mathcal{D}\)</span> there exists at least one morphism <span class="math inline">\(W \to D\)</span>. Show that <span class="math inline">\(\mathcal{D}\)</span> has an initial object.</p></li>
+<li><p>Outline how part (ii) is used in the proof of the GAFT to produce an initial object of <span class="math inline">\((A \downarrow G)\)</span> from the weakly initial set given by the SSC.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="well-powered-categories-and-the-subobject-functor">8. Well-Powered Categories and the Subobject Functor 🔬</h2>
+<p><strong>Definition (Subobject).</strong> A <em>subobject</em> of <span class="math inline">\(A \in \mathcal{C}\)</span> is an isomorphism class of monomorphisms <span class="math inline">\(m \colon S \hookrightarrow A\)</span>. (Two monics <span class="math inline">\(m \colon S \to A\)</span> and <span class="math inline">\(m' \colon S' \to A\)</span> are isomorphic as subobjects if there is an isomorphism <span class="math inline">\(\phi \colon S \xrightarrow{\sim} S'\)</span> with <span class="math inline">\(m' \phi = m\)</span>.)</p>
+<p><strong>Definition (Well-Powered).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>well-powered</em> if for every object <span class="math inline">\(A\)</span>, the collection <span class="math inline">\(\mathrm{Sub}(A)\)</span> of subobjects of <span class="math inline">\(A\)</span> is a set (not a proper class).</p>
+<div class="callout callout-example">
+<p> Well-powered and non-well-powered categories</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Well-powered?</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Set}\)</span></td>
+<td>Yes</td>
+<td>Subsets of <span class="math inline">\(A\)</span> form a set</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Grp}\)</span></td>
+<td>Yes</td>
+<td>Subgroups of <span class="math inline">\(G\)</span> form a set</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Top}\)</span></td>
+<td>Yes</td>
+<td>Subspaces of <span class="math inline">\(X\)</span> form a set</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Ord}\)</span> (all ordinals)</td>
+<td>No</td>
+<td>Every ordinal embeds into every larger ordinal</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Cat}\)</span></td>
+<td>No</td>
+<td>A category can have a proper class of full subcategories</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Proposition.</strong> In a well-powered category <span class="math inline">\(\mathcal{C}\)</span> with pullbacks, there is a well-defined functor
+<span class="math display">\[\mathrm{Sub} \colon \mathcal{C}^{op} \to \mathbf{Set}\]</span>
+sending each object <span class="math inline">\(A\)</span> to <span class="math inline">\(\mathrm{Sub}(A)\)</span>, and each morphism <span class="math inline">\(f \colon A \to B\)</span> to the pullback-along-<span class="math inline">\(f\)</span> map <span class="math inline">\(f^* \colon \mathrm{Sub}(B) \to \mathrm{Sub}(A)\)</span>.</p>
+<p><em>Proof sketch.</em> Given a monic <span class="math inline">\(m \colon S \hookrightarrow B\)</span> representing a subobject of <span class="math inline">\(B\)</span>, form the pullback:
+<span class="math display">\[\begin{array}{ccc} f^*S &amp; \to &amp; S \\ \downarrow &amp; &amp; \downarrow m \\ A &amp; \xrightarrow{f} &amp; B \end{array}\]</span>
+The pullback of a monic is monic (a standard lemma), so <span class="math inline">\(f^*S \hookrightarrow A\)</span> is a subobject of <span class="math inline">\(A\)</span>. Well-poweredness ensures <span class="math inline">\(f^*\)</span> is a function between sets. Functoriality follows from the universal property of pullbacks.</p>
+<div class="callout callout-note">
+<p> Exercise 7
+Define a well-powered category. For such a category with pullbacks, show that the assignment <span class="math inline">\(A \mapsto \mathrm{Sub}(A)\)</span>, <span class="math inline">\(f \mapsto f^*\)</span> defines a functor <span class="math inline">\(\mathrm{Sub} \colon \mathcal{C}^{op} \to \mathbf{Set}\)</span>. In particular, verify that <span class="math inline">\(\mathrm{id}^* = \mathrm{id}\)</span> and <span class="math inline">\((f \circ g)^* = g^* \circ f^*\)</span>.</p>
+</div>
+<hr />
+<h2 id="the-special-adjoint-functor-theorem">9. The Special Adjoint Functor Theorem ✨</h2>
+<h3 id="coseparating-sets">9.1 Coseparating Sets</h3>
+<p><strong>Definition (Coseparating Set).</strong> A set <span class="math inline">\(\mathcal{S}\)</span> of objects of <span class="math inline">\(\mathcal{C}\)</span> is a <em>coseparating set</em> (or <em>cogenerating set</em>) if for every pair of distinct parallel morphisms <span class="math inline">\(f, g \colon A \rightrightarrows B\)</span> in <span class="math inline">\(\mathcal{C}\)</span> with <span class="math inline">\(f \neq g\)</span>, there exists <span class="math inline">\(S \in \mathcal{S}\)</span> and a morphism <span class="math inline">\(h \colon B \to S\)</span> with <span class="math inline">\(h \circ f \neq h \circ g\)</span>.</p>
+<p>Equivalently: the family of functors <span class="math inline">\(\{\mathcal{C}(-, S)\}_{S \in \mathcal{S}}\)</span> is <em>jointly faithful</em>.</p>
+<div class="callout callout-example">
+<p> Coseparating sets in standard categories
+- In <span class="math inline">\(\mathbf{Set}\)</span>: <span class="math inline">\(\mathcal{S} = \{\{0,1\}\}\)</span> works (the two-element set separates all functions).
+- In <span class="math inline">\(\mathbf{Ab}\)</span>: <span class="math inline">\(\mathcal{S} = \{\mathbb{Q}/\mathbb{Z}\}\)</span> works (Pontryagin duality).
+- In <span class="math inline">\(\mathbf{Top}\)</span>: <span class="math inline">\(\mathcal{S} = \{[0,1]\}\)</span> works for compact Hausdorff spaces (by Urysohn).
+- In <span class="math inline">\(\mathbf{Grp}\)</span>: no finite coseparating set exists, but $ = $ all finite groups works.</p>
+</div>
+<h3 id="proof-sketch-via-gaft">9.2 Proof Sketch via GAFT</h3>
+<p><strong>Theorem (Special Adjoint Functor Theorem, Freyd).</strong> Let <span class="math inline">\(\mathcal{C}\)</span> be locally small, complete, well-powered, and with a small coseparating set <span class="math inline">\(\mathcal{S}\)</span>. Then every limit-preserving functor <span class="math inline">\(G \colon \mathcal{C} \to \mathcal{D}\)</span> has a left adjoint.</p>
+<p><em>Proof sketch.</em> By the GAFT, it suffices to verify the SSC. Fix <span class="math inline">\(A \in \mathcal{C}\)</span> and let <span class="math inline">\(f \colon A \to G(D)\)</span> be any morphism.</p>
+<p><strong>Constructing the solution set.</strong> Consider the <em>equalizer</em> <span class="math inline">\(E_D = \mathrm{Eq}(G \circ \pi_S)_{S \in \mathcal{S}}\)</span>… more concretely:</p>
+<p>For each object <span class="math inline">\(D \in \mathcal{D}\)</span>, the morphism <span class="math inline">\(f \colon A \to G(D)\)</span> factors through the <em>intersection of all subobjects of <span class="math inline">\(G(D)\)</span> through which <span class="math inline">\(f\)</span> factors</em>. Call this <span class="math inline">\(\mathrm{Im}_{\mathcal{S}}(f)\)</span>. Well-poweredness ensures <span class="math inline">\(\mathrm{Sub}(G(D))\)</span> is a set, and the coseparating set ensures the image can be computed using <span class="math inline">\(\mathcal{S}\)</span>.</p>
+<p>Precisely: define <span class="math inline">\(\mathcal{I}\)</span> to be the set of all pairs $(D’, f’) $ where <span class="math inline">\(D'\)</span> is a subobject of some <span class="math inline">\(\prod_{S \in \mathcal{S}} S^{n}\)</span> for some finite <span class="math inline">\(n\)</span> and <span class="math inline">\(f' \colon A \to G(D')\)</span>. Well-poweredness (applied to the product <span class="math inline">\(\prod_{S \in \mathcal{S}} S^n\)</span>, which exists by completeness) makes <span class="math inline">\(\mathcal{I}\)</span> a set. The coseparating property ensures every <span class="math inline">\(f \colon A \to G(D)\)</span> factors through some element of <span class="math inline">\(\mathcal{I}\)</span>. Hence <span class="math inline">\(\mathcal{I}\)</span> is the required solution set.</p>
+<p><em>This is the key:</em> well-poweredness controls the size of <span class="math inline">\(\mathrm{Sub}\)</span>, and the coseparating set ensures every object can be separated into this controlled size. Together they imply SSC without needing to know the specific functor <span class="math inline">\(G\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 8
+State and prove the Special Adjoint Functor Theorem, assuming the General Adjoint Functor Theorem. In your proof, identify explicitly where well-poweredness is used (to bound the size of the solution set) and where the coseparating set is used (to ensure every morphism factors through the solution set).</p>
+</div>
+<hr />
+<h2 id="applications-of-gaft-and-saft">10. Applications of GAFT and SAFT 🌐</h2>
+<p><strong>Free algebraic structures (GAFT).</strong> For any finitary algebraic theory <span class="math inline">\(\mathbb{T}\)</span> (groups, rings, <span class="math inline">\(R\)</span>-modules, lattices, etc.), the forgetful functor <span class="math inline">\(U \colon \mathbf{T}\text{-}\mathbf{Alg} \to \mathbf{Set}\)</span> preserves limits and satisfies the SSC (the solution set for a set <span class="math inline">\(S\)</span> is the single object <span class="math inline">\(F(S)\)</span> = the <span class="math inline">\(\mathbb{T}\)</span>-algebra presented by generators <span class="math inline">\(S\)</span> and no relations). Hence <span class="math inline">\(U\)</span> has a left adjoint, the free-algebra functor.</p>
+<div class="callout callout-tip">
+<p> The GAFT turns existence into a checking game
+To show a left adjoint exists for <span class="math inline">\(G \colon \mathcal{D} \to \mathcal{C}\)</span>: (1) verify <span class="math inline">\(G\)</span> preserves limits, and (2) for each <span class="math inline">\(A\)</span>, exhibit a small set of morphisms <span class="math inline">\(A \to G(D_i)\)</span> through which all others factor. You never need to construct the left adjoint explicitly.</p>
+</div>
+<p><strong>Stone-Čech compactification (SAFT).</strong> Let <span class="math inline">\(i \colon \mathbf{KHaus} \hookrightarrow \mathbf{Top}\)</span> be the inclusion of compact Hausdorff spaces into all topological spaces. <span class="math inline">\(\mathbf{KHaus}\)</span> is complete (products and equalizers of compact Hausdorff spaces are compact Hausdorff), well-powered (subspaces of compact Hausdorff spaces form a set), and has a small coseparating set (<span class="math inline">\(\{[0,1]\}\)</span> works by Urysohn’s theorem). The inclusion <span class="math inline">\(i\)</span> trivially preserves limits. Hence by the SAFT, <span class="math inline">\(i\)</span> has a left adjoint — the <em>Stone-Čech compactification</em> <span class="math inline">\(\beta \colon \mathbf{Top} \to \mathbf{KHaus}\)</span>.</p>
+<p><strong>Geometric realization (SAFT).</strong> Covered in §16.</p>
+<div class="callout callout-note">
+<p> Exercise 9
+(i) Apply the GAFT to show that the forgetful functor <span class="math inline">\(\mathbf{Widget} \to \mathbf{Set}\)</span> has a left adjoint (free widget functor), where <span class="math inline">\(\mathbf{Widget}\)</span> is any category of algebras for a finitary algebraic theory.</p>
+<ol start="2" type="i">
+<li><p>Apply similarly to <span class="math inline">\(\mathbf{Chad} \to \mathbf{Set}\)</span> for another finitary theory <span class="math inline">\(\mathbf{Chad}\)</span>.</p></li>
+<li><p>Using the Beck Monadicity Theorem (proved in §14), show that <span class="math inline">\(\mathbf{Widget}\)</span> is monadic over <span class="math inline">\(\mathbf{Set}\)</span>. Which of the three conditions of Beck’s theorem do you need to verify for <span class="math inline">\(U \colon \mathbf{Widget} \to \mathbf{Set}\)</span>?</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="the-eilenberg-moore-category-creation-theorems">11. The Eilenberg-Moore Category: Creation Theorems 🏗️</h2>
+<h3 id="creation-of-limits">11.1 Creation of Limits</h3>
+<p><strong>Theorem.</strong> The forgetful functor <span class="math inline">\(U^T \colon \mathcal{C}^T \to \mathcal{C}\)</span> <em>creates</em> all limits.</p>
+<p><em>Proof sketch.</em> Let <span class="math inline">\(D \colon \mathcal{J} \to \mathcal{C}^T\)</span> be a diagram of <span class="math inline">\(T\)</span>-algebras <span class="math inline">\(\{(A_j, a_j)\}\)</span>. Let <span class="math inline">\(A = \lim_j U^T(A_j) = \lim_j A_j\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, with projections <span class="math inline">\(\pi_j \colon A \to A_j\)</span>.</p>
+<p>Since <span class="math inline">\(T\)</span> is a functor, <span class="math inline">\(TA = T(\lim_j A_j)\)</span> with projections <span class="math inline">\(T\pi_j \colon TA \to TA_j\)</span>. Define <span class="math inline">\(a \colon TA \to A\)</span> by the universal property of <span class="math inline">\(A\)</span> (as a limit): the maps <span class="math inline">\(a_j \circ T\pi_j \colon TA \to A_j\)</span> are compatible (using the <span class="math inline">\(T\)</span>-algebra morphisms in the diagram), so there is a unique <span class="math inline">\(a \colon TA \to A\)</span> with <span class="math inline">\(\pi_j \circ a = a_j \circ T\pi_j\)</span> for all <span class="math inline">\(j\)</span>.</p>
+<p>Checking <span class="math inline">\((A, a)\)</span> is a <span class="math inline">\(T\)</span>-algebra: both the unit law and multiplication law hold componentwise (at each <span class="math inline">\(\pi_j\)</span>) and are inherited from the <span class="math inline">\(A_j\)</span> by uniqueness of the limit morphism.</p>
+<p><strong>Corollary.</strong> <span class="math inline">\(\mathcal{C}^T\)</span> is complete whenever <span class="math inline">\(\mathcal{C}\)</span> is complete.</p>
+<h3 id="creation-of-coequalizers-for-absolute-pairs">11.2 Creation of Coequalizers for Absolute Pairs</h3>
+<p><strong>Theorem.</strong> <span class="math inline">\(U^T\)</span> creates coequalizers of <span class="math inline">\(U^T\)</span>-absolute pairs.</p>
+<p><em>Proof sketch.</em> Let <span class="math inline">\(f, g \colon (A, a) \rightrightarrows (B, b)\)</span> be a pair of <span class="math inline">\(T\)</span>-algebra morphisms such that <span class="math inline">\(U^T f, U^T g \colon A \rightrightarrows B\)</span> has a split coequalizer <span class="math inline">\(q \colon B \to C\)</span> with splitting <span class="math inline">\(s \colon B \to A\)</span>, <span class="math inline">\(t \colon C \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span>. We must produce a <span class="math inline">\(T\)</span>-algebra structure on <span class="math inline">\(C\)</span> making <span class="math inline">\(q\)</span> a coequalizer in <span class="math inline">\(\mathcal{C}^T\)</span>.</p>
+<p>Define <span class="math inline">\(c \colon TC \to C\)</span> by: since <span class="math inline">\(q \colon B \to C\)</span> has a section <span class="math inline">\(t\)</span>, we set <span class="math inline">\(c = q \circ b \circ Tt\)</span>. One verifies:
+- <span class="math inline">\(c\)</span> is well-defined (independent of the choice of factorization, using that <span class="math inline">\(q\)</span> coequalizes <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>).
+- The unit law for <span class="math inline">\(c\)</span>: <span class="math inline">\(c \circ \eta_C = q \circ b \circ Tt \circ \eta_C = q \circ b \circ \eta_B \circ t = q \circ \mathrm{id}_B \circ t = q \circ t = \mathrm{id}_C\)</span>.
+- The multiplication law: a similar computation using associativity of <span class="math inline">\(b\)</span> and naturality.</p>
+<p><strong>Moreover,</strong> every <span class="math inline">\(T\)</span>-algebra is a coequalizer of free algebras:</p>
+<p><strong>Proposition.</strong> For any <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span>, the diagram
+<span class="math display">\[F^T(TA) \overset{F^T(a)}{\underset{\mu_A^{\sharp}}{\rightrightarrows}} F^T(A) \xrightarrow{a^{\sharp}} (A, a)\]</span>
+is a coequalizer in <span class="math inline">\(\mathcal{C}^T\)</span>, where <span class="math inline">\(a^{\sharp}\)</span> is the <span class="math inline">\(T\)</span>-algebra map <span class="math inline">\((TA, \mu_A) \to (A, a)\)</span> corresponding to <span class="math inline">\(a\)</span> under the adjunction, and the parallel pair is identified by Exercise 4.</p>
+<div class="callout callout-note">
+<p> Exercise 10
+(i) Show that the forgetful functor <span class="math inline">\(U^T \colon \mathcal{C}^T \to \mathcal{C}\)</span> creates all limits, and hence <span class="math inline">\(\mathcal{C}^T\)</span> is complete whenever <span class="math inline">\(\mathcal{C}\)</span> is.</p>
+<ol start="2" type="i">
+<li><p>Show that <span class="math inline">\(U^T\)</span> creates coequalizers of <span class="math inline">\(U^T\)</span>-absolute coequalizer pairs. (Construct the <span class="math inline">\(T\)</span>-algebra structure on the coequalizer object and verify the two algebra axioms.)</p></li>
+<li><p>Show that every <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span> is a coequalizer of free <span class="math inline">\(T\)</span>-algebras; specifically, that <span class="math inline">\((A, a) = \mathrm{coeq}((TA, \mu_A) \rightrightarrows (TA, \mu_A))\)</span> for a suitable parallel pair arising from the pair <span class="math inline">\(\mu_A, Ta \colon T^2A \rightrightarrows TA\)</span> of Exercise 4.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="idempotent-monads">12. Idempotent Monads 🔄</h2>
+<p><strong>Definition (Idempotent Monad).</strong> A monad <span class="math inline">\((T, \eta, \mu)\)</span> on <span class="math inline">\(\mathcal{C}\)</span> is <em>idempotent</em> if the multiplication <span class="math inline">\(\mu \colon T^2 \Rightarrow T\)</span> is a natural isomorphism.</p>
+<div class="callout callout-info">
+<p> Equivalent characterizations
+For a monad <span class="math inline">\((T, \eta, \mu)\)</span>, the following are equivalent:
+- <span class="math inline">\(\mu\)</span> is a natural isomorphism,
+- <span class="math inline">\(\eta T = T\eta\)</span> (the two units <span class="math inline">\(T \Rightarrow T^2\)</span> coincide),
+- <span class="math inline">\(T\eta \colon T \Rightarrow T^2\)</span> is a natural isomorphism.</p>
+</div>
+<p><strong>Proposition.</strong> For an idempotent monad <span class="math inline">\((T, \eta, \mu)\)</span>:
+1. Every <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span> is isomorphic to the free <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((TA, \mu_A)\)</span>.
+2. The Eilenberg-Moore category <span class="math inline">\(\mathcal{C}^T\)</span> is equivalent to the full subcategory of <span class="math inline">\(T\)</span>-objects in <span class="math inline">\(\mathcal{C}\)</span>: objects <span class="math inline">\(A\)</span> with <span class="math inline">\(\eta_A \colon A \to TA\)</span> an isomorphism.</p>
+<p><em>Proof.</em> For (1): given <span class="math inline">\((A, a \colon TA \to A)\)</span>, the unit law gives <span class="math inline">\(a \circ \eta_A = \mathrm{id}_A\)</span>, so <span class="math inline">\(\eta_A\)</span> is a split monomorphism. The multiplication law <span class="math inline">\(a \circ \mu_A = a \circ Ta\)</span> with <span class="math inline">\(\mu_A\)</span> an iso gives <span class="math inline">\(a \circ \mu_A \circ (\mu_A)^{-1} = a \circ Ta \circ (\mu_A)^{-1}\)</span>, which together with naturality shows <span class="math inline">\(\eta_A\)</span> is also an epimorphism (using <span class="math inline">\(T\eta_A = \eta_{TA}\)</span> and the unit law). Hence <span class="math inline">\(\eta_A \colon A \to TA\)</span> is an isomorphism, and <span class="math inline">\((A, a) \cong (TA, \mu_A)\)</span>.</p>
+<p><strong>Idempotent monads and reflective subcategories.</strong> Idempotent monads on <span class="math inline">\(\mathcal{C}\)</span> correspond bijectively to <em>reflective subcategories</em> of <span class="math inline">\(\mathcal{C}\)</span>: the Eilenberg-Moore category <span class="math inline">\(\mathcal{C}^T\)</span> is the reflective subcategory, and the reflector is <span class="math inline">\(T\)</span> itself.</p>
+<div class="callout callout-example">
+<p> Sheafification
+The sheafification monad on the category of presheaves <span class="math inline">\([\mathcal{C}^{op}, \mathbf{Set}]\)</span> is idempotent: sheaves are exactly the presheaves fixed by sheafification (<span class="math inline">\(T(F) \cong F\)</span> iff <span class="math inline">\(F\)</span> is a sheaf). The Eilenberg-Moore category is the full subcategory of sheaves, a reflective subcategory.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 11
+Define an idempotent monad as one where <span class="math inline">\(\mu \colon T^2 \Rightarrow T\)</span> is a natural isomorphism. Prove that every <span class="math inline">\(T\)</span>-algebra for an idempotent monad is free, i.e., isomorphic (as a <span class="math inline">\(T\)</span>-algebra) to <span class="math inline">\((TA, \mu_A)\)</span> for some <span class="math inline">\(A \in \mathcal{C}\)</span>. Deduce that the forgetful functor <span class="math inline">\(U^T \colon \mathcal{C}^T \to \mathcal{C}\)</span> is fully faithful for idempotent monads.</p>
+</div>
+<hr />
+<h2 id="presheaves-are-monadic">13. Presheaves Are Monadic 📦</h2>
+<p>Let <span class="math inline">\(\mathcal{C}\)</span> be a small category with object set <span class="math inline">\(\mathrm{ob}(\mathcal{C})\)</span>. Write <span class="math inline">\(\mathbf{Set}^{\mathrm{ob}(\mathcal{C})}\)</span> for the product category <span class="math inline">\(\prod_{C \in \mathrm{ob}(\mathcal{C})} \mathbf{Set}\)</span> (families of sets indexed by objects of <span class="math inline">\(\mathcal{C}\)</span>). There is a forgetful functor
+<span class="math display">\[V \colon [\mathcal{C}^{op}, \mathbf{Set}] \to \mathbf{Set}^{\mathrm{ob}(\mathcal{C})}\]</span>
+sending a presheaf <span class="math inline">\(F\)</span> to the family <span class="math inline">\((F(C))_{C \in \mathrm{ob}(\mathcal{C})}\)</span> of its values (forgetting the restriction maps).</p>
+<p><strong>Theorem.</strong> <span class="math inline">\(V\)</span> is monadic.</p>
+<p><em>Proof sketch.</em> The left adjoint <span class="math inline">\(L \colon \mathbf{Set}^{\mathrm{ob}(\mathcal{C})} \to [\mathcal{C}^{op}, \mathbf{Set}]\)</span> sends a family <span class="math inline">\((S_C)_C\)</span> to the presheaf <span class="math inline">\(L(S)(D) = \bigsqcup_{C \in \mathrm{ob}(\mathcal{C})} S_C \times \mathcal{C}(D, C)\)</span> (the “free presheaf” on the family). The induced monad <span class="math inline">\(T = VL\)</span> on <span class="math inline">\(\mathbf{Set}^{\mathrm{ob}(\mathcal{C})}\)</span> sends <span class="math inline">\((S_C)_C\)</span> to <span class="math inline">\(\left(\bigsqcup_{C'} S_{C'} \times \mathcal{C}(C, C')\right)_C\)</span>. A <span class="math inline">\(T\)</span>-algebra structure precisely encodes the action of all hom-sets <span class="math inline">\(\mathcal{C}(C, C')\)</span> on the family, which is exactly a presheaf on <span class="math inline">\(\mathcal{C}\)</span>. The comparison functor is an isomorphism (not just equivalence) of categories.</p>
+<p><strong>Corollaries:</strong>
+1. <span class="math inline">\([\mathcal{C}^{op}, \mathbf{Set}]\)</span> creates limits from <span class="math inline">\(\mathbf{Set}^{\mathrm{ob}(\mathcal{C})}\)</span>, hence is complete (limits computed objectwise).
+2. <span class="math inline">\(V\)</span> reflects isomorphisms: a natural transformation is an isomorphism iff all components are isomorphisms.
+3. Every presheaf is a colimit of representable presheaves (recoverable as a corollary, since the free presheaf <span class="math inline">\(L(S)\)</span> is a coproduct of representables <span class="math inline">\(\mathcal{C}(-,C)\)</span>, and every presheaf is a coequalizer of free presheaves by §11).</p>
+<div class="callout callout-note">
+<p> Exercise 12
+(i) Show that the forgetful functor <span class="math inline">\(V \colon [\mathcal{C}^{op}, \mathbf{Set}] \to \mathbf{Set}^{\mathrm{ob}(\mathcal{C})}\)</span> is monadic for small <span class="math inline">\(\mathcal{C}\)</span>. (Identify the left adjoint explicitly and verify the three conditions of Beck’s theorem.)</p>
+<ol start="2" type="i">
+<li><p>Deduce from monadicity that <span class="math inline">\([\mathcal{C}^{op}, \mathbf{Set}]\)</span> creates limits and reflects isomorphisms.</p></li>
+<li><p>Recover the proof that every presheaf is a colimit of representable presheaves using the coequaliziation result of §11 together with the explicit form of the free presheaf functor.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="the-beck-monadicity-theorem">14. The Beck Monadicity Theorem 🏆</h2>
+<h3 id="the-huge-monadicity-theorem">14.1 The Huge Monadicity Theorem</h3>
+<p><strong>Definition (U-Split Pair / U-Absolute Pair).</strong> Let <span class="math inline">\(U \colon \mathcal{D} \to \mathcal{C}\)</span>. A parallel pair <span class="math inline">\(f, g \colon A \rightrightarrows B\)</span> in <span class="math inline">\(\mathcal{D}\)</span> is <em><span class="math inline">\(U\)</span>-split</em> (or <em><span class="math inline">\(U\)</span>-absolute</em>) if <span class="math inline">\(Uf, Ug \colon UA \rightrightarrows UB\)</span> has a split coequalizer in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p><strong>Theorem (Beck Monadicity / Huge Monadicity).</strong> Let <span class="math inline">\(U \colon \mathcal{D} \to \mathcal{C}\)</span> have a left adjoint <span class="math inline">\(F \dashv U\)</span> with induced monad <span class="math inline">\(T = UF\)</span> on <span class="math inline">\(\mathcal{C}\)</span>. The following five conditions are equivalent:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(i)</td>
+<td><span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> creates them.</td>
+</tr>
+<tr class="even">
+<td>(ii)</td>
+<td><span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> preserves and reflects them.</td>
+</tr>
+<tr class="odd">
+<td>(iii)</td>
+<td><span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> preserves them.</td>
+</tr>
+<tr class="even">
+<td>(iv)</td>
+<td><span class="math inline">\(U\)</span> reflects isomorphisms and <span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-split pairs which <span class="math inline">\(U\)</span> preserves.</td>
+</tr>
+<tr class="odd">
+<td>(v)</td>
+<td><span class="math inline">\(U\)</span> is monadic (the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> is an equivalence).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Corollary (Crude Monadicity, Beck).</strong> <span class="math inline">\(U\)</span> is monadic iff <span class="math inline">\(U\)</span> has a left adjoint, <span class="math inline">\(U\)</span> reflects isomorphisms, and <span class="math inline">\(\mathcal{D}\)</span> has and <span class="math inline">\(U\)</span> preserves coequalizers of <span class="math inline">\(U\)</span>-split pairs.</p>
+<div class="callout callout-info">
+<p> Historical note
+Beck’s monadicity theorem first appeared in an untitled manuscript circulated by Jonathan Mock Beck around 1966–1968, published in the proceedings of the 1968 Battelle Memorial Institute conference. It is sometimes called the <em>Beck tripleability theorem</em> because <em>triple</em> was the earlier term for monad. The theorem is fundamental in <em>descent theory</em> and <em>algebraic geometry</em>, appearing in Grothendieck’s treatment of faithfully flat descent.</p>
+</div>
+<h3 id="proof-strategy">14.2 Proof Strategy</h3>
+<p>The proof of the equivalence of (i)–(v) proceeds as follows.</p>
+<p><strong><span class="math inline">\((v) \Rightarrow (i)\)</span>:</strong> If <span class="math inline">\(K\)</span> is an equivalence, then <span class="math inline">\(\mathcal{D} \simeq \mathcal{C}^T\)</span>. By §11, <span class="math inline">\(U^T\)</span> creates coequalizers of <span class="math inline">\(U^T\)</span>-absolute pairs. Transporting along <span class="math inline">\(K\)</span> gives the same for <span class="math inline">\(U\)</span>.</p>
+<p><strong><span class="math inline">\((i) \Rightarrow (ii) \Rightarrow (iii)\)</span>:</strong> Creation implies preservation and reflection; preservation and reflection implies preservation. These are formal implications from the definitions.</p>
+<p><strong><span class="math inline">\((iii) \Rightarrow (iv)\)</span>:</strong> Suppose <span class="math inline">\(U\)</span> preserves coequalizers of <span class="math inline">\(U\)</span>-absolute pairs. For any isomorphism-reflecting: if <span class="math inline">\(Uf\)</span> is an isomorphism, then <span class="math inline">\(f, \mathrm{id}\)</span> is a <span class="math inline">\(U\)</span>-split pair (with <span class="math inline">\(U\mathrm{id}\)</span> as splitting), so their coequalizer in <span class="math inline">\(\mathcal{D}\)</span> exists and <span class="math inline">\(U\)</span> preserves it — a short diagram chase shows <span class="math inline">\(f\)</span> is an isomorphism.</p>
+<p><strong><span class="math inline">\((iv) \Rightarrow (v)\)</span> (key direction).</strong> This is the hardest step. We must show the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> is an equivalence. For every <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a) \in \mathcal{C}^T\)</span>, we need an object <span class="math inline">\(d \in \mathcal{D}\)</span> with <span class="math inline">\(K(d) \cong (A, a)\)</span>.</p>
+<p>By §11, <span class="math inline">\((A, a)\)</span> is a coequalizer of free <span class="math inline">\(T\)</span>-algebras. The corresponding diagram in <span class="math inline">\(\mathcal{D}\)</span> (via <span class="math inline">\(F\)</span>) is <span class="math inline">\(F(TA) \rightrightarrows F(A)\)</span>, which is a <span class="math inline">\(U\)</span>-split pair (since applying <span class="math inline">\(U\)</span> gives the split coequalizer of Exercise 4). By hypothesis (iv), <span class="math inline">\(\mathcal{D}\)</span> has a coequalizer <span class="math inline">\(d = \mathrm{coeq}(F(TA) \rightrightarrows F(A))\)</span>, and <span class="math inline">\(U\)</span> preserves it. One checks <span class="math inline">\(K(d) \cong (A, a)\)</span> using that <span class="math inline">\(U\)</span> reflects isomorphisms.</p>
+<div class="callout callout-note">
+<p> Exercise 13
+State and prove the Huge Monadicity Theorem, establishing the equivalence of the five conditions (i)–(v) for a functor <span class="math inline">\(U \colon \mathcal{D} \to \mathcal{C}\)</span> with left adjoint <span class="math inline">\(F\)</span>. You may assume the results of §11 (creation theorems for <span class="math inline">\(U^T\)</span>). Pay particular attention to the direction (iii) <span class="math inline">\(\Rightarrow\)</span> (iv) (showing <span class="math inline">\(U\)</span> reflects isomorphisms) and (iv) <span class="math inline">\(\Rightarrow\)</span> (v) (showing <span class="math inline">\(K\)</span> is an equivalence).</p>
+</div>
+<hr />
+<h2 id="the-comparison-functor-revisited">15. The Comparison Functor Revisited 🔭</h2>
+<p>Recall the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> for an adjunction <span class="math inline">\(F \dashv U\)</span> with monad <span class="math inline">\(T = UF\)</span>.</p>
+<p><strong>Proposition.</strong> <span class="math inline">\(K\)</span> has a left adjoint if <span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> preserves them.</p>
+<p><em>Proof sketch.</em> For each <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a)\)</span>, we saw in §14 that <span class="math inline">\((A, a)\)</span> is a coequalizer of free algebras <span class="math inline">\(K(FTA) \rightrightarrows K(FA)\)</span> in <span class="math inline">\(\mathcal{C}^T\)</span>. The <span class="math inline">\(U\)</span>-preservation hypothesis ensures <span class="math inline">\(\mathcal{D}\)</span> has the corresponding coequalizer, giving a functor <span class="math inline">\(L \colon \mathcal{C}^T \to \mathcal{D}\)</span> with <span class="math inline">\(L(A, a) = \mathrm{coeq}(FTA \rightrightarrows FA)\)</span>. One verifies <span class="math inline">\(L \dashv K\)</span> by a universal property argument.</p>
+<p><strong>Proposition.</strong> The unit <span class="math inline">\(\eta^{LK} \colon \mathrm{id}_{\mathcal{D}} \Rightarrow KL\)</span> of <span class="math inline">\(L \dashv K\)</span> is a natural isomorphism iff <span class="math inline">\(U\)</span> reflects isomorphisms.</p>
+<p><strong>Corollary.</strong> Both the unit and counit of <span class="math inline">\(L \dashv K\)</span> are natural isomorphisms (i.e., <span class="math inline">\(K\)</span> is an equivalence of categories) iff <span class="math inline">\(U\)</span> is monadic.</p>
+<div class="callout callout-note">
+<p> Exercise 14
+(i) Show that the comparison functor <span class="math inline">\(K \colon \mathcal{D} \to \mathcal{C}^T\)</span> has a left adjoint <span class="math inline">\(L \colon \mathcal{C}^T \to \mathcal{D}\)</span> whenever <span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-absolute pairs and <span class="math inline">\(U\)</span> preserves them. Describe the action of <span class="math inline">\(L\)</span> on objects.</p>
+<ol start="2" type="i">
+<li><p>Show that the unit <span class="math inline">\(\eta \colon \mathrm{id}_{\mathcal{D}} \Rightarrow KL\)</span> is a natural isomorphism iff <span class="math inline">\(U\)</span> reflects isomorphisms.</p></li>
+<li><p>Show that both unit and counit of <span class="math inline">\(L \dashv K\)</span> are natural isomorphisms (so <span class="math inline">\(K\)</span> is an equivalence) iff <span class="math inline">\(U\)</span> is monadic.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="geometric-realization-via-saft">16. Geometric Realization via SAFT 🌐</h2>
+<p>The <em>simplex category</em> <span class="math inline">\(\Delta\)</span> has:
+- Objects: finite non-empty ordinals <span class="math inline">\([n] = \{0 &lt; 1 &lt; \cdots &lt; n\}\)</span> for <span class="math inline">\(n \geq 0\)</span>,
+- Morphisms: order-preserving (non-strictly) functions <span class="math inline">\([m] \to [n]\)</span>.</p>
+<p>A <em>simplicial set</em> is a functor <span class="math inline">\(X \colon \Delta^{op} \to \mathbf{Set}\)</span>. The category of simplicial sets is <span class="math inline">\(\mathbf{sSet} = [\Delta^{op}, \mathbf{Set}]\)</span>.</p>
+<p>The <em>standard geometric simplices</em> are <span class="math inline">\(|\Delta^n| = \{(t_0, \ldots, t_n) \in \mathbb{R}^{n+1}_{\geq 0} : \sum t_i = 1\}\)</span>. These assemble into a functor <span class="math inline">\(|\Delta^{\bullet}| \colon \Delta \to \mathbf{Top}\)</span>.</p>
+<p>The <em>singular complex</em> functor <span class="math inline">\(\mathrm{Sing} \colon \mathbf{Top} \to \mathbf{sSet}\)</span> is defined by:
+<span class="math display">\[\mathrm{Sing}(X)_n = \mathbf{Top}(|\Delta^n|, X).\]</span>
+Its restriction and degeneracy maps are precomposition with the face and degeneracy maps of <span class="math inline">\(\Delta\)</span>.</p>
+<p><strong>Theorem.</strong> <span class="math inline">\(\mathrm{Sing}\)</span> has a left adjoint <span class="math inline">\(|-| \colon \mathbf{sSet} \to \mathbf{Top}\)</span>, called <em>geometric realization</em>.</p>
+<p><em>Proof via SAFT.</em> Apply the SAFT to <span class="math inline">\(G = \mathrm{Sing} \colon \mathbf{Top} \to \mathbf{sSet}\)</span>… but wait: we want the left adjoint to <span class="math inline">\(\mathrm{Sing}\)</span>, so we apply SAFT to the opposite category situation, or more directly apply GAFT:</p>
+<p><span class="math inline">\(\mathrm{Sing}\)</span> preserves limits (since <span class="math inline">\(\mathbf{Top}(|\Delta^n|, -)\)</span> preserves limits for each <span class="math inline">\(n\)</span>, limits in <span class="math inline">\(\mathbf{sSet}\)</span> are computed pointwise). For the SSC: for any simplicial set <span class="math inline">\(X\)</span>, the solution set consists of a single object — the geometric realization <span class="math inline">\(|X|\)</span> if we already know it exists, or more carefully: the set of all quotients of coproducts of simplices <span class="math inline">\(\bigsqcup_\sigma |\Delta^{n_\sigma}|\)</span> satisfying the <span class="math inline">\(n\)</span>-skeleta conditions. Since <span class="math inline">\(X\)</span> has only a set of simplices, this set is small.</p>
+<p><em>Alternatively</em>, one constructs <span class="math inline">\(|X|\)</span> directly as the coend:
+<span class="math display">\[|X| = \int^{[n] \in \Delta} X_n \cdot |\Delta^n| = \left(\bigsqcup_{n \geq 0} X_n \times |\Delta^n|\right) \big/ \sim\]</span>
+where <span class="math inline">\((x, \phi^*(t)) \sim (\phi_*(x), t)\)</span> for <span class="math inline">\(\phi \colon [m] \to [n]\)</span> order-preserving. This formula shows <span class="math inline">\(|-|\)</span> is well-defined and one verifies the adjunction bijection <span class="math inline">\(\mathbf{sSet}(X, \mathrm{Sing}(Y)) \cong \mathbf{Top}(|X|, Y)\)</span> by the universal property of the coend.</p>
+<div class="callout callout-warning">
+<p> Conditions on Top
+For the SAFT to apply directly to <span class="math inline">\(\mathbf{Top}\)</span> (as opposed to a nice subcategory), one needs to verify that <span class="math inline">\(\mathbf{Top}\)</span> is locally small (yes), complete (yes, limits are concrete limits of sets with appropriate topology), well-powered (yes, open subsets form a set), and has a coseparating set (yes, <span class="math inline">\(\{[0,1]\}\)</span> is a coseparating set for <span class="math inline">\(T_0\)</span> spaces by Urysohn, and working with all topological spaces one can use <span class="math inline">\(\{D\}\)</span> for <span class="math inline">\(D\)</span> the Sierpinski space for the appropriate version). These conditions are all satisfied.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 15
+Let <span class="math inline">\(\Delta\)</span> be the simplex category. Consider the functor <span class="math inline">\(\mathrm{Sing} \colon \mathbf{Top}^{op} \to [\Delta^{op}, \mathbf{Set}]\)</span> sending <span class="math inline">\(X\)</span> to its singular complex <span class="math inline">\(\mathrm{Sing}(X)_n = \mathbf{Top}(|\Delta^n|, X)\)</span>. Using the Special Adjoint Functor Theorem, show that <span class="math inline">\(\mathrm{Sing}\)</span> has a left adjoint (geometric realization <span class="math inline">\(|-|\)</span>). State explicitly which conditions on <span class="math inline">\(\mathbf{Top}\)</span> you need to verify and why each holds. What is the formula for <span class="math inline">\(|X|\)</span>?</p>
+</div>
+<hr />
+<h2 id="comonads-from-adjunctions">17. Comonads from Adjunctions ⬇️</h2>
+<p><strong>Definition (Comonad).</strong> A <em>comonad</em> on <span class="math inline">\(\mathcal{C}\)</span> is a triple <span class="math inline">\((G, \varepsilon, \delta)\)</span> where <span class="math inline">\(G \colon \mathcal{C} \to \mathcal{C}\)</span> is an endofunctor, <span class="math inline">\(\varepsilon \colon G \Rightarrow \mathrm{id}_{\mathcal{C}}\)</span> is the <em>counit</em>, and <span class="math inline">\(\delta \colon G \Rightarrow G^2\)</span> is the <em>comultiplication</em>, satisfying coassociativity <span class="math inline">\(\delta G \circ \delta = G\delta \circ \delta\)</span> and counit laws <span class="math inline">\(\varepsilon G \circ \delta = \mathrm{id}_G = G\varepsilon \circ \delta\)</span>.</p>
+<p>Dually, a <em><span class="math inline">\(G\)</span>-coalgebra</em> is a pair <span class="math inline">\((A, \alpha \colon A \to GA)\)</span> satisfying <span class="math inline">\(\varepsilon_A \circ \alpha = \mathrm{id}_A\)</span> and <span class="math inline">\(\delta_A \circ \alpha = G\alpha \circ \alpha\)</span>.</p>
+<p><strong>Theorem.</strong> Let <span class="math inline">\((T, \eta, \mu)\)</span> be a monad on <span class="math inline">\(\mathcal{C}\)</span> and suppose <span class="math inline">\(T\)</span> has a right adjoint <span class="math inline">\(G \colon \mathcal{C} \to \mathcal{C}\)</span> (i.e., <span class="math inline">\(T \dashv G\)</span>). Then:
+1. <span class="math inline">\(G\)</span> carries a canonical comonad structure <span class="math inline">\((G, \varepsilon^G, \delta^G)\)</span>.
+2. The category of <span class="math inline">\(G\)</span>-coalgebras is isomorphic to the category of <span class="math inline">\(T\)</span>-algebras <span class="math inline">\(\mathcal{C}^T\)</span>.</p>
+<p><em>Proof sketch.</em> Let <span class="math inline">\(\phi_{A,B} \colon \mathcal{C}(TA, B) \xrightarrow{\sim} \mathcal{C}(A, GB)\)</span> be the adjunction bijection for <span class="math inline">\(T \dashv G\)</span>.</p>
+<p><strong>Counit of <span class="math inline">\(G\)</span>:</strong> Define <span class="math inline">\(\varepsilon^G_A \colon GA \to A\)</span> by <span class="math inline">\(\varepsilon^G_A = \phi^{-1}_{A,A}(\mathrm{id}_{GA})\)</span>…</p>
+<p><em>More precisely:</em> The comonad structure on <span class="math inline">\(G\)</span> is obtained by dualizing the monad structure on <span class="math inline">\(T\)</span> via the adjunction. Specifically:
+- The counit <span class="math inline">\(\varepsilon^G \colon G \Rightarrow \mathrm{id}\)</span> corresponds under <span class="math inline">\(\phi\)</span> to the unit <span class="math inline">\(\eta \colon \mathrm{id} \Rightarrow T\)</span> (via the bijection <span class="math inline">\(\mathcal{C}(T \cdot \mathrm{id}, \mathrm{id}) \cong \mathcal{C}(\mathrm{id}, G \cdot \mathrm{id})\)</span>).
+- The comultiplication <span class="math inline">\(\delta^G \colon G \Rightarrow G^2\)</span> corresponds to the multiplication <span class="math inline">\(\mu \colon T^2 \Rightarrow T\)</span> (via <span class="math inline">\(\mathcal{C}(T^2, \mathrm{id}) \cong \mathcal{C}(\mathrm{id}, G^2)\)</span>).</p>
+<p><strong>Isomorphism of algebra categories:</strong> Given a <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((A, a \colon TA \to A)\)</span>, define a <span class="math inline">\(G\)</span>-coalgebra structure <span class="math inline">\(\bar{a} \colon A \to GA\)</span> by <span class="math inline">\(\bar{a} = \phi_{A,A}(a)\)</span>. The unit law <span class="math inline">\(a \circ \eta_A = \mathrm{id}_A\)</span> translates to the coalgebra counit law <span class="math inline">\(\varepsilon^G_A \circ \bar{a} = \mathrm{id}_A\)</span>, and the multiplication law translates to the comultiplication law. This correspondence is functorial and gives an isomorphism <span class="math inline">\(\mathcal{C}^T \cong \mathcal{C}_G\)</span> (Eilenberg-Moore algebras for <span class="math inline">\(T\)</span> vs. coalgebras for <span class="math inline">\(G\)</span>).</p>
+<div class="callout callout-example">
+<p> The continuation monad and its comonad
+In Haskell, the continuation monad <span class="math inline">\(T(A) = (A \to R) \to R\)</span> has a right adjoint <span class="math inline">\(G(A) = A \times R\)</span> (for a fixed type <span class="math inline">\(R\)</span>). The comonad structure on <span class="math inline">\(G\)</span> is the <em>store comonad</em>: <span class="math inline">\(G(A) = A \times R\)</span> with counit <span class="math inline">\((a, r) \mapsto a\)</span> and comultiplication <span class="math inline">\((a, r) \mapsto ((a, r), r)\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 16
+Let <span class="math inline">\((T, \eta, \mu)\)</span> be a monad on <span class="math inline">\(\mathcal{C}\)</span> and suppose <span class="math inline">\(T\)</span> has a right adjoint <span class="math inline">\(G \colon \mathcal{C} \to \mathcal{C}\)</span> (so <span class="math inline">\(T \dashv G\)</span>). Show that <span class="math inline">\(G\)</span> canonically carries the structure of a comonad <span class="math inline">\((G, \varepsilon^G, \delta^G)\)</span>, and that the category of <span class="math inline">\(G\)</span>-coalgebras is isomorphic to the category of <span class="math inline">\(T\)</span>-algebras <span class="math inline">\(\mathcal{C}^T\)</span>. (Define <span class="math inline">\(\varepsilon^G\)</span> and <span class="math inline">\(\delta^G\)</span> explicitly using the adjunction bijection, and verify the comonad axioms.)</p>
+</div>
+<hr />
+<h2 id="monadic-categories-over-set-and-top">18. Monadic Categories over Set and Top 📋</h2>
+<p>We apply Beck’s theorem to determine monadicity for various concrete categories.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category <span class="math inline">\(\mathcal{D}\)</span></th>
+<th>Forgetful functor <span class="math inline">\(U\)</span></th>
+<th>Has left adjoint?</th>
+<th>Reflects isomorphisms?</th>
+<th>Coequalizers of <span class="math inline">\(U\)</span>-split pairs?</th>
+<th>Monadic over?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Grp}\)</span> (groups)</td>
+<td><span class="math inline">\(U \colon \mathbf{Grp} \to \mathbf{Set}\)</span></td>
+<td>Yes (free groups)</td>
+<td>Yes</td>
+<td>Yes</td>
+<td><span class="math inline">\(\mathbf{Set}\)</span> ✓</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Ab}\)</span> (abelian groups)</td>
+<td><span class="math inline">\(U \colon \mathbf{Ab} \to \mathbf{Set}\)</span></td>
+<td>Yes (free abelian)</td>
+<td>Yes</td>
+<td>Yes</td>
+<td><span class="math inline">\(\mathbf{Set}\)</span> ✓</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Lat}\)</span> (lattices)</td>
+<td><span class="math inline">\(U \colon \mathbf{Lat} \to \mathbf{Set}\)</span></td>
+<td>Yes (free lattice)</td>
+<td>Yes</td>
+<td>Yes</td>
+<td><span class="math inline">\(\mathbf{Set}\)</span> ✓</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Field}\)</span> (fields)</td>
+<td><span class="math inline">\(U \colon \mathbf{Field} \to \mathbf{Set}\)</span></td>
+<td><strong>No</strong></td>
+<td>—</td>
+<td>—</td>
+<td>Not monadic</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Pos}\)</span> (posets)</td>
+<td><span class="math inline">\(U \colon \mathbf{Pos} \to \mathbf{Set}\)</span></td>
+<td>Yes (discrete preorder)</td>
+<td><strong>No</strong></td>
+<td>—</td>
+<td>Not monadic</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{TOrd}\)</span> (totally ordered sets)</td>
+<td><span class="math inline">\(U \colon \mathbf{TOrd} \to \mathbf{Set}\)</span></td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td>—</td>
+<td>Not monadic</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{TopGp}\)</span> (topological groups)</td>
+<td><span class="math inline">\(U \colon \mathbf{TopGp} \to \mathbf{Top}\)</span></td>
+<td>No in general</td>
+<td>—</td>
+<td>—</td>
+<td>Not monadic over <span class="math inline">\(\mathbf{Top}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key justifications:</strong></p>
+<p><strong>Fields are not monadic over <span class="math inline">\(\mathbf{Set}\)</span>:</strong> The forgetful functor <span class="math inline">\(U \colon \mathbf{Field} \to \mathbf{Set}\)</span> has no left adjoint — there is no free field on a set (the “free field on <span class="math inline">\(\{x, y\}\)</span>” would need to include <span class="math inline">\(x/y\)</span> but <span class="math inline">\(y\)</span> might be zero; this leads to contradiction). Formally: in any monad on <span class="math inline">\(\mathbf{Set}\)</span>, the algebra over the empty set is nonempty (it must contain the unit), but there is no field with 0 elements and the field with 1 element does not exist (fields require <span class="math inline">\(0 \neq 1\)</span>). So the initial algebra, which would have to be the “field on 0 generators”, does not exist.</p>
+<div class="callout callout-danger">
+<p> Common misconception about posets
+One might think <span class="math inline">\(U \colon \mathbf{Pos} \to \mathbf{Set}\)</span> is monadic because it has a left adjoint (the discrete poset functor — giving every set the discrete partial order where <span class="math inline">\(x \leq y\)</span> iff <span class="math inline">\(x = y\)</span>). But <span class="math inline">\(U\)</span> does not reflect isomorphisms: a bijective order-preserving map between posets need not have an order-preserving inverse. (E.g., the identity function from the discrete poset <span class="math inline">\(\{0,1\}\)</span> to <span class="math inline">\(\{0 \leq 1\}\)</span> is bijective and order-preserving, but its inverse is not.) Hence Beck’s theorem fails at condition (iv), and the category of posets is not monadic over sets.</p>
+</div>
+<p><strong>Totally ordered sets are not monadic over <span class="math inline">\(\mathbf{Set}\)</span>:</strong> The same failure of reflection of isomorphisms applies — a bijective order-preserving map between total orders need not be an isomorphism (think of the map <span class="math inline">\(\{0 &lt; 1 &lt; 2\} \to \{0 &lt; 1 &lt; 2\}\)</span> given by <span class="math inline">\(0 \mapsto 1, 1 \mapsto 2, 2 \mapsto 0\)</span>; this is a bijection but not order-preserving in that direction… actually, let us note that any bijection that is order-preserving between total orders IS an isomorphism — a bijective order-preserving map between finite total orders is an isomorphism. For infinite total orders: <span class="math inline">\(\mathbb{Z} \to \mathbb{N}\)</span> via a bijection can be order-preserving with non-order-preserving inverse. The key issue is that there is no free totally ordered set on more than 1 element, since all orderings on a finite set are a choice and none is canonical.)</p>
+<p><em>Alternatively:</em> <span class="math inline">\(\mathbf{TOrd}\)</span> does not have coequalizers of all <span class="math inline">\(U\)</span>-split pairs — certain coequalizer constructions are not totally ordered.</p>
+<p><strong>Topological groups are not monadic over <span class="math inline">\(\mathbf{Top}\)</span>:</strong> The forgetful functor <span class="math inline">\(U \colon \mathbf{TopGp} \to \mathbf{Top}\)</span> does not have a left adjoint in general (there is no free topological group on a topological space with the expected universal property in the category of all topological groups, without further conditions on the space).</p>
+<div class="callout callout-note">
+<p> Exercise 17
+For each of the following categories, determine whether it is monadic over <span class="math inline">\(\mathbf{Set}\)</span> (or over <span class="math inline">\(\mathbf{Top}\)</span> where appropriate), and briefly justify using Beck’s theorem (or the failure of one of its conditions):</p>
+<ol type="i">
+<li><p><span class="math inline">\(\mathbf{Field}\)</span> (fields and ring homomorphisms) over <span class="math inline">\(\mathbf{Set}\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathbf{Pos}\)</span> (posets and monotone maps) over <span class="math inline">\(\mathbf{Set}\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathbf{TOrd}\)</span> (totally ordered sets and order-preserving maps) over <span class="math inline">\(\mathbf{Set}\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathbf{Lat}\)</span> (lattices and lattice homomorphisms) over <span class="math inline">\(\mathbf{Set}\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathbf{TopGp}\)</span> (topological groups and continuous group homomorphisms) over <span class="math inline">\(\mathbf{Top}\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="canonical-presentations-and-the-bar-construction">19. Canonical Presentations and the Bar Construction 🔩</h2>
+<p>Every T-algebra arises from a coequalizer of free T-algebras — this was established in the coequalizer characterization underlying Beck’s theorem (Exercise 10(iii)). But there is something more: there is a <em>canonical</em> and <em>functorial</em> way to present any algebra as such a coequalizer, built from the monad structure alone. This is the <em>bar construction</em>.</p>
+<h3 id="motivation">19.1 Motivation</h3>
+<p><strong>Definition (Presentation of a T-algebra).</strong> A <em>presentation</em> of a T-algebra <span class="math inline">\((A, a)\)</span> by free algebras is a coequalizer diagram in <span class="math inline">\(\mathcal{C}^T\)</span>:
+<span class="math display">\[T^2 A \underset{d_1}{\overset{d_0}{\rightrightarrows}} TA \xrightarrow{q} A\]</span>
+where <span class="math inline">\(d_0 = \mu_A \colon T^2 A \to TA\)</span> (apply multiplication) and <span class="math inline">\(d_1 = Ta \colon T^2 A \to TA\)</span> (apply <span class="math inline">\(T\)</span> to the algebra map). Here <span class="math inline">\((TA, \mu_A)\)</span> and <span class="math inline">\((T^2 A, \mu_{TA})\)</span> are free T-algebras.</p>
+<p>The coequalizer exists and equals <span class="math inline">\((A, a)\)</span> because the pair <span class="math inline">\((d_0, d_1)\)</span> is a <em>reflexive split coequalizer</em> in <span class="math inline">\(\mathcal{C}^T\)</span>: the section <span class="math inline">\(\eta_{TA} \colon TA \to T^2 A\)</span> satisfies <span class="math inline">\(d_0 \circ \eta_{TA} = \mathrm{id}_{TA} = d_1 \circ \eta_{TA}\)</span> (after unfolding), and the underlying pair in <span class="math inline">\(\mathcal{C}\)</span> is split by the maps <span class="math inline">\(\eta_A \colon A \to TA\)</span> and <span class="math inline">\(\eta_{TA}\)</span>.</p>
+<p><strong>Key question:</strong> Is this presentation functorial in <span class="math inline">\((A, a)\)</span>, and does it extend to an entire <em>resolution</em> rather than just a single coequalizer step? The bar construction answers both questions affirmatively.</p>
+<div class="callout callout-info">
+<p> Geometric intuition
+In topology, the bar construction <span class="math inline">\(B(M)\)</span> of a topological monoid <span class="math inline">\(M\)</span> produces the <em>classifying space</em> <span class="math inline">\(BM\)</span> as a geometric realization of a simplicial space. The simplicial levels <span class="math inline">\(B_n(M) = M^n\)</span> carry face maps given by the monoid multiplication (collapsing adjacent elements) and degeneracy maps given by the unit insertion. The monad-theoretic bar construction is the exact categorical abstraction of this construction.</p>
+</div>
+<hr />
+<h3 id="the-bar-resolution">19.2 The Bar Resolution</h3>
+<p><strong>Definition (Bar Resolution).</strong> Let <span class="math inline">\((T, \eta, \mu)\)</span> be a monad on <span class="math inline">\(\mathcal{C}\)</span> and let <span class="math inline">\((A, a \colon TA \to A)\)</span> be a T-algebra. The <em>bar resolution</em> of <span class="math inline">\((A, a)\)</span> is the augmented simplicial object in <span class="math inline">\(\mathcal{C}\)</span>:</p>
+<p><span class="math display">\[\cdots \underset{}{\overset{}{\underset{}{\overset{}{\rightrightarrows}}}} T^3 A \underset{}{\overset{}{\rightrightarrows}} T^2 A \underset{d_0}{\overset{d_1}{\rightrightarrows}} TA \xrightarrow{a} A\]</span></p>
+<p>where at simplicial level <span class="math inline">\(n\)</span> the object is <span class="math inline">\(T^{n+1} A\)</span>, the face maps are:
+<span class="math display">\[d_i = T^i \mu_{T^{n-i-1} A} \colon T^{n+1} A \to T^n A, \quad 0 \leq i \leq n,\]</span>
+and the degeneracy maps are:
+<span class="math display">\[s_i = T^i \eta_{T^{n-i} A} \colon T^n A \to T^{n+1} A, \quad 0 \leq i \leq n-1.\]</span>
+The augmentation map at level <span class="math inline">\(-1\)</span> is <span class="math inline">\(a \colon TA \to A\)</span>.</p>
+<p>📐 <em>Concretely:</em> At level <span class="math inline">\(n = 0\)</span>, the face maps are <span class="math inline">\(d_0 = \mu_A \colon T^2 A \to TA\)</span> and <span class="math inline">\(d_1 = Ta \colon T^2 A \to TA\)</span>. At level <span class="math inline">\(n = 1\)</span>, the three face maps are <span class="math inline">\(d_0 = \mu_{TA}\)</span>, <span class="math inline">\(d_1 = T\mu_A\)</span>, and <span class="math inline">\(d_2 = T^2 a\)</span>.</p>
+<blockquote>
+<p>[!EXAMPLE]- Bar resolution for groups
+Take <span class="math inline">\(T\)</span> = the free group monad on <strong>Set</strong>. For a group <span class="math inline">\(G\)</span> with underlying set <span class="math inline">\(|G|\)</span>, we have <span class="math inline">\(T^n|G|\)</span> = the free group on the free group on <span class="math inline">\(\cdots\)</span> on <span class="math inline">\(|G|\)</span> (<span class="math inline">\(n\)</span> times). The face map <span class="math inline">\(d_0 = \mu_{|G|}\)</span> evaluates the outer free group using <span class="math inline">\(G\)</span>’s multiplication, while <span class="math inline">\(d_1 = T(a) = T(\text{evaluation})\)</span> evaluates one level inside. The degeneracy <span class="math inline">\(s_0 = \eta_{T|G|}\)</span> inserts the unit into the free group.</p>
+</blockquote>
+<p><strong>Verification of simplicial identities.</strong> The face and degeneracy maps satisfy the standard simplicial identities (<span class="math inline">\(d_i d_j = d_{j-1} d_i\)</span> for <span class="math inline">\(i &lt; j\)</span>, etc.) by the monad axioms: associativity of <span class="math inline">\(\mu\)</span> and the unit laws for <span class="math inline">\(\eta\)</span>.</p>
+<hr />
+<h3 id="the-simplicial-bar-construction-in-ct">19.3 The Simplicial Bar Construction in C^T</h3>
+<p>The bar resolution lives in the underlying category <span class="math inline">\(\mathcal{C}\)</span>, but it lifts to a simplicial object in the category of T-algebras <span class="math inline">\(\mathcal{C}^T\)</span>.</p>
+<p><strong>Definition (Simplicial Bar Construction).</strong> The <em>simplicial bar construction</em> <span class="math inline">\(B_\bullet(T, A)\)</span> is the simplicial object in <span class="math inline">\(\mathcal{C}^T\)</span> defined by:
+- Level <span class="math inline">\(n\)</span>: the free T-algebra <span class="math inline">\((T^{n+1} A,\, \mu_{T^n A})\)</span>
+- Face maps: <span class="math inline">\(d_i = T^i(\mu_{T^{n-i-1} A}) \colon (T^{n+1} A, \mu_{T^n A}) \to (T^n A, \mu_{T^{n-1} A})\)</span> (these are T-algebra maps because <span class="math inline">\(\mu\)</span> is natural)
+- Degeneracy maps: <span class="math inline">\(s_i = T^i(\eta_{T^{n-i} A}) \colon (T^n A, \mu_{T^{n-1} A}) \to (T^{n+1} A, \mu_{T^n A})\)</span>
+- Augmentation: the algebra map <span class="math inline">\(a \colon (TA, \mu_A) \to (A, a)\)</span></p>
+<p>Each level <span class="math inline">\(B_n(T, A) = (T^{n+1} A, \mu_{T^n A})\)</span> is the <em>free</em> T-algebra on <span class="math inline">\(T^n A\)</span>. <strong>The bar construction resolves every T-algebra by free algebras.</strong></p>
+<div class="callout callout-note">
+<p> The forgetful functor and the resolution
+The forgetful functor <span class="math inline">\(U \colon \mathcal{C}^T \to \mathcal{C}\)</span> sends <span class="math inline">\(B_\bullet(T, A)\)</span> to the bar resolution in <span class="math inline">\(\mathcal{C}\)</span>. Importantly, the bar construction is <em>functorial</em> in the algebra map: a T-algebra map <span class="math inline">\(f \colon (A, a) \to (B, b)\)</span> induces a simplicial map <span class="math inline">\(B_\bullet(T, A) \to B_\bullet(T, B)\)</span> at level <span class="math inline">\(n\)</span> given by <span class="math inline">\(T^{n+1} f\)</span>.</p>
+</div>
+<hr />
+<h3 id="geometric-realization-and-the-coequalizer">19.4 Geometric Realization and the Coequalizer</h3>
+<p>The geometric realization of the bar construction (i.e., the colimit of the simplicial diagram) recovers the original algebra <span class="math inline">\((A, a)\)</span>.</p>
+<p><strong>Theorem (Realization of B_bullet).</strong> The coequalizer of <span class="math inline">\(d_0, d_1 \colon T^2 A \rightrightarrows TA\)</span> in <span class="math inline">\(\mathcal{C}^T\)</span> is <span class="math inline">\((A, a)\)</span>. Moreover, if <span class="math inline">\(\mathcal{C}^T\)</span> has all coequalizers of reflexive pairs (which it does when <span class="math inline">\(\mathcal{C}\)</span> does, by the creation theorem from §11), then the <em>geometric realization</em> (homotopy colimit) of the entire simplicial object <span class="math inline">\(B_\bullet(T, A)\)</span> is again <span class="math inline">\((A, a)\)</span>.</p>
+<p><em>Proof sketch for the coequalizer step.</em> We need:
+1. <span class="math inline">\(a \circ d_0 = a \circ d_1\)</span> (i.e., <span class="math inline">\(a \circ \mu_A = a \circ Ta\)</span>): this is the T-algebra associativity law.
+2. <span class="math inline">\((A, a)\)</span> is the universal such coequalizer: given any T-algebra map <span class="math inline">\(h \colon (TA, \mu_A) \to (B, b)\)</span> with <span class="math inline">\(h \circ d_0 = h \circ d_1\)</span>, there is a unique T-algebra map <span class="math inline">\(\bar{h} \colon (A, a) \to (B, b)\)</span> with <span class="math inline">\(\bar{h} \circ a = h\)</span>. Setting <span class="math inline">\(\bar{h} = h \circ \eta_A\)</span> works: one checks <span class="math inline">\(\bar{h}\)</span> is a T-algebra map using the split structure.</p>
+<p><strong>The key observation</strong> is that the pair <span class="math inline">\((d_0, d_1)\)</span> is <em>split</em> (not merely reflexive): the maps <span class="math inline">\(s_{-1} = \eta_A \colon A \to TA\)</span> and <span class="math inline">\(s_0 = \eta_{TA} \colon TA \to T^2 A\)</span> provide an explicit splitting. This makes the coequalizer <em>absolute</em> — preserved by every functor.</p>
+<hr />
+<h3 id="contractibility-and-splitting">19.5 Contractibility and Splitting</h3>
+<p>🔑 <strong>The splitting maps</strong> are the heart of why the bar construction works. Define the <em>extra degeneracy</em> maps:
+<span class="math display">\[s_{-1}^{(n)} \colon T^n A \to T^{n+1} A, \quad s_{-1}^{(n)} = \eta_{T^n A}.\]</span>
+These are not natural transformations of the simplicial structure (they go in the “wrong” direction with respect to the augmentation), but they provide a <em>contraction</em> of the augmented simplicial object <span class="math inline">\(A \leftarrow TA \leftarrow T^2 A \leftarrow \cdots\)</span> in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p><strong>Definition (Contractible augmented simplicial object).</strong> An augmented simplicial object <span class="math inline">\(X_{-1} \leftarrow X_0 \leftarrow X_1 \leftarrow \cdots\)</span> is <em>contractible</em> (or <em>split</em>) if there exist maps <span class="math inline">\(s_{-1}^{(n)} \colon X_n \to X_{n+1}\)</span> (not required to be natural) such that:
+<span class="math display">\[d_0 \circ s_{-1}^{(n)} = \mathrm{id}_{X_n}, \quad d_{i+1} \circ s_{-1}^{(n)} = s_{-1}^{(n-1)} \circ d_i \text{ for } i \geq 0.\]</span></p>
+<p><strong>Proposition.</strong> The augmented bar resolution <span class="math inline">\(A \leftarrow TA \leftarrow T^2 A \leftarrow \cdots\)</span> (in <span class="math inline">\(\mathcal{C}\)</span>) is contractible, with contraction given by <span class="math inline">\(s_{-1}^{(n)} = \eta_{T^n A}\)</span>.</p>
+<p><em>Proof.</em> Check: <span class="math inline">\(d_0 \circ s_{-1}^{(n)} = \mu_{T^{n-1} A} \circ \eta_{T^n A} = \mathrm{id}_{T^n A}\)</span> by the right unit law for <span class="math inline">\(\mu\)</span>.</p>
+<div class="callout callout-warning">
+<p> Contractibility in C^T vs. in C
+The contractibility of the bar resolution is a property of the underlying simplicial object in <span class="math inline">\(\mathcal{C}\)</span>, not in <span class="math inline">\(\mathcal{C}^T\)</span>. The extra degeneracy maps <span class="math inline">\(\eta_{T^n A}\)</span> are T-algebra maps only when their codomain carries the free algebra structure — and indeed each <span class="math inline">\(T^{n+1} A\)</span> does. So the contraction lifts to <span class="math inline">\(\mathcal{C}^T\)</span> at all positive levels, but the augmentation step <span class="math inline">\(\eta_A \colon A \to TA\)</span> is a T-algebra map only when <span class="math inline">\((A, a)\)</span> is a free algebra (i.e., when <span class="math inline">\(a = \mu_A\)</span> for some T-algebra structure). For general <span class="math inline">\((A, a)\)</span>, the contraction exists in <span class="math inline">\(\mathcal{C}\)</span> but not in <span class="math inline">\(\mathcal{C}^T\)</span>.</p>
+</div>
+<hr />
+<h3 id="universal-property-canonical-presentation">19.6 Universal Property: Canonical Presentation</h3>
+<p><strong>Theorem (Canonical Presentation).</strong> For any T-algebra <span class="math inline">\((A, a)\)</span>, the diagram
+<span class="math display">\[\bigl(T^2 A,\, \mu_{TA},\, d_0 = \mu_A,\, d_1 = Ta,\, s_0 = \eta_{TA}\bigr) \underset{d_1}{\overset{d_0}{\rightrightarrows}} \bigl(TA,\, \mu_A\bigr) \xrightarrow{a} (A, a)\]</span>
+is a <em>reflexive split coequalizer</em> diagram in <span class="math inline">\(\mathcal{C}^T\)</span>, functorial in <span class="math inline">\((A, a)\)</span>.</p>
+<p><strong>Corollary.</strong> The functor <span class="math inline">\(F^T U^T \colon \mathcal{C}^T \to \mathcal{C}^T\)</span> (where <span class="math inline">\(F^T\)</span> is the free algebra functor and <span class="math inline">\(U^T\)</span> the forgetful functor) comes with a canonical <em>augmented simplicial resolution</em>: for every <span class="math inline">\((A, a)\)</span>, the bar construction provides a functorial simplicial object <span class="math inline">\(B_\bullet(T, A)\)</span> in <span class="math inline">\(\mathcal{C}^T\)</span> whose geometric realization is <span class="math inline">\((A, a)\)</span>.</p>
+<p><em>This is the sense in which every algebra is</em> <strong><em>canonically</em></strong> <em>presented by free algebras.</em></p>
+<hr />
+<h3 id="applications">19.7 Applications</h3>
+<p>The bar construction appears throughout mathematics:</p>
+<ol type="1">
+<li><p><strong>Homological algebra.</strong> 💡 For the monad <span class="math inline">\(T = A \otimes_k (-)\)</span> on <span class="math inline">\(k\)</span>-<strong>Mod</strong> (for a <span class="math inline">\(k\)</span>-algebra <span class="math inline">\(A\)</span>), the bar resolution of an <span class="math inline">\(A\)</span>-module <span class="math inline">\(M\)</span> is the <em>bar resolution</em>:
+<span class="math display">\[\cdots \to A^{\otimes 3} \otimes M \to A^{\otimes 2} \otimes M \to A \otimes M \to M \to 0\]</span>
+with face maps given by the multiplication in <span class="math inline">\(A\)</span>. This is precisely the standard resolution used to compute <span class="math inline">\(\mathrm{Tor}_*^A(-, M)\)</span> and <span class="math inline">\(\mathrm{Ext}_A^*(-, M)\)</span>.</p></li>
+<li><p><strong>Algebraic topology.</strong> For the monad <span class="math inline">\(T = \Sigma^\infty \Omega^\infty\)</span> on spectra, the bar construction produces the <em>Adams resolution</em>, used to compute stable homotopy groups via the Adams spectral sequence.</p></li>
+<li><p><strong>Classifying spaces.</strong> For a discrete group <span class="math inline">\(G\)</span> viewed as a one-object groupoid, the bar construction on the monad associated to the free-forgetful adjunction <span class="math inline">\(\mathbf{Set} \rightleftharpoons \mathbf{Grp}\)</span> produces <span class="math inline">\(B_n G = G^n\)</span>. The geometric realization <span class="math inline">\(|B_\bullet G|\)</span> is the classifying space <span class="math inline">\(BG\)</span> of <span class="math inline">\(G\)</span>.</p></li>
+<li><p><strong><span class="math inline">\(\infty\)</span>-category theory.</strong> The bar construction is a fundamental tool in <span class="math inline">\((\infty, 1)\)</span>-category theory, where it provides the <em>two-sided bar construction</em> <span class="math inline">\(B(M, A, N)\)</span> computing derived tensor products in the <span class="math inline">\(\infty\)</span>-categorical sense.</p></li>
+</ol>
+<div class="callout callout-info">
+<p> Historical note
+The bar construction originated in the work of Eilenberg and Mac Lane in the 1950s as a tool for computing group cohomology. The name comes from the original notation <span class="math inline">\([\bar{g}_1 | \bar{g}_2 | \cdots | \bar{g}_n]\)</span> for elements of <span class="math inline">\(G^n\)</span>. The abstract monad-theoretic formulation is due to Beck (1967) and was developed further by Barr and Wells in <em>Toposes, Triples and Theories</em>.</p>
+</div>
+<hr />
+<h3 id="the-cobar-construction">19.8 The Cobar Construction</h3>
+<p>The <em>cobar construction</em> is the dual of the bar construction, defined for <em>comonads</em> rather than monads.</p>
+<p><strong>Definition (Cobar Construction).</strong> Let <span class="math inline">\((G, \varepsilon, \delta)\)</span> be a comonad on <span class="math inline">\(\mathcal{C}\)</span> and let <span class="math inline">\((A, \alpha \colon A \to GA)\)</span> be a G-coalgebra. The <em>cobar construction</em> <span class="math inline">\(\Omega^\bullet(G, A)\)</span> is the cosimplicial object in <span class="math inline">\(\mathcal{C}_G\)</span> (the Eilenberg-Moore category of G-coalgebras) defined by:
+- Level <span class="math inline">\(n\)</span>: the cofree G-coalgebra <span class="math inline">\((G^{n+1} A,\, \delta_{G^n A})\)</span>
+- Coface maps: <span class="math inline">\(\delta^i = G^i(\delta_{G^{n-i} A}) \colon G^n A \to G^{n+1} A\)</span> for <span class="math inline">\(0 \leq i \leq n\)</span>
+- Codegeneracy maps: <span class="math inline">\(\varepsilon^i = G^i(\varepsilon_{G^{n-i} A}) \colon G^{n+1} A \to G^n A\)</span> for <span class="math inline">\(0 \leq i \leq n\)</span>
+- Augmentation: the coalgebra map <span class="math inline">\(\alpha \colon A \to GA\)</span></p>
+<p><strong>Theorem (Dual Splitting).</strong> The augmented cosimplicial object <span class="math inline">\(A \to GA \to G^2 A \to \cdots\)</span> is cosplit by the extra codegeneracy maps <span class="math inline">\(\varepsilon_{G^n A} \colon G^{n+1} A \to G^n A\)</span>. The equalizer of <span class="math inline">\(\varepsilon^0, \varepsilon^1 \colon GA \rightrightarrows A\)</span> (in <span class="math inline">\(\mathcal{C}_G\)</span>) is <span class="math inline">\((A, \alpha)\)</span>.</p>
+<div class="callout callout-tip">
+<p> Bar vs. cobar
+The symmetry is exact: swap monad <span class="math inline">\(\leftrightarrow\)</span> comonad, algebra <span class="math inline">\(\leftrightarrow\)</span> coalgebra, free <span class="math inline">\(\leftrightarrow\)</span> cofree, coequalizer <span class="math inline">\(\leftrightarrow\)</span> equalizer, and simplicial <span class="math inline">\(\leftrightarrow\)</span> cosimplicial. Every theorem about the bar construction has a dual theorem about the cobar construction.</p>
+</div>
+<hr />
+<div class="callout callout-note">
+<p> Riehl Exercise: Bar Construction
+<em>(i)</em> For the monad <span class="math inline">\(T\)</span> arising from the free-forgetful adjunction <span class="math inline">\(\mathbf{Set} \rightleftharpoons \mathbf{Grp}\)</span>, describe the bar construction <span class="math inline">\(B_\bullet(T, G)\)</span> for a group <span class="math inline">\(G\)</span>. What are the sets <span class="math inline">\(T^n G\)</span> (as sets) and what are the face and degeneracy maps concretely? What is <span class="math inline">\(B_0(T,G)\)</span>, <span class="math inline">\(B_1(T,G)\)</span>, and <span class="math inline">\(B_2(T,G)\)</span> as sets?</p>
+<p><em>(ii)</em> Show that the augmented simplicial object <span class="math inline">\(A \leftarrow TA \leftarrow T^2 A \leftarrow \cdots\)</span> is <em>split</em> in the underlying category <span class="math inline">\(\mathcal{C}\)</span> (not in <span class="math inline">\(\mathcal{C}^T\)</span>): exhibit explicit splitting maps making it a split augmented simplicial object. (Hint: the extra degeneracy <span class="math inline">\(s_{-1}^{(n)} = \eta_{T^n A}\)</span>; verify the two splitting identities.)</p>
+<p><em>(iii)</em> Let <span class="math inline">\(T\)</span> be the “free commutative monoid” monad on <span class="math inline">\(\mathbf{Set}\)</span> (so <span class="math inline">\(TA\)</span> = the set of finite multisets on <span class="math inline">\(A\)</span>). Describe the bar construction for a commutative monoid <span class="math inline">\(M\)</span>, and identify the face maps <span class="math inline">\(d_0\)</span> and <span class="math inline">\(d_1\)</span> of <span class="math inline">\(B_1(T, M) \rightrightarrows B_0(T, M)\)</span> concretely in terms of the monoid multiplication <span class="math inline">\(m \colon M \times M \to M\)</span> and unit <span class="math inline">\(e \in M\)</span>.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tom Leinster, Part III Category Theory (2000)</td>
+<td>Original Cambridge course whose Sheet 4 exercises this note covers; includes sections on SAFT and monadicity</td>
+<td><a href="https://webhomes.maths.ed.ac.uk/~tl/categories/index.html">Course page</a></td>
+</tr>
+<tr class="even">
+<td>Leinster, Section E2: SAFT</td>
+<td>7-page examinable section on the Special Adjoint Functor Theorem</td>
+<td><a href="https://webhomes.maths.ed.ac.uk/~tl/categories/saft.ps">saft.ps</a></td>
+</tr>
+<tr class="odd">
+<td>Leinster, Section F4: Monadicity</td>
+<td>10-page examinable section on the Beck Monadicity Theorem</td>
+<td><a href="https://webhomes.maths.ed.ac.uk/~tl/categories/monadicity.ps">monadicity.ps</a></td>
+</tr>
+<tr class="even">
+<td>Mac Lane, <em>Categories for the Working Mathematician</em></td>
+<td>The standard reference; Chapter VI covers monads, Chapter V covers limits and adjoints</td>
+<td><a href="https://link.springer.com/book/10.1007/978-1-4612-9839-7">Springer</a></td>
+</tr>
+<tr class="odd">
+<td>Riehl, <em>Category Theory in Context</em></td>
+<td>Modern treatment; Chapter 5 covers adjoint functor theorems and Chapter 5.5 Beck’s theorem</td>
+<td><a href="https://math.jhu.edu/~eriehl/context.pdf">Free PDF</a></td>
+</tr>
+<tr class="even">
+<td>Leinster, <em>Basic Category Theory</em> (arXiv:1612.09375)</td>
+<td>Short introductory text; Chapter 4 (adjoint functors) and Chapter 5 (limits) are relevant</td>
+<td><a href="https://arxiv.org/abs/1612.09375">arXiv</a></td>
+</tr>
+<tr class="odd">
+<td>Barr &amp; Wells, <em>Toposes, Triples and Theories</em></td>
+<td>Classic monograph on monads (triples); Chapters 3–4 give full proofs of Beck’s theorem and Eilenberg-Moore constructions</td>
+<td><a href="http://www.tac.mta.ca/tac/reprints/articles/12/tr12.pdf">Free PDF</a></td>
+</tr>
+<tr class="even">
+<td>Beck, untitled manuscript (1966–1968)</td>
+<td>Original source of the monadicity theorem, republished in Battelle 1968 proceedings</td>
+<td><a href="http://www.tac.mta.ca/tac/reprints/articles/12/tr12.pdf">Scan at TAC Reprints</a></td>
+</tr>
+<tr class="odd">
+<td>Wikipedia, Beck’s Monadicity Theorem</td>
+<td>Accessible overview with statement of crude and precise monadicity</td>
+<td><a href="https://en.wikipedia.org/wiki/Beck%27s_monadicity_theorem">Wikipedia</a></td>
+</tr>
+<tr class="even">
+<td>Struck, <em>An Alternative Approach to the Monadicity Theorem</em> (REU 2022)</td>
+<td>Concise proof of Beck’s theorem with clear exposition of split coequalizers</td>
+<td><a href="http://math.uchicago.edu/~may/REU2022/REUPapers/Struck.pdf">UChicago REU</a></td>
+</tr>
+<tr class="odd">
+<td>Milewski, <em>Freyd’s Adjoint Functor Theorem</em> (2020)</td>
+<td>Accessible blog exposition of the GAFT proof via comma categories</td>
+<td><a href="https://bartoszmilewski.com/2020/07/22/freyds-adjoint-functor-theorem/">Blog post</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

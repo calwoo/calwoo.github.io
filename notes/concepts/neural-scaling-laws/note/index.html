@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>note - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>note</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-motivation%7Cmotivation/">#1. Motivation|Motivation</a>
+<ul>
+<li><a href="../../../../notes/#the-empirical-observation%7Cthe-empirical-observation/">#The Empirical Observation|The Empirical Observation</a></li>
+<li><a href="../../../../notes/#power-laws-are-not-unique-to-neural-networks%7Cpower-laws-are-not-unique-to-neural-networks/">#Power Laws Are Not Unique to Neural Networks|Power Laws Are Not Unique to Neural Networks</a></li>
+<li><a href="../../../../notes/#why-this-matters-practically%7Cwhy-this-matters-practically/">#Why This Matters Practically|Why This Matters Practically</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-mathematical-setup%7Cmathematical-setup/">#2. Mathematical Setup|Mathematical Setup</a>
+<ul>
+<li><a href="../../../../notes/#the-loss-decomposition-model%7Cthe-loss-decomposition-model/">#The Loss Decomposition Model|The Loss Decomposition Model</a></li>
+<li><a href="../../../../notes/#the-compute-approximation%7Cthe-compute-approximation/">#The Compute Approximation|The Compute Approximation</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-kaplan-et-al.-(2020):-fitting-the-laws%7Ckaplan-et-al.-(2020):-fitting-the-laws/">#3. Kaplan et al. (2020): Fitting the Laws|Kaplan et al. (2020): Fitting the Laws</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-univariate-scaling-laws%7C3.1-the-univariate-scaling-laws/">#3.1 The Univariate Scaling Laws|3.1 The Univariate Scaling Laws</a></li>
+<li><a href="../../../../notes/#3.2-the-compute-efficient-frontier%7C3.2-the-compute-efficient-frontier/">#3.2 The Compute-Efficient Frontier|3.2 The Compute-Efficient Frontier</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-chinchilla-(2022):-the-isoflop-revolution%7Cchinchilla-(2022):-the-isoflop-revolution/">#4. Chinchilla (2022): The IsoFLOP Revolution|Chinchilla (2022): The IsoFLOP Revolution</a>
+<ul>
+<li><a href="../../../../notes/#4.1-the-isoflop-methodology%7C4.1-the-isoflop-methodology/">#4.1 The IsoFLOP Methodology|4.1 The IsoFLOP Methodology</a></li>
+<li><a href="../../../../notes/#4.2-analytical-derivation-via-lagrangian-optimization%7C4.2-analytical-derivation-via-lagrangian-optimization/">#4.2 Analytical Derivation via Lagrangian Optimization|4.2 Analytical Derivation via Lagrangian Optimization</a></li>
+<li><a href="../../../../notes/#4.3-the-20-tokens-per-parameter-rule%7C4.3-the-20-tokens-per-parameter-rule/">#4.3 The 20 Tokens Per Parameter Rule|4.3 The 20 Tokens Per Parameter Rule</a></li>
+<li><a href="../../../../notes/#4.4-why-kaplan's-exponents-were-biased%7C4.4-why-kaplan's-exponents-were-biased/">#4.4 Why Kaplan’s Exponents Were Biased|4.4 Why Kaplan’s Exponents Were Biased</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-fitting-methodology%7Cfitting-methodology/">#5. Fitting Methodology|Fitting Methodology</a>
+<ul>
+<li><a href="../../../../notes/#5.1-approach-1:-isoflop-minimum-fitting%7C5.1-approach-1:-isoflop-minimum-fitting/">#5.1 Approach 1: IsoFLOP Minimum Fitting|5.1 Approach 1: IsoFLOP Minimum Fitting</a></li>
+<li><a href="../../../../notes/#5.2-approach-2:-parametric-global-fit%7C5.2-approach-2:-parametric-global-fit/">#5.2 Approach 2: Parametric Global Fit|5.2 Approach 2: Parametric Global Fit</a></li>
+<li><a href="../../../../notes/#5.3-approach-3:-per-model-size-estimation%7C5.3-approach-3:-per-model-size-estimation/">#5.3 Approach 3: Per-Model-Size Estimation|5.3 Approach 3: Per-Model-Size Estimation</a></li>
+<li><a href="../../../../notes/#5.4-cross-validation-of-approaches%7C5.4-cross-validation-of-approaches/">#5.4 Cross-Validation of Approaches|5.4 Cross-Validation of Approaches</a></li>
+<li><a href="../../../../notes/#5.5-alternative-estimators%7C5.5-alternative-estimators/">#5.5 Alternative Estimators|5.5 Alternative Estimators</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-scope-and-limitations%7Cscope-and-limitations/">#6. Scope and Limitations|Scope and Limitations</a>
+<ul>
+<li><a href="../../../../notes/#upstream-vs.-downstream-performance%7Cupstream-vs.-downstream-performance/">#Upstream vs. Downstream Performance|Upstream vs. Downstream Performance</a></li>
+<li><a href="../../../../notes/#non-power-law-scaling%7Cnon-power-law-scaling/">#Non-Power-Law Scaling|Non-Power-Law Scaling</a></li>
+<li><a href="../../../../notes/#trend-breaks-and-extrapolation-risk%7Ctrend-breaks-and-extrapolation-risk/">#Trend Breaks and Extrapolation Risk|Trend Breaks and Extrapolation Risk</a></li>
+<li><a href="../../../../notes/#modality-and-architecture-dependence%7Cmodality-and-architecture-dependence/">#Modality and Architecture Dependence|Modality and Architecture Dependence</a></li>
+<li><a href="../../../../notes/#scaling-for-recommendation-systems-and-ranking-models%7Cscaling-for-recommendation-systems-and-ranking-models/">#Scaling for Recommendation Systems and Ranking Models|Scaling for Recommendation Systems and Ranking Models</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a>
+<ul>
+<li><a href="../../../../notes/#further-reading:-scaling-for-recommendation-systems-and-ranking%7Cfurther-reading:-scaling-for-recommendation-systems-and-ranking/">#Further Reading: Scaling for Recommendation Systems and Ranking|Further Reading: Scaling for Recommendation Systems and Ranking</a></li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="motivation">1. Motivation</h2>
+<p>One of the most striking empirical findings in modern deep learning is deceptively simple: if you train language models of varying sizes on varying amounts of data and plot the resulting loss on a log-log scale, you get a straight line. Not approximately straight — straight enough to extrapolate across many orders of magnitude with quantitative accuracy. This is <em>power-law</em> behavior, and it is the central empirical fact that <em>scaling laws</em> are built to explain.</p>
+<h3 id="the-empirical-observation">The Empirical Observation</h3>
+<p>This observation did not originate with language models. Hestness et al. (2017) established, across machine translation, language modeling, image classification, and speech recognition, that generalization error follows a power law in training set size:</p>
+<p><span class="math display">\[\varepsilon(m) \propto \alpha_0 \, m^{\beta_g}\]</span></p>
+<p>with domain-specific exponents <span class="math inline">\(\beta_g\)</span> ranging from <span class="math inline">\(-0.07\)</span> (word language models) to <span class="math inline">\(-0.35\)</span> (image classification, top-5 error). Crucially, they found that model architecture improvements shift the loss curve downward — reducing the constant <span class="math inline">\(\alpha_0\)</span> — but do not alter the power-law exponent <span class="math inline">\(\beta_g\)</span>. The slope in log-log space is a property of the task and data distribution, not of the model family. This observation provides an early empirical argument that <em>scaling exponents</em> are universal characteristics of the data manifold, not architectural artifacts.</p>
+<p>The Kaplan et al. (2020) and Hoffmann et al. (2022) results then brought this phenomenon into the large-scale language model regime and provided a quantitative framework for <em>compute-optimal</em> training. Let <span class="math inline">\(L\)</span> denote <em>cross-entropy loss</em> (in nats or bits per token) on a held-out test set. Fix everything else — architecture family, optimizer, learning rate schedule — and vary either the number of non-embedding model parameters <span class="math inline">\(N\)</span>, the number of training tokens <span class="math inline">\(D\)</span>, or the total <em>compute budget</em> <span class="math inline">\(C\)</span>. Empirically:</p>
+<p><span class="math display">\[L(N) \sim N^{-\alpha_N}, \qquad L(D) \sim D^{-\alpha_D}, \qquad L(C) \sim C^{-\alpha_C}\]</span></p>
+<p>where <span class="math inline">\(\alpha_N, \alpha_D, \alpha_C\)</span> are small positive exponents (e.g., <span class="math inline">\(\alpha_N \approx 0.076\)</span>, <span class="math inline">\(\alpha_D \approx 0.095\)</span> in the original Kaplan et al. (2020) work on autoregressive language models). On a log-log plot, these become linear relationships:</p>
+<p><span class="math display">\[\log L = -\alpha \log X + \text{const}\]</span></p>
+<p>The fact that this holds across six or more orders of magnitude in <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> — from millions to hundreds of billions of parameters — is not obvious. Neural networks are complicated, nonlinear, high-dimensional systems. There is no a priori reason their generalization loss should follow such a clean functional form.</p>
+<h3 id="power-laws-are-not-unique-to-neural-networks">Power Laws Are Not Unique to Neural Networks</h3>
+<p>Power-law distributions appear throughout nature and human systems, which should give us some confidence that we are looking at a genuine structural phenomenon rather than an artifact of our particular experimental setup.</p>
+<p><strong>Zipf’s law</strong> (1935) states that in a natural language corpus, the frequency of the <span class="math inline">\(r\)</span>-th most common word scales as:</p>
+<p><span class="math display">\[f(r) \propto r^{-s}, \qquad s \approx 1\]</span></p>
+<p>The most common word appears roughly twice as often as the second most common, three times as often as the third, and so on. This is a power law in rank.</p>
+<p><strong>Pareto distributions</strong> describe wealth, city populations, earthquake magnitudes (Gutenberg-Richter law), and internet traffic. They arise whenever a multiplicative or preferential-attachment process is at work — systems where “the rich get richer.” Formally, the Pareto distribution has survival function <span class="math inline">\(P(X &gt; x) = (x_m/x)^k\)</span> for <span class="math inline">\(x \geq x_m\)</span>, <span class="math inline">\(k &gt; 0\)</span>, where <span class="math inline">\(x_m &gt; 0\)</span> is the minimum value and <span class="math inline">\(k\)</span> is the shape (tail) exponent.</p>
+<p><strong>Self-organized criticality</strong> (Bak, Tang, Wiesenfeld 1987) provides a physics-grounded explanation: complex systems with many interacting components often evolve toward critical states at which power-law correlations emerge naturally, without fine-tuning.</p>
+<p>The recurrence of power laws across such different domains suggests they reflect something fundamental about how complexity accumulates in high-dimensional systems — a property that neural language models, trained on the outputs of human cognition, plausibly share.</p>
+<h3 id="why-this-matters-practically">Why This Matters Practically</h3>
+<p>The practical payoff of scaling laws is enormous: <strong>you can predict loss at scale without running the full experiment.</strong></p>
+<p>If you have established that <span class="math inline">\(L(N) \approx A \cdot N^{-\alpha}\)</span> from experiments at <span class="math inline">\(N = 10^7\)</span> through <span class="math inline">\(N = 10^9\)</span>, you can extrapolate to <span class="math inline">\(N = 10^{11}\)</span> with quantifiable uncertainty. This transforms compute budgeting from guesswork into engineering. Before scaling laws, deciding how large to make a model — given a fixed compute budget — required expensive ablations or intuition. With scaling laws, you can:</p>
+<ol type="1">
+<li>Fit the power-law coefficients from small-scale runs.</li>
+<li>Project what loss a larger model would achieve.</li>
+<li>Optimize the allocation of compute between model size and data size (the Chinchilla problem).</li>
+</ol>
+<p>This is why scaling laws have become central to frontier model development: they convert empirical observations into actionable predictions, allowing organizations to make principled decisions about where to invest compute before committing to a multi-million-dollar training run.</p>
+<hr />
+<h2 id="mathematical-setup">2. Mathematical Setup</h2>
+<h3 id="the-loss-decomposition-model">The Loss Decomposition Model</h3>
+<p>Kaplan et al. (2020) propose modeling the loss as a sum of three independent contributions:</p>
+<p><span class="math display">\[L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta}\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(N\)</span> — number of <strong>non-embedding parameters</strong> (attention and MLP weights, excluding token/positional embedding matrices, which scale with vocabulary size rather than model capacity in the relevant sense)</li>
+<li><span class="math inline">\(D\)</span> — number of <strong>training tokens</strong> seen during optimization</li>
+<li><span class="math inline">\(\alpha, \beta &gt; 0\)</span> — positive scaling exponents</li>
+<li><span class="math inline">\(A, B, E &gt; 0\)</span> — positive fitted constants</li>
+</ul>
+<p>Each term has a distinct interpretation.</p>
+<h4 id="the-irreducible-loss-e-l_infty">The Irreducible Loss <span class="math inline">\(E = L_\infty\)</span></h4>
+<p><span class="math display">\[E = L_\infty\]</span></p>
+<p>This is the <strong>Bayes error floor</strong> of the task — the entropy of the data-generating process itself. For language modeling, <span class="math inline">\(E\)</span> is approximately the per-token entropy of natural language: the irreducible randomness in what word a human would choose to write next, given perfect knowledge of all preceding context.</p>
+<p>No model, regardless of size or training data, can push loss below <span class="math inline">\(E\)</span>. A model with <span class="math inline">\(N \to \infty\)</span> parameters trained on <span class="math inline">\(D \to \infty\)</span> tokens would converge to the true conditional distribution <span class="math inline">\(p(x_t \mid x_{&lt;t})\)</span> and achieve exactly <span class="math inline">\(E\)</span> nats per token. The quantity <span class="math inline">\(L - E\)</span> measures <strong>excess loss</strong> — how far a given model is from this theoretical optimum.</p>
+<p>For natural English text, estimates of <span class="math inline">\(E\)</span> are in the range of 0.8–1.2 bits per character (or roughly 2–4 nats per token depending on tokenization), reflecting the genuine unpredictability of human writing.</p>
+<h4 id="the-capacity-limited-term-a-nalpha">The Capacity-Limited Term <span class="math inline">\(A / N^\alpha\)</span></h4>
+<p><span class="math display">\[\frac{A}{N^\alpha}\]</span></p>
+<p>This term captures the <strong>model capacity bottleneck</strong>. Even with infinite data, a finite model cannot represent the true distribution exactly — it lacks the representational capacity to memorize all relevant statistical regularities. Larger <span class="math inline">\(N\)</span> reduces this term; the exponent <span class="math inline">\(\alpha &gt; 0\)</span> governs how quickly capacity constraints relax as we scale.</p>
+<p>Empirically, <span class="math inline">\(\alpha \approx 0.076\)</span> for autoregressive transformers on text (Kaplan et al. 2020). This is a small exponent, meaning you need to scale <span class="math inline">\(N\)</span> by a factor of <span class="math inline">\(10^{1/\alpha} \approx 10^{13}\)</span> to reduce this term by a factor of 10 — scaling is powerful but not magic. Explicitly: if <span class="math inline">\(L(N) \propto N^{-0.076}\)</span>, then requiring <span class="math inline">\(L(N')/L(N) = 1/10\)</span> gives <span class="math inline">\((N'/N)^{0.076} = 10\)</span>, so <span class="math inline">\(N'/N = 10^{1/0.076} \approx 10^{13.2}\)</span>.</p>
+<h4 id="the-data-limited-term-b-dbeta">The Data-Limited Term <span class="math inline">\(B / D^\beta\)</span></h4>
+<p><span class="math display">\[\frac{B}{D^\beta}\]</span></p>
+<p>This term captures the <strong>data bottleneck</strong>. A model with finite training data <span class="math inline">\(D\)</span> cannot generalize perfectly — it overfits, or equivalently, it has not seen enough examples to estimate the true distribution well. More training tokens reduce this term; <span class="math inline">\(\beta &gt; 0\)</span> governs the rate.</p>
+<p>Empirically, <span class="math inline">\(\beta \approx 0.095\)</span> for the same class of models. The data exponent is somewhat larger than the model exponent, which (in this particular regime) means data is slightly more efficient to scale than parameters — though the Chinchilla work (Hoffmann et al. 2022) significantly revised the practical implications of this.</p>
+<h4 id="why-the-additive-structure-is-plausible">Why the Additive Structure Is Plausible</h4>
+<p>The additive form <span class="math inline">\(L = E + A/N^\alpha + B/D^\beta\)</span> deserves scrutiny. Why should the capacity-limited and <em>data-limited</em> contributions simply add?</p>
+<p>The justification is that each term represents an <strong>independent source of excess loss above the irreducible floor</strong>:</p>
+<ul>
+<li><strong>Model error</strong> (<span class="math inline">\(A/N^\alpha\)</span>): even with a perfect optimizer and infinite data, a finite model makes systematic errors due to limited expressivity. This is an approximation error in the function class.</li>
+<li><strong>Estimation error</strong> (<span class="math inline">\(B/D^\beta\)</span>): even with a perfect model class, finite data means the learned parameters are imperfect estimates of the population optimum. This is a statistical estimation error.</li>
+</ul>
+<p>When both sources of error are small (which is the relevant regime when <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> are large), the total excess loss is approximately the sum of the two independent contributions. This is the standard bias-variance-like decomposition from statistical learning theory, adapted to the power-law regime.</p>
+<p>More precisely, in the large-<span class="math inline">\(N\)</span>, large-<span class="math inline">\(D\)</span> regime where <span class="math inline">\(A/N^\alpha \ll E\)</span> and <span class="math inline">\(B/D^\beta \ll E\)</span>, cross-coupling between the capacity and data terms is negligible, and the decomposition holds as a first-order approximation. More formally, if the per-parameter and per-token contributions to excess loss are statistically independent — in the sense that gradient updates from parameter scaling and data scaling affect orthogonal directions in function space — then the joint excess loss decomposes additively.</p>
+<p><strong>Why power laws specifically?</strong> Power-law decay is the simplest <strong>scale-free</strong> functional form. A function <span class="math inline">\(f(x) = Cx^{-\gamma}\)</span> satisfies:</p>
+<p><span class="math display">\[f(\lambda x) = \lambda^{-\gamma} f(x)\]</span></p>
+<p>for all <span class="math inline">\(\lambda &gt; 0\)</span> — it has no characteristic scale. Scale-free behavior is the expected outcome when no single length scale dominates the problem. In the context of neural networks, this can be motivated by the observation that the loss surface and the relevant statistical regularities in natural language span many scales simultaneously (from character-level patterns to long-range discourse structure), so no single scale should set the decay rate.</p>
+<p>Alternatively, power laws arise naturally as the limit of a sum of exponentials with a distribution of decay rates: if the model learns features at many different “difficulty levels,” each contributing an exponentially decaying correction, and if these difficulty levels are distributed as a power law (consistent with Zipf’s law for language), then the aggregate improvement from adding more capacity follows a power law. Formally, if <span class="math inline">\(f(x) = \int_0^\infty e^{-\lambda x} \rho(\lambda)\,d\lambda\)</span> and <span class="math inline">\(\rho(\lambda) \sim C_0 \lambda^{\gamma-1}\)</span> as <span class="math inline">\(\lambda \to 0^+\)</span>, then by the Tauberian theorem, <span class="math inline">\(f(x) \sim C_0 \Gamma(\gamma)\, x^{-\gamma}\)</span> as <span class="math inline">\(x \to \infty\)</span>. Power-law scaling emerges from the distribution of time scales in the system, not from any single mechanism.</p>
+<h4 id="the-three-regime-structure">The Three-Regime Structure</h4>
+<p>The power-law model <span class="math inline">\(L = E + A/N^\alpha + B/D^\beta\)</span> is an approximation that is accurate only in a middle regime. Training loss across scale exhibits three qualitatively distinct regions, first explicitly identified by Hestness et al. (2017):</p>
+<ol type="1">
+<li><strong>Random-guessing plateau</strong> — at very small <span class="math inline">\(N\)</span> or <span class="math inline">\(D\)</span>, the model is near chance performance. Loss is roughly constant and high. The power-law terms have not yet engaged.</li>
+<li><strong>Power-law region</strong> — the regime where <span class="math inline">\(L = E + A/N^\alpha + B/D^\beta\)</span> is accurate. Loss decreases smoothly as a power law in scale. This is the regime studied by Kaplan and Chinchilla.</li>
+<li><strong>Convergence plateau</strong> — at very large <span class="math inline">\(N\)</span> or <span class="math inline">\(D\)</span>, loss approaches <span class="math inline">\(E\)</span> asymptotically. The power-law terms are negligible and the model is effectively at the Bayes floor.</li>
+</ol>
+<p>The simple decomposition model is not designed to capture transitions between these regimes. This matters for extrapolation: fitting the model in the power-law region and extrapolating into the convergence plateau will overestimate the benefit of further scaling. More complex functional forms (see Section 5.5) are needed to model the full curve.</p>
+<h4 id="the-intrinsic-dimension-of-the-data-manifold">The Intrinsic Dimension of the Data Manifold</h4>
+<p>The scaling exponents <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are not universal constants — they depend on the structure of the data distribution. Sharma and Kaplan (2020) and Bahri et al. (2021) showed that the scaling exponent is inversely proportional to the intrinsic dimension <span class="math inline">\(d\)</span> of the data manifold:</p>
+<p><span class="math display">\[\alpha \propto \frac{1}{d}\]</span></p>
+<p>The intuition: if the data lies on a low-dimensional manifold (e.g., natural images, which have strong local structure), then adding model capacity quickly captures the dominant directions of variation, and loss decreases fast (small <span class="math inline">\(d\)</span>, large <span class="math inline">\(\alpha\)</span>). If the data manifold is high-dimensional (e.g., diverse text spanning many domains), each additional unit of capacity captures only a small slice of the variation, and loss decreases slowly (large <span class="math inline">\(d\)</span>, small <span class="math inline">\(\alpha\)</span>).</p>
+<p>This provides theoretical grounding for why <span class="math inline">\(\alpha \approx 0.076\)</span> is small for language: natural language is extremely high-dimensional, with structure ranging from phonetics to long-range discourse. It also predicts that scaling exponents should differ across modalities — a prediction confirmed empirically (vision transformers, acoustic models, and RL agents all exhibit different exponents).</p>
+<h3 id="the-compute-approximation">The Compute Approximation</h3>
+<p>Training requires not just a model and data, but <strong>compute</strong> — floating-point operations (FLOPs). To reason about the compute-optimal frontier, we need to express <span class="math inline">\(C\)</span> in terms of <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span>.</p>
+<h4 id="deriving-the-factor-of-6">Deriving the Factor of 6</h4>
+<p>Consider a single linear layer computing <span class="math inline">\(y = Wx\)</span> where <span class="math inline">\(W \in \mathbb{R}^{m \times n}\)</span> and <span class="math inline">\(x \in \mathbb{R}^n\)</span>. Each output element <span class="math inline">\(y_i = \sum_{j=1}^n W_{ij} x_j\)</span> requires <span class="math inline">\(n\)</span> multiplications and <span class="math inline">\(n-1 \approx n\)</span> additions, for a total of <span class="math inline">\(2n\)</span> FLOPs. Across all <span class="math inline">\(m\)</span> output elements:</p>
+<p><span class="math display">\[\text{FLOPs}(y = Wx) = 2mn\]</span></p>
+<p>This is <span class="math inline">\(2\)</span> FLOPs per parameter (since <span class="math inline">\(W\)</span> has <span class="math inline">\(mn\)</span> parameters). This factor of 2 — one multiply, one add — is the fundamental unit.</p>
+<p>Now consider a full training step on a single token through a transformer with <span class="math inline">\(N\)</span> non-embedding parameters:</p>
+<p><strong>Forward pass:</strong> Each parameter participates in one multiply-add operation per token. Total: <span class="math inline">\(2N\)</span> FLOPs.</p>
+<p><strong>Backward pass — gradient with respect to inputs:</strong> To backpropagate through <span class="math inline">\(y = Wx\)</span>, we compute <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial x} = W^\top \frac{\partial \mathcal{L}}{\partial y}\)</span>, which is another matrix-vector product of the same size: <span class="math inline">\(2mn\)</span> FLOPs, i.e., <span class="math inline">\(2N\)</span> FLOPs across the full model.</p>
+<p><strong>Backward pass — gradient with respect to weights:</strong> To compute <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial W} = \frac{\partial \mathcal{L}}{\partial y} \cdot x^\top\)</span>, we perform an outer product of the upstream gradient <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial y} \in \mathbb{R}^m\)</span> with <span class="math inline">\(x \in \mathbb{R}^n\)</span>: again <span class="math inline">\(2mn\)</span> FLOPs, i.e., <span class="math inline">\(2N\)</span> FLOPs across the full model.</p>
+<p>Summing over the three contributions:</p>
+<p><span class="math display">\[C_{\text{per token}} = \underbrace{2N}_{\text{forward}} + \underbrace{2N}_{\nabla_x} + \underbrace{2N}_{\nabla_W} = 6N \text{ FLOPs per token}\]</span></p>
+<p>Over <span class="math inline">\(D\)</span> training tokens, the total compute is:</p>
+<p><span class="math display">\[\boxed{C \approx 6ND}\]</span></p>
+<h4 id="caveats-and-scope">Caveats and Scope</h4>
+<p>This approximation:</p>
+<ul>
+<li><strong>Ignores embedding layers</strong>, which contribute <span class="math inline">\(\mathcal{O}(V \cdot d_{\text{model}})\)</span> FLOPs but are excluded from <span class="math inline">\(N\)</span> by convention, as their cost is dominated by vocabulary size <span class="math inline">\(V\)</span> rather than model depth/width in the scaling sense.</li>
+<li><strong>Ignores attention’s quadratic term</strong> in sequence length: the attention score computation contributes <span class="math inline">\(\mathcal{O}(T^2 d)\)</span> FLOPs per layer (where <span class="math inline">\(T\)</span> is sequence length), which becomes non-negligible for very long contexts but is subdominant for typical training configurations where <span class="math inline">\(T \ll \sqrt{N/L}\)</span> with <span class="math inline">\(L\)</span> layers.</li>
+<li><strong>Assumes standard dense transformers</strong> — mixture-of-experts, sparse attention, and other architectural variants require separate accounting.</li>
+<li><strong>Ignores optimizer state</strong> — AdamW maintains first and second moment estimates (2 additional copies of parameters), which affect memory but not FLOPs.</li>
+</ul>
+<p>Within these caveats, <span class="math inline">\(C \approx 6ND\)</span> is the standard approximation used throughout the scaling laws literature and is accurate to within a factor of 2 for the transformer architectures and context lengths typical of large-scale language model training.</p>
+<hr />
+<h2 id="kaplan-et-al.-2020-fitting-the-laws">3. Kaplan et al. (2020): Fitting the Laws</h2>
+<p>The landmark Kaplan et al. (2020) paper (“Scaling Laws for Neural Language Models”) established the empirical foundation for everything that followed. The core methodology is careful isolation: to measure how loss depends on one variable, you design experiments that make the other variables non-binding constraints.</p>
+<h3 id="the-univariate-scaling-laws">3.1 The Univariate Scaling Laws</h3>
+<p>The strategy for measuring each univariate law is worth stating precisely, because the experimental design encodes important assumptions.</p>
+<p><strong>Measuring <span class="math inline">\(L(N)\)</span>: vary parameters, never run out of data.</strong></p>
+<p>Train models of varying sizes <span class="math inline">\(N\)</span> to full convergence, always on a dataset large enough that the data term <span class="math inline">\(B/D^\beta\)</span> is negligible compared to the model term <span class="math inline">\(A/N^\alpha\)</span>. If <span class="math inline">\(D\)</span> is large enough that <span class="math inline">\(B/D^\beta \ll A/N^\alpha\)</span>, then <span class="math inline">\(L \approx E + A/N^\alpha\)</span> and the measured loss is essentially a function of <span class="math inline">\(N\)</span> alone. The result is:</p>
+<p><span class="math display">\[L(N) = \left(\frac{N_c}{N}\right)^{\alpha_N}, \qquad N_c \approx 8.8 \times 10^{13}, \quad \alpha_N \approx 0.076\]</span></p>
+<p>Here <span class="math inline">\(N_c\)</span> is a fitted constant encoding the overall scale of model capacity; the ratio <span class="math inline">\((N_c/N)^{\alpha_N}\)</span> is the excess loss attributable to finite model size.</p>
+<p><strong>Measuring <span class="math inline">\(L(D)\)</span>: vary data, train for exactly one epoch.</strong></p>
+<p>To isolate the data term, train each model for exactly one epoch — meaning each token is seen exactly once, so <span class="math inline">\(D\)</span> is directly controlled and compute scales linearly with <span class="math inline">\(D\)</span> (not <span class="math inline">\(N\)</span>). This prevents the model from overfitting and ensures the data term dominates. Fitting gives:</p>
+<p><span class="math display">\[L(D) = \left(\frac{D_c}{D}\right)^{\alpha_D}, \qquad D_c \approx 5.4 \times 10^{13}, \quad \alpha_D \approx 0.095\]</span></p>
+<p><strong>Measuring <span class="math inline">\(L(C_{\min})\)</span>: compute-optimal runs.</strong></p>
+<p>For the compute law, one runs experiments along the compute-efficient frontier — at each compute budget <span class="math inline">\(C\)</span>, using the optimal <span class="math inline">\((N^*, D^*)\)</span> allocation (derived in Section 3.2). The result is:</p>
+<p><span class="math display">\[L(C_{\min}) = \left(\frac{C_c}{C_{\min}}\right)^{\alpha_C}, \qquad \alpha_C \approx 0.050\]</span></p>
+<p><strong>Fitting via log-linear regression.</strong> All three laws are fit by taking logarithms of both sides. For the model-size law:</p>
+<p><span class="math display">\[\log L = \alpha_N \log N_c - \alpha_N \log N = \text{const} - \alpha_N \log N\]</span></p>
+<p>This is a linear relationship between <span class="math inline">\(\log L\)</span> and <span class="math inline">\(\log N\)</span>, so ordinary least-squares regression in log-log space yields <span class="math inline">\(\alpha_N\)</span> as the (negative) slope and <span class="math inline">\(\log N_c\)</span> from the intercept. The same applies to <span class="math inline">\(L(D)\)</span> and <span class="math inline">\(L(C_{\min})\)</span>.</p>
+<p><strong>Interpreting <span class="math inline">\(\alpha_D &gt; \alpha_N\)</span>.</strong></p>
+<p>The data exponent <span class="math inline">\(\alpha_D \approx 0.095\)</span> exceeds the parameter exponent <span class="math inline">\(\alpha_N \approx 0.076\)</span>. On a log-log plot, a steeper slope means faster loss reduction per unit log-scale investment. Concretely: to halve the excess loss from the data term alone, you need <span class="math inline">\(D' = D \cdot 2^{1/\alpha_D} = D \cdot 2^{10.5} \approx 1480 D\)</span>; to halve the excess loss from the model term alone, you need <span class="math inline">\(N' = N \cdot 2^{1/\alpha_N} = N \cdot 2^{13.2} \approx 9600 N\)</span>. Data delivers more loss reduction per order-of-magnitude scaling than parameters — at least within the regime Kaplan et al. studied. This observation, however, was later revised by Chinchilla (Hoffmann et al. 2022), which found the two exponents to be much closer to equal when the fitting procedure is tightened.</p>
+<p><img src="figures/kaplan2020-fig1-scaling-overview.png" alt="Figure 1 from Kaplan et al. (2020): power-law scaling of language model loss with model size, dataset size, and compute" />
+<em>Figure 1 (Kaplan et al., 2020): Smooth, consistent power-law improvement in test loss as each of model size <span class="math inline">\(N\)</span>, dataset size <span class="math inline">\(D\)</span>, and compute <span class="math inline">\(C\)</span> are scaled independently over many orders of magnitude. The log-log linearity across six or more decades in scale is the central empirical fact that scaling laws formalize.</em></p>
+<h3 id="the-compute-efficient-frontier">3.2 The Compute-Efficient Frontier</h3>
+<p>The most practically important result of Kaplan et al. is an answer to the question: <strong>given a fixed compute budget <span class="math inline">\(C\)</span>, how should we split between model size <span class="math inline">\(N\)</span> and training tokens <span class="math inline">\(D\)</span>?</strong></p>
+<p>The constraint is <span class="math inline">\(C \approx 6ND\)</span>, so <span class="math inline">\(D = C/(6N)\)</span>. The problem is to minimize loss subject to this constraint.</p>
+<p><strong>Setting up the optimization.</strong> Drop the irreducible floor <span class="math inline">\(E\)</span> (since it does not depend on <span class="math inline">\(N\)</span> or <span class="math inline">\(D\)</span>, it does not affect the optimum) and use the two-term approximation:</p>
+<p><span class="math display">\[L(N, D) \approx \frac{A}{N^\alpha} + \frac{B}{D^\beta}\]</span></p>
+<p>Substitute the constraint <span class="math inline">\(D = C/(6N)\)</span>:</p>
+<p><span class="math display">\[L(N) = \frac{A}{N^\alpha} + \frac{B \cdot (6N)^\beta}{C^\beta} = \frac{A}{N^\alpha} + \frac{B \cdot 6^\beta}{C^\beta} \cdot N^\beta\]</span></p>
+<p>Now <span class="math inline">\(L\)</span> is a function of <span class="math inline">\(N\)</span> alone, with <span class="math inline">\(C\)</span> entering as a parameter. The first term decreases in <span class="math inline">\(N\)</span> (more parameters reduces model error) and the second term increases in <span class="math inline">\(N\)</span> (for fixed <span class="math inline">\(C\)</span>, more parameters means less data, which increases estimation error). There is a unique interior minimum.</p>
+<p><strong>Minimizing over <span class="math inline">\(N\)</span>.</strong> Take the derivative and set it to zero:</p>
+<p><span class="math display">\[\frac{dL}{dN} = -\frac{\alpha A}{N^{\alpha+1}} + \frac{6^\beta \beta B}{C^\beta} \cdot N^{\beta - 1} = 0\]</span></p>
+<p>Rearrange to isolate the <span class="math inline">\(N\)</span> dependence:</p>
+<p><span class="math display">\[\frac{\alpha A}{N^{\alpha+1}} = \frac{6^\beta \beta B}{C^\beta} \cdot N^{\beta-1}\]</span></p>
+<p><span class="math display">\[\alpha A \cdot C^\beta = 6^\beta \beta B \cdot N^{\alpha+1} \cdot N^{\beta-1} = 6^\beta \beta B \cdot N^{\alpha + \beta}\]</span></p>
+<p><span class="math display">\[N^{\alpha + \beta} = \frac{\alpha A \cdot C^\beta}{6^\beta \beta B}\]</span></p>
+<p>Taking both sides to the power <span class="math inline">\(1/(\alpha + \beta)\)</span>:</p>
+<p><span class="math display">\[\boxed{N^* \propto C^{\,\beta/(\alpha+\beta)}}\]</span></p>
+<p>Since <span class="math inline">\(D^* = C/(6N^*)\)</span>:</p>
+<p><span class="math display">\[\boxed{D^* = \frac{C}{6N^*} \propto C^{\,\alpha/(\alpha+\beta)}}\]</span></p>
+<p><strong>Plugging in Kaplan’s values.</strong> With <span class="math inline">\(\alpha \approx 0.076\)</span> and <span class="math inline">\(\beta \approx 0.095\)</span>:</p>
+<p><span class="math display">\[\frac{\beta}{\alpha + \beta} = \frac{0.095}{0.076 + 0.095} = \frac{0.095}{0.171} \approx 0.556\]</span></p>
+<p><span class="math display">\[\frac{\alpha}{\alpha + \beta} = \frac{0.076}{0.171} \approx 0.444\]</span></p>
+<p><strong>Note:</strong> The two-term substitution above yields exponents <span class="math inline">\(0.556\)</span> and <span class="math inline">\(0.444\)</span>. The values <span class="math inline">\(N^* \propto C^{0.73}\)</span> and <span class="math inline">\(D^* \propto C^{0.27}\)</span> are the exponents Kaplan et al. report from numerical fits to the full three-term model — they are taken from the paper, not derived from the algebra above. The discrepancy arises because dropping <span class="math inline">\(E\)</span> in the two-term approximation overstates the marginal value of data (since <span class="math inline">\(D\)</span> must also compensate for <span class="math inline">\(E\)</span>), shifting the optimal allocation toward parameters.</p>
+<p>Using the paper’s reported values:</p>
+<p><span class="math display">\[N^* \propto C^{0.73}, \qquad D^* \propto C^{0.27}\]</span></p>
+<p><strong>Interpretation.</strong> When compute doubles (<span class="math inline">\(C \to 2C\)</span>), the optimal model size scales as <span class="math inline">\(2^{0.73} \approx 1.66\times\)</span> while the optimal token count scales only as <span class="math inline">\(2^{0.27} \approx 1.21\times\)</span>. <strong>Parameters should scale roughly <span class="math inline">\(2.7\times\)</span> faster than data per compute doubling.</strong> This prescription says: <strong>scale models aggressively, and data relatively modestly.</strong> GPT-3 (Brown et al. 2020) follows this prescription closely: 175B parameters trained on approximately 300B tokens, a ratio consistent with the Kaplan compute-efficient frontier.</p>
+<p>This conclusion would later be contested by Hoffmann et al. (2022), who argued that Kaplan et al.’s fitting procedure — particularly the use of single-epoch data runs to estimate <span class="math inline">\(\beta\)</span> — systematically underestimated the data exponent. <strong>The Chinchilla result, with <span class="math inline">\(\alpha \approx \beta\)</span>, implies equal scaling of parameters and tokens per compute doubling, overturning the “scale models faster” prescription.</strong></p>
+<hr />
+<h2 id="chinchilla-2022-the-isoflop-revolution">4. Chinchilla (2022): The IsoFLOP Revolution</h2>
+<p>Hoffmann et al. (2022) — colloquially “Chinchilla” — overturned the Kaplan prescription for compute-optimal training. The central finding: <strong>given a fixed compute budget, parameters and tokens should scale equally.</strong> The practical corollary: most large models at the time of publication (including GPT-3, Gopher, and MT-NLG) were significantly undertrained. This section develops the methodology and the mathematics behind that conclusion.</p>
+<h3 id="the-isoflop-methodology">4.1 The IsoFLOP Methodology</h3>
+<p>Chinchilla’s key innovation is experimental design. Rather than varying <span class="math inline">\(N\)</span> while fixing <span class="math inline">\(D\)</span> (as Kaplan did to measure <span class="math inline">\(L(N)\)</span>) or vice versa, they <strong>fix the total compute <span class="math inline">\(C\)</span> and sweep <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> jointly along the constraint curve <span class="math inline">\(6ND = C\)</span>.</strong></p>
+<p>The procedure is:</p>
+<ol type="1">
+<li>Choose a set of compute budgets <span class="math inline">\(\{C_1, C_2, \ldots\}\)</span> spanning several orders of magnitude.</li>
+<li>For each <span class="math inline">\(C_i\)</span>, train many models at different <span class="math inline">\((N, D)\)</span> pairs satisfying <span class="math inline">\(6ND = C_i\)</span>. These are <strong><em>IsoFLOP curves</em></strong> — each curve holds compute constant and trades parameters for tokens.</li>
+<li>Each run uses all <span class="math inline">\(D\)</span> tokens in a single pass (no multi-epoch training), so the comparison is clean: every model on the curve <span class="math inline">\(6ND = C_i\)</span> uses exactly <span class="math inline">\(C_i\)</span> FLOPs.</li>
+<li>Record the final loss for each run and find <span class="math inline">\((N^*, D^*)\)</span> that minimizes it on each IsoFLOP curve.</li>
+<li>Fit the relationship between <span class="math inline">\(C_i\)</span> and <span class="math inline">\((N^*_i, D^*_i)\)</span> across curves.</li>
+</ol>
+<p><strong>Why this eliminates undertrained-model bias.</strong> Kaplan’s univariate <span class="math inline">\(L(N)\)</span> experiments train to convergence on a fixed dataset; their univariate <span class="math inline">\(L(D)\)</span> experiments train for exactly one epoch with a fixed model size. Neither condition corresponds to the regime of a real large-scale training run, where both <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> are chosen simultaneously under a compute budget. Specifically:</p>
+<ul>
+<li>When Kaplan trains to convergence to measure <span class="math inline">\(L(N)\)</span>, larger models require more data to converge — but <span class="math inline">\(D\)</span> is held fixed, so large models never see enough data. The loss attributable to model size is inflated by data starvation, causing <span class="math inline">\(\alpha_N\)</span> to be underestimated.</li>
+<li>When Kaplan trains for one epoch to measure <span class="math inline">\(L(D)\)</span>, small models are used to keep compute manageable. The data exponent is measured in a regime where model capacity is the bottleneck, not data, distorting <span class="math inline">\(\beta\)</span>.</li>
+</ul>
+<p>By contrast, Chinchilla’s IsoFLOP curves compare every model on a <strong>compute-equal footing</strong>: a 7B-parameter model trained on $$143B tokens competes directly against a 70B model trained on $$14B tokens, both using the same total FLOPs. The optimal point emerges naturally from the loss surface rather than from extrapolation of univariate fits.</p>
+<p><img src="figures/hoffmann2022-fig3-isoflop-curves.png" alt="Figure 3 from Hoffmann et al. (2022): IsoFLOP curves showing the optimal N-D tradeoff" />
+<em>Figure 3 (Hoffmann et al., 2022): IsoFLOP curves — each curve holds total compute <span class="math inline">\(C = 6ND\)</span> constant while varying the parameter count <span class="math inline">\(N\)</span>. Each curve has a clear loss minimum, identifying the compute-optimal <span class="math inline">\((N^*, D^*)\)</span> pair for that FLOP budget. Connecting the minima across curves reveals the <span class="math inline">\(N^* \propto C^{1/2}\)</span>, <span class="math inline">\(D^* \propto C^{1/2}\)</span> scaling, overturning the Kaplan prescription of <span class="math inline">\(N^* \propto C^{0.73}\)</span>.</em></p>
+<h3 id="analytical-derivation-via-lagrangian-optimization">4.2 Analytical Derivation via Lagrangian Optimization</h3>
+<p>The formal setup is to minimize <span class="math inline">\(L(N, D) = E + A/N^\alpha + B/D^\beta\)</span> subject to the compute constraint <span class="math inline">\(6ND = C\)</span>. This is a constrained optimization problem with one equality constraint, handled by the method of Lagrange multipliers.</p>
+<p><strong>Forming the Lagrangian.</strong></p>
+<p><span class="math display">\[\mathcal{L}(N, D, \lambda) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta} + \lambda(6ND - C)\]</span></p>
+<p>The term <span class="math inline">\(\lambda(6ND - C)\)</span> enforces the constraint at the optimum: at any critical point, <span class="math inline">\(6ND - C = 0\)</span> automatically.</p>
+<p><strong>First-order conditions.</strong> Differentiate with respect to <span class="math inline">\(N\)</span> and set to zero:</p>
+<p><span class="math display">\[\frac{\partial \mathcal{L}}{\partial N} = -\frac{\alpha A}{N^{\alpha+1}} + 6\lambda D = 0 \implies \lambda = \frac{\alpha A}{6 D N^{\alpha+1}}\]</span></p>
+<p>Differentiate with respect to <span class="math inline">\(D\)</span> and set to zero:</p>
+<p><span class="math display">\[\frac{\partial \mathcal{L}}{\partial D} = -\frac{\beta B}{D^{\beta+1}} + 6\lambda N = 0 \implies \lambda = \frac{\beta B}{6 N D^{\beta+1}}\]</span></p>
+<p><strong>Eliminating <span class="math inline">\(\lambda\)</span>.</strong> Set the two expressions for <span class="math inline">\(\lambda\)</span> equal:</p>
+<p><span class="math display">\[\frac{\alpha A}{6 D N^{\alpha+1}} = \frac{\beta B}{6 N D^{\beta+1}}\]</span></p>
+<p>Multiply both sides by <span class="math inline">\(6 D N^{\alpha+1} \cdot N D^{\beta+1}\)</span>:</p>
+<p><span class="math display">\[\alpha A \cdot N D^{\beta+1} = \beta B \cdot D N^{\alpha+1}\]</span></p>
+<p>Cancel one factor of <span class="math inline">\(N\)</span> from the right and one factor of <span class="math inline">\(D\)</span> from the left:</p>
+<p><span class="math display">\[\alpha A \cdot D^{\beta} = \beta B \cdot N^{\alpha}\]</span></p>
+<p>This is the <strong>optimality condition</strong>: at the compute-optimal point, the marginal loss reduction from adding one more parameter exactly equals the marginal loss reduction from seeing one more token (appropriately weighted by their respective constants).</p>
+<p>Rearranging:</p>
+<p><span class="math display">\[\frac{D^\beta}{N^\alpha} = \frac{\beta B}{\alpha A} \qquad \text{(constant, independent of } C\text{)}\]</span></p>
+<p><strong>Solving for the scaling exponents.</strong> From the optimality condition, express <span class="math inline">\(D\)</span> as a function of <span class="math inline">\(N\)</span>:</p>
+<p><span class="math display">\[D^\beta = \frac{\beta B}{\alpha A} \cdot N^\alpha \implies D = \left(\frac{\beta B}{\alpha A}\right)^{1/\beta} N^{\alpha/\beta}\]</span></p>
+<p>Substitute into the compute constraint <span class="math inline">\(6ND = C\)</span>:</p>
+<p><span class="math display">\[6N \cdot \left(\frac{\beta B}{\alpha A}\right)^{1/\beta} \cdot N^{\alpha/\beta} = C\]</span></p>
+<p><span class="math display">\[6 \left(\frac{\beta B}{\alpha A}\right)^{1/\beta} \cdot N^{1 + \alpha/\beta} = C\]</span></p>
+<p><span class="math display">\[N^{(\alpha + \beta)/\beta} \propto C\]</span></p>
+<p>Solve for <span class="math inline">\(N^*\)</span>:</p>
+<p><span class="math display">\[\boxed{N^* \propto C^{\,\beta/(\alpha+\beta)}}\]</span></p>
+<p>And since <span class="math inline">\(D^* = C / (6N^*)\)</span>:</p>
+<p><span class="math display">\[\boxed{D^* \propto C^{\,\alpha/(\alpha+\beta)}}\]</span></p>
+<p>This is structurally identical to the result derived in Section 3.2 from the Kaplan approach — the functional form <span class="math inline">\(N^* \propto C^{\beta/(\alpha+\beta)}\)</span> is a consequence of the model <span class="math inline">\(L = E + A/N^\alpha + B/D^\beta\)</span> and the constraint <span class="math inline">\(6ND = C\)</span>, not of any particular fitting procedure. <strong>The difference lies entirely in the estimated values of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>.</strong></p>
+<p>Chinchilla’s Approach 2 (fitting the parametric loss model directly to IsoFLOP curve data) yields:</p>
+<p><span class="math display">\[\alpha \approx 0.34, \quad \beta \approx 0.28 \quad \text{(Hoffmann et al. 2022, Table A3)}\]</span></p>
+<p>With these values:</p>
+<p><span class="math display">\[\frac{\beta}{\alpha + \beta} = \frac{0.28}{0.34 + 0.28} = \frac{0.28}{0.62} \approx 0.45, \qquad \frac{\alpha}{\alpha + \beta} \approx 0.55\]</span></p>
+<p>More saliently, when <span class="math inline">\(\alpha \approx \beta\)</span> (as all three of Chinchilla’s fitting approaches roughly agree):</p>
+<p><span class="math display">\[N^* \propto C^{1/2}, \qquad D^* \propto C^{1/2}\]</span></p>
+<p><strong>Both parameters and tokens should scale as <span class="math inline">\(\sqrt{C}\)</span>.</strong> This is the central quantitative claim: equal scaling in parameters and data per compute doubling, in stark contrast to Kaplan’s <span class="math inline">\(N^* \propto C^{0.73}\)</span>, <span class="math inline">\(D^* \propto C^{0.27}\)</span>.</p>
+<h3 id="the-20-tokens-per-parameter-rule">4.3 The 20 Tokens Per Parameter Rule</h3>
+<p>The optimality condition <span class="math inline">\(\alpha A \cdot D^\beta = \beta B \cdot N^\alpha\)</span> is a relationship between <span class="math inline">\(D^*\)</span> and <span class="math inline">\(N^*\)</span> that holds at every compute budget. Using Chinchilla’s fitted constants from Approach 2 (<span class="math inline">\(A \approx 406.4\)</span>, <span class="math inline">\(B \approx 410.7\)</span>, <span class="math inline">\(\alpha \approx 0.34\)</span>, <span class="math inline">\(\beta \approx 0.28\)</span>), one can evaluate the ratio <span class="math inline">\(D^*/N^*\)</span> numerically at any given scale. Across the compute budgets considered (roughly <span class="math inline">\(10^{19}\)</span> to <span class="math inline">\(10^{24}\)</span> FLOPs), this ratio is approximately constant and close to 20:</p>
+<p><span class="math display">\[D^* \approx 20 \cdot N^*\]</span></p>
+<p>This is the <strong>“20 tokens per parameter” rule</strong>. It is not exact — the precise ratio varies weakly with <span class="math inline">\(C\)</span> because <span class="math inline">\(\alpha \neq \beta\)</span> exactly — but it is a robust approximation within the regimes studied.</p>
+<p><strong>Implications for prior models.</strong> At the time of Chinchilla’s publication:</p>
+<ul>
+<li>GPT-3: <span class="math inline">\(N = 175\text{B}\)</span> parameters, <span class="math inline">\(D = 300\text{B}\)</span> tokens <span class="math inline">\(\Rightarrow\)</span> <span class="math inline">\(D/N \approx 1.7\)</span> tokens per parameter</li>
+<li>Gopher: <span class="math inline">\(N = 280\text{B}\)</span> parameters, <span class="math inline">\(D = 300\text{B}\)</span> tokens <span class="math inline">\(\Rightarrow\)</span> <span class="math inline">\(D/N \approx 1.1\)</span> tokens per parameter</li>
+</ul>
+<p>Both models used roughly 10–20<span class="math inline">\(\times\)</span> fewer tokens than the compute-optimal prescription. The Chinchilla model itself — 70B parameters trained on 1.4T tokens — achieved lower loss than Gopher (280B parameters, <span class="math inline">\(4\times\)</span> larger) at the same compute budget, directly validating the prescription. The name “Chinchilla” refers to this 70B model.</p>
+<p><img src="figures/hoffmann2022-fig1-overlaid-predictions.png" alt="Figure 1 from Hoffmann et al. (2022): overlaid optimal N and D predictions from all three fitting approaches" />
+<em>Figure 1 (Hoffmann et al., 2022): Optimal model size <span class="math inline">\(N^*\)</span> and token count <span class="math inline">\(D^*\)</span> as a function of compute budget <span class="math inline">\(C\)</span>, as predicted by all three fitting approaches (IsoFLOP minima, parametric global fit, and per-model-size estimation). The three methods converge on the same <span class="math inline">\(N^* \approx D^* \propto C^{1/2}\)</span> scaling, establishing that the Chinchilla prescription is robust to fitting methodology. The dashed lines show the Kaplan et al. (2020) projection for comparison.</em></p>
+<h3 id="why-kaplans-exponents-were-biased">4.4 Why Kaplan’s Exponents Were Biased</h3>
+<p>The discrepancy between Kaplan’s <span class="math inline">\(N^* \propto C^{0.73}\)</span> and Chinchilla’s <span class="math inline">\(N^* \propto C^{0.5}\)</span> traces directly to the bias introduced by Kaplan’s univariate fitting procedure.</p>
+<p><strong>The data-saturation bias in <span class="math inline">\(\hat{\alpha}_N\)</span>.</strong> Kaplan’s estimate of <span class="math inline">\(\alpha_N \approx 0.076\)</span> comes from training models to convergence on a fixed (large but finite) dataset. As <span class="math inline">\(N\)</span> grows with <span class="math inline">\(D\)</span> fixed, eventually the model has seen the training set many times — it has effectively memorized the data and further increases in <span class="math inline">\(N\)</span> yield diminishing returns. Formally, if <span class="math inline">\(D\)</span> is fixed and <span class="math inline">\(N \to \infty\)</span>, then <span class="math inline">\(L \to E + B/D^\beta\)</span>: the model-size term vanishes but the data-limited floor remains. The measured marginal benefit of adding parameters flattens as the model approaches the data-limited regime, causing <span class="math inline">\(\hat{\alpha}_N\)</span> to underestimate the true capacity exponent.</p>
+<p>In the language of statistical estimation: Kaplan’s <span class="math inline">\(L(N)\)</span> curve is not measured in the compute-optimal regime — it is measured in the <strong>data-saturated regime</strong>, where <span class="math inline">\(B/D^\beta \gg A/N^\alpha\)</span> for the largest models. The slope of <span class="math inline">\(\log L\)</span> vs. <span class="math inline">\(\log N\)</span> in this regime reflects the approach to a data-limited floor, not the intrinsic capacity scaling. The result is an artificially small <span class="math inline">\(\hat{\alpha}_N\)</span>.</p>
+<p><strong>The consequence for optimal allocation.</strong> In the formula <span class="math inline">\(N^* \propto C^{\beta/(\alpha+\beta)}\)</span>, underestimating <span class="math inline">\(\alpha\)</span> (relative to the true value) makes the exponent <span class="math inline">\(\beta/(\alpha + \beta)\)</span> appear larger than it truly is, biasing the conclusion toward <strong>scaling <span class="math inline">\(N\)</span> faster than warranted</strong>. Kaplan’s prescription to scale parameters 2.7<span class="math inline">\(\times\)</span> faster than data per compute doubling is thus an artifact of measurement in the wrong regime.</p>
+<p><strong>Chinchilla’s correction.</strong> By holding compute fixed and sweeping the IsoFLOP curve, Chinchilla always trains in the compute-optimal regime: as <span class="math inline">\(C\)</span> increases, both <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> increase together. The model is never data-saturated at the scale being measured, so the estimated <span class="math inline">\(\hat{\alpha}\)</span> reflects genuine capacity scaling rather than a data floor artifact. The resulting <span class="math inline">\(\alpha \approx 0.34\)</span> — more than <span class="math inline">\(4\times\)</span> larger than Kaplan’s <span class="math inline">\(0.076\)</span> — gives the balanced scaling result <span class="math inline">\(N^* \propto C^{1/2}\)</span>.</p>
+<h2 id="fitting-methodology">5. Fitting Methodology</h2>
+<p>The five parameters <span class="math inline">\((E, A, B, \alpha, \beta)\)</span> in <span class="math inline">\(L(N, D) = E + A/N^\alpha + B/D^\beta\)</span> cannot be read off directly from data — they must be estimated by fitting the model to a collection of training runs. Chinchilla cross-validates three distinct approaches, each with different assumptions and statistical properties.</p>
+<h3 id="approach-1-isoflop-minimum-fitting">5.1 Approach 1: IsoFLOP Minimum Fitting</h3>
+<p>For each compute budget <span class="math inline">\(C_i\)</span>, run models at several <span class="math inline">\((N, D)\)</span> points along the IsoFLOP curve <span class="math inline">\(6ND = C_i\)</span>. Fit a parabola to <span class="math inline">\(\log L\)</span> vs. <span class="math inline">\(\log N\)</span> to find the minimizing <span class="math inline">\(N^*(C_i)\)</span>. Then fit:</p>
+<p><span class="math display">\[\log N^*(C_i) = a \log C_i + b\]</span></p>
+<p>via ordinary least squares (OLS). The slope <span class="math inline">\(a\)</span> gives <span class="math inline">\(\beta/(\alpha+\beta)\)</span>.</p>
+<p>This approach estimates the scaling exponents only (not <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(E\)</span>), and is the most robust because it does not require a global model fit. The parabolic approximation to the loss surface near the minimum is justified by the local smoothness of <span class="math inline">\(L(N)\)</span> under the IsoFLOP constraint, and the OLS step requires only that the optimal <span class="math inline">\(N^*\)</span> follows a power law in <span class="math inline">\(C\)</span> — a consequence of the model that can be checked for self-consistency.</p>
+<h3 id="approach-2-parametric-global-fit">5.2 Approach 2: Parametric Global Fit</h3>
+<p>Minimize the sum of squared residuals over all runs simultaneously:</p>
+<p><span class="math display">\[\min_{E, A, B, \alpha, \beta} \sum_{\text{runs}} \left( L_{\text{obs}} - E - \frac{A}{N^\alpha} - \frac{B}{D^\beta} \right)^2\]</span></p>
+<p>Practical notes:</p>
+<ul>
+<li><strong>Fit in log-space to enforce positivity:</strong> reparametrize <span class="math inline">\(E = \exp(e)\)</span>, <span class="math inline">\(A = \exp(a)\)</span>, <span class="math inline">\(B = \exp(b)\)</span> — this also makes the loss surface more symmetric and reduces the condition number of the Hessian, improving convergence.</li>
+<li><strong>Use L-BFGS</strong> (a quasi-Newton method) to optimize — gradient descent would be too slow for a 5-parameter nonlinear fit, and L-BFGS exploits curvature information to converge in far fewer iterations.</li>
+<li><strong>Initialization:</strong> use Approach 1’s slope estimate to warm-start <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>; initialize <span class="math inline">\(E\)</span> slightly below the minimum observed loss to avoid the optimizer placing <span class="math inline">\(E\)</span> above the data.</li>
+<li><strong>Multiple restarts</strong> are recommended to avoid local minima in the <span class="math inline">\((\alpha, \beta, E)\)</span> subspace, where the loss surface can be non-convex.</li>
+</ul>
+<p>This approach yields all five parameters and is used to compute the headline result <span class="math inline">\(D^* \approx 20 N^*\)</span>.</p>
+<h3 id="approach-3-per-model-size-estimation">5.3 Approach 3: Per-Model-Size Estimation</h3>
+<p>For each fixed <span class="math inline">\(N_i\)</span>, collect runs with varying <span class="math inline">\(D\)</span> and fit:</p>
+<p><span class="math display">\[L(D; N_i) = E_{N_i} + \frac{B_{N_i}}{D^{\beta}}\]</span></p>
+<p>via OLS in log-space to obtain estimates <span class="math inline">\(\hat{E}_{N_i}\)</span> and <span class="math inline">\(\hat{\beta}_{N_i}\)</span>.</p>
+<p>Then treat <span class="math inline">\(\hat{E}_{N_i}\)</span> as the effective <em>irreducible loss</em> at model size <span class="math inline">\(N_i\)</span> and fit:</p>
+<p><span class="math display">\[\hat{E}_{N_i} = E + \frac{A}{N_i^\alpha}\]</span></p>
+<p>as a function of <span class="math inline">\(N_i\)</span> to recover <span class="math inline">\(E\)</span>, <span class="math inline">\(A\)</span>, and <span class="math inline">\(\alpha\)</span>.</p>
+<p>This two-stage approach is more stable than the global fit — each stage is a lower-dimensional regression — but less data-efficient: it requires many <span class="math inline">\(D\)</span> values per <span class="math inline">\(N\)</span> level to accurately estimate <span class="math inline">\(\hat{E}_{N_i}\)</span>, whereas Approach 2 can pool information across all <span class="math inline">\((N, D)\)</span> pairs simultaneously.</p>
+<h3 id="cross-validation-of-approaches">5.4 Cross-Validation of Approaches</h3>
+<p>All three approaches agree on the key qualitative finding: <strong><span class="math inline">\(\alpha \approx \beta\)</span></strong> (both in the range <span class="math inline">\(0.28\)</span>–<span class="math inline">\(0.50\)</span> across approaches), implying <span class="math inline">\(N^* \propto D^* \propto C^{1/2}\)</span>. The specific fitted constants differ across approaches, giving <span class="math inline">\(D^*/N^*\)</span> ratios ranging from approximately 5 to 30, with the headline “20 tokens per parameter” coming from Approach 2.</p>
+<p>The agreement across methods — despite their substantially different statistical assumptions and data requirements — strengthens confidence in the equal-scaling conclusion even if the exact constants are uncertain. The qualitative result (equal <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> scaling) is robust; the quantitative constant (20) should be treated as an order-of-magnitude estimate.</p>
+<h3 id="alternative-estimators">5.5 Alternative Estimators</h3>
+<p>The simple parametric model <span class="math inline">\(L = E + A/N^\alpha + B/D^\beta\)</span> works well in the power-law region but breaks down near the regime boundaries (Section 2). Two alternative estimators have been proposed to handle transitions:</p>
+<p><strong>M4 estimator</strong> (Alabdulmohsin et al. 2022): fits a transformed version of the loss that saturates correctly at both ends:</p>
+<p><span class="math display">\[\frac{L - E}{I - L}^{\,\alpha} = \frac{A}{N^a} + \frac{B}{D^b}\]</span></p>
+<p>where <span class="math inline">\(I\)</span> is the random-guessing loss (the upper plateau). The ratio <span class="math inline">\((L-E)/(I-L)\)</span> maps the loss into <span class="math inline">\((0, \infty)\)</span>, compressing the lower plateau and expanding the power-law region, making the power-law fit more robust across regimes.</p>
+<p><strong>BNSL estimator</strong> (Caballero et al. 2022 — “Broken Neural Scaling Laws”): models the loss as a product of sigmoid-like transitions:</p>
+<p><span class="math display">\[L(D) = E + b \cdot D^{-c_0} \prod_{i} \left(1 + \left(\frac{D}{d_i}\right)^{1/f_i}\right)^{-c_i f_i}\]</span></p>
+<p>Each factor in the product captures one transition (e.g., the onset of power-law scaling, or the approach to the Bayes floor). This is more expressive but has many more parameters and is harder to fit reliably.</p>
+<p>Both estimators are strictly more general than the Kaplan/Chinchilla model — they reduce to the simple power law in the middle regime. The practical tradeoff: the simple model is sufficient for compute-optimal analysis (which operates in the power-law region by design), while the richer models are needed for predicting behavior at extreme scales or for detecting trend breaks.</p>
+<hr />
+<h2 id="scope-and-limitations">6. Scope and Limitations</h2>
+<p>The scaling law framework described in this note is powerful but not universal. Several important caveats apply.</p>
+<h3 id="upstream-vs.-downstream-performance">Upstream vs. Downstream Performance</h3>
+<p>Scaling laws for pre-training loss (upstream) do not straightforwardly transfer to task-specific (downstream) performance. Pre-training loss decreases smoothly as a power law, but downstream metrics (e.g., few-shot accuracy on specific benchmarks) can exhibit <strong>sharp transitions</strong> — sudden jumps in capability at particular scales — that are not predictable from the smooth upstream curve. Tay et al. (2022) showed that downstream performance depends critically on task choice, architecture, and hyperparameters, not just compute.</p>
+<p>This means compute-optimal training (minimizing pre-training loss) is not necessarily optimal for downstream deployment. The Chinchilla prescription optimizes upstream loss; whether it also optimizes downstream capability is an empirical question that varies by task.</p>
+<h3 id="non-power-law-scaling">Non-Power-Law Scaling</h3>
+<p>Sorscher et al. (2022) showed that for some tasks, loss scales <strong>exponentially</strong> with dataset size rather than as a power law:</p>
+<p><span class="math display">\[L(D) \sim e^{-\gamma D}\]</span></p>
+<p>This occurs when the data distribution is well-structured and the model can effectively interpolate — for example, in settings with a small effective vocabulary of patterns. Exponential scaling is much more favorable than power-law scaling, but it means the standard Kaplan/Chinchilla framework does not apply. Identifying which regime applies requires empirical probing at multiple scales.</p>
+<h3 id="trend-breaks-and-extrapolation-risk">Trend Breaks and Extrapolation Risk</h3>
+<p>Caballero et al. (2022) demonstrated that <strong>trend breaks</strong> — abrupt deviations from the fitted power law — can occur at scales not anticipated from smaller-scale observations. A scaling curve that appears cleanly power-law over three orders of magnitude may break at the fourth. This limits the reliability of extrapolation, particularly for predicting whether a much larger model will follow the projected loss curve.</p>
+<h3 id="modality-and-architecture-dependence">Modality and Architecture Dependence</h3>
+<p>Scaling exponents vary substantially across domains. Hestness et al. (2017) measured generalization error exponents <span class="math inline">\(\beta_g\)</span> across four domains with a single epoch of data scaling:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Domain</th>
+<th>Model</th>
+<th><span class="math inline">\(\beta_g\)</span> (data exponent)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Word language modeling</td>
+<td>LSTM</td>
+<td><span class="math inline">\(-0.066\)</span></td>
+</tr>
+<tr class="even">
+<td>Character language modeling</td>
+<td>RHN</td>
+<td><span class="math inline">\(-0.094\)</span></td>
+</tr>
+<tr class="odd">
+<td>Machine translation</td>
+<td>LSTM seq2seq</td>
+<td><span class="math inline">\(-0.128\)</span></td>
+</tr>
+<tr class="even">
+<td>Image classification (top-5)</td>
+<td>ResNet</td>
+<td><span class="math inline">\(-0.488\)</span></td>
+</tr>
+<tr class="odd">
+<td>Speech recognition</td>
+<td>Deep Speech 2</td>
+<td><span class="math inline">\(-0.299\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Vision transformers (Zhai et al. 2022), acoustic models (Droppo and Elibol 2021), reinforcement learning agents (Neumann and Gros 2022), and recommendation systems (Ardalani et al. 2022) continue this pattern. There is no single universal <span class="math inline">\((\alpha, \beta)\)</span> pair. The intrinsic dimension argument (Section 2) provides a theoretical explanation for this variation, but predicting exponents from first principles remains an open problem.</p>
+<p>Hestness et al. also established that architecture improvements — replacing LSTMs with better recurrent architectures, adding depth, tuning hyperparameters — consistently shift the loss curve downward (reducing the multiplicative constant <span class="math inline">\(\alpha_0\)</span>) without changing <span class="math inline">\(\beta_g\)</span>. The exponent is a property of the task, not the model. This implies a ceiling on what architectural innovation alone can achieve: better architecture buys a one-time constant factor, not a change in the rate at which more data or more parameters help.</p>
+<h3 id="scaling-for-recommendation-systems-and-ranking-models">Scaling for Recommendation Systems and Ranking Models</h3>
+<p>Recommendation and ranking systems present a distinct scaling regime from language models, shaped by several structural differences: inputs are sparse categorical features (user and item IDs) rather than dense token embeddings; daily interaction volumes are several orders of magnitude larger than the token corpora used for LLM training; and the downstream metric (CTR, NDCG, Recall@K) is bounded and nonlinear in loss, complicating direct comparison of scaling curves.</p>
+<p><strong>Traditional DLRMs scale weakly.</strong> Ardalani et al. (2022) studied DLRM-style models for click-through rate (CTR) prediction and found that model quality scales as a power law with a constant floor — the same functional form as the Kaplan decomposition:</p>
+<p><span class="math display">\[L(N) \approx c + \frac{A}{N^\alpha}\]</span></p>
+<p>But the effective scaling exponent for model size is small, and the dominant bottleneck is <strong>data</strong>: data scaling is the most viable path to improvement for this architecture class. The model-size term saturates quickly — beyond a moderate parameter count, DLRMs cannot usefully absorb additional capacity without more data. This is qualitatively different from transformers, where model size scaling (at fixed data) yields consistent gains.</p>
+<p><strong>Generative recommenders unlock transformer-style scaling.</strong> Zhai et al. (2024) reformulated recommendation as a sequential transduction problem using the HSTU (Hierarchical Sequential Transduction Units) architecture and showed that model quality scales as a <strong>power law in training compute</strong> across three orders of magnitude — directly analogous to the <span class="math inline">\(L(C) \sim C^{-\alpha_C}\)</span> behavior observed in language models. A trillion-parameter HSTU deployed in production achieved 12.4% metric improvements in live A/B testing. The key architectural changes enabling this:</p>
+<ul>
+<li><strong>SiLU replaces Softmax</strong> in attention scoring: Softmax bounds maximum attention scores, limiting the model’s ability to concentrate attention as sequences lengthen. SiLU removes this ceiling and is essential for scaling.</li>
+<li><strong>Relative temporal bias replaces positional encoding</strong>: recommendation sequences carry timestamps, and relative time differences are more informative than absolute positions. Without temporal bias, scaling stalls.</li>
+<li><strong>Explicit feature interaction</strong>: a pointwise transformation layer coupling user and item features is required; removing it causes ~7% degradation in HR@10.</li>
+</ul>
+<p><strong>Scaling dimensions in recommendation: depth, width, and sequence length.</strong> Guo et al. (2024) systematically studied scaling across model depth <span class="math inline">\(L\)</span> (transformer blocks), embedding dimension <span class="math inline">\(D\)</span>, and sequence length <span class="math inline">\(T\)</span> for HSTU. A key structural finding analogous to the Chinchilla compute-optimal trade-off: <strong>the product <span class="math inline">\(L \times D\)</span> is approximately constant at the optimum</strong> for a fixed parameter budget. Scaling the model vertically (more layers) versus horizontally (wider embeddings) involves a trade-off, and the optimal balance is determined by the dataset size. Larger datasets require larger models, but oversized models on small datasets degrade performance — the same model-data alignment principle as Chinchilla, now applied to the depth-width-data triangle.</p>
+<p><strong>Log-linear vs. power-law scaling.</strong> Yan et al. (2025, WSDM 2026) trained the Large User Model (LUM) — a generative model pre-trained on 4 billion interactions, then fine-tuned discriminatively — and reported:</p>
+<p><span class="math display">\[\text{Recall@10}(P) \approx 0.0068 \cdot \log P + 0.1741, \qquad P \in [19\text{M},\ 7\text{B}]\]</span></p>
+<p><span class="math display">\[\text{Recall@10}(L) \approx 0.0147 \cdot \log L + 0.2326, \qquad L \in [256,\ 8192]\]</span></p>
+<p>where <span class="math inline">\(P\)</span> is the number of parameters and <span class="math inline">\(L\)</span> is the sequence length. Note that these are log-linear relationships in the <strong>metric</strong> (Recall@10), not power-law relationships in <strong>loss</strong>. These are compatible: if cross-entropy loss scales as <span class="math inline">\(\ell \sim P^{-\alpha}\)</span> and Recall@10 is a saturating function of <span class="math inline">\(-\ell\)</span>, then Recall@10 <span class="math inline">\(\sim 1 - e^{-\ell^{-1}} \approx \beta \log P + \text{const}\)</span> in the regime where <span class="math inline">\(\ell\)</span> is small. The log-linear metric curve is thus consistent with an underlying power-law loss curve in the regime where the metric is still far from saturation. However, log-linear metric extrapolation saturates at 1 and cannot continue indefinitely; the loss formulation is the correct substrate for long-range extrapolation.</p>
+<p>The LUM paradigm — generative pre-training to capture joint <span class="math inline">\(p(x, y)\)</span>, then discriminative fine-tuning to estimate <span class="math inline">\(p(y|x)\)</span> — is presented as the key to unlocking scaling. Traditional discriminative models trained end-to-end on <span class="math inline">\(p(y|x)\)</span> exhibit weak scaling because conditional distributions are simpler and offer less structure for the model to exploit at scale. This mirrors the observation that self-supervised pre-training (a generative objective) produces representations that scale better than purely supervised objectives in vision and NLP.</p>
+<p><strong>Summary: differences from language model scaling.</strong></p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 14%" />
+<col style="width: 58%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>LLMs</th>
+<th>Generative Recommenders</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Input representation</td>
+<td>Dense token embeddings</td>
+<td>Sparse categorical + temporal features</td>
+</tr>
+<tr class="even">
+<td>Data volume</td>
+<td>Trillions of tokens (months)</td>
+<td>Trillions of interactions (days)</td>
+</tr>
+<tr class="odd">
+<td>Scaling variable</td>
+<td><span class="math inline">\(N\)</span>, <span class="math inline">\(D\)</span>, <span class="math inline">\(C\)</span> simultaneously</td>
+<td><span class="math inline">\(L\)</span>, <span class="math inline">\(D\)</span>, <span class="math inline">\(T\)</span> with <span class="math inline">\(L \times D\)</span> trade-off</td>
+</tr>
+<tr class="even">
+<td>Scaling metric</td>
+<td>Cross-entropy loss (power law)</td>
+<td>NDCG/Recall (log-linear in regime)</td>
+</tr>
+<tr class="odd">
+<td>Traditional baseline</td>
+<td>N/A — transformers from the start</td>
+<td>DLRMs with weak scaling</td>
+</tr>
+<tr class="even">
+<td>Key enabling change</td>
+<td>Scale itself</td>
+<td>Generative objective + temporal features</td>
+</tr>
+<tr class="odd">
+<td>Compute-optimal prescription</td>
+<td><span class="math inline">\(N^* \propto D^* \propto C^{1/2}\)</span> (Chinchilla)</td>
+<td><span class="math inline">\(L^* \times D^* \approx \text{const}\)</span> (Guo et al.)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kaplan et al. (2020), “Scaling Laws for Neural Language Models”</td>
+<td>Establishes power-law scaling of LM loss with <span class="math inline">\(N\)</span>, <span class="math inline">\(D\)</span>, <span class="math inline">\(C\)</span>; introduces the loss decomposition model; derives compute-efficient frontier favoring parameter-heavy scaling</td>
+<td>https://arxiv.org/abs/2001.08361</td>
+</tr>
+<tr class="even">
+<td>Hoffmann et al. (2022), “Training Compute-Optimal Large Language Models” (Chinchilla)</td>
+<td>Revises Kaplan via IsoFLOP analysis; introduces three fitting approaches; shows equal <span class="math inline">\(N\)</span> and <span class="math inline">\(D\)</span> scaling is optimal; establishes the 20-tokens-per-parameter rule</td>
+<td>https://arxiv.org/abs/2203.15556</td>
+</tr>
+<tr class="odd">
+<td>Henighan et al. (2020), “Scaling Laws for Autoregressive Generative Modeling”</td>
+<td>Extends power-law scaling beyond language to images, video, and mathematical problems; shows universality of the scaling law framework</td>
+<td>https://arxiv.org/abs/2010.14701</td>
+</tr>
+<tr class="even">
+<td>Bahri et al. (2021), “Explaining Neural Scaling Laws”</td>
+<td>Provides a theoretical derivation of power-law scaling from statistical mechanics; connects neural scaling to solvable models with broken power-law structure in the data</td>
+<td>https://arxiv.org/abs/2102.06701</td>
+</tr>
+<tr class="odd">
+<td>Villalobos (2023), “Scaling Laws Literature Review” (Epoch AI)</td>
+<td>Broad survey of scaling law results across modalities; discusses alternative estimators (M4, BNSL), non-power-law regimes, trend breaks, and the limits of upstream-to-downstream transfer</td>
+<td>https://epoch.ai/blog/scaling-laws-literature-review</td>
+</tr>
+<tr class="even">
+<td>Caballero et al. (2022), “Broken Neural Scaling Laws”</td>
+<td>Introduces the BNSL functional form to model transitions between scaling regimes; demonstrates that trend breaks cannot be reliably predicted from smaller-scale observations</td>
+<td>https://arxiv.org/abs/2210.14891</td>
+</tr>
+<tr class="odd">
+<td>Sorscher et al. (2022), “Beyond neural scaling laws: beating power law scaling via data pruning”</td>
+<td>Shows that with structured data pruning, loss can scale exponentially rather than as a power law, offering a route beyond the power-law frontier</td>
+<td>https://arxiv.org/abs/2206.14486</td>
+</tr>
+<tr class="even">
+<td>Hestness et al. (2017), “Deep Learning Scaling is Predictable, Empirically”</td>
+<td>Establishes cross-domain power-law scaling of generalization error with training set size across MT, language modeling, image classification, and speech recognition; identifies the three learning curve regimes; shows architecture improvements shift the curve but not the exponent</td>
+<td>https://arxiv.org/abs/1712.00409</td>
+</tr>
+</tbody>
+</table>
+<h3 id="further-reading-scaling-for-recommendation-systems-and-ranking">Further Reading: Scaling for Recommendation Systems and Ranking</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ardalani et al. (2022), “Understanding Scaling Laws for Recommendation Models”</td>
+<td>Empirical scaling study of DLRM-style CTR models; finds power-law-plus-constant scaling in model size, data, and compute; concludes data scaling is the dominant lever for this architecture class</td>
+<td>https://arxiv.org/abs/2208.08489</td>
+</tr>
+<tr class="even">
+<td>Zhai et al. (2024), “Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers for Generative Recommendations” (ICML 2024)</td>
+<td>Introduces HSTU; demonstrates power-law scaling in training compute across three orders of magnitude for generative recommendation; deploys a trillion-parameter model with 12.4% live metric gains; identifies SiLU attention and temporal bias as prerequisites for scaling</td>
+<td>https://arxiv.org/abs/2402.17152</td>
+</tr>
+<tr class="odd">
+<td>Guo et al. (2024), “Scaling New Frontiers: Insights into Large Recommendation Models”</td>
+<td>Systematic study of scaling across depth, embedding dimension, and sequence length for HSTU; establishes the <span class="math inline">\(L \times D = \text{const}\)</span> optimality condition; shows temporal information dominates positional encoding and model-data alignment governs scaling efficiency</td>
+<td>https://arxiv.org/abs/2412.00714</td>
+</tr>
+<tr class="even">
+<td>Yan et al. (2025), “Unlocking Scaling Law in Industrial Recommendation Systems with a Three-step Paradigm based Large User Model” (WSDM 2026)</td>
+<td>Proposes the LUM paradigm (generative pre-training then discriminative fine-tuning); reports log-linear Recall@10 scaling with model size (19M–7B) and sequence length (256–8192); validates with 2.9% CTR and 1.2% revenue gains in production at Taobao</td>
+<td>https://arxiv.org/abs/2502.08309</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

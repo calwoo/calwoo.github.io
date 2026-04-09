@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>foundations - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>foundations</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-motivation%7C1.-motivation/">#1. Motivation|1. Motivation</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-fundamental-problem-of-causal-inference%7C1.1-the-fundamental-problem-of-causal-inference/">#1.1 The Fundamental Problem of Causal Inference|1.1 The Fundamental Problem of Causal Inference</a></li>
+<li><a href="../../../../notes/#1.2-why-observational-data-is-insufficient%7C1.2-why-observational-data-is-insufficient/">#1.2 Why Observational Data Is Insufficient|1.2 Why Observational Data Is Insufficient</a></li>
+<li><a href="../../../../notes/#1.3-the-randomized-experiment-as-a-solution%7C1.3-the-randomized-experiment-as-a-solution/">#1.3 The Randomized Experiment as a Solution|1.3 The Randomized Experiment as a Solution</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-the-causal-estimand%7C2.-the-causal-estimand/">#2. The Causal Estimand|2. The Causal Estimand</a>
+<ul>
+<li><a href="../../../../notes/#2.1-potential-outcomes-and-the-rubin-causal-model%7C2.1-potential-outcomes-and-the-rubin-causal-model/">#2.1 Potential Outcomes and the Rubin Causal Model|2.1 Potential Outcomes and the Rubin Causal Model</a></li>
+<li><a href="../../../../notes/#2.2-the-individual-treatment-effect%7C2.2-the-individual-treatment-effect/">#2.2 The Individual Treatment Effect|2.2 The Individual Treatment Effect</a></li>
+<li><a href="../../../../notes/#2.3-the-average-treatment-effect%7C2.3-the-average-treatment-effect/">#2.3 The Average Treatment Effect|2.3 The Average Treatment Effect</a></li>
+<li><a href="../../../../notes/#2.4-sutva%7C2.4-sutva/">#2.4 SUTVA|2.4 SUTVA</a></li>
+<li><a href="../../../../notes/#2.5-identification-under-random-assignment%7C2.5-identification-under-random-assignment/">#2.5 Identification Under Random Assignment|2.5 Identification Under Random Assignment</a></li>
+<li><a href="../../../../notes/#2.6-unbiasedness-of-the-difference-in-means-estimator%7C2.6-unbiasedness-of-the-difference-in-means-estimator/">#2.6 Unbiasedness of the Difference-in-Means Estimator|2.6 Unbiasedness of the Difference-in-Means Estimator</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-statistical-hypotheses%7C3.-statistical-hypotheses/">#3. Statistical Hypotheses|3. Statistical Hypotheses</a>
+<ul>
+<li><a href="../../../../notes/#3.1-formulating-the-null-and-alternative%7C3.1-formulating-the-null-and-alternative/">#3.1 Formulating the Null and Alternative|3.1 Formulating the Null and Alternative</a></li>
+<li><a href="../../../../notes/#3.2-the-test-statistic-framework%7C3.2-the-test-statistic-framework/">#3.2 The Test Statistic Framework|3.2 The Test Statistic Framework</a></li>
+<li><a href="../../../../notes/#3.3-significance-level%7C3.3-significance-level/">#3.3 Significance Level|3.3 Significance Level</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-type-i-and-type-ii-errors%7C4.-type-i-and-type-ii-errors/">#4. Type I and Type II Errors|4. Type I and Type II Errors</a>
+<ul>
+<li><a href="../../../../notes/#4.1-definitions%7C4.1-definitions/">#4.1 Definitions|4.1 Definitions</a></li>
+<li><a href="../../../../notes/#4.2-the-error-table%7C4.2-the-error-table/">#4.2 The Error Table|4.2 The Error Table</a></li>
+<li><a href="../../../../notes/#4.3-the-tradeoff-and-sample-size-constraint%7C4.3-the-tradeoff-and-sample-size-constraint/">#4.3 The Tradeoff and Sample Size Constraint|4.3 The Tradeoff and Sample Size Constraint</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-p-values%7C5.-p-values/">#5. P-values|5. P-values</a>
+<ul>
+<li><a href="../../../../notes/#5.1-formal-definition%7C5.1-formal-definition/">#5.1 Formal Definition|5.1 Formal Definition</a></li>
+<li><a href="../../../../notes/#5.2-the-p-value-is-uniform-under-the-null%7C5.2-the-p-value-is-uniform-under-the-null/">#5.2 The P-value Is Uniform Under the Null|5.2 The P-value Is Uniform Under the Null</a></li>
+<li><a href="../../../../notes/#5.3-common-misconceptions%7C5.3-common-misconceptions/">#5.3 Common Misconceptions|5.3 Common Misconceptions</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-statistical-power%7C6.-statistical-power/">#6. Statistical Power|6. Statistical Power</a>
+<ul>
+<li><a href="../../../../notes/#6.1-definition-and-the-power-function%7C6.1-definition-and-the-power-function/">#6.1 Definition and the Power Function|6.1 Definition and the Power Function</a></li>
+<li><a href="../../../../notes/#6.2-factors-governing-power%7C6.2-factors-governing-power/">#6.2 Factors Governing Power|6.2 Factors Governing Power</a></li>
+<li><a href="../../../../notes/#6.3-standard-power-targets%7C6.3-standard-power-targets/">#6.3 Standard Power Targets|6.3 Standard Power Targets</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-effect-size-and-mde%7C7.-effect-size-and-mde/">#7. Effect Size and MDE|7. Effect Size and MDE</a>
+<ul>
+<li><a href="../../../../notes/#7.1-standardized-effect-sizes%7C7.1-standardized-effect-sizes/">#7.1 Standardized Effect Sizes|7.1 Standardized Effect Sizes</a></li>
+<li><a href="../../../../notes/#7.2-relative-lift%7C7.2-relative-lift/">#7.2 Relative Lift|7.2 Relative Lift</a></li>
+<li><a href="../../../../notes/#7.3-minimum-detectable-effect:-definition%7C7.3-minimum-detectable-effect:-definition/">#7.3 Minimum Detectable Effect: Definition|7.3 Minimum Detectable Effect: Definition</a></li>
+<li><a href="../../../../notes/#7.4-derivation-of-the-mde-for-a-two-sample-z-test%7C7.4-derivation-of-the-mde-for-a-two-sample-z-test/">#7.4 Derivation of the MDE for a Two-Sample Z-test|7.4 Derivation of the MDE for a Two-Sample Z-test</a></li>
+<li><a href="../../../../notes/#7.5-practical-implications%7C7.5-practical-implications/">#7.5 Practical Implications|7.5 Practical Implications</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ol>
+<hr />
+<h2 id="motivation">1. Motivation 🎯</h2>
+<p>Science frequently asks questions of the form: “Does intervention <span class="math inline">\(X\)</span> cause outcome <span class="math inline">\(Y\)</span>?” Answering such questions rigorously requires more than correlation — it requires a <em>causal</em> claim. This section establishes why randomized experiments occupy a privileged position in the hierarchy of evidence, and how an A/B test fits into that framework.</p>
+<h3 id="the-fundamental-problem-of-causal-inference">1.1 The Fundamental Problem of Causal Inference</h3>
+<p>Let unit <span class="math inline">\(i\)</span> denote a single experimental subject — a user, a patient, a webpage visit. Suppose we wish to understand the causal effect of a binary intervention <span class="math inline">\(T \in \{0, 1\}\)</span> on an outcome <span class="math inline">\(Y\)</span>. The <em>fundamental problem of causal inference</em> is:</p>
+<blockquote>
+<p>For any unit <span class="math inline">\(i\)</span>, we can observe <span class="math inline">\(Y_i\)</span> under at most one value of <span class="math inline">\(T\)</span>. The outcome under the counterfactual assignment is permanently unobserved.</p>
+</blockquote>
+<p>This is not a limitation of measurement technology or data availability. It is a logical impossibility: a user either sees the new feature or does not, never both simultaneously. Because causal effects are defined as comparisons between two states of the world — one factual, one counterfactual — they are inherently unobservable at the individual level.</p>
+<h3 id="why-observational-data-is-insufficient">1.2 Why Observational Data Is Insufficient</h3>
+<p>In an observational study, the treatment <span class="math inline">\(T_i\)</span> is not under the experimenter’s control. Units self-select into treatment, or are assigned by a mechanism we do not observe. This introduces two canonical threats to causal identification:</p>
+<p>⚠️ <strong>Confounding.</strong> A <em>confounder</em> is a variable <span class="math inline">\(Z_i\)</span> that causes both <span class="math inline">\(T_i\)</span> and <span class="math inline">\(Y_i\)</span>. If <span class="math inline">\(Z_i\)</span> is unobserved, we cannot separate its effect from that of <span class="math inline">\(T_i\)</span>. For example: users who voluntarily adopt a new product feature may already be more engaged, so a naive comparison of their outcomes to non-adopters conflates the effect of the feature with the pre-existing engagement difference.</p>
+<p>⚠️ <strong>Selection bias.</strong> Units that end up in the treatment group may have systematically different potential outcomes than units in the control group, even after conditioning on observed covariates. Selection bias is precisely the failure of <span class="math inline">\(\mathbb{E}[Y_i(0) \mid T_i = 1] = \mathbb{E}[Y_i(0) \mid T_i = 0]\)</span>: the untreated potential outcomes of the treated group differ from those of the control group. Any difference in observed outcomes then mixes the treatment effect with this pre-existing gap.</p>
+<p>Formally, the observed difference-in-means decomposes as:</p>
+<p><span class="math display">\[\mathbb{E}[Y_i \mid T_i = 1] - \mathbb{E}[Y_i \mid T_i = 0] = \underbrace{\mathbb{E}[Y_i(1) - Y_i(0) \mid T_i = 1]}_{\text{ATT}} + \underbrace{\mathbb{E}[Y_i(0) \mid T_i = 1] - \mathbb{E}[Y_i(0) \mid T_i = 0]}_{\text{selection bias}}\]</span></p>
+<p>💡 The second term is in general nonzero in observational data, and unobservable without further assumptions. This is precisely the gap that randomization closes.</p>
+<h3 id="the-randomized-experiment-as-a-solution">1.3 The Randomized Experiment as a Solution</h3>
+<p>A <em>randomized controlled trial</em> (RCT) assigns treatment <span class="math inline">\(T_i\)</span> independently of all unit characteristics — observed or unobserved. Under random assignment, by construction:</p>
+<p><span class="math display">\[\bigl(Y_i(0),\, Y_i(1)\bigr) \perp\!\!\!\perp T_i\]</span></p>
+<blockquote>
+<p><strong>Aside: the <span class="math inline">\(\perp\!\!\!\perp\)</span> notation.</strong>
+The symbol <span class="math inline">\(\perp\!\!\!\perp\)</span> denotes <em>statistical independence</em>. We write <span class="math inline">\(A \perp\!\!\!\perp B\)</span> to mean that <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are independent random variables: <span class="math inline">\(P(A \in S \mid B = b) = P(A \in S)\)</span> for all measurable <span class="math inline">\(S\)</span> and all <span class="math inline">\(b\)</span>, i.e., knowing <span class="math inline">\(B\)</span> provides no information about <span class="math inline">\(A\)</span>. The notation extends to <em>conditional independence</em>: <span class="math inline">\(A \perp\!\!\!\perp B \mid C\)</span> means <span class="math inline">\(P(A \in S \mid B = b, C = c) = P(A \in S \mid C = c)\)</span> for all <span class="math inline">\(b, c\)</span>.</p>
+<p>The double-perpendicular <span class="math inline">\(\perp\!\!\!\perp\)</span> is used rather than the single <span class="math inline">\(\perp\)</span> (geometric orthogonality) to signal a strictly stronger condition. Two mean-zero random variables with <span class="math inline">\(\mathbb{E}[AB] = 0\)</span> are <em>orthogonal</em> (<span class="math inline">\(A \perp B\)</span>) but not necessarily independent — orthogonality only kills the linear relationship. Independence kills every statistical relationship. In the causal inference context, we need the stronger condition: randomization must make treatment assignment independent of <em>all</em> potential outcome structure, not just uncorrelated with it.</p>
+</blockquote>
+<p>This independence annihilates the selection bias term above. The observed difference-in-means becomes equal to the <em>average treatment effect</em> (ATE) over the population. An <em>A/B test</em> is an RCT applied in a digital product context: users are randomly assigned to variant A (control) or variant B (treatment), and a metric of interest is compared across groups.</p>
+<hr />
+<h2 id="the-causal-estimand">2. The Causal Estimand 🧮</h2>
+<h3 id="potential-outcomes-and-the-rubin-causal-model">2.1 Potential Outcomes and the Rubin Causal Model</h3>
+<p>The <em>Rubin causal model</em> (RCM), also called the <em>Neyman–Rubin potential outcomes framework</em>, provides the formal scaffolding for causal inference. We work with the following primitives.</p>
+<p>📐 <strong>Definition (Population and Units).</strong> Let <span class="math inline">\(\mathcal{U} = \{1, \ldots, N\}\)</span> denote a finite population of <span class="math inline">\(N\)</span> units. Each unit <span class="math inline">\(i \in \mathcal{U}\)</span> is characterized by a pair of <em>potential outcomes</em>:</p>
+<p><span class="math display">\[Y_i(0) \in \mathbb{R}, \qquad Y_i(1) \in \mathbb{R}\]</span></p>
+<p>where <span class="math inline">\(Y_i(t)\)</span> is the outcome unit <span class="math inline">\(i\)</span> would exhibit if assigned to treatment <span class="math inline">\(t \in \{0, 1\}\)</span>. The value <span class="math inline">\(t = 0\)</span> denotes control and <span class="math inline">\(t = 1\)</span> denotes treatment.</p>
+<p>The observed outcome for unit <span class="math inline">\(i\)</span>, given actual assignment <span class="math inline">\(T_i \in \{0, 1\}\)</span>, is:</p>
+<p><span class="math display">\[Y_i^{\text{obs}} = Y_i(T_i) = T_i \cdot Y_i(1) + (1 - T_i) \cdot Y_i(0)\]</span></p>
+<p>The counterfactual outcome <span class="math inline">\(Y_i(1 - T_i)\)</span> is never observed. This is the fundamental source of difficulty.</p>
+<h3 id="the-individual-treatment-effect">2.2 The Individual Treatment Effect</h3>
+<p>📐 <strong>Definition (ITE).</strong> The <em>individual treatment effect</em> for unit <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[\tau_i = Y_i(1) - Y_i(0)\]</span></p>
+<p><em>It is never directly observable</em>, because we observe only one of <span class="math inline">\(Y_i(0)\)</span> and <span class="math inline">\(Y_i(1)\)</span> for any given unit. Statistical inference for causal effects must therefore operate on population-level summaries.</p>
+<h3 id="the-average-treatment-effect">2.3 The Average Treatment Effect</h3>
+<p>📐 <strong>Definition (ATE).</strong> The <em>average treatment effect</em> is the expectation of the individual treatment effect over the population:</p>
+<p><span class="math display">\[\tau = \mathbb{E}[\tau_i] = \mathbb{E}[Y_i(1) - Y_i(0)] = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)]\]</span></p>
+<p>where the expectation is taken with respect to the distribution over units in <span class="math inline">\(\mathcal{U}\)</span> (or the superpopulation from which they are drawn). The linearity of expectation allows the second equality; the ATE is the difference of two population means of potential outcomes.</p>
+<p>Two related estimands appear frequently:</p>
+<ul>
+<li><em>Average treatment effect on the treated</em> (ATT): <span class="math inline">\(\tau_{\text{ATT}} = \mathbb{E}[Y_i(1) - Y_i(0) \mid T_i = 1]\)</span></li>
+<li><em>Average treatment effect on the control</em> (ATC): <span class="math inline">\(\tau_{\text{ATC}} = \mathbb{E}[Y_i(1) - Y_i(0) \mid T_i = 0]\)</span></li>
+</ul>
+<p>💡 Under complete random assignment, <span class="math inline">\(\tau = \tau_{\text{ATT}} = \tau_{\text{ATC}}\)</span>, since treatment and control groups are exchangeable. A/B tests target the ATE.</p>
+<h3 id="sutva">2.4 SUTVA</h3>
+<p>📐 <strong>Definition (SUTVA).</strong> The <em>Stable Unit Treatment Value Assumption</em> comprises two conditions:</p>
+<ol type="1">
+<li><p><strong>No interference:</strong> The potential outcome <span class="math inline">\(Y_i(t)\)</span> for unit <span class="math inline">\(i\)</span> depends only on <span class="math inline">\(i\)</span>’s own treatment assignment <span class="math inline">\(t\)</span>, not on the treatment assignments of any other unit <span class="math inline">\(j \neq i\)</span>. Formally, for all <span class="math inline">\(\mathbf{t} = (t_1, \ldots, t_N)\)</span>:
+<span class="math display">\[Y_i(\mathbf{t}) = Y_i(t_i)\]</span></p></li>
+<li><p><strong>No hidden versions of treatment:</strong> There is only one version of each treatment level. Receiving <span class="math inline">\(T_i = 1\)</span> means receiving a uniquely defined intervention, not one of several heterogeneous variants that happen to share a label.</p></li>
+</ol>
+<p>⚠️ <em>SUTVA can fail in realistic A/B tests.</em> Network interference (e.g., one user’s experience affects another’s via a social graph) and marketplace competition effects (a supply platform serving both experiment arms simultaneously) are standard violations. When SUTVA fails, the potential outcomes <span class="math inline">\(Y_i(t)\)</span> are not well-defined without specifying the full assignment vector <span class="math inline">\(\mathbf{t}\)</span>, and the ATE as defined above is not the right estimand. See <a href="https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59">Kohavi, Tang &amp; Xu (2020)</a> for practical mitigations.</p>
+<h3 id="identification-under-random-assignment">2.5 Identification Under Random Assignment</h3>
+<p>The identification problem is: how do we connect the unobservable causal estimand <span class="math inline">\(\tau = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)]\)</span> to observable quantities?</p>
+<p>🔑 <strong>Proposition (Identification by Randomization).</strong> Suppose treatment is assigned completely at random, so that <span class="math inline">\(T_i \perp\!\!\!\perp (Y_i(0), Y_i(1))\)</span> for all <span class="math inline">\(i\)</span>. Then:</p>
+<p><span class="math display">\[\mathbb{E}[Y_i(1)] = \mathbb{E}[Y_i \mid T_i = 1], \qquad \mathbb{E}[Y_i(0)] = \mathbb{E}[Y_i \mid T_i = 0]\]</span></p>
+<p>and therefore <span class="math inline">\(\tau = \mathbb{E}[Y_i \mid T_i = 1] - \mathbb{E}[Y_i \mid T_i = 0]\)</span>.</p>
+<p><em>Proof.</em> We derive the first equality; the second is symmetric.</p>
+<p><span class="math display">\[\begin{align}
+\mathbb{E}[Y_i \mid T_i = 1] &amp;= \mathbb{E}[Y_i(T_i) \mid T_i = 1] \\
+&amp;= \mathbb{E}[Y_i(1) \mid T_i = 1] \quad \text{(since } T_i = 1 \text{ on the event } \{T_i = 1\}) \\
+&amp;= \mathbb{E}[Y_i(1)] \quad \text{(by independence } T_i \perp\!\!\!\perp Y_i(1))
+\end{align}\]</span></p>
+<p>The key step is the last equality: because <span class="math inline">\(T_i\)</span> is independent of the pair <span class="math inline">\((Y_i(0), Y_i(1))\)</span>, conditioning on <span class="math inline">\(T_i = 1\)</span> does not change the distribution of <span class="math inline">\(Y_i(1)\)</span>. This is exactly what random assignment guarantees — the treated group is a representative sample of the population with respect to potential outcomes.</p>
+<p>Combining both equalities:</p>
+<p><span class="math display">\[\tau = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)] = \mathbb{E}[Y_i \mid T_i = 1] - \mathbb{E}[Y_i \mid T_i = 0]\]</span></p>
+<p><strong>The right-hand side involves only observed outcomes.</strong> <span class="math inline">\(\square\)</span></p>
+<h3 id="unbiasedness-of-the-difference-in-means-estimator">2.6 Unbiasedness of the Difference-in-Means Estimator</h3>
+<p>In practice, we observe samples <span class="math inline">\(\{(Y_i, T_i)\}_{i=1}^{n}\)</span> with <span class="math inline">\(n_1 = \sum_i T_i\)</span> treated units and <span class="math inline">\(n_0 = n - n_1\)</span> control units. Define the <em>difference-in-means estimator</em>:</p>
+<p><span class="math display">\[\hat{\tau} = \bar{Y}_1 - \bar{Y}_0 = \frac{1}{n_1} \sum_{i: T_i = 1} Y_i - \frac{1}{n_0} \sum_{i: T_i = 0} Y_i\]</span></p>
+<p>🔑 <strong>Proposition (Unbiasedness).</strong> Under random assignment with fixed <span class="math inline">\(n_1\)</span> and <span class="math inline">\(n_0\)</span>, <span class="math inline">\(\mathbb{E}[\hat{\tau}] = \tau\)</span>.</p>
+<p><em>Proof.</em></p>
+<p><span class="math display">\[\begin{align}
+\mathbb{E}[\hat{\tau}] &amp;= \mathbb{E}[\bar{Y}_1] - \mathbb{E}[\bar{Y}_0] \\
+&amp;= \mathbb{E}\!\left[\frac{1}{n_1}\sum_{i:T_i=1} Y_i(1)\right] - \mathbb{E}\!\left[\frac{1}{n_0}\sum_{i:T_i=0} Y_i(0)\right]
+\end{align}\]</span></p>
+<p>We now show <span class="math inline">\(\mathbb{E}[\bar{Y}_1] = \mathbb{E}[Y_i(1)]\)</span> explicitly; the control term is symmetric. Under random assignment, <span class="math inline">\(T_i \perp\!\!\!\perp (Y_i(0), Y_i(1))\)</span>, so each unit that ends up with <span class="math inline">\(T_i = 1\)</span> is an independent, representative draw from the population with respect to potential outcomes. Formally, for each <span class="math inline">\(i\)</span> in the treated subsample:</p>
+<p><span class="math display">\[\mathbb{E}[Y_i(1) \mid T_i = 1] = \mathbb{E}[Y_i(1)]\]</span></p>
+<p>by independence. Taking the average over the <span class="math inline">\(n_1\)</span> treated units:</p>
+<p><span class="math display">\[\mathbb{E}[\bar{Y}_1] = \mathbb{E}\!\left[\frac{1}{n_1}\sum_{i:T_i=1} Y_i(1)\right] = \frac{1}{n_1} \cdot n_1 \cdot \mathbb{E}[Y_i(1)] = \mathbb{E}[Y_i(1)]\]</span></p>
+<p>where the second equality uses the fact that each term in the sum has the same expectation <span class="math inline">\(\mathbb{E}[Y_i(1)]\)</span> under random assignment, and <span class="math inline">\(n_1\)</span> is fixed by design. By the same argument, <span class="math inline">\(\mathbb{E}[\bar{Y}_0] = \mathbb{E}[Y_i(0)]\)</span>. Therefore:</p>
+<p><span class="math display">\[\mathbb{E}[\hat{\tau}] = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)] = \tau \qquad \square\]</span></p>
+<p><strong>The difference-in-means estimator is unbiased for the ATE under any random assignment mechanism.</strong></p>
+<blockquote>
+<p><strong>TL;DR (Sections 1–2).</strong> We want to measure a causal effect <span class="math inline">\(\tau = \mathbb{E}[Y_i(1)] - \mathbb{E}[Y_i(0)]\)</span>, but can never observe both potential outcomes for the same unit. Observational data fails because selection bias contaminates the difference-in-means with pre-existing group differences. Random assignment fixes this: it makes treatment <span class="math inline">\(T_i\)</span> independent of all potential outcomes (<span class="math inline">\(T_i \perp\!\!\!\perp (Y_i(0), Y_i(1))\)</span>), collapsing the selection bias term to zero and making <span class="math inline">\(\hat{\tau} = \bar{Y}_1 - \bar{Y}_0\)</span> an unbiased estimator of <span class="math inline">\(\tau\)</span>. Two assumptions must hold for this to work cleanly: SUTVA (no interference between units, no hidden treatment versions) and complete randomization. When SUTVA fails — e.g. network effects, marketplace competition — <span class="math inline">\(\tau\)</span> is no longer well-defined without the full assignment vector.</p>
+</blockquote>
+<hr />
+<h2 id="statistical-hypotheses">3. Statistical Hypotheses 🔬</h2>
+<h3 id="formulating-the-null-and-alternative">3.1 Formulating the Null and Alternative</h3>
+<p>Having established that <span class="math inline">\(\hat{\tau}\)</span> is an unbiased estimator of <span class="math inline">\(\tau\)</span>, we now set up the inferential machinery for deciding whether the observed <span class="math inline">\(\hat{\tau}\)</span> is consistent with zero or with a meaningful nonzero effect.</p>
+<p>📐 <strong>Definition (Null Hypothesis).</strong> The <em>null hypothesis</em> <span class="math inline">\(H_0\)</span> is the hypothesis of no treatment effect:</p>
+<p><span class="math display">\[H_0 : \tau = 0\]</span></p>
+<p>This is the <em>weak null</em> in the potential outcomes framework. A stronger version is <em>Fisher’s sharp null</em>: <span class="math inline">\(Y_i(1) = Y_i(0)\)</span> for all <span class="math inline">\(i\)</span>, which asserts that the treatment effect is zero for every individual unit, not just on average. The sharp null is what justifies the permutation test (see <a href="../../../../notes/p-values.md#7.-the-permutation-test:-downey's-canonical-example%7Csection-7-of-p-values.md/">p-values.md#7. The Permutation Test: Downey’s Canonical Example|Section 7 of p-values.md</a>).</p>
+<p><em>Throughout the remainder of this note, we work under the Neyman framing: <span class="math inline">\(H_0: \tau = 0\)</span> refers to the weak null on the ATE, and inference proceeds via the CLT-based normal approximation.</em></p>
+<p>📐 <strong>Definition (Alternative Hypothesis).</strong> The <em>alternative hypothesis</em> <span class="math inline">\(H_1\)</span> specifies the direction of departure from <span class="math inline">\(H_0\)</span>. Two forms are standard:</p>
+<ul>
+<li><strong>Two-tailed:</strong> <span class="math inline">\(H_1 : \tau \neq 0\)</span>. Appropriate when we have no prior knowledge of the sign of the effect and wish to detect deviations in either direction.</li>
+<li><strong>One-tailed:</strong> <span class="math inline">\(H_1 : \tau &gt; 0\)</span>. Appropriate when the treatment can only plausibly improve the outcome (e.g., a new ranking algorithm cannot degrade engagement by construction).</li>
+</ul>
+<p>⚠️ <em>The choice between one-tailed and two-tailed tests must be made before data collection.</em> Post-hoc switching from two-tailed to one-tailed upon seeing the data direction inflates Type I error — this is a form of p-hacking.</p>
+<h3 id="the-test-statistic-framework">3.2 The Test Statistic Framework</h3>
+<p>A <em>test statistic</em> <span class="math inline">\(W_n = W_n(Y_1, \ldots, Y_n, T_1, \ldots, T_n)\)</span> is a real-valued function of the data, chosen so that large values of <span class="math inline">\(|W_n|\)</span> (or large values of <span class="math inline">\(W_n\)</span> for one-tailed tests) are inconsistent with <span class="math inline">\(H_0\)</span>. We reject <span class="math inline">\(H_0\)</span> when <span class="math inline">\(W_n\)</span> falls in the <em>rejection region</em> <span class="math inline">\(\mathcal{R}\)</span>:</p>
+<p><span class="math display">\[\text{Reject } H_0 \iff W_n \in \mathcal{R}\]</span></p>
+<p>The rejection region is defined so that <span class="math inline">\(\mathbb{P}(W_n \in \mathcal{R} \mid H_0) \leq \alpha\)</span>, where <span class="math inline">\(\alpha\)</span> is the significance level defined below. The standard test statistic for a two-sample comparison of means under known variance is:</p>
+<p><span class="math display">\[Z = \frac{\hat{\tau}}{\sqrt{\sigma_1^2 / n_1 + \sigma_0^2 / n_0}}\]</span></p>
+<p>where <span class="math inline">\(\sigma_t^2 = \text{Var}(Y_i(t))\)</span> for <span class="math inline">\(t \in \{0, 1\}\)</span>. Under <span class="math inline">\(H_0\)</span> and by the central limit theorem (CLT), <span class="math inline">\(Z \xrightarrow{d} \mathcal{N}(0, 1)\)</span> as <span class="math inline">\(n \to \infty\)</span>.</p>
+<p>💡 For the full treatment of how different choices of test statistic and null distribution give rise to named tests (Z-test, Welch’s t, permutation test), see <a href="../../../../notes/p-values.md#3.-the-unified-structure-of-hypothesis-tests%7Csection-3-of-p-values.md/">p-values.md#3. The Unified Structure of Hypothesis Tests|Section 3 of p-values.md</a>.</p>
+<h3 id="significance-level">3.3 Significance Level</h3>
+<p>📐 <strong>Definition (Significance Level).</strong> The <em>significance level</em> <span class="math inline">\(\alpha \in (0, 1)\)</span> is a pre-specified upper bound on the probability of rejecting <span class="math inline">\(H_0\)</span> when <span class="math inline">\(H_0\)</span> is true:</p>
+<p><span class="math display">\[\alpha = \sup_{\theta \in H_0} \mathbb{P}_\theta(W_n \in \mathcal{R})\]</span></p>
+<p>Common choices are <span class="math inline">\(\alpha = 0.05\)</span> and <span class="math inline">\(\alpha = 0.01\)</span>. ⚠️ <em>The significance level must be fixed before the experiment begins</em>; it is not a free parameter to be tuned after observing results.</p>
+<hr />
+<h2 id="type-i-and-type-ii-errors">4. Type I and Type II Errors ⚖️</h2>
+<h3 id="definitions">4.1 Definitions</h3>
+<p>Any decision procedure based on a test statistic can make two distinct types of error.</p>
+<p>📐 <strong>Definition (Type I Error).</strong> A <em>Type I error</em> (false positive) occurs when <span class="math inline">\(H_0\)</span> is true but we reject it. The Type I error rate is:</p>
+<p><span class="math display">\[\alpha = \mathbb{P}(\text{reject } H_0 \mid H_0 \text{ true})\]</span></p>
+<p>By construction, our choice of rejection region ensures <span class="math inline">\(\alpha\)</span> is controlled at the pre-specified level.</p>
+<p>📐 <strong>Definition (Type II Error).</strong> A <em>Type II error</em> (false negative) occurs when <span class="math inline">\(H_1\)</span> is true but we fail to reject <span class="math inline">\(H_0\)</span>. The Type II error rate is:</p>
+<p><span class="math display">\[\beta = \mathbb{P}(\text{fail to reject } H_0 \mid H_1 \text{ true})\]</span></p>
+<p>Note that <span class="math inline">\(\beta\)</span> is not a single number — it depends on the specific value of <span class="math inline">\(\tau\)</span> under <span class="math inline">\(H_1\)</span>. We discuss this further in Section 6.</p>
+<h3 id="the-error-table">4.2 The Error Table 📋</h3>
+<p>The complete classification of outcomes is:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">\(H_0\)</span> True</th>
+<th><span class="math inline">\(H_1\)</span> True</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Reject <span class="math inline">\(H_0\)</span></strong></td>
+<td>Type I error (rate <span class="math inline">\(\alpha\)</span>)</td>
+<td>Correct rejection (rate <span class="math inline">\(1 - \beta\)</span>)</td>
+</tr>
+<tr class="even">
+<td><strong>Fail to reject <span class="math inline">\(H_0\)</span></strong></td>
+<td>Correct retention (rate <span class="math inline">\(1 - \alpha\)</span>)</td>
+<td>Type II error (rate <span class="math inline">\(\beta\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p>The rate <span class="math inline">\(1 - \beta\)</span> is the <em>statistical power</em> of the test (Section 6). The rate <span class="math inline">\(1 - \alpha\)</span> is sometimes called the <em>specificity</em> or <em>true negative rate</em>.</p>
+<h3 id="the-tradeoff-and-sample-size-constraint">4.3 The Tradeoff and Sample Size Constraint</h3>
+<p>For a fixed test statistic and data-generating process, <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are not simultaneously free. Decreasing <span class="math inline">\(\alpha\)</span> (tightening the rejection threshold) increases <span class="math inline">\(\beta\)</span> and vice versa, holding <span class="math inline">\(n\)</span> fixed. The only way to simultaneously reduce both error rates is to increase the sample size <span class="math inline">\(n\)</span>.</p>
+<p>More precisely, for the two-sample z-test under a two-tailed alternative (<span class="math inline">\(H_1: \tau \neq 0\)</span>), the required per-group sample size to achieve error rates <span class="math inline">\((\alpha, \beta)\)</span> at true effect size <span class="math inline">\(\delta\)</span> is:</p>
+<p><span class="math display">\[n = \frac{2\sigma^2 (z_{\alpha/2} + z_\beta)^2}{\delta^2}\]</span></p>
+<p>where <span class="math inline">\(z_{\alpha/2} = \Phi^{-1}(1-\alpha/2)\)</span> and <span class="math inline">\(z_\beta = \Phi^{-1}(1-\beta)\)</span>, and <span class="math inline">\(\Phi\)</span> is the standard normal CDF. The half-<span class="math inline">\(\alpha\)</span> quantile appears because the two-tailed test splits the rejection region equally between both tails. <strong>Simultaneously halving <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> requires increasing <span class="math inline">\(n\)</span> by a constant factor determined by the new quantiles — it cannot be done for free.</strong></p>
+<hr />
+<h2 id="p-values">5. P-values 📊</h2>
+<h3 id="formal-definition">5.1 Formal Definition</h3>
+<p>📐 <strong>Definition (P-value).</strong> Let <span class="math inline">\(t_{\text{obs}}\)</span> be the realized value of the test statistic <span class="math inline">\(W_n\)</span> from the observed data. The <em>p-value</em> is the probability, computed under <span class="math inline">\(H_0\)</span>, of observing a test statistic at least as extreme as <span class="math inline">\(t_{\text{obs}}\)</span>:</p>
+<ul>
+<li><strong>One-tailed (upper):</strong></li>
+</ul>
+<p><span class="math display">\[p = \mathbb{P}(W_n \geq t_{\text{obs}} \mid H_0)\]</span></p>
+<ul>
+<li><strong>Two-tailed:</strong></li>
+</ul>
+<p><span class="math display">\[p = \mathbb{P}(|W_n| \geq |t_{\text{obs}}| \mid H_0) = 2 \cdot \mathbb{P}(W_n \geq |t_{\text{obs}}| \mid H_0)\]</span></p>
+<p>where the second equality holds when the null distribution of <span class="math inline">\(W_n\)</span> is symmetric about zero (as is the case for <span class="math inline">\(W_n \sim \mathcal{N}(0,1)\)</span> under <span class="math inline">\(H_0\)</span>).</p>
+<p>For the standard normal test statistic, these become:</p>
+<p><span class="math display">\[p_{\text{one}} = 1 - \Phi(t_{\text{obs}}), \qquad p_{\text{two}} = 2\bigl(1 - \Phi(|t_{\text{obs}}|)\bigr)\]</span></p>
+<p>The decision rule “reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(p \leq \alpha\)</span>” is equivalent to “reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(W_n\)</span> falls in the rejection region <span class="math inline">\(\mathcal{R}\)</span>,” by construction of the p-value. For a much deeper treatment of p-values — including the uniformity proof, the unified test structure, and the permutation test — see <a href="../../../../notes/p-values.md/">p-values.md</a>.</p>
+<h3 id="the-p-value-is-uniform-under-the-null">5.2 The P-value Is Uniform Under the Null</h3>
+<p>A fundamental and often underappreciated fact is that the p-value, viewed as a random variable before data are collected, is <em>stochastically</em> well-behaved under <span class="math inline">\(H_0\)</span>.</p>
+<p>🔑 <strong>Proposition (Uniformity of P-value Under <span class="math inline">\(H_0\)</span>).</strong> Let <span class="math inline">\(W_n\)</span> be a test statistic with continuous CDF <span class="math inline">\(F_{H_0}\)</span> under <span class="math inline">\(H_0\)</span>. Define the (one-tailed) p-value as the random variable <span class="math inline">\(P = 1 - F_{H_0}(W_n)\)</span>. Then under <span class="math inline">\(H_0\)</span>:</p>
+<p><span class="math display">\[P \sim \mathrm{Uniform}(0, 1)\]</span></p>
+<p><em>Proof.</em> Let <span class="math inline">\(U = F_{H_0}(W_n)\)</span>. We compute the CDF of <span class="math inline">\(U\)</span>:</p>
+<p><span class="math display">\[\mathbb{P}(U \leq u) = \mathbb{P}(F_{H_0}(W_n) \leq u) = \mathbb{P}(W_n \leq F_{H_0}^{-1}(u)) = F_{H_0}(F_{H_0}^{-1}(u)) = u\]</span></p>
+<p>for <span class="math inline">\(u \in [0,1]\)</span>, where the third equality uses the definition of the CDF. Thus <span class="math inline">\(U \sim \mathrm{Uniform}(0,1)\)</span>, and since <span class="math inline">\(P = 1 - U\)</span>, we also have <span class="math inline">\(P \sim \mathrm{Uniform}(0,1)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>💡 This result — the <em>probability integral transform</em> — has an immediate consequence: under <span class="math inline">\(H_0\)</span>, we expect roughly <span class="math inline">\(5\%\)</span> of p-values to fall below <span class="math inline">\(0.05\)</span> by chance. Running many tests and reporting only those with <span class="math inline">\(p &lt; 0.05\)</span> therefore inflates the false discovery rate. This is the statistical basis for the <em>multiple comparisons problem</em>.</p>
+<p>⚠️ <em>This uniformity holds only for continuous test statistics and point null hypotheses. Discrete distributions produce p-values that are stochastically larger than uniform, so the test is conservative.</em></p>
+<h3 id="common-misconceptions">5.3 Common Misconceptions</h3>
+<p>The p-value is one of the most frequently misinterpreted quantities in applied statistics. We state the correct interpretation and catalog the principal errors. A more detailed treatment with formal diagnoses is in <a href="../../../../notes/p-values.md#6.-common-misinterpretations%7Csection-6-of-p-values.md/">p-values.md#6. Common Misinterpretations|Section 6 of p-values.md</a>.</p>
+<p><strong>Correct interpretation.</strong> The p-value <span class="math inline">\(p\)</span> is the probability, under the assumption that <span class="math inline">\(H_0\)</span> is true, of observing data at least as extreme as what was actually observed. It measures the compatibility of the data with <span class="math inline">\(H_0\)</span>.</p>
+<p>⚠️ <strong>Misconception 1: “The p-value is the probability that <span class="math inline">\(H_0\)</span> is true.”</strong></p>
+<p>This is the <em>prosecutor’s fallacy</em>, a confusion of <span class="math inline">\(\mathbb{P}(\text{data} \mid H_0)\)</span> with <span class="math inline">\(\mathbb{P}(H_0 \mid \text{data})\)</span>. The p-value is a frequentist object — <span class="math inline">\(H_0\)</span> is either true or false, not a random event with a probability. Making probabilistic statements about <span class="math inline">\(H_0\)</span> requires a prior, which is the domain of Bayesian inference (see <a href="../../../../notes/bayesian-testing.md/">bayesian-testing.md</a>).</p>
+<p>⚠️ <strong>Misconception 2: “A small p-value means the effect is large.”</strong></p>
+<p>The p-value conflates effect size with sample size. With <span class="math inline">\(n = 10^7\)</span>, a negligible effect <span class="math inline">\(\delta = 0.0001\)</span> can produce <span class="math inline">\(p &lt; 10^{-10}\)</span>. Conversely, a large effect in a small sample may yield <span class="math inline">\(p = 0.15\)</span>. Effect size must be assessed separately (Section 7). The <a href="https://doi.org/10.1080/00031305.2016.1154108">ASA statement on p-values</a> explicitly flags this as one of the most consequential misuses in practice.</p>
+<p>⚠️ <strong>Misconception 3: “The p-value is the probability the result occurred by chance.”</strong></p>
+<p>This is an informal gloss that is technically incoherent: probability is a property of random events under a model, not a property of an observed result. The observed data are fixed; the randomness lives in the hypothetical sampling distribution under <span class="math inline">\(H_0\)</span>.</p>
+<hr />
+<h2 id="statistical-power">6. Statistical Power ⚡</h2>
+<h3 id="definition-and-the-power-function">6.1 Definition and the Power Function</h3>
+<p>📐 <strong>Definition (Power).</strong> The <em>statistical power</em> of a test is the probability of correctly rejecting <span class="math inline">\(H_0\)</span> when <span class="math inline">\(H_1\)</span> is true:</p>
+<p><span class="math display">\[1 - \beta = \mathbb{P}(\text{reject } H_0 \mid H_1 \text{ true})\]</span></p>
+<p>Because “H_1 true” is not a single hypothesis but a family of alternatives parameterized by the true effect <span class="math inline">\(\delta = \tau\)</span>, power is properly a function of <span class="math inline">\(\delta\)</span>.</p>
+<p>📐 <strong>Definition (Power Function).</strong> The <em>power function</em> <span class="math inline">\(\pi : \mathbb{R} \to [0,1]\)</span> is defined as:</p>
+<p><span class="math display">\[\pi(\delta) = \mathbb{P}_\delta(\text{reject } H_0)\]</span></p>
+<p>where <span class="math inline">\(\mathbb{P}_\delta\)</span> denotes probability computed under the distribution with true effect size <span class="math inline">\(\delta\)</span>. For the two-sample z-test with significance level <span class="math inline">\(\alpha\)</span> and per-group sample size <span class="math inline">\(n\)</span>, the test statistic under true effect <span class="math inline">\(\delta\)</span> is:</p>
+<p><span class="math display">\[Z = \frac{\hat{\tau} - 0}{\sqrt{2\sigma^2/n}} \sim \mathcal{N}\!\left(\frac{\delta}{\sqrt{2\sigma^2/n}},\, 1\right)\]</span></p>
+<p>The non-centrality parameter is <span class="math inline">\(\lambda = \delta\sqrt{n/(2\sigma^2)}\)</span>. For a two-tailed test with critical value <span class="math inline">\(z_{\alpha/2} = \Phi^{-1}(1 - \alpha/2)\)</span>:</p>
+<p><span class="math display">\[\pi(\delta) = \mathbb{P}(|Z| &gt; z_{\alpha/2} \mid \delta) = 1 - \Phi(z_{\alpha/2} - \lambda) + \Phi(-z_{\alpha/2} - \lambda)\]</span></p>
+<p>For <span class="math inline">\(\delta &gt; 0\)</span> sufficiently large, the second term is negligible: since <span class="math inline">\(\lambda &gt; 0\)</span> and <span class="math inline">\(z_{\alpha/2} &gt; 0\)</span>, we have <span class="math inline">\(\Phi(-z_{\alpha/2} - \lambda) &lt; \Phi(-z_{\alpha/2}) = \alpha/2\)</span>. Dropping it:</p>
+<p><span class="math display">\[\pi(\delta) \approx 1 - \Phi(z_{\alpha/2} - \lambda) = \Phi(\lambda - z_{\alpha/2})\]</span></p>
+<p>Three properties of <span class="math inline">\(\pi(\delta)\)</span> follow directly:</p>
+<ol type="1">
+<li><span class="math inline">\(\pi(0) = \alpha\)</span> — at the null, power equals the Type I error rate.</li>
+<li><span class="math inline">\(\pi(\delta) \to 1\)</span> as <span class="math inline">\(|\delta| \to \infty\)</span> — a sufficiently large effect is always detected.</li>
+<li><span class="math inline">\(\pi(\delta)\)</span> is symmetric about <span class="math inline">\(\delta = 0\)</span> for the two-tailed test.</li>
+</ol>
+<h3 id="factors-governing-power">6.2 Factors Governing Power 📋</h3>
+<p>From the expression <span class="math inline">\(\lambda = \delta\sqrt{n/(2\sigma^2)}\)</span>, power increases monotonically in <span class="math inline">\(\lambda\)</span>. We can read off the dependence on each design parameter:</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 52%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Effect on <span class="math inline">\(\pi(\delta)\)</span></th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(n\)</span> (sample size)</td>
+<td>↑ increases</td>
+<td>Larger <span class="math inline">\(n\)</span> shrinks <span class="math inline">\(\text{SE}(\hat{\tau})\)</span>, increasing the signal-to-noise ratio <span class="math inline">\(\lambda\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(|\delta|\)</span> (effect size)</td>
+<td>↑ increases</td>
+<td>Larger true effect makes the departure from <span class="math inline">\(H_0\)</span> easier to detect</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha\)</span> (significance level)</td>
+<td>↑ increases</td>
+<td>A laxer threshold makes rejection easier, at the cost of more Type I errors</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma^2\)</span> (outcome variance)</td>
+<td>↓ decreases</td>
+<td>More noise in <span class="math inline">\(Y\)</span> inflates <span class="math inline">\(\text{SE}(\hat{\tau})\)</span> and reduces signal-to-noise</td>
+</tr>
+</tbody>
+</table>
+<p>💡 <em>Reducing <span class="math inline">\(\sigma^2\)</span> through variance reduction techniques — stratification, <a href="https://dl.acm.org/doi/10.1145/2487575.2488217">CUPED</a>, regression adjustment — is often more practical than increasing <span class="math inline">\(n\)</span>, especially when sample acquisition is costly.</em></p>
+<h3 id="standard-power-targets">6.3 Standard Power Targets</h3>
+<p>The industry and clinical trial convention is to target <span class="math inline">\(1 - \beta = 0.80\)</span>, corresponding to a <span class="math inline">\(20\%\)</span> chance of missing a true effect. More stringent applications (e.g., safety-critical trials, confirmatory experiments) use <span class="math inline">\(1 - \beta = 0.90\)</span>. These thresholds are conventions, not laws: the appropriate target depends on the relative costs of Type I and Type II errors in the specific decision context.</p>
+<hr />
+<h2 id="effect-size-and-mde">7. Effect Size and MDE 📏</h2>
+<h3 id="standardized-effect-sizes">7.1 Standardized Effect Sizes</h3>
+<p>Raw differences in means <span class="math inline">\(\hat{\tau} = \bar{Y}_1 - \bar{Y}_0\)</span> are not scale-invariant: a difference of 5 seconds is large for page load time but negligible for session duration. <em>Cohen’s d</em> provides a dimensionless standardization.</p>
+<p>📐 <strong>Definition (Cohen’s d).</strong> For two populations with means <span class="math inline">\(\mu_1, \mu_0\)</span> and common standard deviation <span class="math inline">\(\sigma\)</span>, <em>Cohen’s d</em> is:</p>
+<p><span class="math display">\[d = \frac{\mu_1 - \mu_0}{\sigma}\]</span></p>
+<p><a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203771587/statistical-power-analysis-behavioral-sciences-jacob-cohen">Cohen’s (1988)</a> interpretive benchmarks — small (<span class="math inline">\(d \approx 0.2\)</span>), medium (<span class="math inline">\(d \approx 0.5\)</span>), large (<span class="math inline">\(d \approx 0.8\)</span>) — are heuristics derived from behavioral science. In technology product experimentation, practically significant effects are often much smaller (e.g., <span class="math inline">\(d &lt; 0.05\)</span>), which is why sample sizes in industry A/B tests are often in the millions.</p>
+<p>When the two groups have unequal variances <span class="math inline">\(\sigma_0^2\)</span> and <span class="math inline">\(\sigma_1^2\)</span>, the pooled standard deviation:</p>
+<p><span class="math display">\[\sigma_{\text{pooled}} = \sqrt{\frac{(n_0 - 1)\sigma_0^2 + (n_1 - 1)\sigma_1^2}{n_0 + n_1 - 2}}\]</span></p>
+<p>is used in place of <span class="math inline">\(\sigma\)</span> in the denominator of <span class="math inline">\(d\)</span>.</p>
+<h3 id="relative-lift">7.2 Relative Lift</h3>
+<p>For metrics with a natural baseline (click-through rate, revenue, conversion rate), the <em>relative lift</em> is often more interpretable than the absolute difference:</p>
+<p>📐 <strong>Definition (Relative Lift).</strong> Given a baseline mean <span class="math inline">\(\mu_0 &gt; 0\)</span> and treatment mean <span class="math inline">\(\mu_1\)</span>:</p>
+<p><span class="math display">\[\delta_r = \frac{\mu_1 - \mu_0}{\mu_0} = \frac{\mu_1}{\mu_0} - 1\]</span></p>
+<p>This is the fractional change in the metric due to treatment. A relative lift of <span class="math inline">\(\delta_r = 0.02\)</span> means a <span class="math inline">\(2\%\)</span> improvement over baseline. ⚠️ <em>When <span class="math inline">\(\mu_0\)</span> is estimated from data rather than known exactly, <span class="math inline">\(\delta_r\)</span> becomes a ratio estimator and its variance calculation requires the delta method.</em></p>
+<h3 id="minimum-detectable-effect-definition">7.3 Minimum Detectable Effect: Definition</h3>
+<p>📐 <strong>Definition (MDE).</strong> Given a fixed experimental design — significance level <span class="math inline">\(\alpha\)</span>, power target <span class="math inline">\(1 - \beta\)</span>, per-group sample size <span class="math inline">\(n\)</span>, and outcome variance <span class="math inline">\(\sigma^2\)</span> — the <em>minimum detectable effect</em> (MDE) is the smallest absolute effect size <span class="math inline">\(\delta &gt; 0\)</span> such that the test achieves power at least <span class="math inline">\(1 - \beta\)</span>:</p>
+<p><span class="math display">\[\text{MDE} = \inf\{\delta &gt; 0 : \pi(\delta) \geq 1 - \beta\}\]</span></p>
+<p>The MDE provides a concrete, pre-experiment statement about the resolution of the test: effects smaller than the MDE will be detected less than <span class="math inline">\(100(1-\beta)\%\)</span> of the time.</p>
+<h3 id="derivation-of-the-mde-for-a-two-sample-z-test">7.4 Derivation of the MDE for a Two-Sample Z-test 📐</h3>
+<p>We derive a closed-form expression for the MDE under the two-sample z-test with equal group sizes.</p>
+<p><strong>Setup.</strong> Suppose the outcome <span class="math inline">\(Y_i\)</span> has variance <span class="math inline">\(\sigma^2\)</span> in both groups (homoskedastic case). With <span class="math inline">\(n\)</span> observations per group, the estimator <span class="math inline">\(\hat{\tau} = \bar{Y}_1 - \bar{Y}_0\)</span> has variance:</p>
+<p><span class="math display">\[\text{Var}(\hat{\tau}) = \frac{\sigma^2}{n} + \frac{\sigma^2}{n} = \frac{2\sigma^2}{n}\]</span></p>
+<p>The test statistic is:</p>
+<p><span class="math display">\[Z = \frac{\hat{\tau}}{\sqrt{2\sigma^2/n}} \sim \mathcal{N}(0, 1) \text{ under } H_0\]</span></p>
+<p><strong>Step 1: Rejection condition.</strong> For a two-tailed test at level <span class="math inline">\(\alpha\)</span>, we reject <span class="math inline">\(H_0\)</span> when <span class="math inline">\(|Z| &gt; z_{\alpha/2}\)</span>, where <span class="math inline">\(z_{\alpha/2} = \Phi^{-1}(1 - \alpha/2)\)</span>.</p>
+<p><strong>Step 2: Distribution under a true effect <span class="math inline">\(\delta\)</span>.</strong> When the true ATE is <span class="math inline">\(\delta \neq 0\)</span>:</p>
+<p><span class="math display">\[Z = \frac{\hat{\tau}}{\sqrt{2\sigma^2/n}} \sim \mathcal{N}\!\left(\frac{\delta}{\sqrt{2\sigma^2/n}},\, 1\right)\]</span></p>
+<p>The non-centrality parameter is <span class="math inline">\(\lambda(\delta) = \delta / \sqrt{2\sigma^2/n} = \delta\sqrt{n/(2\sigma^2)}\)</span>.</p>
+<p><strong>Step 3: Power equation.</strong> For <span class="math inline">\(\delta &gt; 0\)</span>, the full power expression is <span class="math inline">\(\pi(\delta) = \Phi(\lambda - z_{\alpha/2}) + \Phi(-\lambda - z_{\alpha/2})\)</span>. The left-tail term <span class="math inline">\(\Phi(-\lambda - z_{\alpha/2})\)</span> is negligible: since <span class="math inline">\(\lambda &gt; 0\)</span> and <span class="math inline">\(z_{\alpha/2} &gt; 0\)</span>, we have <span class="math inline">\(\Phi(-z_{\alpha/2} - \lambda) &lt; \Phi(-z_{\alpha/2}) = \alpha/2\)</span>. Dropping it:</p>
+<p><span class="math display">\[\pi(\delta) = \mathbb{P}(Z &gt; z_{\alpha/2} \mid \delta) = \mathbb{P}\!\left(\mathcal{N}(\lambda, 1) &gt; z_{\alpha/2}\right) = \Phi\bigl(\lambda - z_{\alpha/2}\bigr)\]</span></p>
+<p><strong>Step 4: Solve for MDE.</strong> The MDE is the smallest <span class="math inline">\(\delta\)</span> achieving <span class="math inline">\(\pi(\delta) = 1 - \beta\)</span>:</p>
+<p><span class="math display">\[\Phi(\lambda - z_{\alpha/2}) = 1 - \beta\]</span></p>
+<p>Since <span class="math inline">\(\Phi^{-1}(1 - \beta) = z_\beta\)</span> (where we use the shorthand <span class="math inline">\(z_p = \Phi^{-1}(1-p)\)</span> for tail quantiles):</p>
+<p><span class="math display">\[\lambda - z_{\alpha/2} = z_\beta \implies \frac{\delta}{\sqrt{2\sigma^2/n}} = z_{\alpha/2} + z_\beta\]</span></p>
+<p>Solving for <span class="math inline">\(\delta\)</span>:</p>
+<p><span class="math display">\[\boxed{\text{MDE} = (z_{\alpha/2} + z_\beta)\sqrt{\frac{2\sigma^2}{n}}}\]</span></p>
+<p>For a one-tailed test at level <span class="math inline">\(\alpha\)</span>, replace <span class="math inline">\(z_{\alpha/2}\)</span> with <span class="math inline">\(z_\alpha\)</span>:</p>
+<p><span class="math display">\[\text{MDE}_{\text{one-tailed}} = (z_\alpha + z_\beta)\sqrt{\frac{2\sigma^2}{n}}\]</span></p>
+<p><strong>Numerical example.</strong> With <span class="math inline">\(\alpha = 0.05\)</span> (two-tailed), <span class="math inline">\(1 - \beta = 0.80\)</span>, <span class="math inline">\(\sigma^2 = 1\)</span>:</p>
+<p><span class="math display">\[z_{0.025} = 1.96, \quad z_{0.20} = 0.842\]</span></p>
+<p><span class="math display">\[\text{MDE} = (1.96 + 0.842)\sqrt{2/n} = 2.802\sqrt{2/n} \approx \frac{3.96}{\sqrt{n}}\]</span></p>
+<h3 id="practical-implications">7.5 Practical Implications 💡</h3>
+<p>From the MDE formula, several structural observations follow:</p>
+<ol type="1">
+<li><p><strong>MDE scales as <span class="math inline">\(1/\sqrt{n}\)</span>.</strong> Quadrupling the sample size halves the MDE. This is the square-root law of statistics: detecting effects twice as small requires four times the sample. <strong>Investments in sample size exhibit strongly diminishing returns for effect size resolution.</strong></p></li>
+<li><p><strong>Equivalently, solving for <span class="math inline">\(n\)</span>:</strong>
+<span class="math display">\[n = \frac{2\sigma^2(z_{\alpha/2} + z_\beta)^2}{\delta^2}\]</span>
+The required <span class="math inline">\(n\)</span> scales as <span class="math inline">\(\delta^{-2}\)</span>: detecting effects half as large requires four times the sample.</p></li>
+<li><p><strong>Variance reduction directly improves MDE.</strong> Any technique that reduces <span class="math inline">\(\sigma^2\)</span> — stratified randomization, <a href="https://dl.acm.org/doi/10.1145/2487575.2488217">CUPED</a>, regression adjustment — reduces the MDE proportionally to <span class="math inline">\(\sqrt{\sigma^2_{\text{new}}/\sigma^2_{\text{old}}}\)</span>.</p></li>
+<li><p><strong>The MDE is a property of the experiment, not the data.</strong> It should be computed before running the test and used to determine whether the experimental design is capable of detecting effects of practical significance. ⚠️ <em>Running an underpowered experiment is a form of resource waste: it cannot reliably detect true effects and its null results are uninformative.</em></p></li>
+</ol>
+<hr />
+<h2 id="references">8. References 📚</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">Imbens &amp; Rubin, <em>Causal Inference for Statistics, Social, and Biomedical Sciences</em> (2015)</a></td>
+<td>Definitive textbook treatment of the potential outcomes framework, SUTVA, and identification in randomized experiments</td>
+<td><a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">Cambridge University Press</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1037/h0037350">Rubin, “Estimating Causal Effects of Treatments in Randomized and Nonrandomized Studies” (1974)</a></td>
+<td>Original paper introducing the potential outcomes notation <span class="math inline">\(Y_i(0), Y_i(1)\)</span> and the modern causal inference framework</td>
+<td><a href="https://doi.org/10.1037/h0037350">Journal of Educational Psychology</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1214/ss/1177012031">Neyman, “On the Application of Probability Theory to Agricultural Experiments” (1923/1990)</a></td>
+<td>Foundational paper introducing the finite-population potential outcomes framework and the difference-in-means estimator</td>
+<td><a href="https://doi.org/10.1214/ss/1177012031">Statistical Science (reprint)</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203771587/statistical-power-analysis-behavioral-sciences-jacob-cohen">Cohen, <em>Statistical Power Analysis for the Behavioral Sciences</em>, 2nd ed. (1988)</a></td>
+<td>Canonical reference for power analysis, effect size conventions (Cohen’s d), and MDE; standard industry reference</td>
+<td><a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203771587/statistical-power-analysis-behavioral-sciences-jacob-cohen">Taylor &amp; Francis</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://link.springer.com/book/10.1007/0-387-27605-X">Lehmann &amp; Romano, <em>Testing Statistical Hypotheses</em>, 3rd ed. (2005)</a></td>
+<td>Rigorous mathematical treatment of hypothesis testing, p-values, power functions, and uniformly most powerful tests</td>
+<td><a href="https://link.springer.com/book/10.1007/0-387-27605-X">Springer</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://dl.acm.org/doi/10.1145/2487575.2488217">Deng et al., “Improving the Sensitivity of Online Controlled Experiments by Utilizing Pre-Experiment Data” (2013)</a></td>
+<td>Introduces CUPED for variance reduction in A/B tests; shows how to reduce effective <span class="math inline">\(\sigma^2\)</span> without increasing <span class="math inline">\(n\)</span></td>
+<td><a href="https://dl.acm.org/doi/10.1145/2487575.2488217">ACM KDD</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59">Kohavi, Tang &amp; Xu, <em>Trustworthy Online Controlled Experiments</em> (2020)</a></td>
+<td>Comprehensive practitioner guide covering A/B test design, SUTVA violations, network effects, and metric design</td>
+<td><a href="https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59">Cambridge University Press</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://alexdeng.github.io/causal/rcm.html">Alex Deng, “Potential Outcomes Framework — Causal Inference and Its Applications in Online Industry”</a></td>
+<td>Online lecture notes linking the RCM to industry A/B testing practice; concise treatment of identification</td>
+<td><a href="https://alexdeng.github.io/causal/rcm.html">alexdeng.github.io</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://statproofbook.github.io/P/pval-h0.html">The Book of Statistical Proofs, “P-value follows Uniform(0,1) under <span class="math inline">\(H_0\)</span>”</a></td>
+<td>Formal proof of the probability integral transform argument establishing p-value uniformity</td>
+<td><a href="https://statproofbook.github.io/P/pval-h0.html">statproofbook.github.io</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

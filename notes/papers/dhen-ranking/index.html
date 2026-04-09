@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>dhen-ranking - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>dhen-ranking</h1>
+            <article>
+    <section>
+        <p>Buyun Zhang, Liang Luo, Xi Liu, Jay Li, Zeliang Chen, Weilin Zhang, Xiaohan Wei, Yuchen Hao, Michael Tsang, Wenjun Wang, Yang Liu, Huayu Li, Yasmine Badr, Jongsoo Park, Jiyan Yang, Dheevatsa Mudigere, Ellie Wen. KDD 2022. Meta Platforms, Inc.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Model architecture</td>
+<td>Single interaction module stacked homogeneously (DCN, AutoInt, xDeepFM, etc.)</td>
+<td>Hierarchical ensemble of heterogeneous interaction modules stacked in multiple layers</td>
+<td>+0.27% NE improvement over AdvancedDLRM (= −0.273% NE at 25B examples)</td>
+</tr>
+<tr class="even">
+<td>Interaction modeling</td>
+<td>One module type per model; high-order interactions from deeper stacking of the same block</td>
+<td>Five module types (AdvancedDLRM, self-attention, DCN, linear, convolution) combined per layer; each layer feeds into the next</td>
+<td><span class="math inline">\(k^N\)</span> distinct interaction compositions with <span class="math inline">\(k\)</span> modules and <span class="math inline">\(N\)</span> layers</td>
+</tr>
+<tr class="odd">
+<td>Ensemble approach</td>
+<td>Implicit (ensemble by training multiple separate models) or absent</td>
+<td>Explicit intra-layer ensemble with residual shortcut; ensemble output is the next layer’s input</td>
+<td>Heterogeneous ensemble outperforms every individual module and homogeneous stack at all depths</td>
+</tr>
+<tr class="even">
+<td>Training</td>
+<td>Standard data parallel or model parallel; DP limited to model sizes fitting in per-GPU HBM</td>
+<td>Hybrid Sharded Data Parallel (HSDP): shard within host over NVLink, allreduce across hosts</td>
+<td>HSDP achieves 1.2x throughput over FSDP on a 256-GPU cluster</td>
+</tr>
+<tr class="odd">
+<td>Empirical gains</td>
+<td>State-of-the-art AdvancedDLRM (internal Meta baseline)</td>
+<td>+0.27% NE improvement; 1.2x training throughput over FSDP on a 256-GPU cluster</td>
+<td>DHEN outperforms MoE at matched FLOPs: -0.26% NE vs. -0.10% NE at ~5G FLOPs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Extended by:</strong> <a href="../../../notes/papers/generative-recommenders/wukong%7Cwukong/">papers/generative-recommenders/wukong|Wukong</a>, <a href="../../../notes/papers/generative-recommenders/hstu%7Chstu/">papers/generative-recommenders/hstu|HSTU</a>
+<strong>Concepts used:</strong> <a href="../../../notes/concepts/ab-testing/foundations%7Ca/b-testing-foundations/">concepts/ab-testing/foundations|A/B Testing Foundations</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#1.-motivation-and-background%7C1.-motivation-and-background/">#1. Motivation and Background|1. Motivation and Background</a>
+<ul>
+<li><a href="../../../notes/#1.1-limitations-of-prior-ranking-architectures%7C1.1-limitations-of-prior-ranking-architectures/">#1.1 Limitations of Prior Ranking Architectures|1.1 Limitations of Prior Ranking Architectures</a></li>
+<li><a href="../../../notes/#1.2-the-non-overlapping-information-hypothesis%7C1.2-the-non-overlapping-information-hypothesis/">#1.2 The Non-Overlapping Information Hypothesis|1.2 The Non-Overlapping Information Hypothesis</a></li>
+</ul></li>
+<li><a href="../../../notes/#2.-architecture-overview%7C2.-architecture-overview/">#2. Architecture Overview|2. Architecture Overview</a>
+<ul>
+<li><a href="../../../notes/#2.1-feature-processing-layer%7C2.1-feature-processing-layer/">#2.1 Feature Processing Layer|2.1 Feature Processing Layer</a></li>
+<li><a href="../../../notes/#2.2-the-dhen-layer:-formal-definition%7C2.2-the-dhen-layer:-formal-definition/">#2.2 The DHEN Layer: Formal Definition|2.2 The DHEN Layer: Formal Definition</a></li>
+</ul></li>
+<li><a href="../../../notes/#3.-feature-interaction-modules%7C3.-feature-interaction-modules/">#3. Feature Interaction Modules|3. Feature Interaction Modules</a>
+<ul>
+<li><a href="../../../notes/#3.1-advanceddlrm%7C3.1-advanceddlrm/">#3.1 AdvancedDLRM|3.1 AdvancedDLRM</a></li>
+<li><a href="../../../notes/#3.2-self-attention%7C3.2-self-attention/">#3.2 Self-Attention|3.2 Self-Attention</a></li>
+<li><a href="../../../notes/#3.3-deep-cross-net%7C3.3-deep-cross-net/">#3.3 Deep Cross Net|3.3 Deep Cross Net</a></li>
+<li><a href="../../../notes/#3.4-linear%7C3.4-linear/">#3.4 Linear|3.4 Linear</a></li>
+<li><a href="../../../notes/#3.5-convolution%7C3.5-convolution/">#3.5 Convolution|3.5 Convolution</a></li>
+</ul></li>
+<li><a href="../../../notes/#4.-hierarchical-ensemble%7C4.-hierarchical-ensemble/">#4. Hierarchical Ensemble|4. Hierarchical Ensemble</a>
+<ul>
+<li><a href="../../../notes/#4.1-ensemble-aggregation%7C4.1-ensemble-aggregation/">#4.1 Ensemble Aggregation|4.1 Ensemble Aggregation</a></li>
+<li><a href="../../../notes/#4.2-residual-shortcut-and-dimension-matching%7C4.2-residual-shortcut-and-dimension-matching/">#4.2 Residual Shortcut and Dimension Matching|4.2 Residual Shortcut and Dimension Matching</a></li>
+<li><a href="../../../notes/#4.3-stacking-and-mixture-of-high-order-interactions%7C4.3-stacking-and-mixture-of-high-order-interactions/">#4.3 Stacking and Mixture of High-Order Interactions|4.3 Stacking and Mixture of High-Order Interactions</a></li>
+</ul></li>
+<li><a href="../../../notes/#5.-relation-to-prior-work%7C5.-relation-to-prior-work/">#5. Relation to Prior Work|5. Relation to Prior Work</a></li>
+<li><a href="../../../notes/#6.-training-and-system-details%7C6.-training-and-system-details/">#6. Training and System Details|6. Training and System Details</a>
+<ul>
+<li><a href="../../../notes/#6.1-distributed-training-strategy%7C6.1-distributed-training-strategy/">#6.1 Distributed Training Strategy|6.1 Distributed Training Strategy</a></li>
+<li><a href="../../../notes/#6.2-fully-sharded-data-parallel%7C6.2-fully-sharded-data-parallel/">#6.2 Fully Sharded Data Parallel|6.2 Fully Sharded Data Parallel</a></li>
+<li><a href="../../../notes/#6.3-hybrid-sharded-data-parallel%7C6.3-hybrid-sharded-data-parallel/">#6.3 Hybrid Sharded Data Parallel|6.3 Hybrid Sharded Data Parallel</a></li>
+<li><a href="../../../notes/#6.4-common-optimizations%7C6.4-common-optimizations/">#6.4 Common Optimizations|6.4 Common Optimizations</a></li>
+</ul></li>
+<li><a href="../../../notes/#7.-experiments%7C7.-experiments/">#7. Experiments|7. Experiments</a>
+<ul>
+<li><a href="../../../notes/#7.1-setup%7C7.1-setup/">#7.1 Setup|7.1 Setup</a></li>
+<li><a href="../../../notes/#7.2-interaction-module-ablation%7C7.2-interaction-module-ablation/">#7.2 Interaction Module Ablation|7.2 Interaction Module Ablation</a></li>
+<li><a href="../../../notes/#7.3-dhen-vs.-advanceddlrm%7C7.3-dhen-vs.-advanceddlrm/">#7.3 DHEN vs. AdvancedDLRM|7.3 DHEN vs. AdvancedDLRM</a></li>
+<li><a href="../../../notes/#7.4-scaling-efficiency-vs.-mixture-of-experts%7C7.4-scaling-efficiency-vs.-mixture-of-experts/">#7.4 Scaling Efficiency vs. Mixture of Experts|7.4 Scaling Efficiency vs. Mixture of Experts</a></li>
+<li><a href="../../../notes/#7.5-training-throughput%7C7.5-training-throughput/">#7.5 Training Throughput|7.5 Training Throughput</a></li>
+</ul></li>
+<li><a href="../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-and-background">1. Motivation and Background</h2>
+<p><em>Click-through rate</em> (CTR) prediction is the core inference task in online advertising: given a user context and an ad candidate, estimate <span class="math inline">\(p(\text{click} \mid \text{user}, \text{ad})\)</span>. The revenue implications are enormous; the US digital ad market reached $284.3B in 2021.</p>
+<h3 id="limitations-of-prior-ranking-architectures">1.1 Limitations of Prior Ranking Architectures</h3>
+<p>The evolution of ranking models follows a rough trajectory:</p>
+<ol type="1">
+<li><strong>Linear models</strong> (logistic regression): <span class="math inline">\(p = \sigma(\mathbf{w}^\top \mathbf{x})\)</span>. Cannot capture non-linear feature interactions.</li>
+<li><strong><em>Factorization Machines</em> (FM)</strong>: Model second-order interactions via latent embeddings, <span class="math inline">\(\hat{y} = w_0 + \sum_i w_i x_i + \sum_{i&lt;j} \langle \mathbf{v}_i, \mathbf{v}_j \rangle x_i x_j\)</span>. Shallow; limited expressivity.</li>
+<li><strong>Deep FM / Wide &amp; Deep / DCN / xDeepFM / AutoInt</strong>: Stack a deep neural network alongside or on top of an explicit interaction module to capture high-order interactions. These all share a common structural limitation: each model is built around a <em>single type</em> of interaction module, homogeneously stacked.</li>
+</ol>
+<p>The paper identifies three concrete limitations of the homogeneous-stacking paradigm:</p>
+<ul>
+<li><strong>Performance variance across datasets.</strong> Different interaction modules (claiming the same bounded interaction degree) achieve different rankings on different datasets, indicating that the information they capture is not identical.</li>
+<li><strong>Diminishing or negative returns from depth.</strong> Empirically, stacking more layers of the same module can <em>hurt</em> performance (documented in DCN Figure 3, xDeepFM Figure 7a, InterHAt Figure 4, xDeepInt Table 2, GIN Figure 3a). This is theoretically surprising: higher-order interactions should be at least as expressive.</li>
+<li><strong>No mechanism to capture module correlations.</strong> A homogeneous stack cannot learn how the outputs of <em>different</em> interaction types relate to one another.</li>
+</ul>
+<h3 id="the-non-overlapping-information-hypothesis">1.2 The Non-Overlapping Information Hypothesis</h3>
+<p>The paper’s central hypothesis is:</p>
+<blockquote>
+<p>Different interaction modules — even those designed to capture the same order of interaction — encode <em>non-overlapping information</em> about the feature space.</p>
+</blockquote>
+<p>This motivates an ensemble of <em>heterogeneous</em> modules within each layer. Rather than depth alone yielding richer interactions, the combination of diverse module outputs yields complementary signal. The hierarchical stacking of such ensemble layers then compounds the benefit across orders.</p>
+<hr />
+<h2 id="architecture-overview">2. Architecture Overview</h2>
+<p>DHEN follows the same high-level template as modern vision and NLP architectures (ResNet, Transformer, MetaFormer): a deep stacking structure where a repeating block processes inputs recursively. The novelty is that each block is not a single interaction module, but a <em>hierarchical ensemble</em> of heterogeneous interaction modules.</p>
+<p>The full DHEN pipeline is:</p>
+<p><span class="math display">\[\text{raw features} \;\longrightarrow\; \text{Feature Processing Layer} \;\longrightarrow\; \underbrace{[\text{DHEN Layer}] \;\times\; N}_{\text{hierarchical ensemble}} \;\longrightarrow\; \text{prediction head}\]</span></p>
+<h3 id="feature-processing-layer">2.1 Feature Processing Layer</h3>
+<p>CTR inputs contain two feature types:</p>
+<ul>
+<li><strong><em>Sparse</em> (categorical) features</strong>: mapped via <em>embedding lookup</em> tables. Each categorical term is assigned a trainable <span class="math inline">\(d\)</span>-dimensional vector.</li>
+<li><strong><em>Dense</em> (numerical) features</strong>: processed by a stack of MLP layers to produce a <span class="math inline">\(d\)</span>-dimensional vector.</li>
+</ul>
+<p>After concatenation, the output of the feature processing layer is:</p>
+<p><span class="math display">\[X^0 = (x^0_1, x^0_2, \ldots, x^0_m) \in \mathbb{R}^{d \times m}\]</span></p>
+<p>where <span class="math inline">\(m\)</span> is the total number of output embedding slots (sparse lookups plus dense MLP outputs) and <span class="math inline">\(d\)</span> is the embedding dimension. This representation <span class="math inline">\(X^0\)</span> is the input to the first DHEN layer.</p>
+<p><img src="figures/dhen-ranking/dhen2022-fig3-feature-processing-layer.png" alt="Figure 3 from Zhang et al. (2022): feature processing layer architecture" />
+<em>Figure 3 (Zhang et al., 2022): The feature processing layer in DHEN — sparse categorical features go through embedding lookup tables while dense numerical features go through MLP layers; outputs are concatenated to form <span class="math inline">\(X^0 \in \mathbb{R}^{d \times m}\)</span>.</em></p>
+<h3 id="the-dhen-layer-formal-definition">2.2 The DHEN Layer: Formal Definition</h3>
+<p>Let <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span> denote the embedding matrix input to the <span class="math inline">\(n\)</span>-th DHEN layer (with <span class="math inline">\(X_0 \equiv X^0\)</span>). The output of a single DHEN layer is:</p>
+<p><span class="math display">\[Y = \text{Norm}\!\left(\operatorname{Ensemble}_{i=1}^{k} \operatorname{Interaction}_i(X_n) + \operatorname{ShortCut}(X_n)\right) \tag{1}\]</span></p>
+<p>where:</p>
+<p><span class="math display">\[\operatorname{ShortCut}(X_n) = \begin{cases} X_n &amp; \text{if } \operatorname{len}(X_n) = \operatorname{len}(Y) \\ W_n X_n &amp; \text{if } \operatorname{len}(X_n) \neq \operatorname{len}(Y) \end{cases} \tag{2}\]</span></p>
+<ul>
+<li><span class="math inline">\(\text{Norm}(\cdot)\)</span> is <em>layer normalization</em>.</li>
+<li><span class="math inline">\(\operatorname{Ensemble}_{i=1}^{k}\)</span> denotes an aggregation function over <span class="math inline">\(k\)</span> interaction module outputs; options include concatenation, sum, or weighted sum.</li>
+<li><span class="math inline">\(W_n \in \mathbb{R}^{\operatorname{len}(X_n) \times \operatorname{len}(Y)}\)</span> is a learned linear projection applied only when dimension mismatch occurs.</li>
+<li>The output <span class="math inline">\(Y\)</span> becomes the input <span class="math inline">\(X_{n+1}\)</span> to the next layer.</li>
+</ul>
+<p>The shortcut plays a dual role: it acts as a <em>residual shortcut</em> (stabilizing gradient flow across depth) and as a dimension-matching projection.</p>
+<p><img src="figures/dhen-ranking/dhen2022-fig1-hierarchical-ensemble-building-block.jpg" alt="Figure 1 from Zhang et al. (2022): general hierarchical ensemble building block in DHEN" />
+<em>Figure 1 (Zhang et al., 2022): A general DHEN hierarchical ensemble building block. Multiple heterogeneous interaction modules run in parallel on the same input <span class="math inline">\(X_n\)</span>; their outputs are aggregated (ensemble), added to a residual shortcut from <span class="math inline">\(X_n\)</span>, and normalized to produce the next layer’s input <span class="math inline">\(X_{n+1}\)</span>.</em></p>
+<div class="callout callout-question">
+<p> Exercise 1: DHEN Forward Pass with Tensor Shapes
+<em>A complete DHEN forward pass with shape tracking reveals where tensor dimensions change and where projections are required. This problem builds the full forward pass pseudocode for a 2-layer DHEN with self-attention and linear modules.</em></p>
+<ol type="a">
+<li><p><strong>Data structures and inputs.</strong> Define all parameters and inputs needed for a 2-layer DHEN with self-attention + linear modules, concatenation aggregation, and layer normalization. For batch size <span class="math inline">\(B\)</span>, <span class="math inline">\(m\)</span> feature slots, embedding dimension <span class="math inline">\(d\)</span>, attention head dimension <span class="math inline">\(d_k\)</span>, and <span class="math inline">\(h\)</span> attention heads: list every parameter tensor with its shape.</p></li>
+<li><p><strong>Per-layer pseudocode.</strong> Write the pseudocode for one DHEN layer, annotating every intermediate tensor with shape <span class="math inline">\((B, d, m)\)</span> or equivalent. Include: (i) self-attention module forward; (ii) linear module forward; (iii) concatenation ensemble; (iv) shortcut (identity or projection); (v) LayerNorm.</p></li>
+<li><p><strong>Full 2-layer forward pass.</strong> Chain two DHEN layers and add the prediction head (flatten + MLP + sigmoid). Annotate the complete data flow from input <span class="math inline">\(X_0 \in \mathbb{R}^{B \times d \times m}\)</span> to output <span class="math inline">\(\hat{p} \in \mathbb{R}^B\)</span>. Identify all points where a projection is required due to dimension mismatch.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 1
+<strong>Key insight:</strong> Concatenation aggregation forces the shortcut to apply a learned projection whenever <span class="math inline">\(kl \neq m\)</span>; tracking shapes explicitly at each step reveals exactly which operations require projection parameters.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><strong>Parameters for 2-layer DHEN (self-attention + linear, concat aggregation):</strong></li>
+</ol>
+<pre><code># Attention: W^Q, W^K, W^V each (d, d_k * h); W^O: (d_v * h, d)
+# Linear: W_lin: (m, l)  -- maps embedding count m -&gt; l
+# Concatenation output per layer: d x (l_attn + l_lin) = d x 2l  (if l_attn = l_lin = l)
+# Shortcut projection (if 2l != m): W_sc: (m, 2l)
+# LayerNorm: gamma, beta: (d,) each
+# Prediction head: W_head: (d * 2l, hidden), ...</code></pre>
+<ol start="2" type="a">
+<li><strong>One DHEN layer pseudocode (batch dim B suppressed):</strong></li>
+</ol>
+<pre><code>def dhen_layer(Xn, params):
+    # Xn: (B, d, m)
+    u_attn = attention(Xn, W_Q, W_K, W_V, W_O)  # (B, d, l)
+    u_lin  = linear(Xn, W_lin)                   # (B, d, l)
+    ensemble = concat([u_attn, u_lin], dim=-1)   # (B, d, 2l)
+    if 2l == m:
+        shortcut = Xn                             # (B, d, m)
+    else:
+        shortcut = Xn @ W_sc                      # (B, d, 2l): W_sc (m, 2l)
+    Y = LayerNorm(ensemble + shortcut)            # (B, d, 2l)
+    return Y</code></pre>
+<ol start="3" type="a">
+<li><strong>Full 2-layer forward pass:</strong></li>
+</ol>
+<pre><code>X0: (B, d, m)          # feature processing output
+X1 = dhen_layer(X0)    # (B, d, 2l) -- projection needed if 2l != m
+X2 = dhen_layer(X1)    # (B, d, 2l) -- identity shortcut if dims match
+flat = reshape(X2, (B, d*2l))
+logits = MLP(flat)     # (B, 1)
+p_hat = sigmoid(logits)  # (B,)
+# Projection required: at layer 1 shortcut (if 2l != m);
+# layer 2 shortcut is identity if output dim of layer 1 = 2l.</code></pre>
+</blockquote>
+<hr />
+<h2 id="feature-interaction-modules">3. Feature Interaction Modules</h2>
+<p>Each interaction module <span class="math inline">\(\operatorname{Interaction}_i\)</span> takes <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span> as input and produces a list of embeddings <span class="math inline">\(u \in \mathbb{R}^{d \times l}\)</span>, where <span class="math inline">\(l\)</span> is the output embedding count (potentially different from <span class="math inline">\(m\)</span>). When a module instead outputs a single tensor <span class="math inline">\(v \in \mathbb{R}^{1 \times h}\)</span> (as in MLP-style modules), a projection <span class="math inline">\(W_m \in \mathbb{R}^{h \times (d \cdot l)}\)</span> maps it to the embedding list format.</p>
+<h3 id="advanceddlrm">3.1 AdvancedDLRM</h3>
+<p>AdvancedDLRM is a DLRM-style interaction module (the in-house production baseline at Meta). Given input embeddings <span class="math inline">\(X_n\)</span>, the module computes pairwise dot-product interactions among all embedding pairs, concatenates them with dense features, and passes the result through MLP layers. Formally:</p>
+<p><span class="math display">\[u = W_m \cdot \operatorname{AdvancedDLRM}(X_n) \tag{3}\]</span></p>
+<p>The internal DLRM interaction step computes all inner products <span class="math inline">\(\langle x_i, x_j \rangle\)</span> for <span class="math inline">\(i \leq j\)</span>, producing an explicit second-order feature crossing. The subsequent MLP layers lift this to effectively higher-order implicit interactions.</p>
+<div class="callout callout-question">
+<p> Exercise 2: FM Complexity Reduction via the Kernel Trick
+<em>The Factorization Machine second-order term naively requires <span class="math inline">\(O(m^2 d)\)</span> operations for <span class="math inline">\(m\)</span> features of dimension <span class="math inline">\(d\)</span>. This problem establishes the <span class="math inline">\(O(md)\)</span> identity that makes FM-style interactions tractable, and traces its consequence for the AdvancedDLRM computation.</em></p>
+<ol type="a">
+<li>Let <span class="math inline">\(v_i \in \mathbb{R}^d\)</span> for <span class="math inline">\(i = 1, \ldots, m\)</span> and let <span class="math inline">\(x_i \in \mathbb{R}\)</span> be scalar feature values. Prove the identity</li>
+</ol>
+<p><span class="math display">\[\sum_{i &lt; j} \langle v_i, v_j \rangle x_i x_j = \frac{1}{2}\left[\left\|\sum_{i=1}^m x_i v_i\right\|^2 - \sum_{i=1}^m x_i^2 \|v_i\|^2\right]\]</span></p>
+<p>and show this reduces the computation from <span class="math inline">\(O(m^2 d)\)</span> to <span class="math inline">\(O(md)\)</span>.</p>
+<ol start="2" type="a">
+<li>For binary features (<span class="math inline">\(x_i \in \{0, 1\}\)</span>), let <span class="math inline">\(\mathcal{A} = \{i : x_i = 1\}\)</span> be the set of active features. Show that the identity from (a) reduces to</li>
+</ol>
+<p><span class="math display">\[\sum_{i &lt; j,\, i,j \in \mathcal{A}} \langle v_i, v_j \rangle = \frac{1}{2}\left[\left\|\sum_{i \in \mathcal{A}} v_i\right\|^2 - \sum_{i \in \mathcal{A}} \|v_i\|^2\right]\]</span></p>
+<p>and interpret this as “sum pooling then squared norm minus self-norms,” which is the computation used in DLRM’s embedding interaction step.</p>
+<ol start="3" type="a">
+<li>AdvancedDLRM retains all individual pairwise scores <span class="math inline">\(s_{ij} = \langle v_i, v_j \rangle\)</span> before passing them to an MLP. Show that the FM trick output is a fixed linear combination of <span class="math inline">\(\{s_{ij}\}\)</span> (specifically with coefficient 1 for all pairs), whereas retaining individual scores allows the downstream MLP to learn an arbitrary function <span class="math inline">\(f(s_{11}, \ldots, s_{mm})\)</span>. Conclude that the FM trick is a strict computational relaxation of the full pairwise approach, trading expressivity for efficiency.</li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 2
+<strong>Key insight:</strong> The squared-norm identity converts the <span class="math inline">\(O(m^2)\)</span> sum over pairs into a single <span class="math inline">\(O(m)\)</span> accumulation by exploiting the bilinearity of the inner product.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Expand <span class="math inline">\(\|\sum_i x_i v_i\|^2 = \sum_i x_i^2 \|v_i\|^2 + 2\sum_{i &lt; j} x_i x_j \langle v_i, v_j \rangle\)</span>. Rearranging gives the identity. The right-hand side requires one pass to compute <span class="math inline">\(s = \sum_i x_i v_i\)</span> (<span class="math inline">\(O(md)\)</span>), one pass for <span class="math inline">\(\sum_i x_i^2 \|v_i\|^2\)</span> (<span class="math inline">\(O(md)\)</span>), and one norm (<span class="math inline">\(O(d)\)</span>): total <span class="math inline">\(O(md)\)</span> vs. the naive <span class="math inline">\(O(m^2 d)\)</span>.</p></li>
+<li><p>For <span class="math inline">\(x_i \in \{0,1\}\)</span>, <span class="math inline">\(x_i^2 = x_i\)</span>, so the identity becomes <span class="math inline">\(\sum_{i &lt; j, i,j \in \mathcal{A}} \langle v_i, v_j \rangle = \frac{1}{2}[\|\sum_{i \in \mathcal{A}} v_i\|^2 - \sum_{i \in \mathcal{A}} \|v_i\|^2]\)</span>. This is exactly “sum active embeddings, square, subtract self-norms,” recovering DLRM’s sum-pooling interaction.</p></li>
+<li><p>The FM trick output is <span class="math inline">\(\sum_{i&lt;j} s_{ij} = \frac{1}{2}[\|\sum x_i v_i\|^2 - \sum x_i^2 \|v_i\|^2]\)</span>, which is a fixed linear combination of <span class="math inline">\(\{s_{ij}\}\)</span> with all coefficients 1. Retaining the full vector <span class="math inline">\((s_{ij})_{i&lt;j} \in \mathbb{R}^{\binom{m}{2}}\)</span> and applying an MLP allows learning any function <span class="math inline">\(f: \mathbb{R}^{\binom{m}{2}} \to \mathbb{R}\)</span>, a strictly richer function class.</p></li>
+</ol>
+</blockquote>
+<h3 id="self-attention">3.2 Self-Attention</h3>
+<p><em><a href="../../../notes/concepts/attention-mechanisms/standard-attention%7Cself-attention/">concepts/attention-mechanisms/standard-attention|Self-attention</a></em>, the core of Transformer encoders, was introduced to CTR tasks in AutoInt and InterHAt. For DHEN, the module applies a standard Transformer encoder layer:</p>
+<p><span class="math display">\[u = W \cdot \operatorname{TransformerEncoderLayer}(X_n) \tag{4}\]</span></p>
+<p>where <span class="math inline">\(W \in \mathbb{R}^{m \times l}\)</span> projects the output to the shared embedding list dimension.</p>
+<p>The Transformer encoder layer computes multi-head scaled dot-product attention:</p>
+<p><span class="math display">\[\operatorname{Attn}(Q, K, V) = \operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V\]</span></p>
+<p>with <span class="math inline">\(Q = X_n W^Q\)</span>, <span class="math inline">\(K = X_n W^K\)</span>, <span class="math inline">\(V = X_n W^V\)</span>. This captures <em>feature-wise</em> interactions: the attention weights <span class="math inline">\(A_{ij} = \operatorname{softmax}(\cdot)_{ij}\)</span> indicate how much feature <span class="math inline">\(i\)</span> attends to feature <span class="math inline">\(j\)</span>, enabling adaptive, content-dependent interaction modeling.</p>
+<div class="callout callout-question">
+<p> Exercise 3: Self-Attention as Data-Dependent Feature Recombination
+<em>Self-attention produces outputs that are non-linear data-dependent linear combinations of value vectors. This problem makes precise what “feature-level interaction” means for the attention module and contrasts it with bit-level interactions from DCN.</em></p>
+<ol type="a">
+<li>For a single attention head with input <span class="math inline">\(X \in \mathbb{R}^{m \times d}\)</span> (rows are feature embeddings), define <span class="math inline">\(Q = XW^Q\)</span>, <span class="math inline">\(K = XW^K\)</span>, <span class="math inline">\(V = XW^V\)</span>. Write the output at feature position <span class="math inline">\(i\)</span> as</li>
+</ol>
+<p><span class="math display">\[z_i = \sum_{j=1}^m A_{ij} (x_j W^V), \qquad A_{ij} = \operatorname{softmax}_j\!\left(\frac{q_i k_j^\top}{\sqrt{d_k}}\right)\]</span></p>
+<p>Show that <span class="math inline">\(A_{ij}\)</span> depends on <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span> only through the scalar <span class="math inline">\(q_i k_j^\top = x_i W^Q (x_j W^K)^\top\)</span>, making each attention weight a function of a single inner product between projected features.</p>
+<ol start="2" type="a">
+<li><p>Show that <span class="math inline">\(z_i\)</span> is a weighted average of value vectors <span class="math inline">\(\{x_j W^V\}\)</span>, where the weights <span class="math inline">\(A_{ij}\)</span> sum to 1 and depend on the entire input <span class="math inline">\(X\)</span> (not just <span class="math inline">\(x_i\)</span>). Conclude that the output at position <span class="math inline">\(i\)</span> is not a polynomial of bounded degree in the entries of <span class="math inline">\(X\)</span>, because the softmax normalization makes <span class="math inline">\(A_{ij}\)</span> a rational function of all inner products <span class="math inline">\(\{q_i k_{j'}^\top\}_{j'=1}^m\)</span>.</p></li>
+<li><p>The DCN cross module in DHEN computes <span class="math inline">\(u = W(X X^\top) + b\)</span>. Show that this operates on the outer product <span class="math inline">\(X X^\top \in \mathbb{R}^{m \times m}\)</span>, where entry <span class="math inline">\((i,j)\)</span> is the inner product <span class="math inline">\(\langle x_i, x_j \rangle\)</span> across all embedding dimensions simultaneously. Contrast: in DCN, the interaction weight between features <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> is fixed (given by <span class="math inline">\(\langle x_i, x_j \rangle\)</span> summed over all dimensions); in attention, the interaction weight <span class="math inline">\(A_{ij}\)</span> is computed in a subspace determined by <span class="math inline">\(W^Q, W^K\)</span>. Formalize this distinction.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 3
+<strong>Key insight:</strong> The attention weight <span class="math inline">\(A_{ij}\)</span> is a softmax-normalized inner product of projected features, making the output a rational function of the input — not a polynomial — which puts attention outside the expressive class of any DCN with finite depth.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(A_{ij} = \frac{\exp(q_i k_j^\top / \sqrt{d_k})}{\sum_{j'} \exp(q_i k_{j'}^\top / \sqrt{d_k})}\)</span> where <span class="math inline">\(q_i = x_i W^Q\)</span> and <span class="math inline">\(k_j = x_j W^K\)</span>. Each <span class="math inline">\(q_i k_j^\top = x_i W^Q (W^K)^\top x_j^\top\)</span> is a scalar quadratic in the input, making <span class="math inline">\(A_{ij}\)</span> a ratio of exponentials of quadratics in <span class="math inline">\(\{x_j\}\)</span>.</p></li>
+<li><p><span class="math inline">\(z_i = \sum_j A_{ij} x_j W^V\)</span> is a convex combination (weights sum to 1) of value vectors. The weights <span class="math inline">\(A_{ij}\)</span> depend on all inputs <span class="math inline">\(\{x_{j'}\}\)</span> through the softmax denominator, making <span class="math inline">\(z_i\)</span> a non-polynomial rational function of the entire input matrix <span class="math inline">\(X\)</span>.</p></li>
+<li><p>DCN computes <span class="math inline">\(u = W(XX^\top) + b\)</span> where entry <span class="math inline">\((i,j)\)</span> of <span class="math inline">\(XX^\top\)</span> is <span class="math inline">\(\langle x_i, x_j \rangle = \sum_r x_i[r] x_j[r]\)</span> — a sum over all <span class="math inline">\(d\)</span> embedding dimensions. Attention computes <span class="math inline">\(q_i k_j^\top = \sum_r (x_i W^Q)_r (x_j W^K)_r\)</span> — a sum in the projected subspace of dimension <span class="math inline">\(d_k &lt; d\)</span>. DCN’s interaction weight is a fixed bilinear form in the full embedding space; attention’s is a learned bilinear form in a lower-dimensional subspace, but made adaptive via softmax normalization.</p></li>
+</ol>
+</blockquote>
+<h3 id="deep-cross-net">3.3 Deep Cross Net</h3>
+<p>Deep Cross Net (DCN, Wang et al. 2017) introduces a <em>cross network</em> that efficiently learns bounded-degree feature interactions. In DHEN’s formulation:</p>
+<p><span class="math display">\[u = W \cdot (X_n X_n^\top) + b \tag{7}\]</span></p>
+<p>where <span class="math inline">\(W\)</span> and <span class="math inline">\(b\)</span> are learned weight and bias matrices. This can be understood as a bilinear transformation over the outer product <span class="math inline">\(X_n X_n^\top \in \mathbb{R}^{m \times m}\)</span>, which encodes all pairwise embedding interactions. The paper notes that the skip connection from the original DCN paper is omitted since DHEN already provides skip connections via the <span class="math inline">\(\operatorname{ShortCut}\)</span> mechanism at the layer level.</p>
+<p>The key distinction from self-attention is that DCN operates at the <em>bit-level interaction</em> level (individual scalar dimensions within embedding vectors), whereas self-attention operates at the <em>feature-level interaction</em> level (entire embedding vectors as units).</p>
+<div class="callout callout-question">
+<p> Exercise 4: DCN Cross Network Polynomial Degree via Induction
+<em>The DCN cross network produces feature interactions of bounded polynomial degree. This problem proves the tight degree bound by induction and identifies the exact leading-degree term at each layer, making precise why stacking more cross layers yields higher-order interactions.</em></p>
+<ol type="a">
+<li><p>The DCN cross recurrence is <span class="math inline">\(x_{\ell+1} = x_0 (x_\ell^\top w_\ell) + b_\ell + x_\ell\)</span>, where <span class="math inline">\(x_\ell, x_0, b_\ell \in \mathbb{R}^d\)</span> and <span class="math inline">\(w_\ell \in \mathbb{R}^d\)</span>. Prove by induction on <span class="math inline">\(\ell\)</span> that <span class="math inline">\(x_\ell\)</span> is a polynomial in the components of <span class="math inline">\(x_0\)</span> of degree exactly <span class="math inline">\(\ell + 1\)</span>. Explicitly identify the degree-<span class="math inline">\((\ell+1)\)</span> monomial term at each step of the induction.</p></li>
+<li><p>Show that no degree-<span class="math inline">\((\ell+2)\)</span> term can appear in <span class="math inline">\(x_\ell\)</span>: the inductive step multiplies degree-<span class="math inline">\(\ell\)</span> terms by <span class="math inline">\(x_0\)</span> (degree 1), giving degree <span class="math inline">\(\ell+1\)</span> at most. Conclude that a DCN with <span class="math inline">\(L\)</span> cross layers captures feature interactions of degree at most <span class="math inline">\(L+1\)</span>, establishing the tight upper bound.</p></li>
+<li><p>In a stack of <span class="math inline">\(N\)</span> DHEN layers, each layer’s DCN module takes the previous layer’s output <span class="math inline">\(X_n\)</span> both as its input and as its cross-layer anchor <span class="math inline">\(x_0^{(n)}\)</span>. Prove by induction on <span class="math inline">\(N\)</span> that the maximum polynomial degree of the final output satisfies the recurrence <span class="math inline">\(D_{N+1} = D_N \cdot (L+1)\)</span> when each layer applies <span class="math inline">\(L\)</span> cross operations with the updated anchor, giving <span class="math inline">\(D_N = (L+1)^N\)</span>. Explain precisely why this multiplicative recurrence holds across layers (where the anchor changes) but NOT within a single DCN module (where <span class="math inline">\(x_0\)</span> is fixed and degree grows additively as <span class="math inline">\(D_0 + \ell\)</span> after <span class="math inline">\(\ell\)</span> operations).</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 4
+<strong>Key insight:</strong> Each cross step multiplies the current iterate by the scalar <span class="math inline">\(x_\ell^\top w_\ell\)</span>, raising the polynomial degree by exactly 1, so the degree grows linearly with layer count and is tight.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Base case: <span class="math inline">\(x_1 = x_0(x_0^\top w_0) + b_0 + x_0\)</span>; the term <span class="math inline">\(x_0(x_0^\top w_0)\)</span> has degree 2 in <span class="math inline">\(x_0\)</span> components. Inductive step: <span class="math inline">\(x_{\ell+1} = x_0(x_\ell^\top w_\ell) + b_\ell + x_\ell\)</span>. The product <span class="math inline">\(x_0 \cdot (x_\ell^\top w_\ell)\)</span> multiplies degree-1 (<span class="math inline">\(x_0\)</span>) by degree-<span class="math inline">\(\ell\)</span> (<span class="math inline">\(x_\ell^\top w_\ell\)</span>), giving degree <span class="math inline">\(\ell+1\)</span>. The term <span class="math inline">\(x_\ell\)</span> has degree <span class="math inline">\(\ell\)</span>. So <span class="math inline">\(\deg(x_{\ell+1}) = \ell + 1\)</span>.</p></li>
+<li><p>For degree <span class="math inline">\(\ell+2\)</span> to appear in <span class="math inline">\(x_{\ell+1}\)</span>, we would need <span class="math inline">\(\deg(x_0) \cdot \deg(x_\ell^\top w_\ell) \geq \ell + 2\)</span>, i.e., <span class="math inline">\(1 \cdot \ell \geq \ell+1\)</span>, which is false. So the upper bound <span class="math inline">\(\ell+1\)</span> is tight.</p></li>
+<li><p>Within a single DCN module (fixed anchor <span class="math inline">\(x_0\)</span>), each cross layer adds 1 to the degree — additive growth. Across DHEN layers, the anchor updates to the previous output, turning additive growth into multiplicative: degree <span class="math inline">\(L+1\)</span> output from layer <span class="math inline">\(n\)</span> becomes the degree-<span class="math inline">\((L+1)\)</span> anchor for layer <span class="math inline">\(n+1\)</span>, whose <span class="math inline">\(L\)</span> cross ops give degree <span class="math inline">\((L+1)+(L+1)\cdot L = (L+1)^2\)</span>. Induction: <span class="math inline">\(D_1 = L+1\)</span>, <span class="math inline">\(D_{N+1} = D_N\cdot(L+1)\)</span>, so <span class="math inline">\(D_N = (L+1)^N\)</span>. A plain depth-<span class="math inline">\(NL\)</span> DCN achieves degree <span class="math inline">\(NL+1\)</span>. Since <span class="math inline">\((L+1)^N \gg NL+1\)</span> for <span class="math inline">\(N, L \geq 2\)</span>, hierarchical stacking yields super-linear degree growth.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 5: The Full Jacobian of a DCN Cross Layer
+<em>The DCN cross operation <span class="math inline">\(x_{\ell+1} = x_0(x_\ell^\top w_\ell) + b_\ell + x_\ell\)</span> has a Jacobian with a specific rank-1 plus identity structure. Computing this Jacobian exactly clarifies why DCN gradients are well-conditioned by construction.</em></p>
+<ol type="a">
+<li>Treating <span class="math inline">\(x_0\)</span> as a fixed input and <span class="math inline">\(x_\ell\)</span> as the variable, compute the Jacobian <span class="math inline">\(J_\ell = \frac{\partial x_{\ell+1}}{\partial x_\ell} \in \mathbb{R}^{d \times d}\)</span>. Show that it factors as</li>
+</ol>
+<p><span class="math display">\[J_\ell = I + x_0 w_\ell^\top\]</span></p>
+<p>a rank-1 update of the identity matrix.</p>
+<ol start="2" type="a">
+<li><p>Using the matrix determinant lemma, show that <span class="math inline">\(\det(J_\ell) = 1 + w_\ell^\top x_0\)</span>. Derive the condition on <span class="math inline">\(w_\ell\)</span> and <span class="math inline">\(x_0\)</span> under which <span class="math inline">\(J_\ell\)</span> is invertible, and write the inverse explicitly using the Sherman-Morrison formula.</p></li>
+<li><p>The singular values of <span class="math inline">\(J_\ell = I + x_0 w_\ell^\top\)</span> determine gradient magnification or attenuation. Show that <span class="math inline">\(J_\ell\)</span> has <span class="math inline">\(d-1\)</span> singular values equal to 1 and one singular value equal to <span class="math inline">\(\sqrt{1 + \|x_0\|^2 \|w_\ell\|^2 + (w_\ell^\top x_0)^2}\)</span> (approximately). Conclude that the DCN cross layer cannot cause exponential gradient vanishing even without explicit residual shortcuts — the Jacobian is inherently near-identity.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 5
+<strong>Key insight:</strong> The rank-1 update structure <span class="math inline">\(J_\ell = I + x_0 w_\ell^\top\)</span> follows directly from differentiating the cross recurrence, and the Sherman-Morrison formula then gives the inverse and singular-value structure in closed form.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(x_{\ell+1} = x_0(x_\ell^\top w_\ell) + b_\ell + x_\ell\)</span>. Differentiating with respect to <span class="math inline">\(x_\ell\)</span>: <span class="math inline">\(\frac{\partial x_{\ell+1}}{\partial x_\ell} = x_0 w_\ell^\top + I\)</span>. This is exactly <span class="math inline">\(J_\ell = I + x_0 w_\ell^\top\)</span>.</p></li>
+<li><p>Matrix determinant lemma: <span class="math inline">\(\det(I + uv^\top) = 1 + v^\top u\)</span>. So <span class="math inline">\(\det(J_\ell) = 1 + w_\ell^\top x_0\)</span>; <span class="math inline">\(J_\ell\)</span> is invertible iff <span class="math inline">\(w_\ell^\top x_0 \neq -1\)</span>. By Sherman-Morrison: <span class="math inline">\(J_\ell^{-1} = I - \frac{x_0 w_\ell^\top}{1 + w_\ell^\top x_0}\)</span>.</p></li>
+<li><p><span class="math inline">\(J_\ell = I + x_0 w_\ell^\top\)</span> is a rank-1 perturbation of the identity. All singular vectors orthogonal to both <span class="math inline">\(x_0\)</span> and <span class="math inline">\(w_\ell\)</span> have singular value 1. The remaining two-dimensional subspace has singular values <span class="math inline">\(\approx 1 \pm \|x_0\|\|w_\ell\|\)</span> (to first order). Since all singular values are <span class="math inline">\(O(1)\)</span> for bounded weights, the cross layer cannot cause exponential gradient explosion or vanishing.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 6: Bit-Level vs. Feature-Level Interaction
+<em>DHEN combines modules that operate at different granularities: DCN mixes individual scalar dimensions (“bit-level”), while self-attention treats each embedding vector as an atomic unit (“feature-level”). This problem formalizes the distinction and shows neither class subsumes the other.</em></p>
+<ol type="a">
+<li><p>DCN’s cross operation applied to <span class="math inline">\(x \in \mathbb{R}^{md}\)</span> (a flattened embedding matrix) produces a scalar interaction <span class="math inline">\(x^\top w\)</span> and multiplies it back into <span class="math inline">\(x_0\)</span>. Show that this is equivalent to a bilinear form <span class="math inline">\(x_0^\top M x\)</span> with <span class="math inline">\(M = w \mathbf{1}^\top\)</span> (rank-1). In particular, every scalar coordinate of <span class="math inline">\(x_0\)</span> gets scaled by the same global scalar <span class="math inline">\(x^\top w\)</span>, mixing all embedding dimensions uniformly.</p></li>
+<li><p>Self-attention produces, at position <span class="math inline">\(i\)</span>, an output <span class="math inline">\(z_i = \sum_j A_{ij} x_j W^V\)</span>. Show that <span class="math inline">\(z_i\)</span> mixes only the embedding dimension via the projection <span class="math inline">\(W^V\)</span>, and that the combination coefficients <span class="math inline">\(A_{ij}\)</span> act at the level of whole feature vectors (not individual scalar dimensions). Specifically, <span class="math inline">\([z_i]_r = \sum_j A_{ij} \sum_s x_j[s] W^V[s,r]\)</span>: the mixing of embedding dimension <span class="math inline">\(s\)</span> into output dimension <span class="math inline">\(r\)</span> is the same for every feature <span class="math inline">\(j\)</span> (governed by <span class="math inline">\(W^V\)</span>).</p></li>
+<li><p>Give a concrete example of an interaction that DCN can represent but attention cannot (in a single layer), and one that attention can represent but DCN cannot. Conclude that the two are complementary, providing formal justification for including both in an ensemble.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 6
+<strong>Key insight:</strong> DCN’s scalar <span class="math inline">\(x^\top w\)</span> scales the entire vector <span class="math inline">\(x_0\)</span> uniformly (bit-level: all embedding dimensions get the same multiplicative update), while attention’s <span class="math inline">\(A_{ij}\)</span> scales entire feature vectors <span class="math inline">\(x_j\)</span> (feature-level: all embedding dimensions of feature <span class="math inline">\(j\)</span> are weighted together).</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>DCN cross: <span class="math inline">\(x_{\ell+1}[r] = x_0[r] \cdot (x_\ell^\top w) + x_\ell[r]\)</span> for all dimensions <span class="math inline">\(r\)</span>. The scalar <span class="math inline">\(x_\ell^\top w = \sum_s x_\ell[s] w[s]\)</span> mixes all dimensions <span class="math inline">\(s\)</span> of <span class="math inline">\(x_\ell\)</span> into one number, then this single number multiplies every dimension <span class="math inline">\(r\)</span> of <span class="math inline">\(x_0\)</span>. In bilinear form: <span class="math inline">\(x_0^\top M x\)</span> with <span class="math inline">\(M = w \mathbf{1}^\top\)</span> (rank 1, same row for all output dimensions).</p></li>
+<li><p>Attention: <span class="math inline">\([z_i]_r = \sum_j A_{ij} \sum_s x_j[s] W^V[s,r]\)</span>. The embedding dimension mixing <span class="math inline">\(\sum_s x_j[s] W^V[s,r]\)</span> is governed by <span class="math inline">\(W^V\)</span> and is the same for every feature <span class="math inline">\(j\)</span>; the per-feature weighting <span class="math inline">\(A_{ij}\)</span> does not mix embedding dimensions. So attention weights whole feature vectors, not individual scalars.</p></li>
+<li><p>DCN can represent: “global importance weighting” — scaling all output dimensions by the same feature cross score. Attention cannot do this in a single layer (it must use <span class="math inline">\(W^V\)</span> uniformly). Attention can represent: “select a specific feature subset based on content” (e.g., <span class="math inline">\(A_{ij} \approx 1\)</span> for one <span class="math inline">\(j\)</span> and 0 elsewhere), which DCN cannot do (DCN’s output is always a function of <span class="math inline">\(x_0\)</span> scaled by a global scalar). These examples confirm the modules are incomparable and complementary.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 7: DCN Cross Layer as a Bilinear Operation
+<em>The DCN-V2 cross layer has a low-rank factorization that reduces its dominant <span class="math inline">\(O(d^2)\)</span> cost to <span class="math inline">\(O(dr)\)</span>. This problem develops the pseudocode for both the full and low-rank variants and assembles the complete DCN module used in DHEN.</em></p>
+<ol type="a">
+<li><p><strong>Full cross layer pseudocode.</strong> Write pseudocode for the DCN-V2 cross layer <span class="math inline">\(x_{\ell+1} = x_0 \odot (W_\ell x_\ell + b_\ell) + x_\ell\)</span> where <span class="math inline">\(W_\ell \in \mathbb{R}^{d \times d}\)</span>, <span class="math inline">\(x_0, x_\ell, b_\ell \in \mathbb{R}^d\)</span>. Annotate every operation with its FLOP count. Identify the dominant cost.</p></li>
+<li><p><strong>Low-rank factorization.</strong> For <span class="math inline">\(W_\ell = U_\ell V_\ell^\top\)</span> with <span class="math inline">\(U_\ell, V_\ell \in \mathbb{R}^{d \times r}\)</span> (<span class="math inline">\(r \ll d\)</span>), write pseudocode for the low-rank cross layer. Show that the dominant cost reduces from <span class="math inline">\(O(d^2)\)</span> to <span class="math inline">\(O(dr)\)</span>. Annotate all shapes and FLOPs.</p></li>
+<li><p><strong>Full DCN module in DHEN.</strong> Sketch the complete DCN module: <span class="math inline">\(L\)</span> stacked cross layers applied to the flattened input <span class="math inline">\(x_0 = \operatorname{flatten}(X_n) \in \mathbb{R}^{md}\)</span>, followed by a projection <span class="math inline">\(W_m \in \mathbb{R}^{md \times dl}\)</span> back to embedding list format <span class="math inline">\(\mathbb{R}^{d \times l}\)</span>. List all learned parameters with their shapes. Write the forward pass pseudocode with shape annotations at each step.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 7
+<strong>Key insight:</strong> The low-rank factorization <span class="math inline">\(W_\ell = U_\ell V_\ell^\top\)</span> reduces the dominant <span class="math inline">\(O(d^2)\)</span> matrix-vector product to two sequential <span class="math inline">\(O(dr)\)</span> projections, cutting cost by factor <span class="math inline">\(d/r\)</span> while preserving the rank-<span class="math inline">\(r\)</span> interaction subspace.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><strong>Full cross layer pseudocode:</strong></li>
+</ol>
+<pre><code>def cross_layer_full(x0, xl, W, b):
+    # W: (d, d), x0, xl, b: (d,)
+    s = W @ xl          # O(d^2) -- dominant cost
+    s = s + b           # O(d)
+    out = x0 * s        # O(d)  element-wise
+    out = out + xl      # O(d)  residual
+    return out          # shape: (d,)</code></pre>
+<p>Dominant FLOP cost: <span class="math inline">\(O(d^2)\)</span> for the matrix-vector product.</p>
+<ol start="2" type="a">
+<li><strong>Low-rank cross layer:</strong></li>
+</ol>
+<pre><code>def cross_layer_lowrank(x0, xl, U, V, b):
+    # U, V: (d, r), r &lt;&lt; d
+    t = V.T @ xl        # O(dr): project to rank-r subspace
+    t = U @ t           # O(dr): project back to d-dim
+    t = t + b           # O(d)
+    out = x0 * t        # O(d)
+    out = out + xl      # O(d)
+    return out          # shape: (d,)</code></pre>
+<p>Total: <span class="math inline">\(O(dr)\)</span> vs. <span class="math inline">\(O(d^2)\)</span>; speedup factor <span class="math inline">\(d/r\)</span>.</p>
+<ol start="3" type="a">
+<li><strong>Full DCN module in DHEN:</strong></li>
+</ol>
+<pre><code>def dcn_module(Xn, x0_flat, cross_layers, Wm):
+    # Xn: (d, m), x0_flat = flatten(Xn): (md,)
+    # cross_layers: list of L (U_l, V_l, b_l) tuples
+    # Wm: (md, d*l) projection back to embedding list
+    xl = x0_flat                            # (md,)
+    for (U_l, V_l, b_l) in cross_layers:   # L iterations
+        xl = cross_layer_lowrank(x0_flat, xl, U_l, V_l, b_l)
+    u_flat = Wm.T @ xl                      # (d*l,): O(md * dl)
+    u = reshape(u_flat, (d, l))             # (d, l)
+    return u
+# Parameters: {U_l in R^{md x r}, V_l in R^{md x r}, b_l in R^{md}} x L; Wm in R^{md x dl}</code></pre>
+</blockquote>
+<h3 id="linear">3.4 Linear</h3>
+<p>The linear module simply applies a learned projection to the input embeddings:</p>
+<p><span class="math display">\[u = W \cdot X_n \tag{6}\]</span></p>
+<p>where <span class="math inline">\(W \in \mathbb{R}^{m \times l}\)</span> is the linear weight. This module captures raw information from the original feature embeddings without any non-linearity or explicit interaction, serving as an information-preserving bypass within the ensemble. Despite its simplicity, the ablation study shows it is highly effective as a partner module in hierarchical ensembles.</p>
+<h3 id="convolution">3.5 Convolution</h3>
+<p>Convolutional layers, standard in vision and used in NLP (Conformer) and CTR (Liu et al. 2019), are adapted here as:</p>
+<p><span class="math display">\[u = W \cdot \operatorname{Conv2d}(X_n) \tag{5}\]</span></p>
+<p>where <span class="math inline">\(W \in \mathbb{R}^{m \times l}\)</span> re-projects the convolution output. The input <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span> is treated as a 2D signal (embedding dimension <span class="math inline">\(d\)</span> as one axis, feature count <span class="math inline">\(m\)</span> as the other). Conv2d applies local receptive field filters over this 2D arrangement, capturing local co-occurrence patterns among neighboring features in the embedding matrix layout.</p>
+<div class="callout callout-question">
+<p> Exercise 8: Convolution as Local Co-occurrence Capture
+<em>The convolution module applies 2D filters to the embedding matrix <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span>, treating the embedding dimension <span class="math inline">\(d\)</span> and feature count <span class="math inline">\(m\)</span> as spatial axes. This problem analyzes what interactions a convolutional filter captures and why locality in the embedding matrix is a meaningful inductive bias.</em></p>
+<ol type="a">
+<li><p>A Conv2d filter of kernel size <span class="math inline">\((k_d, k_m)\)</span> applied to <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span> produces an output at position <span class="math inline">\((r, s)\)</span> as <span class="math inline">\(\sum_{p=0}^{k_d-1}\sum_{q=0}^{k_m-1} w_{pq} X_n[r+p, s+q]\)</span>. Show that this computes a weighted sum of <span class="math inline">\(k_d \times k_m\)</span> scalar entries from a local patch of the embedding matrix, mixing embedding dimensions <span class="math inline">\(r\)</span> through <span class="math inline">\(r+k_d-1\)</span> with features <span class="math inline">\(s\)</span> through <span class="math inline">\(s+k_m-1\)</span>.</p></li>
+<li><p>The DHEN embedding matrix <span class="math inline">\(X_n\)</span> has rows corresponding to embedding dimensions (not features) and columns corresponding to feature slots. The ordering of features in the matrix is determined by the feature processing layer (embedding table ordering). Argue that the convolutional module’s locality assumption — that adjacent features in the matrix have correlated interaction patterns — is an inductive bias that may or may not match the true feature correlation structure. Formalize: what ordering of features would make this assumption maximally valid?</p></li>
+<li><p>Compare the parameter count of a Conv2d module (kernel size <span class="math inline">\((k_d, k_m)\)</span>, <span class="math inline">\(C_\text{out}\)</span> output channels) with the self-attention module (head dimension <span class="math inline">\(d_k\)</span>, <span class="math inline">\(h\)</span> heads). Show that for large <span class="math inline">\(m\)</span> and <span class="math inline">\(d\)</span>, convolution is significantly more parameter-efficient if <span class="math inline">\(k_d \ll d\)</span> and <span class="math inline">\(k_m \ll m\)</span>, while attention’s parameter count is independent of <span class="math inline">\(m\)</span> (the number of features). Conclude that convolution and attention represent different parameter-efficiency/expressivity tradeoffs.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 8
+<strong>Key insight:</strong> Conv2d applied to the embedding matrix <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span> captures local correlations among neighboring features and adjacent embedding dimensions, with parameter count independent of <span class="math inline">\(m\)</span> (unlike attention), making it efficient when the number of features is large.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>A <span class="math inline">\((k_d, k_m)\)</span> filter computes <span class="math inline">\(\text{out}[r,s] = \sum_{p=0}^{k_d-1}\sum_{q=0}^{k_m-1} w_{pq} X_n[r+p, s+q]\)</span>, a weighted sum of a <span class="math inline">\(k_d \times k_m\)</span> patch. This mixes embedding dimensions <span class="math inline">\(r, \ldots, r+k_d-1\)</span> with feature slots <span class="math inline">\(s, \ldots, s+k_m-1\)</span> jointly in the same filter computation.</p></li>
+<li><p>Locality assumption: features at adjacent columns of <span class="math inline">\(X_n\)</span> have correlated interaction patterns. This holds when features are ordered by semantic similarity or by co-occurrence frequency. Maximally valid ordering: place highly correlated feature groups (e.g., same entity type: all user features together, all ad features together) in contiguous columns. If features are randomly ordered, the locality assumption is violated and convolution degrades toward a global interaction.</p></li>
+<li><p>Conv2d parameters: <span class="math inline">\(k_d \times k_m \times C_\text{in} \times C_\text{out}\)</span> — independent of <span class="math inline">\(m\)</span> and <span class="math inline">\(d\)</span> (assuming <span class="math inline">\(k_d, k_m \ll d, m\)</span>). Self-attention parameters: <span class="math inline">\(3d \cdot d_k \cdot h\)</span> (for <span class="math inline">\(Q, K, V\)</span> projections, <span class="math inline">\(h\)</span> heads) + <span class="math inline">\(d_v h \cdot d\)</span> (output projection) — also independent of <span class="math inline">\(m\)</span>. Both scale quadratically with <span class="math inline">\(d\)</span> and linearly with head count/channel count, but convolution scales with filter size not sequence length. For very large <span class="math inline">\(m\)</span>, the key difference is computational: attention costs <span class="math inline">\(O(m^2 d_k)\)</span> per forward pass, convolution costs <span class="math inline">\(O(m d k_m k_d)\)</span> — convolution is linear in <span class="math inline">\(m\)</span> while attention is quadratic.</p></li>
+</ol>
+</blockquote>
+<hr />
+<h2 id="hierarchical-ensemble">4. Hierarchical Ensemble</h2>
+<h3 id="ensemble-aggregation">4.1 Ensemble Aggregation</h3>
+<p>At each DHEN layer, the <span class="math inline">\(k\)</span> interaction modules are applied in parallel to the same input <span class="math inline">\(X_n\)</span>, producing outputs <span class="math inline">\(\{u_1, u_2, \ldots, u_k\}\)</span> where <span class="math inline">\(u_i \in \mathbb{R}^{d \times l}\)</span>. The aggregation function <span class="math inline">\(\operatorname{Ensemble}_{i=1}^{k}\)</span> combines these into a single embedding matrix before the shortcut addition and normalization. The paper considers three aggregation strategies:</p>
+<ul>
+<li><strong>Concatenation</strong>: <span class="math inline">\(\operatorname{Ensemble}(u_1, \ldots, u_k) = [u_1 \| u_2 \| \cdots \| u_k] \in \mathbb{R}^{d \times (kl)}\)</span></li>
+<li><strong>Sum</strong>: <span class="math inline">\(\operatorname{Ensemble}(u_1, \ldots, u_k) = \sum_{i=1}^{k} u_i \in \mathbb{R}^{d \times l}\)</span></li>
+<li><strong>Weighted sum</strong>: <span class="math inline">\(\operatorname{Ensemble}(u_1, \ldots, u_k) = \sum_{i=1}^{k} \alpha_i u_i\)</span> with learned scalars <span class="math inline">\(\alpha_i\)</span></li>
+</ul>
+<p>The choice of aggregation determines how information from different modules is fused before being passed to the next layer.</p>
+<div class="callout callout-question">
+<p> Exercise 9: Ensemble Variance Reduction
+<em>Combining heterogeneous modules reduces prediction variance relative to any single module, under the standard bias-variance decomposition. This problem formalizes why ensemble diversity — not just model capacity — drives DHEN’s gains.</em></p>
+<ol type="a">
+<li>Let <span class="math inline">\(\hat{y}_1, \ldots, \hat{y}_k\)</span> be the predictions from <span class="math inline">\(k\)</span> modules with individual expected squared errors <span class="math inline">\(\mathbb{E}[(y - \hat{y}_i)^2] = B_i^2 + V_i\)</span>, where <span class="math inline">\(B_i\)</span> is bias and <span class="math inline">\(V_i\)</span> is variance. For the average ensemble <span class="math inline">\(\hat{y}_\text{ens} = \frac{1}{k}\sum_i \hat{y}_i\)</span>, show that</li>
+</ol>
+<p><span class="math display">\[\mathbb{E}\left[(y - \hat{y}_\text{ens})^2\right] = \left(\frac{1}{k}\sum_i B_i\right)^2 + \frac{1}{k^2}\sum_{i,j} \operatorname{Cov}(\hat{y}_i, \hat{y}_j)\]</span></p>
+<ol start="2" type="a">
+<li><p>Show that if the modules are uncorrelated (<span class="math inline">\(\operatorname{Cov}(\hat{y}_i, \hat{y}_j) = 0\)</span> for <span class="math inline">\(i \neq j\)</span>) and have equal variance <span class="math inline">\(V\)</span>, the ensemble variance is <span class="math inline">\(V/k\)</span>, a <span class="math inline">\(k\)</span>-fold reduction. Show further that the variance reduction is maximized when module predictions are negatively correlated, and is eliminated when modules are perfectly correlated.</p></li>
+<li><p>The non-overlapping information hypothesis asserts that different DHEN modules capture complementary (low-correlation) information. Formalize: if <span class="math inline">\(\operatorname{Cov}(\hat{y}_i, \hat{y}_j) = \rho V\)</span> for <span class="math inline">\(i \neq j\)</span> with <span class="math inline">\(0 \leq \rho &lt; 1\)</span>, show that the ensemble variance is <span class="math inline">\(V(1 + (k-1)\rho)/k\)</span>. For <span class="math inline">\(\rho = 0.5\)</span>, <span class="math inline">\(k = 2\)</span>, compute the variance ratio and interpret it in the context of the ablation (self-attention + linear vs. either alone).</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 9
+<strong>Key insight:</strong> Ensemble variance equals the average pairwise covariance of module predictions; uncorrelated modules reduce variance by <span class="math inline">\(1/k\)</span>, and lower inter-module correlation (the non-overlapping information hypothesis) is directly what drives variance reduction.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\hat{y}_\text{ens} = \frac{1}{k}\sum_i \hat{y}_i\)</span>. <span class="math inline">\(\mathbb{E}[(y - \hat{y}_\text{ens})^2] = \mathbb{E}[(y - \frac{1}{k}\sum_i \hat{y}_i)^2]\)</span>. Expand: <span class="math inline">\(= \mathbb{E}[y^2] - \frac{2}{k}\sum_i \mathbb{E}[y \hat{y}_i] + \frac{1}{k^2}\sum_{i,j}\mathbb{E}[\hat{y}_i \hat{y}_j]\)</span>. Recognizing that <span class="math inline">\(\mathbb{E}[\hat{y}_i \hat{y}_j] = \operatorname{Cov}(\hat{y}_i, \hat{y}_j) + \mathbb{E}[\hat{y}_i]\mathbb{E}[\hat{y}_j]\)</span> and collecting terms gives the stated form.</p></li>
+<li><p>With <span class="math inline">\(\operatorname{Cov}(\hat{y}_i, \hat{y}_j) = 0\)</span> for <span class="math inline">\(i \neq j\)</span> and <span class="math inline">\(\operatorname{Var}(\hat{y}_i) = V\)</span>: ensemble variance <span class="math inline">\(= V/k\)</span>. For negative correlation <span class="math inline">\(\rho &lt; 0\)</span>, the cross-terms decrease the ensemble variance further; for <span class="math inline">\(\rho = 1\)</span> (identical predictions), ensemble variance <span class="math inline">\(= V\)</span> (no reduction).</p></li>
+<li><p><span class="math inline">\(\operatorname{Cov}(\hat{y}_i, \hat{y}_j) = \rho V\)</span> for <span class="math inline">\(i \neq j\)</span>. Ensemble variance <span class="math inline">\(= \frac{1}{k^2}[kV + k(k-1)\rho V] = V\frac{1 + (k-1)\rho}{k}\)</span>. For <span class="math inline">\(\rho=0.5\)</span>, <span class="math inline">\(k=2\)</span>: variance ratio <span class="math inline">\(= \frac{1 + 0.5}{2} = 0.75\)</span>. So the ensemble has 75% the variance of a single module — consistent with the ablation showing attention+linear outperforms either alone by combining two modules with complementary predictions.</p></li>
+</ol>
+</blockquote>
+<h3 id="residual-shortcut-and-dimension-matching">4.2 Residual Shortcut and Dimension Matching</h3>
+<p>Equation (2) defines the shortcut as a conditional operation. When the ensemble output and input <span class="math inline">\(X_n\)</span> have matching embedding counts (<span class="math inline">\(\operatorname{len}(X_n) = \operatorname{len}(Y)\)</span>), the shortcut is an identity: <span class="math inline">\(\operatorname{ShortCut}(X_n) = X_n\)</span>. This is analogous to the standard ResNet shortcut and ensures that gradient flow is not blocked by depth.</p>
+<p>When dimensions mismatch (e.g., after concatenation aggregation increases the embedding count), a learned linear projection <span class="math inline">\(W_n \in \mathbb{R}^{\operatorname{len}(X_n) \times \operatorname{len}(Y)}\)</span> is applied. This is analogous to the 1x1 convolution projection shortcut in ResNet.</p>
+<div class="callout callout-question">
+<p> Exercise 10: Gradient Flow Through Residual DHEN Layers
+<em>The DHEN shortcut connection <span class="math inline">\(X_{n+1} = F_n(X_n) + X_n\)</span> has a specific effect on gradient flow. This problem derives the exact gradient formula and identifies the term that prevents vanishing gradients regardless of the ensemble Jacobian.</em></p>
+<ol type="a">
+<li>For an <span class="math inline">\(N\)</span>-layer DHEN with identity shortcuts and no normalization, <span class="math inline">\(X_{n+1} = F_n(X_n) + X_n\)</span>. By the chain rule, write</li>
+</ol>
+<p><span class="math display">\[\frac{\partial \mathcal{L}}{\partial X_0} = \prod_{n=0}^{N-1} \frac{\partial X_{n+1}}{\partial X_n}\]</span></p>
+<p>and show that <span class="math inline">\(\frac{\partial X_{n+1}}{\partial X_n} = I + J_n\)</span> where <span class="math inline">\(J_n = \frac{\partial F_n(X_n)}{\partial X_n}\)</span> is the Jacobian of the ensemble at layer <span class="math inline">\(n\)</span>.</p>
+<ol start="2" type="a">
+<li>Expand the product <span class="math inline">\(\prod_{n=0}^{N-1}(I + J_n)\)</span> as a sum over subsets <span class="math inline">\(S \subseteq \{0, \ldots, N-1\}\)</span>:</li>
+</ol>
+<p><span class="math display">\[\prod_{n=0}^{N-1}(I + J_n) = \sum_{S \subseteq [N]} \prod_{n \in S} J_n\]</span></p>
+<p>(state precisely in what sense this expansion holds for non-commuting matrix factors). Identify the <span class="math inline">\(S = \emptyset\)</span> term and explain why it guarantees a non-vanishing gradient path.</p>
+<ol start="3" type="a">
+<li>In the presence of layer normalization, the Jacobian of Norm is <span class="math inline">\(\frac{\partial \operatorname{Norm}(z)}{\partial z} = \frac{1}{\sigma}(I - \frac{1}{d}\mathbf{1}\mathbf{1}^\top - \hat{z}\hat{z}^\top)\)</span> where <span class="math inline">\(\hat{z}\)</span> is the normalized vector. Show that this projection matrix has rank <span class="math inline">\(d-2\)</span> and all nonzero eigenvalues equal to <span class="math inline">\(1/\sigma\)</span>. Argue that while LayerNorm introduces some gradient attenuation, the identity shortcut term still prevents complete gradient vanishing.</li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 10
+<strong>Key insight:</strong> The identity shortcut means <span class="math inline">\(\frac{\partial X_{n+1}}{\partial X_n} = I + J_n\)</span>, so the product of Jacobians across all layers always contains the identity path (<span class="math inline">\(S = \emptyset\)</span> term) which by itself transmits the full gradient signal from output to input.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\frac{\partial X_{n+1}}{\partial X_n} = \frac{\partial}{\partial X_n}[F_n(X_n) + X_n] = J_n + I\)</span>.</p></li>
+<li><p><span class="math inline">\(\prod_{n=0}^{N-1}(I + J_n) = \sum_{S \subseteq [N]} \prod_{n \in S} J_n\)</span> holds when expanding the product by choosing either <span class="math inline">\(I\)</span> or <span class="math inline">\(J_n\)</span> at each factor (valid for any matrices, not just commuting ones — the sum over subsets exactly enumerates all <span class="math inline">\(2^N\)</span> choices). The <span class="math inline">\(S = \emptyset\)</span> term is <span class="math inline">\(I\)</span>, contributing <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_N}\)</span> directly to <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_0}\)</span>.</p></li>
+<li><p>LayerNorm Jacobian: <span class="math inline">\(\frac{\partial \operatorname{Norm}(z)}{\partial z} = \frac{1}{\sigma}P_\perp\)</span> where <span class="math inline">\(P_\perp = I - \frac{1}{d}\mathbf{1}\mathbf{1}^\top - \hat{z}\hat{z}^\top\)</span> projects out the mean and <span class="math inline">\(\hat{z}\)</span> directions. This has <span class="math inline">\(d-2\)</span> nonzero eigenvalues equal to <span class="math inline">\(1/\sigma\)</span>. The identity shortcut bypasses LayerNorm, so the <span class="math inline">\(S = \emptyset\)</span> path still carries the full gradient even when LayerNorm attenuates the ensemble-path contribution.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 11: Vanishing Gradient Bound for Residual vs. Plain Stacks
+<em>This problem proves quantitatively that plain (non-residual) deep stacks suffer exponential gradient decay under mild spectral assumptions, while the residual shortcut bounds the gradient away from zero.</em></p>
+<ol type="a">
+<li><p>For a plain non-residual <span class="math inline">\(N\)</span>-layer stack <span class="math inline">\(X_{n+1} = F_n(X_n)\)</span>, the gradient is <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_0} = \prod_{n=0}^{N-1} J_n\)</span>. Suppose all singular values of each <span class="math inline">\(J_n\)</span> are bounded above by <span class="math inline">\(\sigma &lt; 1\)</span> (contractive maps). Show that <span class="math inline">\(\left\|\frac{\partial \mathcal{L}}{\partial X_0}\right\|_F \leq \sigma^N \left\|\frac{\partial \mathcal{L}}{\partial X_N}\right\|_F\)</span>, so the gradient vanishes geometrically as <span class="math inline">\(N \to \infty\)</span>.</p></li>
+<li><p>The <span class="math inline">\(S = \emptyset\)</span> term in the expansion contributes exactly <span class="math inline">\(\partial\mathcal{L}/\partial X_N\)</span> to <span class="math inline">\(\partial\mathcal{L}/\partial X_0\)</span>. Argue that this term is non-zero whenever <span class="math inline">\(\partial\mathcal{L}/\partial X_N \neq 0\)</span>, and hence the gradient <span class="math inline">\(\partial\mathcal{L}/\partial X_0\)</span> cannot identically vanish even when all <span class="math inline">\(J_n\)</span> are contractive — the identity path provides a non-vanishing additive contribution. (Note: this does NOT imply <span class="math inline">\(\|\partial\mathcal{L}/\partial X_0\|_F \geq \|\partial\mathcal{L}/\partial X_N\|_F\)</span> in general, since other terms may cancel.)</p></li>
+<li><p>Empirically, DHEN achieves positive NE gains at <span class="math inline">\(N = 8\)</span> layers (Table 2 in the paper). Under the contractive assumption, a plain 8-layer stack would attenuate gradients by factor <span class="math inline">\(\sigma^8\)</span>. For <span class="math inline">\(\sigma = 0.9\)</span>, compute <span class="math inline">\(\sigma^8\)</span> and contrast it with the residual case, where the identity path keeps a non-vanishing additive contribution to the gradient regardless of depth. Argue that without residual shortcuts, training an 8-layer DHEN would require significantly larger learning rates or careful initialization.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 11
+<strong>Key insight:</strong> For contractive maps (<span class="math inline">\(\|J_n\|_\text{op} &lt; 1\)</span>), the plain stack gradient decays as <span class="math inline">\(\sigma^N \to 0\)</span>. The <span class="math inline">\(S=\emptyset\)</span> term (identity path) always contributes exactly <span class="math inline">\(\partial\mathcal{L}/\partial X_N\)</span> to the upstream gradient — residual connections prevent complete gradient vanishing by ensuring a non-zero additive contribution, even if other terms cancel.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\|\prod_{n=0}^{N-1} J_n\|_F \leq \prod_n \|J_n\|_\text{op} \leq \sigma^N\)</span>. So <span class="math inline">\(\|\frac{\partial \mathcal{L}}{\partial X_0}\|_F \leq \sigma^N \|\frac{\partial \mathcal{L}}{\partial X_N}\|_F \to 0\)</span> as <span class="math inline">\(N \to \infty\)</span>.</p></li>
+<li><p>The <span class="math inline">\(S = \emptyset\)</span> term in the residual expansion is <span class="math inline">\(I\)</span>, so it contributes exactly <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_N}\)</span> to <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_0}\)</span>. Whenever <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_N} \neq 0\)</span>, this additive contribution is non-zero, so <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial X_0}\)</span> cannot identically vanish even when all <span class="math inline">\(J_n\)</span> are contractive. Note: the other terms in the sum (with <span class="math inline">\(S \neq \emptyset\)</span>) can partially cancel this contribution, so this does NOT establish <span class="math inline">\(\|\frac{\partial \mathcal{L}}{\partial X_0}\|_F \geq \|\frac{\partial \mathcal{L}}{\partial X_N}\|_F\)</span> in general — the correct claim is weaker: the identity path prevents complete gradient vanishing.</p></li>
+<li><p><span class="math inline">\(\sigma^8 = 0.9^8 \approx 0.43\)</span>. So a plain 8-layer stack attenuates gradients to 43% of their original magnitude; 22-layer stacks give <span class="math inline">\(0.9^{22} \approx 0.098\)</span> (10% attenuation). With residual shortcuts the gradient from the identity path remains at 100%, explaining why DHEN can train stably at <span class="math inline">\(N = 8\)</span> and the paper’s HSDP experiments push to <span class="math inline">\(N = 22+\)</span>.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 12: Shortcut Aggregation and Dimension Matching
+<em>The DHEN shortcut applies a learned projection <span class="math inline">\(W_n\)</span> only when the ensemble output dimension differs from the input dimension, analogous to the 1x1 convolution shortcut in ResNet. This problem characterizes when dimension mismatch occurs and what the projection learns.</em></p>
+<ol type="a">
+<li><p>Suppose the DHEN layer uses concatenation aggregation with <span class="math inline">\(k\)</span> modules, each producing output <span class="math inline">\(u_i \in \mathbb{R}^{d \times l}\)</span>. The ensemble output is <span class="math inline">\([u_1 \| \cdots \| u_k] \in \mathbb{R}^{d \times (kl)}\)</span>. The input is <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span>. Show that a dimension mismatch occurs unless <span class="math inline">\(kl = m\)</span>, and that the shortcut projection <span class="math inline">\(W_n \in \mathbb{R}^{m \times kl}\)</span> must be applied. Compute the number of parameters in <span class="math inline">\(W_n\)</span>.</p></li>
+<li><p>For sum aggregation with <span class="math inline">\(k\)</span> modules each producing <span class="math inline">\(u_i \in \mathbb{R}^{d \times l}\)</span>, show that the ensemble output has dimension <span class="math inline">\(d \times l\)</span>. Identify the condition on <span class="math inline">\(l\)</span> and <span class="math inline">\(m\)</span> under which the identity shortcut can be used. When <span class="math inline">\(l \neq m\)</span>, how many parameters does the projection require compared to the concatenation case?</p></li>
+<li><p>The shortcut projection <span class="math inline">\(W_n\)</span> plays a dual role: dimension matching and information compression/expansion. Argue that when concatenation grows the embedding count (<span class="math inline">\(kl &gt; m\)</span>), the shortcut projects from a lower-dimensional input space to a higher-dimensional ensemble output space — this is an information expansion, not a bottleneck. Contrast with the ResNet 1x1 projection shortcut, which always projects between equal-dimensional spaces (identity) or reduces dimensions (bottleneck). Identify which DHEN regime is more analogous to which ResNet case.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 12
+<strong>Key insight:</strong> Concatenation aggregation always triggers the projection shortcut (unless <span class="math inline">\(kl = m\)</span> by coincidence), requiring <span class="math inline">\(ml \cdot k\)</span> parameters, while sum aggregation only triggers projection when <span class="math inline">\(l \neq m\)</span>, and the projection has <span class="math inline">\(ml\)</span> parameters — a <span class="math inline">\(k\)</span>-fold difference.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Concatenation output: <span class="math inline">\([u_1 \| \cdots \| u_k] \in \mathbb{R}^{d \times kl}\)</span>. Input: <span class="math inline">\(X_n \in \mathbb{R}^{d \times m}\)</span>. Mismatch when <span class="math inline">\(kl \neq m\)</span>. Projection <span class="math inline">\(W_n \in \mathbb{R}^{m \times kl}\)</span> has <span class="math inline">\(m \cdot kl\)</span> parameters.</p></li>
+<li><p>Sum output: <span class="math inline">\(\sum_i u_i \in \mathbb{R}^{d \times l}\)</span>. Identity shortcut possible when <span class="math inline">\(l = m\)</span>. When <span class="math inline">\(l \neq m\)</span>, projection <span class="math inline">\(W_n \in \mathbb{R}^{m \times l}\)</span> has <span class="math inline">\(ml\)</span> parameters (factor <span class="math inline">\(k\)</span> fewer than concatenation case).</p></li>
+<li><p>When concatenation grows the embedding count (<span class="math inline">\(kl &gt; m\)</span>): the shortcut projects <span class="math inline">\(\mathbb{R}^m \to \mathbb{R}^{kl}\)</span>, mapping a lower-dimensional input to a higher-dimensional ensemble space — an information expansion (the shortcut creates new embedding slots). ResNet’s 1x1 projection shortcut maps between same-dimension feature maps (identity case) or reduces depth in bottleneck blocks. The DHEN expansion shortcut is most analogous to the ResNet learned projection used to match channel dimensions when stride-2 downsampling changes spatial size — both add parameters to handle dimension changes, not to compress information.</p></li>
+</ol>
+</blockquote>
+<h3 id="stacking-and-mixture-of-high-order-interactions">4.3 Stacking and Mixture of High-Order Interactions</h3>
+<p>The critical insight of DHEN is that stacking <span class="math inline">\(N\)</span> hierarchical ensemble layers produces an exponentially rich mixture of high-order interactions. For a two-layer, two-module example with modules <span class="math inline">\(I_1\)</span> and <span class="math inline">\(I_2\)</span>, the second layer processes embeddings that are already themselves outputs of module compositions. The second layer then computes, among others:</p>
+<p><span class="math display">\[I_1(I_1(X_0)), \quad I_1(I_2(X_0)), \quad I_2(I_1(X_0)), \quad I_2(I_2(X_0))\]</span></p>
+<p>(all mixed together via the ensemble). Thus DHEN is capable of capturing interactions of the form “interaction type <span class="math inline">\(A\)</span> applied to the output of interaction type <span class="math inline">\(B\)</span>,” which is qualitatively different from what any homogeneous stack can produce. <strong>With <span class="math inline">\(k\)</span> module types and <span class="math inline">\(N\)</span> layers, the number of distinct interaction compositions grows as <span class="math inline">\(k^N\)</span>, giving DHEN <em>combinatorial expressivity</em> over the space of module sequences.</strong></p>
+<p>Formally, the full DHEN forward pass (for a <span class="math inline">\(N\)</span>-layer model) can be written as:</p>
+<p><span class="math display">\[X_{n+1} = \text{Norm}\!\left(\operatorname{Ensemble}_{i=1}^{k} \operatorname{Interaction}_i(X_n) + \operatorname{ShortCut}(X_n)\right), \quad n = 0, 1, \ldots, N-1\]</span></p>
+<p>The final <span class="math inline">\(X_N\)</span> is passed to a prediction head (typically an MLP followed by sigmoid) to produce <span class="math inline">\(\hat{p}(\text{click})\)</span>.</p>
+<p><img src="figures/dhen-ranking/dhen2022-fig2-two-layer-dhen.jpg" alt="Figure 2 from Zhang et al. (2022): two-layer two-module DHEN and its expanded interaction tree" />
+<em>Figure 2 (Zhang et al., 2022): A two-layer, two-module DHEN (left) and its expanded interaction graph (right). The second layer’s modules operate on composed outputs of first-layer modules, yielding all four compositions <span class="math inline">\(I_1(I_1(X_0))\)</span>, <span class="math inline">\(I_1(I_2(X_0))\)</span>, <span class="math inline">\(I_2(I_1(X_0))\)</span>, <span class="math inline">\(I_2(I_2(X_0))\)</span> — illustrating how DHEN achieves combinatorial expressivity over interaction compositions.</em></p>
+<div class="callout callout-question">
+<p> Exercise 13: The k^N Interaction Composition Count
+<em>Stacking <span class="math inline">\(N\)</span> DHEN layers with <span class="math inline">\(k\)</span> modules per layer produces <span class="math inline">\(k^N\)</span> distinct interaction compositions. This problem proves the count rigorously, distinguishes sum from concatenation aggregation, and contrasts with homogeneous stacks.</em></p>
+<ol type="a">
+<li><p>For a 2-layer, 2-module DHEN with modules <span class="math inline">\(I_1\)</span> and <span class="math inline">\(I_2\)</span> and sum aggregation at each layer, write <span class="math inline">\(X_1 = I_1(X_0) + I_2(X_0) + X_0\)</span> (including shortcut). Then write <span class="math inline">\(X_2\)</span> explicitly as a function of <span class="math inline">\(X_0\)</span> by substituting the expression for <span class="math inline">\(X_1\)</span>. Enumerate all the distinct functional compositions of <span class="math inline">\(I_1\)</span> and <span class="math inline">\(I_2\)</span> that appear in <span class="math inline">\(X_2\)</span>, and count them.</p></li>
+<li><p>With concatenation aggregation, <span class="math inline">\(X_1 = [I_1(X_0) \| I_2(X_0)]\)</span> (ignoring shortcut for clarity). Each second-layer module takes <span class="math inline">\(X_1\)</span> as input; e.g., <span class="math inline">\(I_1(X_1) = I_1([I_1(X_0) \| I_2(X_0)])\)</span>. Explain why this produces a strictly richer set of interactions than sum aggregation: the concatenation preserves the individual module outputs separately, allowing each second-layer module to distinguish contributions from different first-layer modules.</p></li>
+<li><p>Prove by induction that for an <span class="math inline">\(N\)</span>-layer DHEN with <span class="math inline">\(k\)</span> modules per layer (sum aggregation, no shortcuts for simplicity), the number of distinct functional compositions reachable at the output grows as at least <span class="math inline">\(k^N\)</span>. Contrast: a depth-<span class="math inline">\(N\)</span> homogeneous stack with a single module type produces exactly 1 distinct functional form at each layer (composition of the same function <span class="math inline">\(N\)</span> times). Compute <span class="math inline">\(k^N\)</span> for <span class="math inline">\(k = 5\)</span>, <span class="math inline">\(N = 4\)</span> and state what this means for expressivity.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 13
+<strong>Key insight:</strong> In a <span class="math inline">\(k\)</span>-module, <span class="math inline">\(N\)</span>-layer DHEN, each of the <span class="math inline">\(k^N\)</span> length-<span class="math inline">\(N\)</span> sequences of module choices corresponds to a distinct functional composition, and sum aggregation mixes them in a fixed linear combination while concatenation aggregation exposes them individually to the next layer.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(X_1 = I_1(X_0) + I_2(X_0) + X_0\)</span> (with shortcut). <span class="math inline">\(X_2 = I_1(X_1) + I_2(X_1) + X_1\)</span>. Substituting: <span class="math inline">\(X_2 = I_1(I_1(X_0)+I_2(X_0)+X_0) + I_2(I_1(X_0)+I_2(X_0)+X_0) + I_1(X_0)+I_2(X_0)+X_0\)</span>. The distinct composition terms are <span class="math inline">\(I_1 \circ I_1\)</span>, <span class="math inline">\(I_1 \circ I_2\)</span>, <span class="math inline">\(I_2 \circ I_1\)</span>, <span class="math inline">\(I_2 \circ I_2\)</span> plus lower-order terms: 4 distinct pairwise compositions plus <span class="math inline">\(I_1, I_2\)</span>, identity = 7 terms total (more if shortcut interactions count separately).</p></li>
+<li><p>With concatenation: <span class="math inline">\(X_1 = [I_1(X_0) \| I_2(X_0)]\)</span> presents both module outputs as distinct channels. When <span class="math inline">\(I_1\)</span> at layer 2 receives <span class="math inline">\(X_1\)</span>, it jointly processes both <span class="math inline">\(I_1(X_0)\)</span> and <span class="math inline">\(I_2(X_0)\)</span> as separate features — it can learn to weight them differently. With sum, <span class="math inline">\(I_1\)</span> at layer 2 sees only <span class="math inline">\(I_1(X_0) + I_2(X_0)\)</span> and cannot distinguish which part came from which module.</p></li>
+<li><p>By induction: with <span class="math inline">\(k\)</span> modules and sum aggregation at each layer, layer <span class="math inline">\(n\)</span>’s output is a sum of all <span class="math inline">\(k^n\)</span> distinct <span class="math inline">\(n\)</span>-deep compositions. The count multiplies by <span class="math inline">\(k\)</span> each time we add a layer: <span class="math inline">\(k^N\)</span> distinct paths. A homogeneous stack with 1 module type produces only the single composition <span class="math inline">\(I^N\)</span> at depth <span class="math inline">\(N\)</span>. For <span class="math inline">\(k=5\)</span>, <span class="math inline">\(N=4\)</span>: <span class="math inline">\(5^4 = 625\)</span> distinct composition paths.</p></li>
+</ol>
+</blockquote>
+<hr />
+<h2 id="relation-to-prior-work">5. Relation to Prior Work</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Interaction type</th>
+<th>High-order?</th>
+<th>Heterogeneous modules?</th>
+<th>End-to-end?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wide &amp; Deep</td>
+<td>Wide (manual crosses) + Deep (MLP)</td>
+<td>Implicit via MLP</td>
+<td>No (two fixed branches)</td>
+<td>Yes</td>
+<td>Shallow part needs manual engineering</td>
+</tr>
+<tr class="even">
+<td>DeepFM</td>
+<td>FM (2nd order) + MLP</td>
+<td>Implicit via MLP</td>
+<td>No</td>
+<td>Yes</td>
+<td>FM replaces Wide part</td>
+</tr>
+<tr class="odd">
+<td>DCN</td>
+<td>Cross network + MLP</td>
+<td>Bounded degree, bit-level</td>
+<td>No</td>
+<td>Yes</td>
+<td>Output constrained to specific format</td>
+</tr>
+<tr class="even">
+<td>DCN-V2</td>
+<td>Cross network (improved) + MLP</td>
+<td>Bounded degree</td>
+<td>No</td>
+<td>Yes</td>
+<td>Fixes expressivity of DCN cross net</td>
+</tr>
+<tr class="odd">
+<td>xDeepFM</td>
+<td>CIN (feature-wise) + MLP</td>
+<td>Explicit higher-order</td>
+<td>No</td>
+<td>Yes</td>
+<td>CIN is resource-intensive</td>
+</tr>
+<tr class="even">
+<td>AutoInt</td>
+<td>Multi-head self-attention + MLP</td>
+<td>Via attention stacking</td>
+<td>Multi-head (homogeneous)</td>
+<td>No (2-stage)</td>
+<td>Each head is same module type</td>
+</tr>
+<tr class="odd">
+<td>GIN</td>
+<td>Multi-branch attention + pruning</td>
+<td>Via stacking</td>
+<td>Multi-head (homogeneous)</td>
+<td>No (2-stage)</td>
+<td>Requires re-training stage</td>
+</tr>
+<tr class="even">
+<td>InterHAt</td>
+<td>Hierarchical attention aggregation</td>
+<td>Via stacking</td>
+<td>No</td>
+<td>Yes</td>
+<td>Good explainability; lower compute</td>
+</tr>
+<tr class="odd">
+<td>xDeepInt</td>
+<td>Subspace crossing</td>
+<td>Feature-wise + bit-wise</td>
+<td>No</td>
+<td>Yes</td>
+<td>No jointly-trained DNN</td>
+</tr>
+<tr class="even">
+<td><strong>DHEN</strong></td>
+<td>Ensemble of 5 module types</td>
+<td>Exponential via stacking</td>
+<td><strong>Yes</strong></td>
+<td><strong>Yes</strong></td>
+<td>Hierarchical; no manual engineering</td>
+</tr>
+</tbody>
+</table>
+<p>The two architecturally closest predecessors are <strong>GIN</strong> and <strong>AutoInt</strong>:</p>
+<ul>
+<li><strong>AutoInt</strong> uses a multi-branch structure, but each branch within a layer is the same attention module type (multi-<em>head</em>, not multi-<em>type</em>). It also requires two-stage training (pre-train then fine-tune).</li>
+<li><strong>GIN</strong> similarly uses multi-head attention and requires a second re-training stage to prune unimportant interactions.</li>
+</ul>
+<p>DHEN’s key differentiators: (1) genuinely heterogeneous modules per layer, not just multiple heads of the same module; (2) fully end-to-end single-stage training; (3) the hierarchical stacking that allows each module at layer <span class="math inline">\(n+1\)</span> to operate on the <em>composed</em> outputs of all modules at layer <span class="math inline">\(n\)</span>.</p>
+<hr />
+<h2 id="training-and-system-details">6. Training and System Details</h2>
+<p>DHEN’s deeper, multi-layer structure increases parameter count, activation memory, and FLOPs substantially beyond what any single-server system can handle. The training infrastructure is built on the ZionEX system (Mudigere et al. 2021).</p>
+<h3 id="distributed-training-strategy">6.1 Distributed Training Strategy</h3>
+<p>The deployment unit is a <strong>supernode</strong> (pod) of 16 hosts, each with 8 A100 GPUs connected via <em>NVLink</em> (600 GB/s intra-host). Hosts within a pod communicate at up to 200 GB/s (RoCEv2, shared across 8 GPUs). A single pod thus contains 128 A100 GPUs, 5 TB HBM, and 40 PF/s BF16 compute.</p>
+<p>The hybrid training paradigm:</p>
+<ol type="1">
+<li><strong>Sparse embedding tables</strong> are distributed across the pod using <em>model parallel</em> sharding. Oversized tables are column-sharded, and shards are load-balanced via the LPT (Longest Processing Time First) algorithm using an empirical cost function that captures both compute and communication overhead.</li>
+<li><strong>Dense DHEN layers</strong> are replicated on each GPU and trained with <em>data parallel</em> (DP) training. The choice of DP for dense layers reflects that activation sizes can far exceed weight sizes, so it is cheaper to synchronize weights (<em>allreduce</em>) than to send activations across the network.</li>
+<li>Each training batch thus follows: DP forward (dense) → model-parallel embedding lookup → DP forward/backward (dense DHEN layers) → allreduce gradients for dense weights.</li>
+</ol>
+<p><img src="figures/dhen-ranking/dhen2022-fig4-dhen-training.png" alt="Figure 4 from Zhang et al. (2022): DHEN distributed training strategy with 4 GPUs shown" />
+<em>Figure 4 (Zhang et al., 2022): The hybrid distributed training strategy for DHEN (shown for 4 GPUs). Embedding tables are model-parallel across the pod; dense DHEN layers are replicated on each GPU and trained with data parallelism, with allreduce for gradient synchronization.</em></p>
+<h3 id="fully-sharded-data-parallel">6.2 Fully Sharded Data Parallel</h3>
+<p>Standard DP imposes a ceiling on model size equal to per-GPU HBM capacity. To go beyond, the authors use <strong><em>fully sharded data parallel</em> (FSDP)</strong> (FairScale / DeepSpeed ZeRO). FSDP shards model weights across all GPUs, materializing each layer’s weights via <em>allgather</em> on the forward/backward critical path, then immediately discarding them. Additional memory techniques: activation checkpointing (recompute activations in backward), CPU offloading (parameters/gradients stored in CPU RAM, fetched to GPU just before use).</p>
+<p><em>However, at production scale (hundreds of GPUs), naive FSDP is inefficient because the <code>allgather</code> on the critical path must span all GPUs in the cluster. Each shard becomes very small, making it impossible to saturate network bandwidth; the resulting latency dominates.</em></p>
+<h3 id="hybrid-sharded-data-parallel">6.3 Hybrid Sharded Data Parallel</h3>
+<p>The paper proposes <strong><em>hybrid sharded data parallel</em> (HSDP)</strong>, co-designed with DHEN’s architecture and the ZionEX cluster topology. HSDP exploits the 24x bandwidth asymmetry between NVLink (600 GB/s) and RoCEv2 (25 GB/s):</p>
+<ol type="1">
+<li><strong>Intra-host sharding</strong>: HSDP shards the entire dense model across GPUs <em>within</em> a single host. All <code>allgather</code> and <code>reducescatter</code> operations during the forward and backward passes operate exclusively over NVLink at full bandwidth.</li>
+<li><strong>Cross-host gradient synchronization</strong>: After the intra-host <code>reducescatter</code> completes in the backward pass, HSDP registers a backward hook to launch asynchronous <code>allreduce</code> operations across hosts (one per GPU-local-ID group). Each <code>allreduce</code> averages gradients for the local shard across all hosts with the same intra-host position.</li>
+<li>The async <code>allreduce</code> overlaps with the computation of subsequent backward pass layers, hiding its latency.</li>
+</ol>
+<p>HSDP tradeoffs vs. FSDP:
+- <strong>Benefit</strong>: <code>allgather</code> latency on the critical path is reduced dramatically (NVLink vs. RoCE); communication collectives scale with number of hosts, not number of GPUs globally.
+- <strong>Cost</strong>: <em>Supports models up to <span class="math inline">\(8\times\)</span> (GPUs per host) the size of pure DP, not arbitrarily large; adds 1.125x communication overhead in bytes due to the additional <code>allreduce</code>, though this is hidden by pipelining.</em></p>
+<p><em>In practice, small-to-medium DHENs use HSDP; very large DHENs fall back to FSDP.</em></p>
+<p><img src="figures/dhen-ranking/dhen2022-fig5-fsdp-vs-hsdp.png" alt="Figure 5 from Zhang et al. (2022): FSDP vs HSDP comparison with 2 hosts and 2 GPUs each" />
+<em>Figure 5 (Zhang et al., 2022): FSDP (top) vs. HSDP (bottom) shown for 2 hosts with 2 GPUs each. In FSDP, allgather must span all GPUs cluster-wide over slow RoCEv2. In HSDP, allgather is confined to NVLink-connected GPUs within a single host; cross-host gradient averaging is done asynchronously via allreduce over RoCEv2, overlapped with backward computation.</em></p>
+<div class="callout callout-question">
+<p> Exercise 14: HSDP Communication Latency Analysis
+<em>HSDP exploits a 24x bandwidth asymmetry between NVLink and RoCEv2 to reduce critical-path communication latency. This problem derives the exact latency savings and the memory tradeoffs.</em></p>
+<ol type="a">
+<li><p>A cluster has <span class="math inline">\(H\)</span> hosts with <span class="math inline">\(G\)</span> GPUs each; NVLink bandwidth is <span class="math inline">\(B_\text{NV}\)</span> per GPU and cross-host bandwidth is <span class="math inline">\(B_\text{net}\)</span> per GPU with <span class="math inline">\(B_\text{NV}/B_\text{net} \approx 24\)</span>. The dense model has <span class="math inline">\(P\)</span> parameters (BF16 = 2 bytes each). In FSDP across all <span class="math inline">\(GH\)</span> GPUs, each GPU holds a shard of size <span class="math inline">\(P/(GH)\)</span>. The allgather on the forward-pass critical path communicates approximately <span class="math inline">\(P\)</span> bytes per GPU over the bottleneck cross-host links. Estimate the FSDP allgather critical-path latency as <span class="math inline">\(L_\text{FSDP} \approx P / B_\text{net}\)</span>.</p></li>
+<li><p>In HSDP, the forward-pass allgather is confined to the <span class="math inline">\(G\)</span> GPUs within a single host (over NVLink). Each GPU’s shard is <span class="math inline">\(P/G\)</span>, and the total bytes communicated per GPU in the intra-host allgather is approximately <span class="math inline">\(P(G-1)/G \approx P\)</span>. Show that the HSDP allgather critical-path latency is <span class="math inline">\(L_\text{HSDP} \approx P / B_\text{NV}\)</span>, and conclude that HSDP reduces critical-path latency by a factor of <span class="math inline">\(B_\text{NV}/B_\text{net} \approx 24\)</span> compared to FSDP.</p></li>
+<li><p>Compute the peak memory per GPU in bytes for: (i) plain data parallel (DP); (ii) FSDP across <span class="math inline">\(GH\)</span> GPUs; (iii) HSDP. Express answers in terms of <span class="math inline">\(P\)</span>, <span class="math inline">\(G\)</span>, <span class="math inline">\(H\)</span>, and the optimizer state multiplier <span class="math inline">\(s\)</span> (e.g., <span class="math inline">\(s = 3\)</span> for Adam: 1 for parameters + 2 for first and second moments). Note which strategy HSDP uses for gradient buffers — specifically that the asynchronous cross-host allreduce requires buffering a full <span class="math inline">\(P/G\)</span>-parameter gradient shard during the backward pass.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 14
+<strong>Key insight:</strong> HSDP moves the allgather from the slow cross-host network (RoCEv2) to the fast intra-host network (NVLink), reducing critical-path communication latency by the bandwidth ratio <span class="math inline">\(B_\text{NV}/B_\text{net} \approx 24\)</span>.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>FSDP allgather: each GPU must receive all <span class="math inline">\(GH - 1\)</span> other shards, each of size <span class="math inline">\(P/(GH)\)</span> bytes, for a total of <span class="math inline">\((GH-1) \cdot P/(GH) \approx P\)</span> bytes per GPU. The bottleneck is the cross-host RoCEv2 links (capacity <span class="math inline">\(B_\text{net}\)</span> per GPU). So <span class="math inline">\(L_\text{FSDP} \approx P / B_\text{net}\)</span>.</p></li>
+<li><p>HSDP allgather: confined to <span class="math inline">\(G\)</span> GPUs within one host over NVLink. Each GPU receives <span class="math inline">\(G-1\)</span> shards each of size <span class="math inline">\(P/G\)</span>, totalling <span class="math inline">\((G-1) \cdot P/G \approx P\)</span> bytes, communicated at <span class="math inline">\(B_\text{NV}\)</span>. So <span class="math inline">\(L_\text{HSDP} \approx P/B_\text{NV}\)</span>. Ratio: <span class="math inline">\(L_\text{FSDP}/L_\text{HSDP} = B_\text{NV}/B_\text{net} \approx 24\)</span>.</p></li>
+<li><p>Peak memory per GPU:</p></li>
+</ol>
+<ul>
+<li>DP: <span class="math inline">\(sP\)</span> (full parameters + optimizer state) + activations. Total: <span class="math inline">\(sP + \text{activations}\)</span>.</li>
+<li>FSDP: <span class="math inline">\(sP/(GH)\)</span> (sharded parameters + optimizer state) + one layer’s unsharded weights (materialized during allgather): <span class="math inline">\(\approx sP/(GH) + P_\text{layer}\)</span>. In practice <span class="math inline">\(\approx sP/(GH)\)</span> amortized.</li>
+<li>HSDP: <span class="math inline">\(sP/G\)</span> (parameters sharded across <span class="math inline">\(G\)</span> intra-host GPUs) + gradient buffer for async allreduce: <span class="math inline">\(P/G\)</span> extra. Total: <span class="math inline">\((s+1)P/G\)</span>.</li>
+<li>HSDP requires <span class="math inline">\((s+1)P/G\)</span> vs. FSDP’s <span class="math inline">\(sP/(GH)\)</span>: HSDP stores <span class="math inline">\(H(s+1)/s\)</span> times more than FSDP, traded for <span class="math inline">\(24\times\)</span> lower critical-path latency.</li>
+</ul>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 15: HSDP Forward and Backward Pass Pseudocode
+<em>HSDP restricts the critical-path allgather to NVLink-connected intra-host GPUs and moves cross-host gradient averaging off the critical path via asynchronous allreduce. This problem traces the exact communication schedule through the forward and backward passes.</em></p>
+<ol type="a">
+<li><p><strong>HSDP data structures.</strong> Define the parameter sharding scheme: each GPU holds a shard of size <span class="math inline">\(P/G\)</span> parameters (for <span class="math inline">\(G\)</span> GPUs per host). Specify which parameters are sharded (dense DHEN weights) and which are replicated (none, in the full HSDP model). List the communication buffers each GPU maintains.</p></li>
+<li><p><strong>Forward pass pseudocode.</strong> Write the HSDP forward pass for a single DHEN layer. Include: (i) intra-host allgather of weight shards over NVLink to reconstruct full layer weights; (ii) forward computation using full weights; (iii) intra-host reducescatter of activations (if used). Annotate each communication step with: operation type, participants (which GPUs), bandwidth used (NVLink or RoCEv2), and whether it is on the critical path.</p></li>
+<li><p><strong>Backward pass and async allreduce.</strong> Write the HSDP backward pass. Include: (i) gradient computation; (ii) intra-host reducescatter of gradients; (iii) registration of an async allreduce hook to average the local gradient shard across hosts over RoCEv2; (iv) overlap of the allreduce with subsequent backward layers. Explain why this async overlap is valid and what synchronization is required before the optimizer step.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 15
+<strong>Key insight:</strong> HSDP restricts the critical-path allgather to fast NVLink (intra-host), then asynchronously allreduces gradient shards across hosts over slow RoCEv2, overlapping the network communication with computation of earlier backward layers.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><strong>HSDP data structures:</strong></li>
+</ol>
+<pre><code># Each GPU (host h, local rank g) holds:
+#   param_shard[g]: P/G parameters (its local shard of all dense DHEN weights)
+#   grad_shard[g]:  P/G gradient buffer (for async cross-host allreduce)
+#   full_params:    P parameters (materialized during forward via allgather; freed after use)
+# No parameters are replicated across hosts; all are uniquely held by one GPU per host.</code></pre>
+<ol start="2" type="a">
+<li><strong>HSDP forward pass for one layer:</strong></li>
+</ol>
+<pre><code>def hsdp_forward_layer(layer_idx, input_activation):
+    # Step 1: allgather weight shards from G GPUs on same host (NVLink -- critical path)
+    full_weights = intra_host_allgather(param_shard[local_rank])
+    # full_weights: P/num_layers parameters for this layer, shape (d_out, d_in)
+    # Bandwidth: B_NV; latency: ~P_layer / B_NV
+
+    # Step 2: forward computation with full weights
+    output = layer_forward(input_activation, full_weights)
+
+    # Step 3: free full_weights (not stored; recomputed in backward if activation ckpt)
+    del full_weights
+
+    return output</code></pre>
+<ol start="3" type="a">
+<li><strong>HSDP backward pass:</strong></li>
+</ol>
+<pre><code>def hsdp_backward_layer(layer_idx, grad_output):
+    # Step 1: re-allgather weights (or use activation checkpointing recompute)
+    full_weights = intra_host_allgather(param_shard[local_rank])  # NVLink
+
+    # Step 2: compute gradients
+    grad_input = layer_backward_input(grad_output, full_weights)
+    grad_weight = layer_backward_weight(grad_output, saved_input)  # (P_layer,)
+
+    # Step 3: intra-host reducescatter: each GPU accumulates its shard of grad_weight
+    grad_shard_local = intra_host_reducescatter(grad_weight)  # NVLink, critical path
+
+    # Step 4: register async allreduce across hosts (RoCEv2, OFF critical path)
+    async_handle = allreduce_async(grad_shard_local, group=same_local_rank_across_hosts)
+    pending_allreduces.append(async_handle)
+
+    # Step 5: continue backward (allreduce overlaps with next layer's backward)
+    return grad_input
+
+# Before optimizer step: synchronize all pending allreduces
+for handle in pending_allreduces:
+    handle.wait()
+optimizer.step()  # grad_shard now contains globally averaged gradient</code></pre>
+</blockquote>
+<h3 id="common-optimizations">6.4 Common Optimizations</h3>
+<ul>
+<li><strong>Large-batch training</strong>: reduces synchronization frequency.</li>
+<li><strong>FP16 embeddings with stochastic rounding</strong>: halves embedding memory with numerically stable updates.</li>
+<li><strong>BF16 optimizer</strong>: leverages BF16’s larger dynamic range for stability.</li>
+<li><strong>Quantized AllReduce and AllToAll</strong>: reduces communication bandwidth by sending compressed gradients and embedding updates; leverages Tensor Cores.</li>
+</ul>
+<hr />
+<h2 id="experiments">7. Experiments</h2>
+<h3 id="setup">7.1 Setup</h3>
+<p>All experiments use a proprietary large-scale industrial CTR dataset (not publicly released). Features include hundreds of sparse (categorical) features and thousands of dense (numerical) features. The metric throughout is <strong><em>normalized entropy</em> (NE)</strong> loss, defined as the binary cross-entropy normalized by the entropy of the empirical click rate:</p>
+<p><span class="math display">\[\text{NE} = \frac{-\frac{1}{n}\sum_{i=1}^{n} [y_i \log \hat{p}_i + (1-y_i)\log(1-\hat{p}_i)]}{-(p \log p + (1-p)\log(1-p))}\]</span></p>
+<p>where <span class="math inline">\(p\)</span> is the dataset’s empirical click-through rate. Lower NE is better; NE differences are reported as relative improvements over the AdvancedDLRM baseline.</p>
+<div class="callout callout-question">
+<p> Exercise 16: Normalized Entropy as a Calibration Measure
+<em>Normalized entropy (NE) normalizes binary cross-entropy by the entropy of the empirical click rate, making it comparable across datasets with different base click rates. This problem establishes the calibration interpretation: NE = 1 means the model adds no information beyond the marginal rate.</em></p>
+<ol type="a">
+<li><p>Show that a constant predictor <span class="math inline">\(\hat{p}_i = p\)</span> for all <span class="math inline">\(i\)</span> achieves exactly <span class="math inline">\(\text{NE} = 1\)</span>, where <span class="math inline">\(p\)</span> is the empirical click rate, regardless of the dataset. Compute the numerator and denominator separately and show they are equal.</p></li>
+<li><p>The cross-entropy decomposes as <span class="math inline">\(H(\hat{p}, y) = H(p) + D_\text{KL}(p_\text{data} \| p_\theta) + \text{(calibration gap)}\)</span> where <span class="math inline">\(H(p)\)</span> is the entropy of the marginal distribution and <span class="math inline">\(D_\text{KL}\)</span> captures the model’s discriminative power. Show that <span class="math inline">\(\text{NE} = 1 + \frac{D_\text{KL}(p_\text{data} \| p_\theta)}{H(p)} + \frac{\text{(calibration gap)}}{H(p)}\)</span>, and conclude that <span class="math inline">\(\text{NE} &lt; 1\)</span> iff the model’s conditional predictions <span class="math inline">\(\hat{p}_i\)</span> carry information beyond the marginal rate <span class="math inline">\(p\)</span>.</p></li>
+<li><p>Derive the exact condition on the predicted probabilities <span class="math inline">\(\{\hat{p}_i\}\)</span> under which <span class="math inline">\(\text{NE} = 1\)</span> exactly. Show that this condition is equivalent to: the model’s predictions carry zero conditional mutual information <span class="math inline">\(I(y ; \hat{p} \mid \text{context}) = 0\)</span>, i.e., the model is no better than chance given any feature context.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 16
+<strong>Key insight:</strong> NE normalizes binary cross-entropy by the entropy of the marginal click rate, so NE = 1 exactly when the model’s conditional predictions add zero mutual information over the base rate predictor.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Numerator of NE: <span class="math inline">\(-\frac{1}{n}\sum_i[y_i \log p + (1-y_i)\log(1-p)]\)</span>. Since <span class="math inline">\(\frac{1}{n}\sum_i y_i = p\)</span>: this equals <span class="math inline">\(-(p \log p + (1-p)\log(1-p)) = H(p)\)</span>. Denominator is <span class="math inline">\(H(p)\)</span>. So <span class="math inline">\(\text{NE} = H(p)/H(p) = 1\)</span>.</p></li>
+<li><p>Cross-entropy decomposes as <span class="math inline">\(H(\hat{p}, y) = H(p) + D_\text{KL}(p_\text{data} \| p_\theta) + \text{calibration gap}\)</span> (standard result from information theory). Dividing by <span class="math inline">\(H(p)\)</span> gives <span class="math inline">\(\text{NE} = 1 + (D_\text{KL} + \text{calib. gap})/H(p)\)</span>. Thus <span class="math inline">\(\text{NE} &lt; 1\)</span> iff <span class="math inline">\(D_\text{KL} + \text{calib. gap} &lt; 0\)</span>, which is impossible for a calibrated model — actually <span class="math inline">\(\text{NE} &lt; 1\)</span> iff <span class="math inline">\(D_\text{KL} &gt; 0\)</span> and calibration gap is handled correctly, meaning the model genuinely discriminates labels.</p></li>
+<li><p><span class="math inline">\(\text{NE} = 1\)</span> exactly when <span class="math inline">\(\hat{p}_i = p\)</span> for all <span class="math inline">\(i\)</span> (from part a), equivalently when the model’s predictions are independent of all input features. This is the condition <span class="math inline">\(I(y; \hat{p} \mid \text{context}) = 0\)</span>: predictions carry zero information about labels beyond the marginal.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 17: Numerically Stable Distributed NE Computation
+<em>Computing NE in distributed training requires an allreduce for the global click rate and numerically stable cross-entropy computation for the numerator. This problem develops the complete distributed NE pseudocode.</em></p>
+<ol type="a">
+<li><p><strong>Allreduce for global click rate.</strong> In distributed training with <span class="math inline">\(W\)</span> workers, each holding a local shard of <span class="math inline">\(n/W\)</span> examples, describe the allreduce operations needed to compute the global empirical click rate <span class="math inline">\(p = \frac{1}{n}\sum_i y_i\)</span>. Show that allreducing the pair <span class="math inline">\((\sum_\text{local} y_i, n/W)\)</span> and computing <span class="math inline">\(p = \frac{\text{global sum of } y_i}{n}\)</span> gives the correct result.</p></li>
+<li><p><strong>Numerically stable cross-entropy.</strong> The binary cross-entropy <span class="math inline">\(-[y \log \hat{p} + (1-y)\log(1-\hat{p})]\)</span> is unstable when <span class="math inline">\(\hat{p}\)</span> is near 0 or 1. Using logits <span class="math inline">\(s_i\)</span> where <span class="math inline">\(\hat{p}_i = \sigma(s_i)\)</span>, show that <span class="math inline">\(\log \hat{p}_i = -\operatorname{softplus}(-s_i)\)</span> and <span class="math inline">\(\log(1-\hat{p}_i) = -\operatorname{softplus}(s_i)\)</span>, giving the stable formula <span class="math inline">\(\operatorname{CE}(y_i, s_i) = \operatorname{softplus}(s_i) - y_i \cdot s_i\)</span>.</p></li>
+<li><p><strong>Complete distributed NE pseudocode.</strong> Write <code>distributed_NE(local_logits, local_labels, n_global)</code> that: (i) computes local cross-entropy in a numerically stable way using the formula from (b); (ii) allreduces to obtain global cross-entropy sum and global label sum; (iii) computes <span class="math inline">\(p\)</span> and the NE denominator <span class="math inline">\(H(p)\)</span>; (iv) returns NE. Annotate each allreduce with what is communicated and why.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 17
+<strong>Key insight:</strong> Replace <span class="math inline">\(\log \sigma(s)\)</span> with <span class="math inline">\(-\operatorname{softplus}(-s)\)</span> to avoid numerical underflow near 0/1; then allreduce only scalar sums (CE sum and label sum) to compute NE in <span class="math inline">\(O(1)\)</span> communication volume regardless of local batch size.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Each worker <span class="math inline">\(w\)</span> computes local sums <span class="math inline">\((S_y^{(w)}, S_n^{(w)}) = (\sum_\text{local} y_i, n/W)\)</span>. AllReduce-sum gives <span class="math inline">\(S_y = \sum_w S_y^{(w)}\)</span> and <span class="math inline">\(n = \sum_w S_n^{(w)}\)</span>. Then <span class="math inline">\(p = S_y / n\)</span>. This requires a single AllReduce of 2 scalars.</p></li>
+<li><p>For logit <span class="math inline">\(s_i\)</span> with <span class="math inline">\(\hat{p}_i = \sigma(s_i)\)</span>:
+<span class="math inline">\(\log \hat{p}_i = \log \sigma(s_i) = -\log(1 + e^{-s_i}) = -\operatorname{softplus}(-s_i)\)</span>
+<span class="math inline">\(\log(1-\hat{p}_i) = \log(1 - \sigma(s_i)) = -\log(1 + e^{s_i}) = -\operatorname{softplus}(s_i)\)</span>
+CE<span class="math inline">\((y_i, s_i) = \operatorname{softplus}(s_i) - y_i \cdot s_i\)</span> (numerically stable for all <span class="math inline">\(s_i\)</span>).</p></li>
+<li><p><strong>Complete pseudocode:</strong></p></li>
+</ol>
+<pre><code>def distributed_NE(local_logits, local_labels, n_global):
+    # local_logits, local_labels: (n_local,)
+    local_ce = softplus(local_logits) - local_labels * local_logits  # (n_local,)
+    local_ce_sum = sum(local_ce)            # scalar
+    local_label_sum = sum(local_labels)     # scalar
+
+    # AllReduce: sum CE and label counts across all workers
+    global_ce_sum = allreduce_sum(local_ce_sum)    # 1 scalar communicated
+    global_label_sum = allreduce_sum(local_label_sum)  # 1 scalar communicated
+
+    p = global_label_sum / n_global                # empirical CTR
+    H_p = -(p * log(p) + (1-p) * log(1-p))        # NE denominator (nats)
+    numerator = global_ce_sum / n_global            # mean cross-entropy
+    return numerator / H_p                          # NE</code></pre>
+</blockquote>
+<h3 id="interaction-module-ablation">7.2 Interaction Module Ablation</h3>
+<p>The ablation studies in Table 1 (paper) evaluate the hierarchical ensemble over DCN, self-attention, CNN, and linear modules using 5 stacked layers (<span class="math inline">\(N=5\)</span>). Key findings:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Interaction types</th>
+<th>NE diff at 10B</th>
+<th>NE diff at 20B</th>
+<th>NE diff at 35B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 (baseline)</td>
+<td>DCN</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Self-attention</td>
+<td>+0.036%</td>
+<td>+0.026%</td>
+<td><strong>-1.044%</strong></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>CNN</td>
+<td>-1.441%</td>
+<td>-1.535%</td>
+<td>-1.534%</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Linear</td>
+<td>-1.461%</td>
+<td>-1.546%</td>
+<td>-1.538%</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>DCN + Linear</td>
+<td>-0.002%</td>
+<td>-0.004%</td>
+<td>-0.004%</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Self-attention + Linear</td>
+<td>-1.363%</td>
+<td>-1.537%</td>
+<td><strong>-1.576%</strong></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Self-attention + CNN</td>
+<td>+0.024%</td>
+<td>-1.270%</td>
+<td>-1.508%</td>
+</tr>
+</tbody>
+</table>
+<p>(Negative NE diff = improvement over DCN baseline.)</p>
+<p>Key observations:</p>
+<ul>
+<li><strong>Linear alone outperforms DCN</strong> at all training checkpoints, suggesting that in this feature space, preserving raw embedding information is more valuable than explicit cross-network interactions.</li>
+<li><strong>Self-attention alone converges slowly</strong> — it requires more data to realize its benefit (barely improving at 20B, hurting at 35B without ensemble).</li>
+<li><strong>Hierarchical ensemble of self-attention + linear</strong> is the best configuration: better than either alone, and achieves -1.576% NE at 35B. The ensemble stabilizes self-attention’s convergence by coupling it with the fast-converging linear module.</li>
+<li><strong>Not all ensembles are beneficial</strong>: DCN + Linear underperforms linear alone, and self-attention + CNN underperforms self-attention + linear. This confirms that the <em>non-overlapping information hypothesis</em> is necessary but not sufficient — module complementarity depends on the specific dataset.</li>
+</ul>
+<div class="callout callout-question">
+<p> Exercise 18: Ensemble Stabilization of Slow-Converging Modules
+<em>Self-attention alone converges slowly in the DHEN ablation, but attention + linear converges faster and achieves better final NE. This problem derives the gradient-sharing mechanism that explains this stabilization effect.</em></p>
+<ol type="a">
+<li>With sum aggregation, <span class="math inline">\(Y = I_\text{attn}(X) + I_\text{lin}(X) + \operatorname{ShortCut}(X)\)</span>. The gradient with respect to <span class="math inline">\(I_\text{attn}\)</span>’s parameters <span class="math inline">\(\theta_\text{attn}\)</span> is</li>
+</ol>
+<p><span class="math display">\[\frac{\partial \mathcal{L}}{\partial \theta_\text{attn}} = \frac{\partial \mathcal{L}}{\partial Y} \cdot \frac{\partial I_\text{attn}(X)}{\partial \theta_\text{attn}}\]</span></p>
+<p>Show that <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial Y}\)</span> is shared across all modules. Argue that adding <span class="math inline">\(I_\text{lin}(X)\)</span> reduces the variance of <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial Y}\)</span> compared to the case where attention is the sole module (the loss surface the ensemble navigates is smoother).</p>
+<ol start="2" type="a">
+<li><p>At initialization, self-attention with small random weights produces outputs near zero (approximately uniform attention weights <span class="math inline">\(A_{ij} \approx 1/m\)</span>, giving <span class="math inline">\(z_i \approx \frac{1}{m}\sum_j x_j W^V \approx 0\)</span> for small <span class="math inline">\(W^V\)</span>). The linear module with near-identity initialization produces <span class="math inline">\(I_\text{lin}(X) \approx X\)</span>, a reasonable initial predictor. Show that the ensemble’s prediction at initialization is therefore dominated by the linear module, providing a stable gradient signal even before attention has learned.</p></li>
+<li><p>Draw the explicit parallel to ResNet training dynamics: explain how the DHEN ensemble at initialization behaves like an “effective shallow model” and gradually shifts to exploit the attention module as training progresses. State this as a formal analogy (not just a verbal description): identify the correspondence between DHEN components and ResNet components.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 18
+<strong>Key insight:</strong> The shared gradient <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial Y}\)</span> becomes smoother when the linear module provides an accurate baseline prediction early in training, reducing gradient variance and allowing the attention module to learn from a cleaner signal.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>With <span class="math inline">\(Y = I_\text{attn}(X) + I_\text{lin}(X) + \text{ShortCut}(X)\)</span>, the gradient to each module is <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial I_j(X)} = \frac{\partial \mathcal{L}}{\partial Y}\)</span> (same for all modules by chain rule). The variance of <span class="math inline">\(\frac{\partial \mathcal{L}}{\partial Y}\)</span> is lower when <span class="math inline">\(Y\)</span> is a better predictor (lower loss residuals). Since <span class="math inline">\(I_\text{lin}\)</span> contributes a reasonable early-training prediction, the ensemble <span class="math inline">\(Y\)</span> is closer to the truth than <span class="math inline">\(I_\text{attn}(X)\)</span> alone, reducing <span class="math inline">\(\operatorname{Var}(\frac{\partial \mathcal{L}}{\partial Y})\)</span>.</p></li>
+<li><p>At initialization with small <span class="math inline">\(W^V\)</span>: <span class="math inline">\(I_\text{attn}(X) \approx 0\)</span> (uniform attention gives <span class="math inline">\(z_i \approx \frac{1}{m}\sum_j x_j W^V \approx 0\)</span>). Near-identity linear: <span class="math inline">\(I_\text{lin}(X) \approx X\)</span>. So <span class="math inline">\(Y \approx X + \text{ShortCut}(X) \approx 2X\)</span>, a reasonable baseline. The gradient to <span class="math inline">\(\theta_\text{attn}\)</span> starts from a meaningful signal.</p></li>
+<li><p>ResNet analogy: at initialization, ResNet behaves like a shallow network because <span class="math inline">\(F_n \approx 0\)</span> (small random init) and <span class="math inline">\(X_{n+1} \approx X_n\)</span>. The effective depth gradually increases as <span class="math inline">\(F_n\)</span> learns. DHEN analogously behaves like “linear module + shortcut = identity” at init; attention gradually becomes non-trivial. Formal correspondence: DHEN’s <span class="math inline">\(I_\text{lin}\)</span> plays the role of ResNet’s identity shortcut; DHEN’s <span class="math inline">\(I_\text{attn}\)</span> plays the role of ResNet’s residual branch <span class="math inline">\(F_n\)</span>.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 19: Why Linear Can Outperform DCN
+<em>The ablation shows that a simple linear projection module outperforms the DCN cross-network module in isolation. This problem derives two formal hypotheses — feature redundancy and optimization landscape — explaining this counterintuitive result.</em></p>
+<ol type="a">
+<li><p><strong>Feature redundancy hypothesis.</strong> Suppose the input embeddings <span class="math inline">\(X_0\)</span> already contain explicit feature crosses: the embedding table contains entries <span class="math inline">\(v_{ij}\)</span> for feature pairs <span class="math inline">\((i,j)\)</span> alongside individual feature embeddings <span class="math inline">\(v_i\)</span>. Show that DCN’s degree-2 term <span class="math inline">\(x_0(x_0^\top w)\)</span> in the cross network is then in the linear span of the input embeddings, meaning DCN’s crossing adds no information not already present in <span class="math inline">\(X_0\)</span>. By contrast, the linear module <span class="math inline">\(u = WX_0\)</span> simply re-projects all available information, including the pre-computed crosses.</p></li>
+<li><p><strong>Optimization landscape hypothesis.</strong> The cross network recurrence <span class="math inline">\(x_{\ell+1} = x_0(x_\ell^\top w_\ell) + b_\ell + x_\ell\)</span> introduces bilinear coupling between <span class="math inline">\(x_0\)</span> and the parameter <span class="math inline">\(w_\ell\)</span> via the product <span class="math inline">\(x_\ell^\top w_\ell\)</span>. Show that the Hessian of the loss with respect to <span class="math inline">\(w_\ell\)</span> contains second-order terms <span class="math inline">\(\propto x_0 x_0^\top\)</span>, creating curvature that grows with embedding magnitude. For sparse embedding inputs where <span class="math inline">\(\|x_0\|\)</span> varies wildly across features, argue that this creates an ill-conditioned optimization problem relative to the linear module’s constant-curvature landscape.</p></li>
+<li><p>Given both hypotheses, identify the dataset conditions under which DCN would outperform the linear module. Specifically, state a concrete property of the feature space (e.g., features are raw one-hot categoricals with no pre-computed crosses) and a training regime property (e.g., small learning rate, strong regularization) where DCN’s explicit crossing should dominate.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 19
+<strong>Key insight:</strong> In production feature spaces with pre-computed crosses already present in the input embeddings, DCN recomputes information already in the input (feature redundancy), while its bilinear coupling also creates ill-conditioned gradients for sparse embeddings (optimization landscape).</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>If <span class="math inline">\(X_0\)</span> contains embedding entries corresponding to feature pairs <span class="math inline">\((i,j)\)</span> — i.e., <span class="math inline">\(X_0 = [v_1, \ldots, v_m, v_{12}, v_{13}, \ldots]\)</span> with <span class="math inline">\(v_{ij}\)</span> a pre-computed cross embedding — then DCN’s degree-2 term <span class="math inline">\(x_0(x_0^\top w) \in \text{span}(x_0)\)</span>, and cross terms in <span class="math inline">\(x_0^\top w\)</span> are linear combinations of the already-available <span class="math inline">\(v_{ij}\)</span> entries. DCN adds nothing not already in <span class="math inline">\(\text{span}(X_0)\)</span>, while the linear module <span class="math inline">\(WX_0\)</span> accesses all of <span class="math inline">\(\text{span}(X_0)\)</span> directly.</p></li>
+<li><p>Hessian of loss w.r.t. <span class="math inline">\(w_\ell\)</span>: <span class="math inline">\(\frac{\partial^2 \mathcal{L}}{\partial w_\ell^2} \propto x_0 x_0^\top\)</span>. The condition number of this Hessian is <span class="math inline">\(\|x_0\|^2 / \lambda_\text{min}(x_0 x_0^\top)\)</span>. For sparse embeddings, <span class="math inline">\(x_0\)</span> varies across features (some near zero, some large), making the effective Hessian highly ill-conditioned. The linear module’s Hessian is <span class="math inline">\(X_0 X_0^\top\)</span> (a full-rank matrix in expectation), better conditioned.</p></li>
+<li><p>DCN would outperform linear when: features are raw one-hot encodings with no pre-computed crosses; the corpus is small enough that the crossed features have not appeared frequently enough to be estimated well; and the optimizer is heavily regularized (forcing the linear module toward near-zero weights while DCN can still learn the explicit crossing via <span class="math inline">\(x_0 x_0^\top w\)</span>).</p></li>
+</ol>
+</blockquote>
+<h3 id="dhen-vs.-advanceddlrm">7.3 DHEN vs. AdvancedDLRM</h3>
+<p>Table 2 (paper) compares DHEN stacks of varying depth <span class="math inline">\(N \in \{1, 2, 4, 8\}\)</span> against the AdvancedDLRM baseline (using AdvancedDLRM + Linear as the module pair):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th><span class="math inline">\(N\)</span></th>
+<th>NE diff at 5B</th>
+<th>NE diff at 15B</th>
+<th>NE diff at 25B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AdvancedDLRM (baseline)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>DHEN</td>
+<td>2</td>
+<td>-0.0315%</td>
+<td>-0.134%</td>
+<td>-0.176%</td>
+</tr>
+<tr class="odd">
+<td>DHEN</td>
+<td>4</td>
+<td>-0.071%</td>
+<td>-0.197%</td>
+<td>-0.255%</td>
+</tr>
+<tr class="even">
+<td>DHEN</td>
+<td>8</td>
+<td>-0.068%</td>
+<td>-0.208%</td>
+<td>-0.273%</td>
+</tr>
+</tbody>
+</table>
+<p>All DHEN configurations outperform the baseline. Deeper models achieve larger NE improvement, and crucially, the gap <em>widens with more training data</em> — suggesting that DHEN’s ability to capture higher-order interactions and module correlations requires more samples to manifest, but yields durable gains. <strong>The 8-layer DHEN achieves -0.273% NE at 25B examples, reaching the reported -0.27% NE improvement over AdvancedDLRM with additional data.</strong></p>
+<div class="callout callout-question">
+<p> Exercise 20: NE and Mutual Information
+<em>This problem formalizes the connection between NE improvement and mutual information, giving a precise information-theoretic interpretation to the 0.27% NE gain reported for DHEN over AdvancedDLRM.</em></p>
+<ol type="a">
+<li><p>Show that the NE of a model <span class="math inline">\(p_\theta\)</span> equals <span class="math inline">\(1 - I(y; \hat{p}_\theta) / H(p)\)</span> in expectation, where <span class="math inline">\(I(y; \hat{p}_\theta)\)</span> is the mutual information between the label <span class="math inline">\(y\)</span> and the model’s prediction <span class="math inline">\(\hat{p}_\theta\)</span>. Use the decomposition from Exercise 8(b) with zero calibration gap for a perfectly calibrated model.</p></li>
+<li><p>For two models with NE values <span class="math inline">\(\text{NE}_1\)</span> and <span class="math inline">\(\text{NE}_2 &lt; \text{NE}_1\)</span>, show that</p></li>
+</ol>
+<p><span class="math display">\[\text{NE}_1 - \text{NE}_2 = \frac{I(y; \hat{p}_{\theta_2}) - I(y; \hat{p}_{\theta_1})}{H(p)}\]</span></p>
+<p>i.e., the NE improvement is proportional to the gain in mutual information, normalized by the marginal entropy.</p>
+<ol start="3" type="a">
+<li>The paper reports a 0.27% NE improvement for DHEN over AdvancedDLRM. If the empirical click rate is <span class="math inline">\(p = 0.05\)</span> (a typical display ad CTR), compute <span class="math inline">\(H(p)\)</span> in nats. Then compute the additional mutual information (in nats) that DHEN’s predictions capture about click outcomes compared to AdvancedDLRM. Interpret the result.</li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 20
+<strong>Key insight:</strong> For a perfectly calibrated model, the NE equals <span class="math inline">\(1 - I(y;\hat{p})/H(p)\)</span>, so NE improvement directly measures the gain in normalized mutual information between predictions and labels.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>For a perfectly calibrated model, the calibration gap is zero. The cross-entropy decomposition gives <span class="math inline">\(H(\hat{p}, y) = H(p) - I(y; \hat{p})\)</span> (using <span class="math inline">\(H(y \mid \hat{p}) = H(y) - I(y;\hat{p})\)</span> and calibration meaning <span class="math inline">\(H(y|\hat{p}_\theta) = H(\hat{p}_\theta)\)</span>). Dividing by <span class="math inline">\(H(p)\)</span>: <span class="math inline">\(\text{NE} = 1 - I(y;\hat{p})/H(p)\)</span>.</p></li>
+<li><p><span class="math inline">\(\text{NE}_1 - \text{NE}_2 = (1 - I_1/H(p)) - (1 - I_2/H(p)) = (I_2 - I_1)/H(p)\)</span>, directly the normalized mutual information gain.</p></li>
+<li><p><span class="math inline">\(H(0.05) = -(0.05 \ln 0.05 + 0.95 \ln 0.95) \approx 0.199\)</span> nats. DHEN’s 0.27% NE improvement corresponds to <span class="math inline">\(\Delta I = 0.0027 \times 0.199 \approx 0.000537\)</span> nats of additional mutual information. This is a small absolute gain, but relative to the information-theoretic ceiling <span class="math inline">\(H(p) = 0.199\)</span> nats, it represents about 0.27% of the maximum achievable gain — meaningful at the scale of industrial CTR systems.</p></li>
+</ol>
+</blockquote>
+<h3 id="scaling-efficiency-vs.-mixture-of-experts">7.4 Scaling Efficiency vs. Mixture of Experts</h3>
+<p>Table 3 (paper) benchmarks DHEN depth-scaling against <a href="../../../notes/concepts/mixture-of-experts/note%7Cmoe/">concepts/mixture-of-experts/note|MoE</a>-based MLP scaling, both on top of AdvancedDLRM:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>FLOPs</th>
+<th>NE diff at 50B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AdvancedDLRM</td>
+<td>0.06G</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>4-expert MoE</td>
+<td>1.3G</td>
+<td>-0.06%</td>
+</tr>
+<tr class="odd">
+<td>2-layer DHEN</td>
+<td>1.44G</td>
+<td><strong>-0.11%</strong></td>
+</tr>
+<tr class="even">
+<td>8-expert MoE</td>
+<td>3.3G</td>
+<td>-0.09%</td>
+</tr>
+<tr class="odd">
+<td>4-layer DHEN</td>
+<td>3G</td>
+<td><strong>-0.21%</strong></td>
+</tr>
+<tr class="even">
+<td>16-expert MoE</td>
+<td>6G</td>
+<td>-0.10%</td>
+</tr>
+<tr class="odd">
+<td>6-layer DHEN</td>
+<td>4.6G</td>
+<td><strong>-0.26%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>At matched or lower FLOP budgets, DHEN consistently outperforms MoE. MoE scales the MLP layers wider by routing to expert sub-networks but remains within a single interaction paradigm (dense MLP). DHEN’s heterogeneous module stacking yields strictly better return on FLOPs.</p>
+<div class="callout callout-question">
+<p> Exercise 21: DHEN vs. MoE: Interaction Diversity vs. Capacity
+<em>At matched FLOPs, DHEN consistently outperforms MoE-based scaling. This problem formalizes the distinction between interaction diversity (DHEN) and model capacity (MoE), and identifies conditions under which MoE could be preferable.</em></p>
+<ol type="a">
+<li><p>MoE with <span class="math inline">\(E\)</span> experts and top-1 routing processes each example through exactly one expert. Show that the expected FLOPs per example equal the FLOPs of a single expert (not <span class="math inline">\(E\)</span> times). DHEN with <span class="math inline">\(k\)</span> modules processes each example through all <span class="math inline">\(k\)</span> modules, so its FLOPs per example scale exactly as <span class="math inline">\(k\)</span>. For matched FLOPs budget <span class="math inline">\(F\)</span>: MoE can have <span class="math inline">\(E = F / F_\text{expert}\)</span> experts (increasing capacity), while DHEN can have <span class="math inline">\(k = F / F_\text{module}\)</span> modules (increasing diversity). Formalize the tradeoff.</p></li>
+<li><p>Construct a formal scenario in which MoE outperforms DHEN: suppose the data distribution is a mixture of <span class="math inline">\(E\)</span> sub-populations with qualitatively different optimal interaction structures <span class="math inline">\(f_1^*, \ldots, f_E^*\)</span>, such that <span class="math inline">\(f_e^*\)</span> is not well-approximated by any convex combination of <span class="math inline">\(\{f_1^*, \ldots, f_E^*\}\)</span>. Show that DHEN’s ensemble (a single model applied to all examples) cannot match MoE’s per-example specialization in this setting.</p></li>
+<li><p>Propose a hybrid “MoE-DHEN” architecture: an MoE layer where each expert is itself a small DHEN ensemble with <span class="math inline">\(k_\text{expert}\)</span> modules. Write the forward pass formally, specifying which parameters are shared across experts and which are expert-specific. For <span class="math inline">\(E = 2\)</span> experts and <span class="math inline">\(k_\text{expert} = 2\)</span> modules (DCN + Linear), count the total distinct interaction paths per example.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 21
+<strong>Key insight:</strong> MoE uses sparsity (each example sees one expert) to amortize capacity across sub-populations; DHEN uses density (each example sees all modules) to maximize interaction diversity per example — these are complementary strategies suited to different data distributions.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>MoE top-1 routing: expected FLOPs per example <span class="math inline">\(= F_\text{expert}\)</span> (only one expert is active). DHEN: FLOPs per example <span class="math inline">\(= k \cdot F_\text{module}\)</span>. At matched total FLOPs budget <span class="math inline">\(F\)</span>: MoE can instantiate <span class="math inline">\(E = F / F_\text{expert}\)</span> experts (with each example seeing <span class="math inline">\(F_\text{expert}\)</span> FLOPs); DHEN can instantiate <span class="math inline">\(k = F / F_\text{module}\)</span> modules (each example sees all <span class="math inline">\(k\)</span> modules for <span class="math inline">\(k \cdot F_\text{module} = F\)</span> FLOPs). MoE adds capacity (<span class="math inline">\(E\)</span> distinct functions); DHEN adds diversity (all <span class="math inline">\(k\)</span> functions applied per example).</p></li>
+<li><p>Formal scenario: suppose <span class="math inline">\(p(\text{data}) = \sum_e \pi_e p_e(\text{data})\)</span> with <span class="math inline">\(E\)</span> sub-populations, each with optimal predictor <span class="math inline">\(f_e^*\)</span> satisfying <span class="math inline">\(\|f_e^* - \sum_j \alpha_j f_j^*\|^2 &gt; \epsilon &gt; 0\)</span> for all <span class="math inline">\(\alpha \in \Delta^E\)</span> (<span class="math inline">\(f_e^*\)</span> are not convex combinations of each other). Then no fixed ensemble of <span class="math inline">\(\{f_e^*\}\)</span> achieves the per-sub-population optimal; only routing (MoE) does.</p></li>
+<li><p>For <span class="math inline">\(E=2\)</span>, <span class="math inline">\(k=2\)</span> (DCN + Linear): MoE-DHEN routes each example to one expert; that expert runs DCN + Linear ensemble. Per-example interaction paths: 2 (one per expert’s DCN and Linear). Shared parameters: gating network <span class="math inline">\(g\)</span>. Expert-specific parameters: all DCN and Linear weights within each expert. Total distinct paths: <span class="math inline">\(2 \times 2 = 4\)</span> per routing decision, vs. DHEN’s <span class="math inline">\(2^N\)</span> across layers.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 22: MoE-DHEN Hybrid Architecture
+<em>A hybrid architecture combining MoE routing with DHEN ensembles within each expert could capture both per-example routing specialization and interaction diversity. This problem develops the complete forward pass and analyzes the computational cost.</em></p>
+<ol type="a">
+<li><p><strong>Architecture specification.</strong> Design a “MoE-DHEN” layer: an MoE layer with <span class="math inline">\(E\)</span> experts, where each expert is a DHEN ensemble with <span class="math inline">\(k\)</span> modules (DCN + Linear). Define the gating network <span class="math inline">\(g: \mathbb{R}^{d \times m} \to \Delta^E\)</span> (maps input to a probability simplex over experts), the expert networks <span class="math inline">\(\{\text{DHEN}_e\}_{e=1}^E\)</span>, and the output aggregation. Specify which parameters are shared across experts and which are expert-specific.</p></li>
+<li><p><strong>Forward pass pseudocode.</strong> Write pseudocode for the MoE-DHEN layer forward pass with top-1 routing. Include: (i) gating score computation; (ii) expert selection and dispatch; (iii) DHEN ensemble computation within the selected expert; (iv) output assembly. Annotate shapes at each step for batch size <span class="math inline">\(B\)</span>, <span class="math inline">\(m\)</span> features, embedding dimension <span class="math inline">\(d\)</span>.</p></li>
+<li><p><strong>FLOPs and parameter count analysis.</strong> For <span class="math inline">\(E\)</span> experts with <span class="math inline">\(k\)</span> modules per expert, each module with <span class="math inline">\(F_\text{module}\)</span> FLOPs per example: compute total FLOPs per example (top-1 routing) and total parameter count. Compare to: (i) a plain <span class="math inline">\(k\)</span>-module DHEN (no MoE); (ii) a plain <span class="math inline">\(E\)</span>-expert MoE with single-module experts. Identify the parameter-efficiency and compute-efficiency regimes where MoE-DHEN dominates each baseline.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution 22
+<strong>Key insight:</strong> MoE-DHEN separates routing specialization (the gating network selects which expert’s interaction structure to apply) from interaction diversity (each expert’s DHEN ensemble applies multiple module types), combining both benefits at the cost of <span class="math inline">\(E \times\)</span> the parameter count of a single DHEN.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><strong>Architecture specification:</strong></li>
+</ol>
+<pre><code># Shared: gating network g: R^{d x m} -&gt; Delta^E
+#   g(Xn) = softmax(W_gate * flatten(Xn))  -- W_gate: (E, dm), shared
+# Expert-specific (for e = 1..E):
+#   DHEN_e: k interaction modules {I_1^e, ..., I_k^e} with their own weights
+#   Each module: DCN weights {U_l^e, V_l^e, b_l^e} or Linear weights W_lin^e
+# No sharing of interaction module weights across experts.</code></pre>
+<ol start="2" type="a">
+<li><strong>Forward pass (top-1 routing):</strong></li>
+</ol>
+<pre><code>def moe_dhen_layer(Xn, gate, experts):
+    # Xn: (B, d, m)
+    scores = gate(flatten(Xn))              # (B, E): gating logits
+    expert_idx = argmax(scores, dim=1)      # (B,): top-1 selection
+
+    output = zeros_like(Xn)
+    for e in range(E):
+        mask = (expert_idx == e)            # (B,) boolean
+        if mask.any():
+            Xn_e = Xn[mask]                # (B_e, d, m): routed sub-batch
+            u_dcn  = experts[e].dcn(Xn_e)  # (B_e, d, l)
+            u_lin  = experts[e].linear(Xn_e)  # (B_e, d, l)
+            u_ens  = concat([u_dcn, u_lin], dim=-1)  # (B_e, d, 2l)
+            output[mask] = u_ens + shortcut(Xn_e)    # residual
+    return LayerNorm(output)                # (B, d, 2l)</code></pre>
+<ol start="3" type="a">
+<li><strong>FLOPs and parameter analysis:</strong></li>
+</ol>
+<ul>
+<li>FLOPs per example (top-1): <span class="math inline">\(F_\text{gate} + k \cdot F_\text{module}\)</span> (one expert’s ensemble + gating). Same compute as single DHEN + gating overhead.</li>
+<li>Total parameters: <span class="math inline">\(P_\text{gate} + E \cdot k \cdot P_\text{module}\)</span> (each expert has its own <span class="math inline">\(k\)</span> modules). <span class="math inline">\(E\)</span> times more than plain DHEN.</li>
+<li>vs. plain DHEN (<span class="math inline">\(k\)</span> modules, no MoE): MoE-DHEN has <span class="math inline">\(E \times\)</span> more parameters for the same per-example FLOPs.</li>
+<li>vs. plain MoE (<span class="math inline">\(E\)</span> experts, 1 module each): MoE-DHEN has <span class="math inline">\(k\)</span> times more per-example compute (all <span class="math inline">\(k\)</span> modules run within chosen expert) and same parameter count if each MoE expert <span class="math inline">\(\equiv\)</span> one module. MoE-DHEN dominates plain MoE when interaction diversity per example matters; MoE-DHEN dominates plain DHEN when sub-population specialization matters.</li>
+</ul>
+</blockquote>
+<h3 id="training-throughput">7.5 Training Throughput</h3>
+<p>On a 256-GPU cluster, experiments with an 8-layer DHEN using DP yield 1.08x end-to-end speedup from: FP16 embedding + AMP + quantized BF16 allreduce + quantized AllToAll. The remaining bottleneck is optimizer cost and AllToAll latency not fully overlapped with dense layer compute.</p>
+<p><em>For depth beyond 22 layers, DP fails (OOM).</em> <strong>HSDP supports larger models than DP and achieves up to 1.2x throughput over FSDP for the same model size.</strong> FSDP supports arbitrary depth but with high <code>allgather</code> latency on the critical path across all cluster GPUs; HSDP restricts <code>allgather</code> to NVLink within a single host, eliminating the RoCEv2 bottleneck.</p>
+<p><img src="figures/dhen-ranking/dhen2022-fig6-dhen-speedup.png" alt="Figure 6 from Zhang et al. (2022): HSDP supports larger model sizes than DP and higher throughput than FSDP" />
+<em>Figure 6 (Zhang et al., 2022): Training throughput comparison across DP, FSDP, and HSDP at varying DHEN layer counts on a 256-GPU cluster. DP succeeds only up to 22 layers (OOM beyond); HSDP consistently achieves up to 1.2x the throughput of FSDP by replacing cluster-wide allgather with fast intra-host NVLink allgather.</em></p>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zhang et al. 2022 (DHEN)</td>
+<td>This paper; proposes the DHEN hierarchical ensemble architecture for CTR prediction</td>
+<td>https://arxiv.org/abs/2203.11014</td>
+</tr>
+<tr class="even">
+<td>Naumov et al. 2019 (DLRM)</td>
+<td>Deep Learning Recommendation Model; baseline interaction architecture using dot-product feature crossing</td>
+<td>https://arxiv.org/abs/1906.00091</td>
+</tr>
+<tr class="odd">
+<td>Wang et al. 2017 (DCN)</td>
+<td>Deep &amp; Cross Network; introduces cross network for bounded-degree feature interaction learning</td>
+<td>https://dl.acm.org/doi/10.1145/3124749.3124754</td>
+</tr>
+<tr class="even">
+<td>Wang et al. 2021 (DCN-V2)</td>
+<td>Improved DCN; addresses limitations of DCN’s bit-level interaction constraints</td>
+<td>https://dl.acm.org/doi/10.1145/3442381.3450078</td>
+</tr>
+<tr class="odd">
+<td>Lian et al. 2018 (xDeepFM)</td>
+<td>Extreme DeepFM; introduces Compressed Interaction Network for explicit higher-order feature-wise interactions</td>
+<td>https://dl.acm.org/doi/10.1145/3219819.3220023</td>
+</tr>
+<tr class="even">
+<td>Song et al. 2019 (AutoInt)</td>
+<td>AutoInt; uses multi-head self-attention to learn feature interactions with explainability</td>
+<td>https://dl.acm.org/doi/10.1145/3357384.3357925</td>
+</tr>
+<tr class="odd">
+<td>Guo et al. 2017 (DeepFM)</td>
+<td>DeepFM; replaces Wide part of Wide &amp; Deep with FM for automatic second-order crossing</td>
+<td>https://arxiv.org/abs/1703.04247</td>
+</tr>
+<tr class="even">
+<td>Cheng et al. 2016 (Wide &amp; Deep)</td>
+<td>Wide &amp; Deep Learning; combines shallow wide model with deep MLP for Google Play recommendations</td>
+<td>https://dl.acm.org/doi/10.1145/2988450.2988454</td>
+</tr>
+<tr class="odd">
+<td>Li et al. 2020 (InterHAt)</td>
+<td>Interpretable CTR prediction through hierarchical attention with lower compute than Wide &amp; Deep</td>
+<td>https://dl.acm.org/doi/10.1145/3336191.3371785</td>
+</tr>
+<tr class="even">
+<td>Lang et al. 2021 (GIN)</td>
+<td>GIN (Architecture and Operation Adaptive Network); multi-head attention with two-stage interaction pruning</td>
+<td>https://dl.acm.org/doi/10.1145/3447548.3467069</td>
+</tr>
+<tr class="odd">
+<td>Yan &amp; Li 2021 (xDeepInt)</td>
+<td>xDeepInt; subspace crossing for joint feature-wise and bit-wise high-order interaction without a DNN</td>
+<td>https://dl.acm.org/doi/10.1145/3474085.3475679</td>
+</tr>
+<tr class="even">
+<td>Rendle 2010 (FM)</td>
+<td>Factorization Machines; models second-order feature interactions via inner products of latent embeddings</td>
+<td>https://ieeexplore.ieee.org/document/5694074</td>
+</tr>
+<tr class="odd">
+<td>Shazeer et al. 2017 (MoE)</td>
+<td>Sparsely-Gated Mixture-of-Experts; scales model capacity via routing to expert sub-networks</td>
+<td>https://arxiv.org/abs/1701.06538</td>
+</tr>
+<tr class="even">
+<td>Mudigere et al. 2021 (ZionEX)</td>
+<td>Software-hardware co-design for fast and scalable training of DLRM-class recommendation models</td>
+<td>https://arxiv.org/abs/2104.05158</td>
+</tr>
+<tr class="odd">
+<td>Vaswani et al. 2017 (Transformer)</td>
+<td>Attention is All You Need; introduces the Transformer architecture with multi-head self-attention</td>
+<td>https://arxiv.org/abs/1706.03762</td>
+</tr>
+<tr class="even">
+<td>He et al. 2016 (ResNet)</td>
+<td>Deep Residual Learning; introduces residual skip connections enabling training of very deep networks</td>
+<td>https://arxiv.org/abs/1512.03385</td>
+</tr>
+<tr class="odd">
+<td>Ba et al. 2016 (LayerNorm)</td>
+<td>Layer Normalization; normalizes activations along the feature dimension for stable deep training</td>
+<td>https://arxiv.org/abs/1607.06450</td>
+</tr>
+<tr class="even">
+<td>Liu et al. 2019 (CNN for CTR)</td>
+<td>Feature generation by CNN for CTR prediction; applies convolution to categorical embeddings</td>
+<td>https://dl.acm.org/doi/10.1145/3308558.3313535</td>
+</tr>
+<tr class="odd">
+<td>He et al. 2014 (NE metric)</td>
+<td>Practical Lessons from Predicting Clicks on Ads at Facebook; defines and motivates the NE evaluation metric</td>
+<td>https://dl.acm.org/doi/10.1145/2648584.2648589</td>
+</tr>
+<tr class="even">
+<td>Blondel et al. 2016 (HOFM)</td>
+<td>Higher-Order Factorization Machines; extends FM to arbitrary interaction order at high computational cost</td>
+<td>https://papers.nips.cc/paper/2016/hash/158fc2ddd52ec2cf54d3c161f2dd6517-Abstract.html</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

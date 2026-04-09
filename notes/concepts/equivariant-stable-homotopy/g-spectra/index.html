@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>g-spectra - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>g-spectra</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-stabilization-and-the-need-for-genuine-spectra%7C1.-stabilization-and-the-need-for-genuine-spectra/">#1. Stabilization and the Need for Genuine Spectra|1. Stabilization and the Need for Genuine Spectra</a>
+<ul>
+<li><a href="../../../../notes/#1.1-naive-stabilization-and-its-failures%7C1.1-naive-stabilization-and-its-failures/">#1.1 Naive Stabilization and Its Failures|1.1 Naive Stabilization and Its Failures</a></li>
+<li><a href="../../../../notes/#1.2-representation-spheres%7C1.2-representation-spheres/">#1.2 Representation Spheres|1.2 Representation Spheres</a></li>
+<li><a href="../../../../notes/#1.3-what-genuine-stabilization-fixes%7C1.3-what-genuine-stabilization-fixes/">#1.3 What Genuine Stabilization Fixes|1.3 What Genuine Stabilization Fixes</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-g-universes-and-indexing%7C2.-g-universes-and-indexing/">#2. G-Universes and Indexing|2. G-Universes and Indexing</a>
+<ul>
+<li><a href="../../../../notes/#2.1-the-indexing-universe%7C2.1-the-indexing-universe/">#2.1 The Indexing Universe|2.1 The Indexing Universe</a></li>
+<li><a href="../../../../notes/#2.2-complete-vs.-incomplete-universes%7C2.2-complete-vs.-incomplete-universes/">#2.2 Complete vs. Incomplete Universes|2.2 Complete vs. Incomplete Universes</a></li>
+<li><a href="../../../../notes/#2.3-spaces-of-isometric-embeddings%7C2.3-spaces-of-isometric-embeddings/">#2.3 Spaces of Isometric Embeddings|2.3 Spaces of Isometric Embeddings</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-lewis–may–steinberger-g-spectra%7C3.-lewis–may–steinberger-g-spectra/">#3. Lewis–May–Steinberger G-Spectra|3. Lewis–May–Steinberger G-Spectra</a>
+<ul>
+<li><a href="../../../../notes/#3.1-g-prespectra%7C3.1-g-prespectra/">#3.1 G-Prespectra|3.1 G-Prespectra</a></li>
+<li><a href="../../../../notes/#3.2-the-omega-spectrum-condition%7C3.2-the-omega-spectrum-condition/">#3.2 The Omega-Spectrum Condition|3.2 The Omega-Spectrum Condition</a></li>
+<li><a href="../../../../notes/#3.3-spectrification%7C3.3-spectrification/">#3.3 Spectrification|3.3 Spectrification</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-orthogonal-g-spectra%7C4.-orthogonal-g-spectra/">#4. Orthogonal G-Spectra|4. Orthogonal G-Spectra</a>
+<ul>
+<li><a href="../../../../notes/#4.1-the-indexing-category%7C4.1-the-indexing-category/">#4.1 The Indexing Category|4.1 The Indexing Category</a></li>
+<li><a href="../../../../notes/#4.2-orthogonal-g-spectra-as-functors%7C4.2-orthogonal-g-spectra-as-functors/">#4.2 Orthogonal G-Spectra as Functors|4.2 Orthogonal G-Spectra as Functors</a></li>
+<li><a href="../../../../notes/#4.3-the-smash-product-via-day-convolution%7C4.3-the-smash-product-via-day-convolution/">#4.3 The Smash Product via Day Convolution|4.3 The Smash Product via Day Convolution</a></li>
+<li><a href="../../../../notes/#4.4-comparison-with-lewis–may–steinberger%7C4.4-comparison-with-lewis–may–steinberger/">#4.4 Comparison with Lewis–May–Steinberger|4.4 Comparison with Lewis–May–Steinberger</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-naive-vs.-genuine:-two-model-structures%7C5.-naive-vs.-genuine:-two-model-structures/">#5. Naive vs. Genuine: Two Model Structures|5. Naive vs. Genuine: Two Model Structures</a>
+<ul>
+<li><a href="../../../../notes/#5.1-the-naive-model-structure%7C5.1-the-naive-model-structure/">#5.1 The Naive Model Structure|5.1 The Naive Model Structure</a></li>
+<li><a href="../../../../notes/#5.2-the-genuine-model-structure%7C5.2-the-genuine-model-structure/">#5.2 The Genuine Model Structure|5.2 The Genuine Model Structure</a></li>
+<li><a href="../../../../notes/#5.3-lewis's-theorem:-inequivalence%7C5.3-lewis's-theorem:-inequivalence/">#5.3 Lewis’s Theorem: Inequivalence|5.3 Lewis’s Theorem: Inequivalence</a></li>
+<li><a href="../../../../notes/#5.4-what-the-genuine-theory-gains%7C5.4-what-the-genuine-theory-gains/">#5.4 What the Genuine Theory Gains|5.4 What the Genuine Theory Gains</a></li>
+<li><a href="../../../../notes/#5.5-g-cw-spectra%7C5.5-g-cw-spectra/">#5.5 G-CW-Spectra|5.5 G-CW-Spectra</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-homotopy-groups-as-mackey-functors%7C6.-homotopy-groups-as-mackey-functors/">#6. Homotopy Groups as Mackey Functors|6. Homotopy Groups as Mackey Functors</a>
+<ul>
+<li><a href="../../../../notes/#6.1-definition-of-the-homotopy-mackey-functor%7C6.1-definition-of-the-homotopy-mackey-functor/">#6.1 Definition of the Homotopy Mackey Functor|6.1 Definition of the Homotopy Mackey Functor</a></li>
+<li><a href="../../../../notes/#6.2-restriction-and-transfer-maps%7C6.2-restriction-and-transfer-maps/">#6.2 Restriction and Transfer Maps|6.2 Restriction and Transfer Maps</a></li>
+<li><a href="../../../../notes/#6.3-the-mackey-axiom-from-the-double-coset-formula%7C6.3-the-mackey-axiom-from-the-double-coset-formula/">#6.3 The Mackey Axiom from the Double Coset Formula|6.3 The Mackey Axiom from the Double Coset Formula</a></li>
+<li><a href="../../../../notes/#6.4-the-c2-example-in-detail%7C6.4-the-c2-example-in-detail/">#6.4 The C2 Example in Detail|6.4 The C2 Example in Detail</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-suspension-spectra-and-basic-examples%7C7.-suspension-spectra-and-basic-examples/">#7. Suspension Spectra and Basic Examples|7. Suspension Spectra and Basic Examples</a>
+<ul>
+<li><a href="../../../../notes/#7.1-the-equivariant-suspension-spectrum%7C7.1-the-equivariant-suspension-spectrum/">#7.1 The Equivariant Suspension Spectrum|7.1 The Equivariant Suspension Spectrum</a></li>
+<li><a href="../../../../notes/#7.2-the-sphere-spectrum-and-the-burnside-ring%7C7.2-the-sphere-spectrum-and-the-burnside-ring/">#7.2 The Sphere Spectrum and the Burnside Ring|7.2 The Sphere Spectrum and the Burnside Ring</a></li>
+<li><a href="../../../../notes/#7.3-equivariant-eilenberg–mac-lane-spectra%7C7.3-equivariant-eilenberg–mac-lane-spectra/">#7.3 Equivariant Eilenberg–Mac Lane Spectra|7.3 Equivariant Eilenberg–Mac Lane Spectra</a></li>
+<li><a href="../../../../notes/#7.4-the-tom-dieck-splitting%7C7.4-the-tom-dieck-splitting/">#7.4 The tom Dieck Splitting|7.4 The tom Dieck Splitting</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-the-smash-product-and-closed-structure%7C8.-the-smash-product-and-closed-structure/">#8. The Smash Product and Closed Structure|8. The Smash Product and Closed Structure</a>
+<ul>
+<li><a href="../../../../notes/#8.1-symmetric-monoidal-structure%7C8.1-symmetric-monoidal-structure/">#8.1 Symmetric Monoidal Structure|8.1 Symmetric Monoidal Structure</a></li>
+<li><a href="../../../../notes/#8.2-the-internal-hom-and-spanier–whitehead-duality%7C8.2-the-internal-hom-and-spanier–whitehead-duality/">#8.2 The Internal Hom and Spanier–Whitehead Duality|8.2 The Internal Hom and Spanier–Whitehead Duality</a></li>
+<li><a href="../../../../notes/#8.3-the-suspension-isomorphism%7C8.3-the-suspension-isomorphism/">#8.3 The Suspension Isomorphism|8.3 The Suspension Isomorphism</a></li>
+<li><a href="../../../../notes/#8.4-cofiber-sequences%7C8.4-cofiber-sequences/">#8.4 Cofiber Sequences|8.4 Cofiber Sequences</a></li>
+</ul></li>
+<li><a href="../../../../notes/#9.-change-of-universe-and-change-of-group%7C9.-change-of-universe-and-change-of-group/">#9. Change of Universe and Change of Group|9. Change of Universe and Change of Group</a>
+<ul>
+<li><a href="../../../../notes/#9.1-change-of-universe%7C9.1-change-of-universe/">#9.1 Change of Universe|9.1 Change of Universe</a></li>
+<li><a href="../../../../notes/#9.2-change-of-group:-restriction%7C9.2-change-of-group:-restriction/">#9.2 Change of Group: Restriction|9.2 Change of Group: Restriction</a></li>
+<li><a href="../../../../notes/#9.3-induction-and-coinduction%7C9.3-induction-and-coinduction/">#9.3 Induction and Coinduction|9.3 Induction and Coinduction</a></li>
+<li><a href="../../../../notes/#9.4-preview:-fixed-point-functors%7C9.4-preview:-fixed-point-functors/">#9.4 Preview: Fixed-Point Functors|9.4 Preview: Fixed-Point Functors</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="stabilization-and-the-need-for-genuine-spectra">1. Stabilization and the Need for Genuine Spectra 📐</h2>
+<h3 id="naive-stabilization-and-its-failures">1.1 Naive Stabilization and Its Failures</h3>
+<p>The passage from unstable to stable homotopy theory classically proceeds by formally inverting <span class="math inline">\(S^1\)</span>: the stable homotopy category is obtained from <span class="math inline">\(G\mathbf{Top}_*\)</span> by inverting <span class="math inline">\(\Sigma = S^1 \wedge -\)</span>. This yields a well-defined triangulated category. In the equivariant setting, one can perform the same construction to get <em>naive G-spectra</em> — orthogonal spectra equipped with a <span class="math inline">\(G\)</span>-action, where weak equivalences are detected only on the underlying non-equivariant homotopy type.</p>
+<p>The problem is that this is too coarse. There are several structural theorems in equivariant homotopy theory that require inverting suspension by <em>all</em> representation spheres <span class="math inline">\(S^V\)</span>, not just <span class="math inline">\(S^1\)</span>:</p>
+<ol type="1">
+<li><p><strong>RO(G)-graded homotopy groups.</strong> For a genuine G-spectrum <span class="math inline">\(E\)</span>, one wants to define <span class="math inline">\(\pi_V^H(E) = [S^V, E]^H\)</span> for any real representation <span class="math inline">\(V\)</span> of <span class="math inline">\(G\)</span> and subgroup <span class="math inline">\(H \leq G\)</span>. This requires that <span class="math inline">\(S^V \wedge -\)</span> is invertible in the homotopy category.</p></li>
+<li><p><strong>The Wirthmuller isomorphism.</strong> For a subgroup inclusion <span class="math inline">\(i: H \hookrightarrow G\)</span>, the functors $i_! = G_+ _H - $ (left adjoint to restriction) and <span class="math inline">\(i_* = F_H(G_+, -)\)</span> (right adjoint) are <em>not</em> equivalent in the naive setting. In the genuine setting, the Wirthmuller isomorphism gives <span class="math inline">\(i_! E \simeq i_* E \otimes S^{L_{G/H}}\)</span> where <span class="math inline">\(L_{G/H}\)</span> is the tangent representation of <span class="math inline">\(G/H\)</span>. This fails naively.</p></li>
+<li><p><strong>The Adams isomorphism.</strong> For a free <span class="math inline">\(H\)</span>-spectrum <span class="math inline">\(X\)</span>, the Adams isomorphism <span class="math inline">\((G_+ \wedge_H X)^G \simeq X^H\)</span> is a theorem about genuine spectra; it has no naive analogue.</p></li>
+<li><p><strong>Equivariant duality.</strong> Atiyah duality <span class="math inline">\(D(\Sigma^\infty_+ M) \simeq \Sigma^\infty_+ M^{-TM}\)</span> for a compact <span class="math inline">\(G\)</span>-manifold <span class="math inline">\(M\)</span> requires the tangent bundle to contribute a genuine representation sphere twist.</p></li>
+</ol>
+<div class="callout callout-danger">
+<p> The critical failure of naive spectra
+In the naive setting, <span class="math inline">\(\underline{\pi}_0(\mathbb{S}) \cong \underline{\mathbb{Z}}\)</span> — the constant Mackey functor with value <span class="math inline">\(\mathbb{Z}\)</span>. In the genuine setting, <span class="math inline">\(\underline{\pi}_0(\mathbb{S}) \cong \underline{A}(G)\)</span> — the <em>Burnside ring Mackey functor</em>, which records all virtual finite <span class="math inline">\(G\)</span>-sets. This is a much richer object. The failure of naive spectra to see <span class="math inline">\(\underline{A}(G)\)</span> shows that the entire transfer structure is invisible to naive stabilization.</p>
+</div>
+<h3 id="representation-spheres">1.2 Representation Spheres</h3>
+<p><strong>Definition (Representation Sphere).</strong> Let <span class="math inline">\(V\)</span> be a finite-dimensional real representation of <span class="math inline">\(G\)</span> — a finite-dimensional real inner product space with a continuous <span class="math inline">\(G\)</span>-action by isometries. The <em>representation sphere</em> <span class="math inline">\(S^V\)</span> is the one-point compactification of <span class="math inline">\(V\)</span>:</p>
+<p><span class="math display">\[S^V = V^+ := V \sqcup \{\infty\},\]</span></p>
+<p>topologized so that the neighborhoods of <span class="math inline">\(\infty\)</span> are complements of compact sets. As a <span class="math inline">\(G\)</span>-space, <span class="math inline">\(G\)</span> acts on <span class="math inline">\(V^+\)</span> by extending the action on <span class="math inline">\(V\)</span> with <span class="math inline">\(g \cdot \infty = \infty\)</span>.</p>
+<div class="callout callout-example">
+<p> Representation spheres for <span class="math inline">\(C_2\)</span>
+Let <span class="math inline">\(G = C_2 = \{1, \sigma\}\)</span> with <span class="math inline">\(\sigma^2 = 1\)</span>. There are two irreducible real representations:
+- The <em>trivial representation</em> <span class="math inline">\(\mathbf{1}\)</span>: <span class="math inline">\(V = \mathbb{R}\)</span> with <span class="math inline">\(\sigma \cdot v = v\)</span>. Then <span class="math inline">\(S^\mathbf{1} = S^1\)</span> with trivial <span class="math inline">\(C_2\)</span>-action.
+- The <em>sign representation</em> <span class="math inline">\(\sigma\)</span>: <span class="math inline">\(V = \mathbb{R}\)</span> with <span class="math inline">\(\sigma \cdot v = -v\)</span>. Then <span class="math inline">\(S^\sigma \cong S^1\)</span> as a space, but with the antipodal action — <span class="math inline">\(\sigma\)</span> acts by the antipodal map. The fixed-point set <span class="math inline">\((S^\sigma)^{C_2} = \{0^+, \infty\} \cong S^0\)</span>, unlike <span class="math inline">\((S^1)^{C_2} = S^1\)</span>.</p>
+<p>More generally, for the <em>regular representation</em> <span class="math inline">\(\rho = \mathbf{1} \oplus \sigma\)</span>, <span class="math inline">\(S^\rho \cong S^2\)</span> with <span class="math inline">\(C_2\)</span> acting by a rotation-reflection.</p>
+</div>
+<p>The formula <span class="math inline">\(S^{V \oplus W} \cong S^V \wedge S^W\)</span> holds as <span class="math inline">\(G\)</span>-spaces, making representation spheres multiplicative.</p>
+<h3 id="what-genuine-stabilization-fixes">1.3 What Genuine Stabilization Fixes</h3>
+<p>A <em>genuine G-spectrum</em> is obtained by formally inverting <span class="math inline">\(S^V \wedge -\)</span> for <em>all</em> finite-dimensional real representations <span class="math inline">\(V\)</span> of <span class="math inline">\(G\)</span> simultaneously. This means:</p>
+<ul>
+<li>For every <span class="math inline">\(V\)</span>, there is an adjoint pair <span class="math inline">\((\Sigma^V, \Omega^V) = (S^V \wedge -, F(S^V, -))\)</span> on the homotopy category.</li>
+<li>The RO(G)-graded homotopy groups <span class="math inline">\(\underline{\pi}_V(E)\)</span> are well-defined for all <span class="math inline">\(V \in \mathrm{RO}(G)\)</span>.</li>
+<li>Transfers exist in stable homotopy, making homotopy groups into <a href="../../../../notes/concepts/equivariant-stable-homotopy/mackey-functors%7Cmackey-functors/">concepts/equivariant-stable-homotopy/mackey-functors|Mackey Functors</a> rather than just abelian groups.</li>
+</ul>
+<div class="callout callout-info">
+<p> Why inverting all <span class="math inline">\(S^V\)</span> is necessary for transfers
+The transfer map <span class="math inline">\(\mathrm{tr}_H^G: E^H \to E^G\)</span> in the stable category arises from the equivariant Pontryagin–Thom construction, which requires collapsing using the normal bundle of <span class="math inline">\(G/H\)</span>. This normal bundle is a genuine representation of <span class="math inline">\(G\)</span>, and the collapse map involves <span class="math inline">\(S^{-L_{G/H}}\)</span> — a desuspension by a representation sphere. Without genuine stabilization, this desuspension is not available.</p>
+</div>
+<hr />
+<h2 id="g-universes-and-indexing">2. G-Universes and Indexing 🔑</h2>
+<h3 id="the-indexing-universe">2.1 The Indexing Universe</h3>
+<p>The classical Lewis–May–Steinberger approach indexes a <span class="math inline">\(G\)</span>-spectrum on the finite-dimensional sub-inner-product-spaces of a single large “universe.”</p>
+<p><strong>Definition (G-Universe).</strong> A <em><span class="math inline">\(G\)</span>-universe</em> is a countably-infinite-dimensional real inner product space <span class="math inline">\(\mathcal{U}\)</span> equipped with a continuous isometric <span class="math inline">\(G\)</span>-action, together with a countably infinite family of pairwise orthogonal copies of each finite-dimensional representation of <span class="math inline">\(G\)</span> in <span class="math inline">\(\mathcal{U}\)</span> (so <span class="math inline">\(\mathcal{U}\)</span> is not itself finite-dimensional). We require:</p>
+<ol type="1">
+<li><em>(Completeness under stabilization)</em> <span class="math inline">\(\mathcal{U}\)</span> contains a copy of the trivial representation <span class="math inline">\(\mathbb{R}\)</span> (equivalently, <span class="math inline">\(\mathbb{R}^\infty \subset \mathcal{U}\)</span> as a trivial subrepresentation).</li>
+<li><em>(Stability under direct sum)</em> For any <span class="math inline">\(V, W \subset \mathcal{U}\)</span> finite-dimensional, <span class="math inline">\(V \oplus W \subset \mathcal{U}\)</span>.</li>
+<li><em>(Topological conditions)</em> <span class="math inline">\(\mathcal{U} \cong \bigoplus_{V \in \mathrm{Irr}_\mathbb{R}(G)} V^{\oplus \infty}\)</span> as a real <span class="math inline">\(G\)</span>-inner product space, where the direct sum is over the countably many (for finite <span class="math inline">\(G\)</span>) irreducible real representations of <span class="math inline">\(G\)</span>.</li>
+</ol>
+<p>The <em>trivial universe</em> <span class="math inline">\(\mathcal{U}_{\mathrm{triv}} = \mathbb{R}^\infty\)</span> carries the trivial <span class="math inline">\(G\)</span>-action; it sees only the single representation <span class="math inline">\(\mathbb{R}\)</span>.</p>
+<h3 id="complete-vs.-incomplete-universes">2.2 Complete vs. Incomplete Universes</h3>
+<p><strong>Definition (Complete Universe).</strong> A <span class="math inline">\(G\)</span>-universe <span class="math inline">\(\mathcal{U}\)</span> is <em>complete</em> if for every irreducible real representation <span class="math inline">\(V\)</span> of <span class="math inline">\(G\)</span>, there are infinitely many orthogonal copies of <span class="math inline">\(V\)</span> in <span class="math inline">\(\mathcal{U}\)</span>. Equivalently, <span class="math inline">\(\mathcal{U}\)</span> is complete if and only if every finite-dimensional real <span class="math inline">\(G\)</span>-representation embeds isometrically into <span class="math inline">\(\mathcal{U}\)</span>.</p>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 15%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Universe</th>
+<th>Notation</th>
+<th>Indexed on</th>
+<th>Homotopy type of <span class="math inline">\(\mathrm{Sp}^G(\mathcal{U})\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Trivial</td>
+<td><span class="math inline">\(\mathcal{U}_{\mathrm{triv}}\)</span></td>
+<td><span class="math inline">\(\{\mathbb{R}^n\}_{n \geq 0}\)</span></td>
+<td>Naive G-spectra</td>
+</tr>
+<tr class="even">
+<td>Complete</td>
+<td><span class="math inline">\(\mathcal{U}\)</span></td>
+<td>All finite-dim rep’ns of <span class="math inline">\(G\)</span></td>
+<td>Genuine G-spectra</td>
+</tr>
+<tr class="odd">
+<td>Incomplete</td>
+<td><span class="math inline">\(\mathcal{U}'\)</span></td>
+<td>Some sub-family of rep’ns</td>
+<td>Intermediate category</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-warning">
+<p> Changing the universe changes the category
+If <span class="math inline">\(i: \mathcal{U}' \hookrightarrow \mathcal{U}\)</span> is an inclusion of universes, the restriction functor <span class="math inline">\(i^*: \mathrm{Sp}^G(\mathcal{U}) \to \mathrm{Sp}^G(\mathcal{U}')\)</span> and its left adjoint <span class="math inline">\(i_*\)</span> are <em>not</em> in general inverse equivalences. The category of <span class="math inline">\(G\)</span>-spectra genuinely depends on the choice of universe, and the full genuine theory requires the complete universe.</p>
+</div>
+<p>For a finite group <span class="math inline">\(G\)</span>, the complete <span class="math inline">\(G\)</span>-universe is unique up to <span class="math inline">\(G\)</span>-equivariant isometry:</p>
+<p><span class="math display">\[\mathcal{U} \cong \bigoplus_{[V] \in \mathrm{Irr}_\mathbb{R}(G)} V^{\oplus \infty}.\]</span></p>
+<p>For <span class="math inline">\(G = C_2\)</span> there are two real irreducibles (<span class="math inline">\(\mathbf{1}\)</span> and <span class="math inline">\(\sigma\)</span>), so <span class="math inline">\(\mathcal{U} = \mathbb{R}^\infty \oplus \mathbb{R}^\infty_\sigma\)</span> where the second factor is the sign representation repeated.</p>
+<h3 id="spaces-of-isometric-embeddings">2.3 Spaces of Isometric Embeddings</h3>
+<p>For finite-dimensional sub-inner-product-spaces <span class="math inline">\(V, W \subset \mathcal{U}\)</span>, let <span class="math inline">\(\mathcal{L}(V, W)\)</span> denote the <em>space of linear isometric embeddings</em> <span class="math inline">\(V \hookrightarrow W\)</span> (i.e., injective linear maps preserving the inner product). This is a topological space with the subspace topology from <span class="math inline">\(\mathrm{Hom}(V, W)\)</span>.</p>
+<p>The group <span class="math inline">\(G\)</span> acts on <span class="math inline">\(\mathcal{L}(V, W)\)</span> by <span class="math inline">\(g \cdot \phi = g \circ \phi \circ g^{-1}\)</span> (conjugation via the <span class="math inline">\(G\)</span>-actions on <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span>). When <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span> are <span class="math inline">\(G\)</span>-representations, the <span class="math inline">\(G\)</span>-fixed points <span class="math inline">\(\mathcal{L}(V, W)^G\)</span> are the <span class="math inline">\(G\)</span>-equivariant isometric embeddings.</p>
+<p>For <span class="math inline">\(V \subset W\)</span>, the <em>orthogonal complement</em> <span class="math inline">\(W \ominus V\)</span> is the representation <span class="math inline">\(W \ominus V = \{w \in W : \langle w, v \rangle = 0 \text{ for all } v \in V\}\)</span>. The structure maps of an LMS spectrum will involve suspension by <span class="math inline">\(W \ominus V\)</span>.</p>
+<div class="callout callout-note">
+<p> The topology of <span class="math inline">\(\mathcal{L}(V,W)\)</span>
+When <span class="math inline">\(\dim V \leq \dim W\)</span>, <span class="math inline">\(\mathcal{L}(V, W) \cong O(\dim W) / O(\dim W - \dim V) = V_{k,n}\)</span> is the Stiefel manifold of <span class="math inline">\(k\)</span>-frames in <span class="math inline">\(n\)</span>-space where <span class="math inline">\(k = \dim V\)</span>, <span class="math inline">\(n = \dim W\)</span>. In particular, <span class="math inline">\(\mathcal{L}(\mathbb{R}^n, \mathbb{R}^n) = O(n)\)</span>.</p>
+</div>
+<hr />
+<h2 id="lewismaysteinberger-g-spectra">3. Lewis–May–Steinberger G-Spectra 📐</h2>
+<h3 id="g-prespectra">3.1 G-Prespectra</h3>
+<p>Fix a complete <span class="math inline">\(G\)</span>-universe <span class="math inline">\(\mathcal{U}\)</span> and write <span class="math inline">\(\mathcal{V}(\mathcal{U})\)</span> for the poset of finite-dimensional sub-inner-product-spaces of <span class="math inline">\(\mathcal{U}\)</span>, ordered by inclusion.</p>
+<p><strong>Definition (G-Prespectrum).</strong> A <em><span class="math inline">\(G\)</span>-prespectrum</em> <span class="math inline">\(D\)</span> indexed on <span class="math inline">\(\mathcal{U}\)</span> consists of:
+1. For each <span class="math inline">\(V \in \mathcal{V}(\mathcal{U})\)</span>, a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(D_V\)</span>.
+2. For each pair <span class="math inline">\(V \subset W\)</span> in <span class="math inline">\(\mathcal{V}(\mathcal{U})\)</span>, a based <span class="math inline">\(G\)</span>-equivariant <em>structure map</em></p>
+<p><span class="math display">\[\sigma_{V,W}: \Sigma^{W \ominus V} D_V = S^{W \ominus V} \wedge D_V \longrightarrow D_W,\]</span></p>
+<p>satisfying the <em>transitivity condition</em>: for <span class="math inline">\(V \subset W \subset X\)</span>, the diagram</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>S^{X <span class="fu">\ominus</span> W} <span class="fu">\wedge</span> S^{W <span class="fu">\ominus</span> V} <span class="fu">\wedge</span> D_V <span class="fu">\arrow</span>[r, &quot;<span class="fu">\cong</span>&quot;] <span class="fu">\arrow</span>[d, &quot;{1 <span class="fu">\wedge</span> <span class="fu">\sigma</span>_{V,W}}&quot;'] &amp; S^{X <span class="fu">\ominus</span> V} <span class="fu">\wedge</span> D_V <span class="fu">\arrow</span>[d, &quot;<span class="fu">\sigma</span>_{V,X}&quot;] <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>S^{X <span class="fu">\ominus</span> W} <span class="fu">\wedge</span> D_W <span class="fu">\arrow</span>[r, &quot;<span class="fu">\sigma</span>_{W,X}&quot;'] &amp; D_X</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>commutes. Here we use <span class="math inline">\(S^{X \ominus W} \wedge S^{W \ominus V} \cong S^{X \ominus V}\)</span> from the direct sum decomposition <span class="math inline">\(X = W \oplus (X \ominus W) = V \oplus (W \ominus V) \oplus (X \ominus W)\)</span>.</p>
+<p>Passing to adjoints, each structure map <span class="math inline">\(\sigma_{V,W}\)</span> has an adjoint</p>
+<p><span class="math display">\[\tilde{\sigma}_{V,W}: D_V \longrightarrow \Omega^{W \ominus V} D_W = \mathrm{Map}_*(S^{W \ominus V}, D_W).\]</span></p>
+<p><span class="math inline">\(G\)</span>-maps of <span class="math inline">\(G\)</span>-prespectra are natural transformations respecting the structure maps. The category of <span class="math inline">\(G\)</span>-prespectra is denoted <span class="math inline">\(G\mathcal{P}(\mathcal{U})\)</span>.</p>
+<div class="callout callout-example">
+<p> The suspension prespectrum of a G-space
+Given a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(X\)</span>, define the <em>suspension <span class="math inline">\(G\)</span>-prespectrum</em> <span class="math inline">\(\Sigma^\infty X\)</span> by <span class="math inline">\((\Sigma^\infty X)_V = S^V \wedge X\)</span> with structure maps the identity <span class="math inline">\(S^{W \ominus V} \wedge S^V \wedge X \xrightarrow{\cong} S^W \wedge X\)</span>. This is a <span class="math inline">\(G\)</span>-prespectrum but not in general a <span class="math inline">\(G\)</span>-spectrum (it fails the <span class="math inline">\(\Omega\)</span>-spectrum condition unless <span class="math inline">\(X\)</span> is contractible).</p>
+</div>
+<h3 id="the-omega-spectrum-condition">3.2 The Omega-Spectrum Condition</h3>
+<p><strong>Definition (G-Spectrum).</strong> A <span class="math inline">\(G\)</span>-prespectrum <span class="math inline">\(E\)</span> is a <em><span class="math inline">\(G\)</span>-spectrum</em> (or <em><span class="math inline">\(\Omega\)</span>-<span class="math inline">\(G\)</span>-spectrum</em>) if for every <span class="math inline">\(V \subset W\)</span> in <span class="math inline">\(\mathcal{V}(\mathcal{U})\)</span>, the adjoint structure map</p>
+<p><span class="math display">\[\tilde{\sigma}_{V,W}: E_V \xrightarrow{\;\sim\;} \Omega^{W \ominus V} E_W\]</span></p>
+<p>is a homeomorphism of based <span class="math inline">\(G\)</span>-spaces.</p>
+<p>The category <span class="math inline">\(G\mathcal{S}(\mathcal{U})\)</span> of <span class="math inline">\(G\)</span>-spectra is the full subcategory of <span class="math inline">\(G\mathcal{P}(\mathcal{U})\)</span> on the <span class="math inline">\(\Omega\)</span>-<span class="math inline">\(G\)</span>-spectra.</p>
+<div class="callout callout-note">
+<p> The Omega condition is on all representation-indexed levels
+Critically, the homeomorphism condition is required for <em>all</em> finite-dimensional sub-representations <span class="math inline">\(V \subset W \subset \mathcal{U}\)</span>, not just for <span class="math inline">\(V = \mathbb{R}^n \subset \mathbb{R}^{n+1}\)</span>. This means <span class="math inline">\(E_V\)</span> determines all of <span class="math inline">\(E\)</span> via iterating <span class="math inline">\(\Omega^W\)</span>. In the complete universe, this is a much stronger condition than the classical <span class="math inline">\(E_n \simeq \Omega E_{n+1}\)</span>, because it includes suspension by non-trivial representation spheres.</p>
+</div>
+<h3 id="spectrification">3.3 Spectrification</h3>
+<p>The inclusion <span class="math inline">\(G\mathcal{S}(\mathcal{U}) \hookrightarrow G\mathcal{P}(\mathcal{U})\)</span> has a left adjoint <span class="math inline">\(L\)</span>, the <em>spectrification functor</em>.</p>
+<p><strong>Construction (Spectrification).</strong> For a <span class="math inline">\(G\)</span>-prespectrum <span class="math inline">\(D\)</span>, define <span class="math inline">\(LD\)</span> by</p>
+<p><span class="math display">\[(LD)_V = \mathrm{colim}_{V \subset W} \Omega^{W \ominus V} D_W,\]</span></p>
+<p>where the colimit is taken over the directed system of inclusions <span class="math inline">\(V \subset W\)</span> in <span class="math inline">\(\mathcal{V}(\mathcal{U})\)</span>. The adjoint structure maps of <span class="math inline">\(LD\)</span> are induced by passing the colimit.</p>
+<p><strong>Proposition.</strong> <span class="math inline">\(L: G\mathcal{P}(\mathcal{U}) \to G\mathcal{S}(\mathcal{U})\)</span> is left adjoint to the inclusion, and the unit <span class="math inline">\(\eta: D \to L(D)\)</span> is an isomorphism whenever <span class="math inline">\(D\)</span> is already a <span class="math inline">\(G\)</span>-spectrum.</p>
+<p>The suspension spectrum is then defined properly as <span class="math inline">\(\Sigma^\infty_+ X = L(X \mapsto S^V \wedge X_+)\)</span> — applying spectrification to the suspension prespectrum.</p>
+<div class="callout callout-info">
+<p> Relation to sheafification
+The spectrification functor is formally analogous to sheafification of a presheaf: it freely adjoins the <span class="math inline">\(\Omega\)</span>-spectrum condition, just as sheafification freely adjoins the gluing condition. The colimit formula is the equivariant version of sheafification via the plus construction.</p>
+</div>
+<hr />
+<h2 id="orthogonal-g-spectra">4. Orthogonal G-Spectra 🔑</h2>
+<h3 id="the-indexing-category">4.1 The Indexing Category</h3>
+<p>The modern approach, due to Mandell–May and developed in Schwede’s work, replaces the universe-indexed approach with a categorical definition that is more amenable to homotopy-theoretic analysis.</p>
+<p><strong>Definition (The Indexing Category <span class="math inline">\(\mathbf{I}_G\)</span>).</strong> Let <span class="math inline">\(\mathbf{I}_G\)</span> be the <em>symmetric monoidal topological category</em> defined as follows:
+- <strong>Objects:</strong> finite-dimensional real inner product spaces <span class="math inline">\(V\)</span> (not necessarily <span class="math inline">\(G\)</span>-representations — the <span class="math inline">\(G\)</span>-action enters through the morphism spaces).
+- <strong>Morphisms:</strong> <span class="math inline">\(\mathbf{I}_G(V, W)\)</span> is the <em>Thom space</em> of the tautological vector bundle <span class="math inline">\(\gamma_{V,W}\)</span> over the space of isometric embeddings <span class="math inline">\(\mathrm{Inj}(V, W)\)</span>:</p>
+<p><span class="math display">\[\mathbf{I}_G(V, W) = \mathrm{Th}(\gamma_{V,W}) = \mathrm{Inj}(V, W)^+ \wedge_{O(\dim V)} S^{\dim W - \dim V}\]</span></p>
+<p>when <span class="math inline">\(\dim V \leq \dim W\)</span>, and <span class="math inline">\(\mathbf{I}_G(V, W) = *\)</span> otherwise. Here <span class="math inline">\(\gamma_{V,W}\)</span> is the bundle over <span class="math inline">\(\mathrm{Inj}(V, W)\)</span> whose fiber at <span class="math inline">\(\phi: V \hookrightarrow W\)</span> is the orthogonal complement <span class="math inline">\(\phi(V)^\perp \subset W\)</span>.</p>
+<ul>
+<li><p><strong>G-action on morphisms:</strong> <span class="math inline">\(G\)</span> acts on <span class="math inline">\(\mathbf{I}_G(V, W)\)</span> through a representation structure on <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span> (when we evaluate an orthogonal <span class="math inline">\(G\)</span>-spectrum on a <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span>, <span class="math inline">\(G\)</span> acts on <span class="math inline">\(V\)</span> by the representation and thus on morphism spaces by conjugation).</p></li>
+<li><p><strong>Monoidal structure:</strong> <span class="math inline">\(\oplus\)</span> on objects, and the monoidal structure on morphisms defined by the smash product of Thom spaces.</p></li>
+</ul>
+<div class="callout callout-note">
+<p> Why the Thom space?
+The Thom space construction encodes the “stabilization data” — morphisms in <span class="math inline">\(\mathbf{I}_G\)</span> encode not just isometric embeddings <span class="math inline">\(V \to W\)</span> but also the twist by the orthogonal complement bundle <span class="math inline">\(W \ominus V\)</span>. This allows the structure maps of orthogonal spectra to include suspension by representation spheres without explicit mention of a universe.</p>
+</div>
+<h3 id="orthogonal-g-spectra-as-functors">4.2 Orthogonal G-Spectra as Functors</h3>
+<p><strong>Definition (Orthogonal G-Spectrum).</strong> An <em>orthogonal <span class="math inline">\(G\)</span>-spectrum</em> is a based continuous functor</p>
+<p><span class="math display">\[X: \mathbf{I}_G \longrightarrow G\mathbf{Top}_*\]</span></p>
+<p>from the indexing category to based <span class="math inline">\(G\)</span>-spaces. Explicitly:
+- For each finite-dimensional real inner product space <span class="math inline">\(V\)</span>, a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(X(V)\)</span>.
+- For each pair <span class="math inline">\(V, W\)</span>, a based continuous <em>structure map</em></p>
+<p><span class="math display">\[\sigma_{V,W}: \mathbf{I}_G(V, W) \wedge X(V) \longrightarrow X(W)\]</span></p>
+<p>natural in <span class="math inline">\(V\)</span> and <span class="math inline">\(W\)</span>, and satisfying the evident associativity and unitality conditions.</p>
+<p>The <span class="math inline">\(G\)</span>-action on <span class="math inline">\(X(V)\)</span> for a <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span>: when <span class="math inline">\(V\)</span> carries a <span class="math inline">\(G\)</span>-representation structure, <span class="math inline">\(G\)</span> acts on <span class="math inline">\(X(V)\)</span> via the induced action. An element <span class="math inline">\(g \in G\)</span> gives an isometry <span class="math inline">\(g: V \to V\)</span> (by the representation), which is a morphism in <span class="math inline">\(\mathbf{I}_G(V, V)\)</span>; the structure map then gives a self-map <span class="math inline">\(X(g): X(V) \to X(V)\)</span>.</p>
+<p>The category of orthogonal <span class="math inline">\(G\)</span>-spectra is denoted <span class="math inline">\(\mathrm{Sp}^G_O\)</span> or <span class="math inline">\(G\mathcal{S}\)</span>.</p>
+<div class="callout callout-example">
+<p> Orthogonal <span class="math inline">\(G\)</span>-spectra from spaces
+For a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(A\)</span>, define the orthogonal <span class="math inline">\(G\)</span>-suspension spectrum <span class="math inline">\(\Sigma^\infty A\)</span> by <span class="math inline">\((\Sigma^\infty A)(V) = S^V \wedge A\)</span>, with structure maps <span class="math inline">\(\mathbf{I}_G(V, W) \wedge S^V \wedge A \to S^W \wedge A\)</span> using the fact that <span class="math inline">\(\mathbf{I}_G(V, W) \wedge S^V \to S^W\)</span> is the tautological map from the Thom space construction.</p>
+</div>
+<h3 id="the-smash-product-via-day-convolution">4.3 The Smash Product via Day Convolution</h3>
+<p>The <em>smash product</em> of orthogonal <span class="math inline">\(G\)</span>-spectra is defined via <em>Day convolution</em> with respect to the monoidal structure <span class="math inline">\(\oplus\)</span> on <span class="math inline">\(\mathbf{I}_G\)</span>.</p>
+<p><strong>Definition (Smash Product).</strong> For orthogonal <span class="math inline">\(G\)</span>-spectra <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, define their smash product <span class="math inline">\(X \wedge Y\)</span> by the coend formula:</p>
+<p><span class="math display">\[(X \wedge Y)(V) = \int^{(A, B) \in \mathbf{I}_G \times \mathbf{I}_G} \mathbf{I}_G(A \oplus B, V) \wedge X(A) \wedge Y(B).\]</span></p>
+<p>Equivalently, <span class="math inline">\(X \wedge Y\)</span> is the left Kan extension of the external smash product <span class="math inline">\((V, W) \mapsto X(V) \wedge Y(W)\)</span> along the direct sum functor <span class="math inline">\(\oplus: \mathbf{I}_G \times \mathbf{I}_G \to \mathbf{I}_G\)</span>:</p>
+<p><span class="math display">\[X \wedge Y = \mathrm{Lan}_\oplus (X \boxtimes Y).\]</span></p>
+<p><strong>Theorem (Mandell–May).</strong> The smash product makes <span class="math inline">\(\mathrm{Sp}^G_O\)</span> into a <em>closed symmetric monoidal category</em>:</p>
+<p><span class="math display">\[(\mathrm{Sp}^G_O, \wedge, \mathbb{S})\]</span></p>
+<p>where <span class="math inline">\(\mathbb{S} = \Sigma^\infty_+ \{*\}\)</span> is the <em>sphere spectrum</em>. The unit and associativity isomorphisms are strictly coherent (not just up to homotopy), making this a genuine symmetric monoidal structure on the point-set level.</p>
+<div class="callout callout-info">
+<p> Why orthogonal spectra have a strict smash product
+In the Lewis–May–Steinberger model, constructing a strictly associative smash product requires considerable work (the “twisted half-smash product” machinery of LMS). The orthogonal spectrum model achieves this via the Day convolution, which is automatically associative and commutative by abstract categorical reasons. This is one of the main technical advantages of orthogonal spectra.</p>
+</div>
+<h3 id="comparison-with-lewismaysteinberger">4.4 Comparison with Lewis–May–Steinberger</h3>
+<p><strong>Theorem (Mandell–May).</strong> There is a Quillen equivalence of model categories</p>
+<p><span class="math display">\[\mathrm{Sp}^G_O \simeq_Q G\mathcal{S}(\mathcal{U})\]</span></p>
+<p>between orthogonal <span class="math inline">\(G\)</span>-spectra with the genuine model structure and Lewis–May–Steinberger <span class="math inline">\(G\)</span>-spectra indexed on a complete <span class="math inline">\(G\)</span>-universe <span class="math inline">\(\mathcal{U}\)</span>. The equivalence is given by evaluation: send <span class="math inline">\(X \in \mathrm{Sp}^G_O\)</span> to the LMS spectrum <span class="math inline">\(V \mapsto X(V)\)</span> for <span class="math inline">\(V \subset \mathcal{U}\)</span>.</p>
+<p><em>This means that the two models present the same homotopy theory.</em> The orthogonal model is preferred for:
+- Having a strict smash product.
+- Being amenable to global equivariant homotopy theory (varying <span class="math inline">\(G\)</span>).
+- Having explicit cofibrant/fibrant replacement functors.</p>
+<hr />
+<h2 id="naive-vs.-genuine-two-model-structures">5. Naive vs. Genuine: Two Model Structures ⚠️</h2>
+<h3 id="the-naive-model-structure">5.1 The Naive Model Structure</h3>
+<p>On the category <span class="math inline">\(\mathrm{Sp}^G_O\)</span> of orthogonal <span class="math inline">\(G\)</span>-spectra, there is a Quillen model structure with:</p>
+<ul>
+<li><strong>Naive weak equivalences:</strong> <span class="math inline">\(f: X \to Y\)</span> is a <em>naive weak equivalence</em> if the underlying map of non-equivariant orthogonal spectra <span class="math inline">\(f^e: X^e \to Y^e\)</span> (forgetting the <span class="math inline">\(G\)</span>-action, i.e., evaluating at the trivial subgroup <span class="math inline">\(e \leq G\)</span>) is a <span class="math inline">\(\pi_*\)</span>-isomorphism.</li>
+<li><strong>Naive fibrations:</strong> the fibrations and cofibrations are defined by the projective model structure — they are obtained by forgetting the <span class="math inline">\(G\)</span>-action.</li>
+</ul>
+<p>The homotopy category of the naive model structure is denoted <span class="math inline">\(\mathrm{Ho}^G_{\mathrm{naive}}(\mathrm{Sp}^G_O)\)</span>.</p>
+<div class="callout callout-note">
+<p> Naive spectra vs. spectra with G-action
+Naive <span class="math inline">\(G\)</span>-spectra are equivalent, as homotopy theories, to <em>orthogonal spectra equipped with a <span class="math inline">\(G\)</span>-action</em> — i.e., to <span class="math inline">\(\mathrm{Fun}(BG, \mathrm{Sp})\)</span> in the <span class="math inline">\(\infty\)</span>-categorical sense. This is a genuine simplification: the <span class="math inline">\(G\)</span>-action lives only on the values, not on the indexing data.</p>
+</div>
+<h3 id="the-genuine-model-structure">5.2 The Genuine Model Structure</h3>
+<p><strong>Definition (Genuine Weak Equivalence).</strong> A map <span class="math inline">\(f: X \to Y\)</span> of orthogonal <span class="math inline">\(G\)</span>-spectra is a <em>genuine <span class="math inline">\(G\)</span>-weak equivalence</em> if for every closed subgroup <span class="math inline">\(H \leq G\)</span> and every integer <span class="math inline">\(n \in \mathbb{Z}\)</span>, the induced map</p>
+<p><span class="math display">\[\pi_n^H(f): \pi_n^H(X) \longrightarrow \pi_n^H(Y)\]</span></p>
+<p>is an isomorphism, where <span class="math inline">\(\pi_n^H(X) = [S^n, X(V)^H]\)</span> for large enough representation <span class="math inline">\(V\)</span> containing <span class="math inline">\(\mathbb{R}^n\)</span> (stabilized via the structure maps).</p>
+<p>More precisely, for a representation sphere <span class="math inline">\(S^V\)</span> with <span class="math inline">\(V\)</span> a <span class="math inline">\(G\)</span>-representation:
+<span class="math display">\[\pi_n^H(X) = \mathrm{colim}_{V \subset \mathcal{U}} [S^{n + V}, X(V)]^H\]</span>
+where <span class="math inline">\([-, -]^H\)</span> denotes homotopy classes of <span class="math inline">\(H\)</span>-equivariant based maps and the colimit is over <span class="math inline">\(V\)</span> ranging over finite-dimensional sub-representations of the complete <span class="math inline">\(G\)</span>-universe.</p>
+<p>The genuine model structure has:
+- <strong>Weak equivalences:</strong> genuine <span class="math inline">\(G\)</span>-weak equivalences (as defined above).
+- <strong>Fibrations:</strong> maps <span class="math inline">\(f: X \to Y\)</span> such that <span class="math inline">\(f^H: X^H \to Y^H\)</span> is an <span class="math inline">\(\Omega\)</span>-spectrum level fibration for all <span class="math inline">\(H \leq G\)</span>.
+- <strong>Cofibrations:</strong> determined by the left-lifting property.</p>
+<p><strong>Theorem (Mandell–May).</strong> The genuine model structure on <span class="math inline">\(\mathrm{Sp}^G_O\)</span> is a proper, cellular, stable model category. The smash product <span class="math inline">\(\wedge\)</span> is a Quillen bifunctor with respect to this model structure, making <span class="math inline">\((\mathrm{Sp}^G_O, \wedge, \mathbb{S})\)</span> into a symmetric monoidal model category.</p>
+<h3 id="lewiss-theorem-inequivalence">5.3 Lewis’s Theorem: Inequivalence</h3>
+<p>The key structural theorem distinguishing naive from genuine is:</p>
+<p><strong>Theorem (Lewis).</strong> <em>If <span class="math inline">\(G \neq \{e\}\)</span>, the naive and genuine equivariant stable homotopy categories are not equivalent.</em> More precisely, the forgetful functor</p>
+<p><span class="math display">\[\iota^*: \mathrm{Ho}^G_{\mathrm{genuine}}(\mathrm{Sp}^G_O) \longrightarrow \mathrm{Ho}^G_{\mathrm{naive}}(\mathrm{Sp}^G_O)\]</span></p>
+<p>does not induce an equivalence of triangulated categories.</p>
+<p><em>Proof sketch.</em> The sphere spectrum <span class="math inline">\(\mathbb{S}\)</span> has</p>
+<p><span class="math display">\[\underline{\pi}_0^{\mathrm{genuine}}(\mathbb{S}) = \underline{A}(G), \quad \underline{\pi}_0^{\mathrm{naive}}(\mathbb{S}) = \underline{\mathbb{Z}},\]</span></p>
+<p>where <span class="math inline">\(\underline{A}(G)\)</span> is the <em>Burnside ring Mackey functor</em> (with <span class="math inline">\(\underline{A}(G)(G/H) = A(H)\)</span>, the Burnside ring of <span class="math inline">\(H\)</span>, including transfer maps) and <span class="math inline">\(\underline{\mathbb{Z}}\)</span> is the constant Mackey functor. Since <span class="math inline">\(A(H) \neq \mathbb{Z}\)</span> for <span class="math inline">\(H \neq \{e\}\)</span> (the Burnside ring has additional generators from non-trivial <span class="math inline">\(H\)</span>-sets), these two objects are not isomorphic as Mackey functors. Therefore <span class="math inline">\(\mathbb{S}^{\mathrm{genuine}} \not\simeq \mathbb{S}^{\mathrm{naive}}\)</span> in any putative equivalence. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-danger">
+<p> These are not just different presentations of the same category
+The naive and genuine stable categories are categorically distinct — they have different objects, different morphisms, and represent different cohomology theories. A naive <span class="math inline">\(G\)</span>-spectrum represents a cohomology theory with naive suspension isomorphisms; a genuine <span class="math inline">\(G\)</span>-spectrum represents a cohomology theory with RO(G)-graded suspension isomorphisms. See <a href="../../../../notes/concepts/equivariant-stable-homotopy/ro-g-graded-cohomology%7Cro(g)-graded-cohomology/">concepts/equivariant-stable-homotopy/ro-g-graded-cohomology|RO(G)-Graded Cohomology</a> <em>(no note yet)</em> for the latter.</p>
+</div>
+<h3 id="what-the-genuine-theory-gains">5.4 What the Genuine Theory Gains</h3>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 35%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Naive spectra</th>
+<th>Genuine spectra</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\underline{\pi}_0(\mathbb{S})\)</span></td>
+<td><span class="math inline">\(\underline{\mathbb{Z}}\)</span></td>
+<td><span class="math inline">\(\underline{A}(G)\)</span> (Burnside ring MF)</td>
+</tr>
+<tr class="even">
+<td>Suspension isomorphism</td>
+<td>Only <span class="math inline">\(S^1\)</span></td>
+<td>All <span class="math inline">\(S^V\)</span>, <span class="math inline">\(V \in \mathrm{RO}(G)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Transfer maps in <span class="math inline">\(\pi_*\)</span></td>
+<td>No</td>
+<td>Yes (Mackey functor structure)</td>
+</tr>
+<tr class="even">
+<td>Wirthmuller isomorphism</td>
+<td>Fails</td>
+<td><span class="math inline">\(i_! \simeq i_* \otimes S^{L_{G/H}}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Adams isomorphism</td>
+<td>Fails</td>
+<td><span class="math inline">\((G_+ \wedge_H X)^G \simeq X^H\)</span></td>
+</tr>
+<tr class="even">
+<td>RO(G)-graded Bredon cohomology</td>
+<td>No</td>
+<td>Yes: <span class="math inline">\(H^V_G(X; \underline{M})\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note">
+<p> Three Flavors of Equivariant Homotopy Theory</p>
+<p>There are three levels of equivariant structure, each with an unstable and a stable incarnation, connected by a chain of functors. Moving left-to-right loses equivariant information; moving top-to-bottom stabilizes.</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph Unstable
+        GTop[&quot;Genuine G-spaces&lt;br/&gt;weq: all X^H equiv&quot;]
+        NTop[&quot;Naive G-spaces&lt;br/&gt;weq: underlying X equiv&quot;]
+        BTop[&quot;Borel G-spaces&lt;br/&gt;Fun(BG, Top)&quot;]
+    end
+    subgraph Stable
+        GSp[&quot;Genuine G-spectra&lt;br/&gt;pi_* are Mackey functors&lt;br/&gt;Sp^G indexed on U_complete&quot;]
+        NSp[&quot;Naive G-spectra&lt;br/&gt;Fun(BG, Sp)&lt;br/&gt;Sp^G indexed on R^inf&quot;]
+        BSp[&quot;Borel G-spectra&lt;br/&gt;EG+ wedge E = E&lt;br/&gt;cohomology of X_hG&quot;]
+    end
+    GTop --&gt;|&quot;iota*&lt;br/&gt;forget fixed-pt weq&quot;| NTop
+    NTop --&gt;|&quot;EG x_G -&lt;br/&gt;Borel construction&quot;| BTop
+    GTop --&gt;|&quot;Sigma^inf_+&quot;| GSp
+    NTop --&gt;|&quot;Sigma^inf_+&quot;| NSp
+    BTop --&gt;|&quot;Sigma^inf_+&quot;| BSp
+    GSp --&gt;|&quot;iota*&lt;br/&gt;trivial universe&quot;| NSp
+    NSp --&gt;|&quot;EG+ wedge -&lt;br/&gt;Borelify&quot;| BSp</code></pre>
+<p><strong>Key distinctions:</strong></p>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 36%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Genuine</th>
+<th>Naive</th>
+<th>Borel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Unstable weq</td>
+<td>All <span class="math inline">\(X^H \xrightarrow{\sim} Y^H\)</span></td>
+<td><span class="math inline">\(X \xrightarrow{\sim} Y\)</span> underlying</td>
+<td><span class="math inline">\(EG \times_G X \xrightarrow{\sim} EG \times_G Y\)</span></td>
+</tr>
+<tr class="even">
+<td>Stable <span class="math inline">\(\pi_*\)</span></td>
+<td>Mackey functors <span class="math inline">\(\underline{\pi}_n\)</span></td>
+<td>Plain groups <span class="math inline">\(\pi_n^e\)</span> with <span class="math inline">\(G\)</span>-action</td>
+<td>Plain groups; <span class="math inline">\(\pi_n^H \cong \pi_n^{hH}\)</span> always</td>
+</tr>
+<tr class="odd">
+<td>Fixed pts</td>
+<td><span class="math inline">\(X^H \neq X^{hH}\)</span> in general</td>
+<td><span class="math inline">\((-)^H\)</span> not homotopically meaningful</td>
+<td><span class="math inline">\(X^H \simeq X^{hH}\)</span> by definition</td>
+</tr>
+<tr class="even">
+<td>Cohomology theory</td>
+<td><span class="math inline">\(E^*_G(X)\)</span> — RO(G)-graded</td>
+<td><span class="math inline">\(E^*_G(X)\)</span> — integer-graded only</td>
+<td><span class="math inline">\(E^*(EG \times_G X)\)</span> — Borel cohomology</td>
+</tr>
+<tr class="odd">
+<td>Sphere spectrum <span class="math inline">\(\pi_0\)</span></td>
+<td><span class="math inline">\(\underline{A}(G)\)</span> (Burnside ring MF)</td>
+<td><span class="math inline">\(\underline{\mathbb{Z}}\)</span> (constant MF)</td>
+<td><span class="math inline">\(\mathbb{Z}\)</span></td>
+</tr>
+<tr class="even">
+<td>Elmendorf description</td>
+<td>Presheaves on <span class="math inline">\(\mathcal{O}_G\)</span></td>
+<td>Presheaves on <span class="math inline">\(\{G/G\} \simeq BG\)</span></td>
+<td>Presheaves on <span class="math inline">\(BG\)</span> (same)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Inclusions and adjoints (stable).</strong> There is a chain of adjunctions
+<span class="math display">\[\mathrm{Sp}^G_{\mathrm{Borel}} \underset{i_*}{\overset{i^*}{\rightleftharpoons}} \mathrm{Sp}^G_{\mathrm{naive}} \underset{\iota_*}{\overset{\iota^*}{\rightleftharpoons}} \mathrm{Sp}^G_{\mathrm{gen}}\]</span>
+where <span class="math inline">\(i^*\)</span> and <span class="math inline">\(\iota^*\)</span> are the forgetful functors (right adjoints), and <span class="math inline">\(i_*\)</span>, <span class="math inline">\(\iota_*\)</span> are their left adjoints (induction / change-of-universe). The Borel-complete objects <span class="math inline">\(\{E : EG_+ \wedge E \xrightarrow{\sim} E\}\)</span> form a full subcategory of genuine <span class="math inline">\(G\)</span>-spectra closed under the smash product. <em>Importantly</em>, the functors <span class="math inline">\(i^*\)</span> and <span class="math inline">\(\iota^*\)</span> are not equivalences of homotopy categories (Lewis’s theorem), so these three theories are genuinely distinct.</p>
+</div>
+<h3 id="g-cw-spectra">5.5 G-CW-Spectra 📐</h3>
+<p>The model structure language above has a classical CW-theoretic counterpart: just as G-spaces are built from orbit cells <span class="math inline">\(G/H \times D^n\)</span>, genuine G-spectra are built from <em>representation-disk cells</em>.</p>
+<p><strong>Definition (Naive G-CW-Spectrum).</strong> A <em>naive G-CW-spectrum</em> is a sequential colimit</p>
+<p><span class="math display">\[* = X_{-1} \hookrightarrow X_0 \hookrightarrow X_1 \hookrightarrow \cdots\]</span></p>
+<p>where each <span class="math inline">\(X_n\)</span> is obtained from <span class="math inline">\(X_{n-1}\)</span> by attaching cells of the form <span class="math inline">\(G/H_+ \wedge D^n_+\)</span> along attaching maps <span class="math inline">\(G/H_+ \wedge S^{n-1} \to X_{n-1}\)</span>. Here <span class="math inline">\(H \leq G\)</span> is any subgroup and <span class="math inline">\(D^n, S^{n-1}\)</span> carry trivial <span class="math inline">\(G\)</span>-action. These are exactly the <em>generating cofibrations</em> of the naive model structure:</p>
+<p><span class="math display">\[I_{\mathrm{naive}} = \{ G/H_+ \wedge (S^{n-1} \hookrightarrow D^n) : H \leq G,\, n \geq 0 \}.\]</span></p>
+<p><strong>Definition (Genuine G-CW-Spectrum).</strong> A <em>genuine G-CW-spectrum</em> is built by attaching representation-disk cells. For a finite-dimensional <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span>, define the <em>representation disk</em> <span class="math inline">\(D^V = \{v \in V : |v| \leq 1\}\)</span> and <em>representation sphere</em> <span class="math inline">\(S^{V-1} = \partial D^V\)</span>. The generating cofibrations of the genuine model structure are:</p>
+<p><span class="math display">\[I_{\mathrm{gen}} = \{ G/H_+ \wedge (S^{V-1} \hookrightarrow D^V) : H \leq G,\, V \in \mathcal{U}^H \},\]</span></p>
+<p>where <span class="math inline">\(\mathcal{U}^H\)</span> denotes the finite-dimensional <span class="math inline">\(H\)</span>-fixed sub-representations of the complete universe. A genuine G-CW-spectrum is a sequential colimit obtained by attaching cells of this type.</p>
+<div class="callout callout-note">
+<p> Integer-graded vs. RO(G)-graded cells
+Naive G-CW-spectra are <span class="math inline">\(\mathbb{Z}\)</span>-graded: the “dimension” of a cell <span class="math inline">\(G/H_+ \wedge D^n\)</span> is the integer <span class="math inline">\(n\)</span>. Genuine G-CW-spectra are <span class="math inline">\(RO(G)\)</span>-graded: the “dimension” of a cell <span class="math inline">\(G/H_+ \wedge D^V\)</span> is the virtual representation <span class="math inline">\([V] \in RO(G)\)</span>. A cell of type <span class="math inline">\((G/H, V)\)</span> contributes to the fixed-point spectrum <span class="math inline">\(E^K\)</span> for any <span class="math inline">\(K \leq H\)</span> via the restriction <span class="math inline">\(\mathrm{res}_K^H\)</span>, but <em>only</em> the <span class="math inline">\(K\)</span>-fixed part <span class="math inline">\(V^K\)</span> is seen by <span class="math inline">\(\pi_*^K\)</span>. This is why genuine G-CW-spectra simultaneously encode data at all subgroup levels.</p>
+</div>
+<p><strong>The Equivariant Whitehead Theorem.</strong> The equivariant analogue of the classical Whitehead theorem holds for genuine G-CW-spectra:</p>
+<p><strong>Theorem (Whitehead).</strong> <em>Let <span class="math inline">\(f: X \to Y\)</span> be a map of genuine G-CW-spectra. If <span class="math inline">\(\pi_n^H(f)\)</span> is an isomorphism for all <span class="math inline">\(H \leq G\)</span> and all <span class="math inline">\(n \in \mathbb{Z}\)</span>, then <span class="math inline">\(f\)</span> is a <span class="math inline">\(G\)</span>-homotopy equivalence.</em></p>
+<p><em>Proof sketch.</em> By the model structure, <span class="math inline">\(f\)</span> is a genuine weak equivalence between cofibrant objects, hence a <span class="math inline">\(G\)</span>-homotopy equivalence by Ken Brown’s lemma. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Integer-graded detection is not enough
+For genuine G-CW-spectra, it is <em>not</em> sufficient to check <span class="math inline">\(\pi_n^H(f)\)</span> for <span class="math inline">\(n \in \mathbb{Z}\)</span> — one must check all <span class="math inline">\(\pi_V^H(f)\)</span> for <span class="math inline">\(V \in RO(G)\)</span> for the Whitehead theorem to apply to general maps. However, for maps between <em>bounded-below</em> G-spectra (slice <span class="math inline">\(\geq N\)</span> for some <span class="math inline">\(N\)</span>), integer-graded detection is sufficient by an inductive argument on the slice tower.</p>
+</div>
+<p><strong>Cells, slices, and the filtration.</strong> The generating cofibrations <span class="math inline">\(I_{\mathrm{gen}}\)</span> refine to a slice-graded family. Define the <em>slice dimension</em> of a cell <span class="math inline">\(G/H_+ \wedge D^V\)</span> to be <span class="math inline">\(\dim_\mathbb{R}(V)\)</span>. The slice cells</p>
+<p><span class="math display">\[\widetilde{S}^{m|H|} = G_+ \wedge_H S^{m\rho_H}\]</span></p>
+<p>of <a href="../../../../notes/concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice%7Cequivariant-postnikov-and-slice/">concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice|Equivariant Postnikov and Slice</a> are specific genuine G-CW cells built from the regular representation <span class="math inline">\(\rho_H\)</span>. The slice filtration on a genuine G-CW-spectrum <span class="math inline">\(E\)</span> is the sub-CW-filtration generated by attaching cells of slice dimension <span class="math inline">\(\leq n\)</span>:</p>
+<p><span class="math display">\[\text{slice filtration} \;\subset\; \text{genuine G-CW filtration} \;\subset\; RO(G)\text{-graded cell filtration.}\]</span></p>
+<p>The slice filtration is <em>coarser</em>: it groups all cells of the same real dimension together, regardless of which representation they come from.</p>
+<p><strong>Compatibility with change-of-group.</strong> Induction and restriction act on G-CW-spectra in the expected way:
+- <em>Restriction</em> <span class="math inline">\(i_H^*: \mathrm{Sp}^G \to \mathrm{Sp}^H\)</span> sends a genuine G-CW-spectrum to a genuine H-CW-spectrum. A cell <span class="math inline">\(G/K_+ \wedge D^V\)</span> restricts to <span class="math inline">\(\bigsqcup_{[g] \in H \backslash G / K} H/(H \cap {}^gK)_+ \wedge D^{V|_{H \cap {}^gK}}\)</span> by the Mackey double coset formula — each double coset contributes one <span class="math inline">\(H\)</span>-cell.
+- <em>Induction</em> <span class="math inline">\(G_+ \wedge_H -: \mathrm{Sp}^H \to \mathrm{Sp}^G\)</span> sends an <span class="math inline">\(H\)</span>-cell <span class="math inline">\(H/K_+ \wedge D^V\)</span> to a <span class="math inline">\(G\)</span>-cell <span class="math inline">\(G/K_+ \wedge D^V\)</span>.</p>
+<div class="callout callout-note">
+<p> Slice filtration across the three flavors</p>
+<p>The slice filtration interacts very differently with genuine, naive, and Borel spectra:</p>
+<p><strong>Genuine → naive</strong> (forgetful <span class="math inline">\(\iota^*\)</span>). Applying <span class="math inline">\(\iota^*\)</span> collapses every representation sphere <span class="math inline">\(S^V\)</span> to the ordinary sphere <span class="math inline">\(S^{\dim V}\)</span>, since the representation structure is forgotten. As a result, the generating cofibrations <span class="math inline">\(G/H_+ \wedge (S^{V-1} \hookrightarrow D^V)\)</span> become naive cofibrations <span class="math inline">\(G/H_+ \wedge (S^{n-1} \hookrightarrow D^n)\)</span> with <span class="math inline">\(n = \dim V\)</span>. Consequently:
+<span class="math display">\[\iota^* P^n_{\mathrm{slice}} X \;\simeq\; P^n_{\mathrm{Post}}(\iota^* X)\]</span>
+The slice tower of a genuine G-spectrum maps to the ordinary Postnikov tower of the underlying naive spectrum. The RO(G)-graded differentials in the slice spectral sequence become invisible — they collapse onto the integer-graded AHSS.</p>
+<p><strong>Genuine → Borel</strong> (<span class="math inline">\(EG_+ \wedge -\)</span>). For a Borel-complete G-spectrum <span class="math inline">\(E\)</span> (i.e., <span class="math inline">\(EG_+ \wedge E \simeq E\)</span>), categorical and homotopy fixed points agree: <span class="math inline">\(E^H \simeq E^{hH}\)</span>. The slice tower of <span class="math inline">\(E\)</span> has Borel-complete slices at each stage, and the slice spectral sequence degenerates to the <strong>homotopy fixed point spectral sequence</strong>:
+<span class="math display">\[E_2^{s,t} = H^s(G;\, \pi_t(E^e)) \;\Longrightarrow\; \pi_{t-s}(E^{hG}).\]</span>
+In other words, the HFPSS <em>is</em> the slice SS for Borel-complete spectra. The genuine slice SS is a strict refinement — it sees the difference between <span class="math inline">\(E^H\)</span> and <span class="math inline">\(E^{hH}\)</span> in its differentials.</p>
+<p><strong>The Tate sequence as the bridge.</strong> For any genuine G-spectrum <span class="math inline">\(X\)</span>, the cofiber sequence
+<span class="math display">\[EG_+ \wedge X \longrightarrow X \longrightarrow \widetilde{EG} \wedge X\]</span>
+(Borel part → genuine → Tate part) is a map of filtered objects: each term carries its own slice tower, and the three towers fit into a map of exact triangles at each filtration level. The Tate spectrum <span class="math inline">\(X^{tG} = (\widetilde{EG} \wedge X)^{hG}\)</span> precisely captures <em>what the genuine slice SS sees that the Borel HFPSS cannot</em>.</p>
+<table>
+<colgroup>
+<col style="width: 2%" />
+<col style="width: 40%" />
+<col style="width: 23%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Generating cells</th>
+<th>Slice SS</th>
+<th>Fixed points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Genuine</td>
+<td><span class="math inline">\(G/H_+ \wedge D^V\)</span>, <span class="math inline">\(V \in RO(G)\)</span></td>
+<td>Full slice SS; <span class="math inline">\(d_r\)</span> detect rep-sphere structure</td>
+<td><span class="math inline">\(X^H \not\simeq X^{hH}\)</span> in general</td>
+</tr>
+<tr class="even">
+<td>Naive</td>
+<td><span class="math inline">\(G/H_+ \wedge D^n\)</span>, <span class="math inline">\(n \in \mathbb{Z}\)</span></td>
+<td>Collapses to Postnikov / AHSS</td>
+<td><span class="math inline">\((-)^H\)</span> not meaningful stably</td>
+</tr>
+<tr class="odd">
+<td>Borel</td>
+<td><span class="math inline">\(G/H_+ \wedge D^n\)</span> (effectively)</td>
+<td>Collapses to HFPSS</td>
+<td><span class="math inline">\(X^H \simeq X^{hH}\)</span> always</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="homotopy-groups-as-mackey-functors">6. Homotopy Groups as Mackey Functors 🔑</h2>
+<h3 id="definition-of-the-homotopy-mackey-functor">6.1 Definition of the Homotopy Mackey Functor</h3>
+<p>For a genuine <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(E \in \mathrm{Sp}^G_O\)</span>, the <em>equivariant homotopy groups</em> assemble into a <a href="../../../../notes/concepts/equivariant-stable-homotopy/mackey-functors%7Cmackey-functor/">concepts/equivariant-stable-homotopy/mackey-functors|Mackey Functor</a> <span class="math inline">\(\underline{\pi}_n(E)\)</span>.</p>
+<p><strong>Definition (Homotopy Mackey Functor).</strong> For <span class="math inline">\(n \in \mathbb{Z}\)</span> and <span class="math inline">\(E \in \mathrm{Sp}^G_O\)</span>, define the <em><span class="math inline">\(n\)</span>-th homotopy Mackey functor</em> <span class="math inline">\(\underline{\pi}_n(E)\)</span> by</p>
+<p><span class="math display">\[\underline{\pi}_n(E)(G/H) = \pi_n(E^H) = \mathrm{colim}_{V \subset \mathcal{U}} [S^{n + V}, E(V)]^H,\]</span></p>
+<p>where <span class="math inline">\(E^H\)</span> denotes the <span class="math inline">\(H\)</span>-fixed-point spectrum. The colimit is over finite-dimensional <span class="math inline">\(G\)</span>-sub-representations <span class="math inline">\(V \subset \mathcal{U}\)</span> (with <span class="math inline">\(\dim V \geq \max(0, -n)\)</span>), and a map <span class="math inline">\(S^{n+V} \to E(V)\)</span> is required to be <span class="math inline">\(H\)</span>-equivariant.</p>
+<p>The value <span class="math inline">\(\underline{\pi}_n(E)(G/H) = \pi_n^H(E)\)</span> is simply the <span class="math inline">\(n\)</span>-th homotopy group of the <span class="math inline">\(H\)</span>-fixed-point space of <span class="math inline">\(E\)</span> at a sufficiently large representation.</p>
+<h3 id="restriction-and-transfer-maps">6.2 Restriction and Transfer Maps</h3>
+<p>To complete the Mackey functor structure, we need maps in both directions.</p>
+<p><strong>Restriction maps.</strong> For an inclusion of subgroups <span class="math inline">\(i: K \hookrightarrow H\)</span>, the map <span class="math inline">\(G/K \to G/H\)</span> defined by <span class="math inline">\(gK \mapsto gH\)</span> is a morphism in the orbit category. The restriction</p>
+<p><span class="math display">\[\mathrm{res}^H_K: \pi_n^H(E) \longrightarrow \pi_n^K(E)\]</span></p>
+<p>is simply the map induced by the inclusion of fixed-point spaces <span class="math inline">\(E^H \hookrightarrow E^K\)</span> (a smaller group has more fixed points): if <span class="math inline">\(f: S^{n+V} \to E(V)\)</span> is <span class="math inline">\(H\)</span>-equivariant, it is also <span class="math inline">\(K\)</span>-equivariant since <span class="math inline">\(K \leq H\)</span>.</p>
+<p><strong>Transfer maps.</strong> For <span class="math inline">\(K \leq H \leq G\)</span>, the transfer is the stable map</p>
+<p><span class="math display">\[\mathrm{tr}^H_K: \pi_n^K(E) \longrightarrow \pi_n^H(E)\]</span></p>
+<p>constructed via the Pontryagin–Thom collapse. Specifically, the coset space <span class="math inline">\(H/K\)</span> is a finite <span class="math inline">\(H\)</span>-set, and there is a stable transfer map <span class="math inline">\(\mathrm{tr}: \Sigma^\infty_+ (H/K) \to \mathbb{S}^H\)</span> in the <span class="math inline">\(H\)</span>-equivariant stable category. The transfer on homotopy groups is then the composition</p>
+<p><span class="math display">\[\pi_n^K(E) \cong [S^{n}, E^K] \xrightarrow{\mathrm{tr}^H_K \wedge -} [\Sigma^\infty_+(H/K) \wedge S^n, \Sigma^\infty_+(H/K) \wedge E^K] \to [S^n, E^H].\]</span></p>
+<div class="callout callout-note">
+<p> Transfer for <span class="math inline">\(n = 0\)</span> and group rings
+For <span class="math inline">\(E = H\underline{M}\)</span> an Eilenberg–Mac Lane spectrum and <span class="math inline">\(n = 0\)</span>, the transfer <span class="math inline">\(\mathrm{tr}^H_K: M(G/K) \to M(G/H)\)</span> is the classical Mackey transfer — it sums over coset representatives when <span class="math inline">\(\underline{M}\)</span> takes values in abelian groups. For <span class="math inline">\(\underline{M} = \underline{A}(G)\)</span> this is the induction map on Burnside rings.</p>
+</div>
+<p><strong>Conjugation maps.</strong> For <span class="math inline">\(g \in G\)</span> and <span class="math inline">\(H \leq G\)</span>, conjugation by <span class="math inline">\(g\)</span> gives a group isomorphism <span class="math inline">\(c_g: H \to {}^gH = gHg^{-1}\)</span>, and this induces an isomorphism</p>
+<p><span class="math display">\[c_g^*: \pi_n^{{}^gH}(E) \xrightarrow{\;\sim\;} \pi_n^H(E).\]</span></p>
+<h3 id="the-mackey-axiom-from-the-double-coset-formula">6.3 The Mackey Axiom from the Double Coset Formula</h3>
+<p>We must verify that the Mackey double coset formula holds: for <span class="math inline">\(K, L \leq H\)</span>,</p>
+<p><span class="math display">\[\mathrm{res}^H_K \circ \mathrm{tr}^H_L = \sum_{[h] \in K \backslash H / L} \mathrm{tr}^K_{K \cap {}^hL} \circ c_{h}^* \circ \mathrm{res}^L_{K^h \cap L}.\]</span></p>
+<p>In the stable equivariant category, this follows from the <em>geometric</em> decomposition of the span <span class="math inline">\(H/K \xleftarrow{} H \xrightarrow{} H/L\)</span> as a disjoint union of double coset spans. Specifically, the fiber product</p>
+<p><span class="math display">\[(H/K) \times_{H/e} (H/L) \cong \bigsqcup_{[h] \in K \backslash H / L} K/(K \cap {}^hL)\]</span></p>
+<p>as <span class="math inline">\(K\)</span>-sets, and the Mackey formula is the image of this identity under the stable transfer. This is a direct consequence of the Mackey double coset formula for finite <span class="math inline">\(G\)</span>-sets (see <a href="../../../../notes/concepts/equivariant-stable-homotopy/mackey-functors%7Cmackey-functors/">concepts/equivariant-stable-homotopy/mackey-functors|Mackey Functors</a> §4 for the algebraic statement).</p>
+<p><strong>Corollary.</strong> For any genuine <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(E\)</span> and any <span class="math inline">\(n \in \mathbb{Z}\)</span>, the data <span class="math inline">\((\underline{\pi}_n(E), \mathrm{res}, \mathrm{tr}, c_g)\)</span> form a Mackey functor. The assignment <span class="math inline">\(E \mapsto \underline{\pi}_n(E)\)</span> is a functor <span class="math inline">\(\mathrm{Ho}(\mathrm{Sp}^G_O) \to \mathbf{Mack}(G)\)</span>.</p>
+<div class="callout callout-warning">
+<p> This fails for naive spectra
+For a naive <span class="math inline">\(G\)</span>-spectrum, the transfer maps <span class="math inline">\(\mathrm{tr}^H_K\)</span> are not defined in general — there is no stable transfer available without genuine suspension maps. The homotopy groups <span class="math inline">\(\pi_n^H(E)\)</span> of a naive spectrum are merely abelian groups, not assembled into Mackey functors.</p>
+</div>
+<h3 id="the-c2-example-in-detail">6.4 The C2 Example in Detail</h3>
+<p>Let <span class="math inline">\(G = C_2 = \{1, \sigma\}\)</span>. A <span class="math inline">\(C_2\)</span>-Mackey functor is a diagram</p>
+<p><span class="math display">\[M(C_2/C_2) = M^{C_2} \underset{\mathrm{tr}}{\overset{\mathrm{res}}{\rightleftharpoons}} M(C_2/e) = M^e\]</span></p>
+<p>of abelian groups with <span class="math inline">\(\mathrm{res}: M^{C_2} \to M^e\)</span> and <span class="math inline">\(\mathrm{tr}: M^e \to M^{C_2}\)</span>, satisfying the Mackey axiom <span class="math inline">\(\mathrm{tr} \circ \mathrm{res} = 1 + \sigma_*\)</span> (where <span class="math inline">\(\sigma_*\)</span> is conjugation by <span class="math inline">\(\sigma\)</span>, which acts as the identity on <span class="math inline">\(M^{C_2}\)</span> and by the <span class="math inline">\(C_2\)</span>-action on <span class="math inline">\(M^e\)</span>).</p>
+<p>For a genuine <span class="math inline">\(C_2\)</span>-spectrum <span class="math inline">\(E\)</span>:</p>
+<p><span class="math display">\[\underline{\pi}_n(E): \quad \pi_n(E^{C_2}) \underset{\mathrm{tr}}{\overset{\mathrm{res}}{\rightleftharpoons}} \pi_n(E^e)\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathrm{res} = i^*\)</span>: the map induced by the inclusion of fixed points <span class="math inline">\(E^{C_2} \hookrightarrow E^e\)</span> (which simply forgets the <span class="math inline">\(C_2\)</span>-equivariance condition).</li>
+<li><span class="math inline">\(\mathrm{tr}\)</span>: the stable transfer, which for <span class="math inline">\(C_2/e\)</span> can be described as follows — embed <span class="math inline">\(S^n \hookrightarrow S^n \vee S^n \cong C_2 \cdot S^n\)</span> and apply the fold map; the stable transfer is the composition of this with the <span class="math inline">\(C_2\)</span>-norm.</li>
+<li>Weyl conjugation: <span class="math inline">\(W_{C_2}(e) = C_2\)</span> acts on <span class="math inline">\(\pi_n(E^e)\)</span> by the residual <span class="math inline">\(C_2\)</span>-action on the underlying spectrum. The Mackey axiom gives <span class="math inline">\(\mathrm{tr} \circ \mathrm{res} = 1 + \sigma_*\)</span>.</li>
+</ul>
+<div class="callout callout-example">
+<p> The Burnside ring Mackey functor <span class="math inline">\(\underline{A}(C_2) = \underline{\pi}_0(\mathbb{S})\)</span></p>
+<p>The sphere spectrum <span class="math inline">\(\mathbb{S}\)</span> has:
+- <span class="math inline">\(\pi_0^{C_2}(\mathbb{S}) = A(C_2)\)</span>: the Burnside ring of <span class="math inline">\(C_2\)</span>, generated as an abelian group by <span class="math inline">\([*]\)</span> (the trivial 0-cell) and <span class="math inline">\([C_2/e]\)</span> (the free orbit). As a ring, <span class="math inline">\(A(C_2) \cong \mathbb{Z}^2\)</span> via the isomorphism <span class="math inline">\(([X]) \mapsto (|X^{C_2}|, |X^e|/2 + |X^{C_2}|)\)</span>… more precisely, via the marks homomorphism <span class="math inline">\(\phi: A(C_2) \to \mathbb{Z} \times \mathbb{Z}\)</span>, <span class="math inline">\([X] \mapsto (|X^{C_2}|, |X^e|)\)</span>.
+- <span class="math inline">\(\pi_0^e(\mathbb{S}) = \mathbb{Z}\)</span>.
+- The restriction map <span class="math inline">\(\mathrm{res}: A(C_2) \to \mathbb{Z}\)</span> sends <span class="math inline">\([X] \mapsto |X|\)</span> (the total number of points, forgetting the action).
+- The transfer map <span class="math inline">\(\mathrm{tr}: \mathbb{Z} \to A(C_2)\)</span> sends <span class="math inline">\(1 \mapsto [C_2/e]\)</span> (the free orbit).</p>
+<p>In the naive category, <span class="math inline">\(\underline{\pi}_0(\mathbb{S}) = \underline{\mathbb{Z}}\)</span> — the constant Mackey functor sending both <span class="math inline">\(C_2/C_2\)</span> and <span class="math inline">\(C_2/e\)</span> to <span class="math inline">\(\mathbb{Z}\)</span> with identity restriction and <span class="math inline">\(\mathrm{tr}(n) = 2n\)</span>. This is strictly smaller than <span class="math inline">\(A(C_2)\)</span>.</p>
+</div>
+<hr />
+<h2 id="suspension-spectra-and-basic-examples">7. Suspension Spectra and Basic Examples 💡</h2>
+<h3 id="the-equivariant-suspension-spectrum">7.1 The Equivariant Suspension Spectrum</h3>
+<p><strong>Definition (Equivariant Suspension Spectrum).</strong> For a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(X\)</span>, the <em>equivariant suspension spectrum</em> is the orthogonal <span class="math inline">\(G\)</span>-spectrum</p>
+<p><span class="math display">\[\Sigma^\infty X \in \mathrm{Sp}^G_O, \quad (\Sigma^\infty X)(V) = S^V \wedge X,\]</span></p>
+<p>with structure maps <span class="math inline">\(\mathbf{I}_G(V, W) \wedge S^V \wedge X \to S^W \wedge X\)</span> induced by the tautological map <span class="math inline">\(\mathbf{I}_G(V, W) \wedge S^V \to S^W\)</span>.</p>
+<p>For an <em>unbased</em> <span class="math inline">\(G\)</span>-space <span class="math inline">\(Y\)</span>, define <span class="math inline">\(\Sigma^\infty_+ Y = \Sigma^\infty(Y_+)\)</span> where <span class="math inline">\(Y_+ = Y \sqcup \{*\}\)</span> adjoins a disjoint basepoint.</p>
+<p>The <em>infinite loop space</em> functor <span class="math inline">\(\Omega^\infty: \mathrm{Sp}^G_O \to G\mathbf{Top}_*\)</span> is defined by <span class="math inline">\(\Omega^\infty E = \mathrm{colim}_{V \subset \mathcal{U}} \Omega^V E(V)\)</span>.</p>
+<p><strong>Proposition (Suspension-Loop Adjunction).</strong> There is a natural adjunction</p>
+<p><span class="math display">\[\Sigma^\infty_+: G\mathbf{Top} \rightleftharpoons \mathrm{Sp}^G_O : \Omega^\infty\]</span></p>
+<p>with <span class="math inline">\(\Sigma^\infty_+\)</span> left adjoint to <span class="math inline">\(\Omega^\infty\)</span>. The unit <span class="math inline">\(\eta: Y_+ \to \Omega^\infty \Sigma^\infty_+ Y\)</span> and counit <span class="math inline">\(\epsilon: \Sigma^\infty_+ \Omega^\infty E \to E\)</span> are the standard suspension-loop unit and counit.</p>
+<div class="callout callout-note">
+<p> Derived suspension spectrum
+In the homotopy category, <span class="math inline">\(\Sigma^\infty_+\)</span> has a total left derived functor <span class="math inline">\(\mathbb{L}\Sigma^\infty_+\)</span>, which is defined on all <span class="math inline">\(G\)</span>-spaces (not just cofibrant ones). For a <span class="math inline">\(G\)</span>-CW complex <span class="math inline">\(X\)</span>, the counit <span class="math inline">\(\Sigma^\infty_+ \Omega^\infty E \to E\)</span> is a genuine <span class="math inline">\(G\)</span>-weak equivalence when <span class="math inline">\(E\)</span> is a connective <span class="math inline">\(G\)</span>-spectrum (i.e., <span class="math inline">\(\pi_n^H(E) = 0\)</span> for <span class="math inline">\(n &lt; 0\)</span> and all <span class="math inline">\(H\)</span>).</p>
+</div>
+<h3 id="the-sphere-spectrum-and-the-burnside-ring">7.2 The Sphere Spectrum and the Burnside Ring</h3>
+<p><strong>Definition (Sphere Spectrum).</strong> The <em>equivariant sphere spectrum</em> is</p>
+<p><span class="math display">\[\mathbb{S} = \Sigma^\infty_+ \{*\} = \Sigma^\infty S^0.\]</span></p>
+<p>As an orthogonal <span class="math inline">\(G\)</span>-spectrum, <span class="math inline">\(\mathbb{S}(V) = S^V\)</span> with the canonical structure maps. The <span class="math inline">\(H\)</span>-fixed points of <span class="math inline">\(\mathbb{S}\)</span> at each level are <span class="math inline">\((\mathbb{S}(V))^H = (S^V)^H = S^{V^H}\)</span>, where <span class="math inline">\(V^H\)</span> is the fixed subrepresentation.</p>
+<p><strong>Definition (Representation Sphere Spectrum).</strong> For a <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span>, define the <em>representation sphere spectrum</em></p>
+<p><span class="math display">\[S^V = \Sigma^\infty S^V \in \mathrm{Sp}^G_O.\]</span></p>
+<p>More precisely, <span class="math inline">\(S^V\)</span> is the suspension spectrum of the representation sphere, and it represents the functor <span class="math inline">\(\pi_V^H(E) = [S^V, E]^H\)</span> in the stable category.</p>
+<p>The suspension spectrum of the orbit <span class="math inline">\(G/H\)</span> plays a central role: <span class="math inline">\(\Sigma^\infty_+ G/H\)</span> is <em>free</em> as a <span class="math inline">\(G\)</span>-spectrum (in the sense that its <span class="math inline">\(H\)</span>-equivariant homotopy groups are those of a free <span class="math inline">\(G\)</span>-space).</p>
+<p><strong>Proposition.</strong> <span class="math inline">\(\underline{\pi}_0(\mathbb{S}) = \underline{A}(G)\)</span>, the Burnside ring Mackey functor with <span class="math inline">\(\underline{A}(G)(G/H) = A(H)\)</span> (the Burnside ring of <span class="math inline">\(H\)</span>).</p>
+<p><em>Sketch.</em> The group <span class="math inline">\(\pi_0^H(\mathbb{S}) = [S^0, S^0]^H_{\mathrm{stable}} \cong A(H)\)</span> by the equivariant stable Freudenthal theorem: stable maps <span class="math inline">\(S^0 \to S^0\)</span> in the <span class="math inline">\(H\)</span>-equivariant stable category biject with virtual finite <span class="math inline">\(H\)</span>-sets, giving the Burnside ring. See <a href="../../../../notes/concepts/equivariant-stable-homotopy/mackey-functors%7Cmackey-functors/">concepts/equivariant-stable-homotopy/mackey-functors|Mackey Functors</a> §5.2 for the Burnside ring Mackey functor.</p>
+<h3 id="equivariant-eilenbergmac-lane-spectra">7.3 Equivariant Eilenberg–Mac Lane Spectra</h3>
+<p>For a <a href="../../../../notes/concepts/equivariant-stable-homotopy/mackey-functors%7Cmackey-functor/">concepts/equivariant-stable-homotopy/mackey-functors|Mackey Functor</a> <span class="math inline">\(\underline{M}\)</span>, there is an equivariant Eilenberg–Mac Lane spectrum <span class="math inline">\(H\underline{M}\)</span> characterized by</p>
+<p><span class="math display">\[\underline{\pi}_n(H\underline{M}) = \begin{cases} \underline{M} &amp; n = 0, \\ 0 &amp; n \neq 0. \end{cases}\]</span></p>
+<p><strong>Construction.</strong> One constructs <span class="math inline">\(H\underline{M}\)</span> via the equivariant bar construction: for each <span class="math inline">\(G/H\)</span>, the <span class="math inline">\(H\)</span>-fixed-point space of <span class="math inline">\(H\underline{M}\)</span> is the classical Eilenberg–Mac Lane space <span class="math inline">\(K(\underline{M}(G/H), 0)\)</span>, and the equivariant structure is assembled using the restriction and transfer maps of <span class="math inline">\(\underline{M}\)</span>.</p>
+<p>The spectrum <span class="math inline">\(H\underline{M}\)</span> represents <em>Bredon cohomology</em>: for a <span class="math inline">\(G\)</span>-CW complex <span class="math inline">\(X\)</span>,</p>
+<p><span class="math display">\[H^n_G(X; \underline{M}) = [X, \Sigma^n H\underline{M}]^G.\]</span></p>
+<div class="callout callout-example">
+<p> Key Eilenberg–Mac Lane spectra</p>
+<ul>
+<li><span class="math inline">\(H\underline{\mathbb{Z}}\)</span>: the equivariant Eilenberg–Mac Lane spectrum for the constant Mackey functor <span class="math inline">\(\underline{\mathbb{Z}}\)</span> (every <span class="math inline">\(G/H \mapsto \mathbb{Z}\)</span>, trivial restriction and transfer <span class="math inline">\(\mathrm{tr}(n) = |H/K| \cdot n\)</span>). Represents Bredon cohomology with constant coefficients.</li>
+<li><span class="math inline">\(H\underline{A}(G)\)</span>: the Eilenberg–Mac Lane spectrum for the Burnside ring Mackey functor. Appears in the slice filtration of <span class="math inline">\(\mathbb{S}\)</span> — see <a href="../../../../notes/concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice%7Cequivariant-postnikov-and-slice/">concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice|Equivariant Postnikov and Slice</a> for the equivariant Postnikov tower.</li>
+<li><span class="math inline">\(H\underline{\mathbb{Z}}_{\mathrm{tr}}\)</span> for <span class="math inline">\(G = C_2\)</span>: the Mackey functor <span class="math inline">\(\mathbb{Z} \overset{\mathrm{id}}{\underset{2 \cdot}{\rightleftharpoons}} \mathbb{Z}\)</span>. This appears in the computation of <span class="math inline">\(\pi_*^{C_2}(H\underline{\mathbb{Z}})\)</span>.</li>
+</ul>
+</div>
+<h3 id="the-tom-dieck-splitting">7.4 The tom Dieck Splitting</h3>
+<p>One of the most important structural results for suspension spectra is the <em>tom Dieck splitting</em>.</p>
+<p><strong>Theorem (tom Dieck Splitting).</strong> For a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(X\)</span> and a finite group <span class="math inline">\(G\)</span>,</p>
+<p><span class="math display">\[\pi_n^G(\Sigma^\infty_+ X) \cong \bigoplus_{[H] \leq G} \pi_n^{\mathrm{st}}(EW_GH_+ \wedge_{W_GH} X^H),\]</span></p>
+<p>where the sum is over conjugacy classes of subgroups, <span class="math inline">\(W_GH = N_GH / H\)</span> is the Weyl group, and <span class="math inline">\(\pi_n^{\mathrm{st}}\)</span> denotes stable homotopy groups.</p>
+<p><em>Proof sketch.</em> Use the <span class="math inline">\(H\)</span>-fixed-point decomposition of the Pontryagin–Thom construction for free orbits. Each summand corresponds to the contribution from <span class="math inline">\(H\)</span>-fixed locus of <span class="math inline">\(X\)</span>, twisted by the Weyl group <span class="math inline">\(W_GH\)</span> action on <span class="math inline">\(EW_GH \times X^H\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> Tom Dieck splitting for <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(X = S^0\)</span>
+<span class="math inline">\(\pi_n^{C_2}(\mathbb{S}) = \pi_n^{C_2}(\Sigma^\infty S^0) \cong \pi_n^{\mathrm{st}}(EC_2) \oplus \pi_n^{\mathrm{st}}(S^0)\)</span>. In degree <span class="math inline">\(n = 0\)</span>: <span class="math inline">\(\pi_0^{C_2}(\mathbb{S}) \cong \mathbb{Z} \oplus \mathbb{Z}\)</span>, which matches <span class="math inline">\(A(C_2) \cong \mathbb{Z}^2\)</span> via the Burnside ring (generated by <span class="math inline">\([*]\)</span> and <span class="math inline">\([C_2]\)</span>).</p>
+</div>
+<hr />
+<h2 id="the-smash-product-and-closed-structure">8. The Smash Product and Closed Structure 📐</h2>
+<h3 id="symmetric-monoidal-structure">8.1 Symmetric Monoidal Structure</h3>
+<p>We have already constructed the smash product via Day convolution in §4.3. Here we record its properties.</p>
+<p><strong>Theorem.</strong> The homotopy category <span class="math inline">\(\mathrm{Ho}(\mathrm{Sp}^G_O)\)</span> with the derived smash product <span class="math inline">\(\wedge^L\)</span> is a <em>closed symmetric monoidal category</em>:</p>
+<p><span class="math display">\[(\mathrm{Ho}(\mathrm{Sp}^G_O), \wedge^L, \mathbb{S}).\]</span></p>
+<p>The monoidal structure satisfies:
+1. <em>(Unit)</em> <span class="math inline">\(\mathbb{S} \wedge E \simeq E \simeq E \wedge \mathbb{S}\)</span>.
+2. <em>(Associativity)</em> <span class="math inline">\((E \wedge F) \wedge K \simeq E \wedge (F \wedge K)\)</span> naturally.
+3. <em>(Commutativity)</em> <span class="math inline">\(E \wedge F \simeq F \wedge E\)</span> via the twist.
+4. <em>(Closed)</em> There exists an <em>internal hom</em> <span class="math inline">\(F(E, F)\)</span> with natural adjunction isomorphism <span class="math inline">\([E \wedge F, K]^G \cong [E, F(F, K)]^G\)</span>.</p>
+<h3 id="the-internal-hom-and-spanierwhitehead-duality">8.2 The Internal Hom and Spanier–Whitehead Duality</h3>
+<p><strong>Definition (Internal Hom).</strong> For orthogonal <span class="math inline">\(G\)</span>-spectra <span class="math inline">\(E, F\)</span>, the <em>function spectrum</em> <span class="math inline">\(F(E, F)\)</span> is defined by</p>
+<p><span class="math display">\[F(E, F)(V) = \mathrm{Map}_*(E(V), F(V))^G\]</span></p>
+<p>(maps of <span class="math inline">\(G\)</span>-spaces, assembled using the structure of orthogonal spectra). More precisely, <span class="math inline">\(F(E, F)\)</span> represents the functor <span class="math inline">\(X \mapsto [X \wedge E, F]^G\)</span> on the homotopy category.</p>
+<p><strong>Definition (Spanier–Whitehead Dual).</strong> The <em>Spanier–Whitehead dual</em> of <span class="math inline">\(E \in \mathrm{Sp}^G_O\)</span> is</p>
+<p><span class="math display">\[D(E) = F(E, \mathbb{S}).\]</span></p>
+<p>A <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(E\)</span> is <em>dualizable</em> if the natural map <span class="math inline">\(E \wedge D(E) \to F(D(E), E)\)</span> is an equivalence, or equivalently, if the evaluation map <span class="math inline">\(D(E) \wedge E \to \mathbb{S}\)</span> and coevaluation <span class="math inline">\(\mathbb{S} \to E \wedge D(E)\)</span> exhibit the standard adjunction.</p>
+<p><strong>Theorem (Equivariant Atiyah Duality).</strong> For a compact smooth <span class="math inline">\(G\)</span>-manifold <span class="math inline">\(M\)</span> with <span class="math inline">\(G\)</span>-equivariant embedding <span class="math inline">\(M \hookrightarrow V\)</span> into a <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span>, the equivariant Spanier–Whitehead dual is</p>
+<p><span class="math display">\[D(\Sigma^\infty_+ M) \simeq \Sigma^\infty_+(M^{-TM}) = \Sigma^{-V} \Sigma^\infty(M^{\nu})\]</span></p>
+<p>where <span class="math inline">\(\nu\)</span> is the normal bundle of the embedding and <span class="math inline">\(M^\nu\)</span> is the Thom space.</p>
+<h3 id="the-suspension-isomorphism">8.3 The Suspension Isomorphism</h3>
+<p><strong>Proposition (Suspension Isomorphism).</strong> For any <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span> and any <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(E\)</span>, there is a natural equivalence</p>
+<p><span class="math display">\[\Sigma^V E := S^V \wedge E \simeq E[V]\]</span></p>
+<p>in the homotopy category, where <span class="math inline">\(E[V]\)</span> is the <span class="math inline">\(V\)</span>-th shift of <span class="math inline">\(E\)</span>. In particular:
+- <span class="math inline">\(\pi_n^H(\Sigma^V E) \cong \pi_{n + \dim V^H}^H(E)\)</span> for the real dimension of the <span class="math inline">\(H\)</span>-fixed subrepresentation.
+- More precisely (for the genuine RO(G)-graded story), <span class="math inline">\(\underline{\pi}_{V+n}(E)(G/H) \cong \underline{\pi}_n(E)(G/H)\)</span> for a <span class="math inline">\(G\)</span>-representation <span class="math inline">\(V\)</span> thought of as an element of <span class="math inline">\(\mathrm{RO}(G)\)</span>.</p>
+<p>The suspension isomorphism demonstrates that genuine <span class="math inline">\(G\)</span>-spectra are <em>stable</em> with respect to all representation spheres: inverting <span class="math inline">\(S^V \wedge -\)</span> for all <span class="math inline">\(V \in \mathrm{RO}(G)\)</span> is the correct notion of equivariant stability.</p>
+<div class="callout callout-warning">
+<p> The suspension isomorphism is not immediate from the Omega-spectrum condition
+The <span class="math inline">\(\Omega\)</span>-spectrum condition gives homeomorphisms <span class="math inline">\(E(V) \simeq \Omega^{W \ominus V} E(W)\)</span>. The suspension isomorphism is the statement that <span class="math inline">\(S^V \wedge -\)</span> is invertible up to homotopy in the stable category — this requires the genuinely indexed structure. Passing through change-of-universe from the trivial universe (naive) to the complete universe (genuine), one sees that only the genuine theory inverts all <span class="math inline">\(S^V\)</span>.</p>
+</div>
+<h3 id="cofiber-sequences">8.4 Cofiber Sequences</h3>
+<p>A <em>cofiber sequence</em> in <span class="math inline">\(\mathrm{Sp}^G_O\)</span> is a sequence <span class="math inline">\(A \xrightarrow{f} X \to C(f)\)</span> where <span class="math inline">\(C(f) = X \cup_f \mathrm{cone}(A) = X \cup_f CA\)</span> is the mapping cone. In the stable category:</p>
+<ul>
+<li>Every cofiber sequence <span class="math inline">\(A \to X \to X/A\)</span> extends to a long exact sequence in equivariant homotopy groups:</li>
+</ul>
+<p><span class="math display">\[\cdots \to \underline{\pi}_{n+1}(X/A) \to \underline{\pi}_n(A) \to \underline{\pi}_n(X) \to \underline{\pi}_n(X/A) \to \cdots\]</span></p>
+<p>where all maps are morphisms of Mackey functors (not just abelian groups).</p>
+<ul>
+<li><p>The stable category is <em>triangulated</em>: the cofiber of the cofiber is the suspension: <span class="math inline">\(C(C(f)) \simeq \Sigma A\)</span>.</p></li>
+<li><p>Every cofiber sequence gives a fiber sequence via <span class="math inline">\(\Omega^\infty\)</span>: <span class="math inline">\(F(f) \simeq \Omega C(f)\)</span> in the stable category.</p></li>
+</ul>
+<hr />
+<h2 id="change-of-universe-and-change-of-group">9. Change of Universe and Change of Group 🔑</h2>
+<h3 id="change-of-universe">9.1 Change of Universe</h3>
+<p>Given an inclusion of <span class="math inline">\(G\)</span>-universes <span class="math inline">\(\iota: \mathcal{U}' \hookrightarrow \mathcal{U}\)</span>, there are adjoint functors:</p>
+<p><strong>Definition (Change-of-Universe).</strong> The <em>restriction functor</em> <span class="math inline">\(\iota^*: \mathrm{Sp}^G(\mathcal{U}) \to \mathrm{Sp}^G(\mathcal{U}')\)</span> is defined by <span class="math inline">\((\iota^* E)_V = E_V\)</span> for <span class="math inline">\(V \subset \mathcal{U}'\)</span> (restricting the indexing to sub-representations of <span class="math inline">\(\mathcal{U}'\)</span>). Its left adjoint <span class="math inline">\(\iota_*\)</span> (extension of universe) is defined by</p>
+<p><span class="math display">\[(\iota_* D)_W = \mathrm{colim}_{V \subset \mathcal{U}', V \subset W} \Omega^{W \ominus V} D_V.\]</span></p>
+<p>The adjunction <span class="math inline">\((\iota_*, \iota^*)\)</span> is a Quillen adjunction but <em>not</em> a Quillen equivalence unless <span class="math inline">\(\mathcal{U} = \mathcal{U}'\)</span>.</p>
+<div class="callout callout-warning">
+<p> Changing universe is not innocent
+If <span class="math inline">\(\mathcal{U}' \subsetneq \mathcal{U}\)</span> (strictly), then <span class="math inline">\(\iota_*\)</span> loses homotopical information: a spectrum indexed on <span class="math inline">\(\mathcal{U}'\)</span> cannot “see” the representations in <span class="math inline">\(\mathcal{U} \setminus \mathcal{U}'\)</span>. The functor <span class="math inline">\(\iota^* \iota_* \neq \mathrm{id}\)</span> in general. This is why the choice of universe matters for defining what “equivariant cohomology theory” means.</p>
+</div>
+<h3 id="change-of-group-restriction">9.2 Change of Group: Restriction</h3>
+<p>For a closed subgroup inclusion <span class="math inline">\(i: H \hookrightarrow G\)</span>, there is a <em>restriction functor</em> on spectra.</p>
+<p><strong>Definition (Restriction).</strong> The <em>restriction functor</em> <span class="math inline">\(i^* = \mathrm{res}^G_H: \mathrm{Sp}^G \to \mathrm{Sp}^H\)</span> is defined by restricting the <span class="math inline">\(G\)</span>-action to <span class="math inline">\(H\)</span>:</p>
+<p><span class="math display">\[(i^* E)(V) = E(V)|_H,\]</span></p>
+<p>where <span class="math inline">\(V\)</span> is now regarded as an <span class="math inline">\(H\)</span>-representation (by restriction). On homotopy groups, <span class="math inline">\(i^*\)</span> sends <span class="math inline">\(\underline{\pi}_n(E)(G/K) = \pi_n^K(E)\)</span> to <span class="math inline">\(\underline{\pi}_n(i^*E)(H/K \cap H) = \pi_n^{K \cap H}(i^*E)\)</span>.</p>
+<h3 id="induction-and-coinduction">9.3 Induction and Coinduction</h3>
+<p>The restriction functor has both a left and right adjoint.</p>
+<p><strong>Definition (Induction).</strong> The <em>induction functor</em> <span class="math inline">\(G_+ \wedge_H -: \mathrm{Sp}^H \to \mathrm{Sp}^G\)</span> is</p>
+<p><span class="math display">\[(G_+ \wedge_H E)(V) = G_+ \wedge_H E(V),\]</span></p>
+<p>where <span class="math inline">\(G_+ \wedge_H X = (G \times X) / \{(gh, x) \sim (g, hx)\}\)</span> is the balanced product. This is the left adjoint to restriction:</p>
+<p><span class="math display">\[[G_+ \wedge_H E, F]^G \cong [E, i^* F]^H.\]</span></p>
+<p><strong>Definition (Coinduction).</strong> The <em>coinduction functor</em> <span class="math inline">\(F_H(G_+, -): \mathrm{Sp}^H \to \mathrm{Sp}^G\)</span> is</p>
+<p><span class="math display">\[F_H(G_+, E)(V) = F_H(G_+, E(V))= \mathrm{Map}_H(G, E(V)),\]</span></p>
+<p>the <span class="math inline">\(H\)</span>-equivariant maps from <span class="math inline">\(G_+\)</span> to <span class="math inline">\(E(V)\)</span>. This is the right adjoint to restriction:</p>
+<p><span class="math display">\[[i^* F, E]^H \cong [F, F_H(G_+, E)]^G.\]</span></p>
+<p><strong>Theorem (Wirthmuller Isomorphism).</strong> For a finite group <span class="math inline">\(G\)</span> and <span class="math inline">\(H \leq G\)</span>, there is a natural equivalence of <span class="math inline">\(G\)</span>-spectra</p>
+<p><span class="math display">\[G_+ \wedge_H E \simeq F_H(G_+, E) \otimes S^{L_{G/H}},\]</span></p>
+<p>where <span class="math inline">\(L_{G/H}\)</span> is the tangent representation of <span class="math inline">\(G/H\)</span> at the identity coset (the adjoint representation of <span class="math inline">\(H\)</span> in <span class="math inline">\(G\)</span>). In particular, <em>induction <span class="math inline">\(\simeq\)</span> coinduction up to a representation sphere twist</em>.</p>
+<div class="callout callout-info">
+<p> Connection to Poincaré duality
+The Wirthmuller isomorphism is an equivariant analogue of Poincaré duality for the coset space <span class="math inline">\(G/H\)</span>. The representation <span class="math inline">\(L_{G/H}\)</span> plays the role of the tangent bundle, and the isomorphism says that integration (induction) and co-integration (coinduction) differ by the orientation sheaf twist. See <a href="../../../../notes/concepts/equivariant-stable-homotopy/wirthmuller-and-adams%7Cwirthmuller-and-adams/">concepts/equivariant-stable-homotopy/wirthmuller-and-adams|Wirthmuller and Adams</a> <em>(no note yet)</em> for a full treatment.</p>
+</div>
+<pre class="mermaid"><code>flowchart LR
+    A[&quot;Sp^H&quot;] --&gt;|&quot;G_+ wedge_H -&lt;br/&gt;(induction)&quot;| B[&quot;Sp^G&quot;]
+    B --&gt;|&quot;i^* = res^G_H&lt;br/&gt;(restriction)&quot;| A
+    A --&gt;|&quot;F_H(G_+, -)&lt;br/&gt;(coinduction)&quot;| B
+    style A fill:#d4e6f1
+    style B fill:#d5f5e3</code></pre>
+<h3 id="preview-fixed-point-functors">9.4 Preview: Fixed-Point Functors</h3>
+<p>The change-of-group functors interact with three distinct <em>fixed-point constructions</em>, which will be treated in full in <a href="../../../../notes/concepts/equivariant-stable-homotopy/fixed-point-spectra%7Cfixed-point-spectra/">concepts/equivariant-stable-homotopy/fixed-point-spectra|Fixed-Point Spectra</a> <em>(no note yet)</em>:</p>
+<ol type="1">
+<li><p><strong>Categorical fixed points</strong> <span class="math inline">\((-)^H: \mathrm{Sp}^G \to \mathrm{Sp}^{W_GH}\)</span>: <span class="math inline">\((E^H)(V) = E(V)^H\)</span>. Well-behaved on fibrant objects but not homotopy-invariant on all spectra.</p></li>
+<li><p><strong>Homotopy fixed points</strong> <span class="math inline">\((-)^{hH}: \mathrm{Sp}^G \to \mathrm{Sp}^{W_GH}\)</span>: <span class="math inline">\(E^{hH} = F(EH_+, E)^H\)</span>, the <span class="math inline">\(H\)</span>-equivariant maps from a contractible free <span class="math inline">\(H\)</span>-space into <span class="math inline">\(E\)</span>. Homotopy-invariant but loses equivariant information.</p></li>
+<li><p><strong>Geometric fixed points</strong> <span class="math inline">\(\Phi^H: \mathrm{Sp}^G \to \mathrm{Sp}^{W_GH}\)</span>: defined by smashing with <span class="math inline">\(\widetilde{E\mathcal{F}[H]}\)</span> (the cofiber of <span class="math inline">\(E\mathcal{F}[H]_+ \to S^0\)</span> for the family <span class="math inline">\(\mathcal{F}[H]\)</span> of subgroups not conjugate to <span class="math inline">\(H\)</span>) and then taking <span class="math inline">\(H\)</span>-fixed points. Homotopy-invariant <em>and</em> detects equivariant periodicity.</p></li>
+</ol>
+<p>The three are related by the <em>Tate diagram</em>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>E^H <span class="fu">\arrow</span>[r] <span class="fu">\arrow</span>[d] &amp; E^{hH} <span class="fu">\arrow</span>[d] <span class="fu">\\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">\Phi</span>^H E <span class="fu">\arrow</span>[r] &amp; E^{tH}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>where <span class="math inline">\(E^{tH} = (E^{hH})^{t C_2}\)</span> (the Tate spectrum, see <a href="../../../../notes/concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice%7Cequivariant-postnikov-and-slice/">concepts/equivariant-stable-homotopy/equivariant-postnikov-and-slice|Equivariant Postnikov and Slice</a> for how the slice filtration controls this).</p>
+<div class="callout callout-question">
+<p> When do categorical and geometric fixed points agree?
+For the <em>sphere spectrum</em> <span class="math inline">\(\mathbb{S}\)</span>, <span class="math inline">\((\mathbb{S})^H \simeq \mathbb{S}^H\)</span> (categorical fixed points equal the sphere spectrum in the Weyl group category). The geometric fixed points <span class="math inline">\(\Phi^H \mathbb{S} \simeq \mathbb{S}\)</span> as well (since <span class="math inline">\(\mathbb{S}\)</span> is already an equivariant sphere spectrum). The Tate spectrum <span class="math inline">\(\mathbb{S}^{tH}\)</span> is the non-trivial object that the Tate diagonal measures. The interplay between these three is a central organizing theme of equivariant stable homotopy theory.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://books.google.com/books/about/Equivariant_Stable_Homotopy_Theory.html?id=EqMfAQAAIAAJ">Lewis, May, Steinberger — Equivariant Stable Homotopy Theory</a></td>
+<td>Foundational monograph defining genuine G-spectra indexed on a complete G-universe; twisted half-smash products, smash product, change-of-universe</td>
+<td>Springer LNM 1213 (1986)</td>
+</tr>
+<tr class="even">
+<td><a href="https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf">Blumberg — M392C Lecture Notes (Debray)</a></td>
+<td>Best survey of equivariant stable homotopy theory: G-universes, LMS spectra, orthogonal G-spectra, model structures, Mackey functors, RO(G)-grading</td>
+<td><a href="https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf">PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.math.uni-bonn.de/~schwede/equivariant.pdf">Schwede — Lectures on Equivariant Stable Homotopy Theory</a></td>
+<td>Clean modern treatment via orthogonal G-spectra; naive vs. genuine model structures; change of group</td>
+<td><a href="https://www.math.uni-bonn.de/~schwede/equivariant.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/MMMFinal.pdf">Mandell, May — Equivariant Orthogonal Spectra and S-modules</a></td>
+<td>Original paper defining orthogonal G-spectra; comparison with LMS; Quillen equivalence; smash product via Day convolution</td>
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/MMMFinal.pdf">PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://people.math.binghamton.edu/malkiewich/G_spectra.pdf">Malkiewich — A User’s Guide to G-Spectra</a></td>
+<td>344pp draft reference: model structures on G-spectra, comparisons between flavors, detailed proofs</td>
+<td><a href="https://people.math.binghamton.edu/malkiewich/G_spectra.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/Newthird.pdf">Greenlees, May — Equivariant Stable Homotopy Theory (handbook chapter)</a></td>
+<td>Concise survey: all three fixed-point functors, Tate diagram, Wirthmuller and Adams isomorphisms</td>
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/Newthird.pdf">PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.math.uchicago.edu/~may/BOOKS/alaska.pdf">May et al. — Equivariant Homotopy and Cohomology Theory (Alaska notes)</a></td>
+<td>Complete classical treatment: G-CW complexes, RO(G)-graded stable homotopy, full change-of-universe machinery</td>
+<td><a href="https://www.math.uchicago.edu/~may/BOOKS/alaska.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.cambridge.org/core/books/equivariant-stable-homotopy-theory-and-the-kervaire-invariant-problem/E2648B96D05293C5197B29B104FA80C2">Hill, Hopkins, Ravenel — Equivariant Stable Homotopy Theory and the Kervaire Invariant Problem</a></td>
+<td>Self-contained modern monograph on orthogonal G-spectra; slice filtration; norm maps</td>
+<td>Cambridge, 2021</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.sas.rochester.edu/mth/sites/doug-ravenel/otherpapers/prerequisites_for_carlsson.pdf">Adams — Prerequisites for Carlsson’s Lecture</a></td>
+<td>Expository account of genuine G-spectra for topologists; representation spheres; transfer maps</td>
+<td><a href="https://www.sas.rochester.edu/mth/sites/doug-ravenel/otherpapers/prerequisites_for_carlsson.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="http://www.math.uchicago.edu/~may/PAPERS/WirthFinalMarch.pdf">May — The Wirthmuller Isomorphism Revisited</a></td>
+<td>Clean proof of the Wirthmuller isomorphism via abstract duality</td>
+<td><a href="http://www.math.uchicago.edu/~may/PAPERS/WirthFinalMarch.pdf">PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://math.vanderbilt.edu/bohmanar/basicequivnotions.pdf">Bohmann — Basic Notions of Equivariant Stable Homotopy Theory</a></td>
+<td>Short expository notes covering all three fixed-point functors and RO(G)-grading</td>
+<td><a href="https://math.vanderbilt.edu/bohmanar/basicequivnotions.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://iwoat.github.io/2019/notes/Lecture-10.pdf">Rubin — Equivariant Spectra and Mackey Functors (IWOAT 2019)</a></td>
+<td>Lecture notes connecting G-spectra and Mackey functors; tom Dieck splitting; Burnside ring</td>
+<td><a href="https://iwoat.github.io/2019/notes/Lecture-10.pdf">PDF</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

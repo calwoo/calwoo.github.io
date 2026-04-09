@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>structured-attention - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>structured-attention</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation-and-setup%7C1.-motivation-and-setup/">#1. Motivation and Setup|1. Motivation and Setup</a>
+<ul>
+<li><a href="../../../../notes/#1.1-what-softmax-attention-really-computes%7C1.1-what-softmax-attention-really-computes/">#1.1 What Softmax Attention Really Computes|1.1 What Softmax Attention Really Computes</a></li>
+<li><a href="../../../../notes/#1.2-the-independence-problem%7C1.2-the-independence-problem/">#1.2 The Independence Problem|1.2 The Independence Problem</a></li>
+<li><a href="../../../../notes/#1.3-structured-latent-variables-and-graphical-models%7C1.3-structured-latent-variables-and-graphical-models/">#1.3 Structured Latent Variables and Graphical Models|1.3 Structured Latent Variables and Graphical Models</a></li>
+<li><a href="../../../../notes/#1.4-why-inference,-not-sampling%7C1.4-why-inference,-not-sampling/">#1.4 Why Inference, Not Sampling|1.4 Why Inference, Not Sampling</a></li>
+<li><a href="../../../../notes/#1.5-tractability-via-dynamic-programming%7C1.5-tractability-via-dynamic-programming/">#1.5 Tractability via Dynamic Programming|1.5 Tractability via Dynamic Programming</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-standard-attention-as-marginal-inference%7C2.-standard-attention-as-marginal-inference/">#2. Standard Attention as Marginal Inference|2. Standard Attention as Marginal Inference</a></li>
+<li><a href="../../../../notes/#3.-linear-chain-crf-attention%7C3.-linear-chain-crf-attention/">#3. Linear-Chain CRF Attention|3. Linear-Chain CRF Attention</a>
+<ul>
+<li><a href="../../../../notes/#3.1-model-definition%7C3.1-model-definition/">#3.1 Model Definition|3.1 Model Definition</a></li>
+<li><a href="../../../../notes/#3.2-forward-backward-algorithm%7C3.2-forward-backward-algorithm/">#3.2 Forward-Backward Algorithm|3.2 Forward-Backward Algorithm</a></li>
+<li><a href="../../../../notes/#3.3-complexity%7C3.3-complexity/">#3.3 Complexity|3.3 Complexity</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-graph-based-parser-attention%7C4.-graph-based-parser-attention/">#4. Graph-Based Parser Attention|4. Graph-Based Parser Attention</a>
+<ul>
+<li><a href="../../../../notes/#4.1-projective-dependency-trees%7C4.1-projective-dependency-trees/">#4.1 Projective Dependency Trees|4.1 Projective Dependency Trees</a></li>
+<li><a href="../../../../notes/#4.2-non-projective-trees-and-the-matrix-tree-theorem%7C4.2-non-projective-trees-and-the-matrix-tree-theorem/">#4.2 Non-Projective Trees and the Matrix-Tree Theorem|4.2 Non-Projective Trees and the Matrix-Tree Theorem</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-differentiable-dynamic-programming%7C5.-differentiable-dynamic-programming/">#5. Differentiable Dynamic Programming|5. Differentiable Dynamic Programming</a>
+<ul>
+<li><a href="../../../../notes/#5.1-log-space-computation%7C5.1-log-space-computation/">#5.1 Log-Space Computation|5.1 Log-Space Computation</a></li>
+<li><a href="../../../../notes/#5.2-signed-log-space-backward-pass%7C5.2-signed-log-space-backward-pass/">#5.2 Signed Log-Space Backward Pass|5.2 Signed Log-Space Backward Pass</a></li>
+<li><a href="../../../../notes/#5.3-gradient-structure%7C5.3-gradient-structure/">#5.3 Gradient Structure|5.3 Gradient Structure</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-relation-to-standard-attention%7C6.-relation-to-standard-attention/">#6. Relation to Standard Attention|6. Relation to Standard Attention</a></li>
+<li><a href="../../../../notes/#7.-experiments-and-results%7C7.-experiments-and-results/">#7. Experiments and Results|7. Experiments and Results</a></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-and-setup">1. Motivation and Setup</h2>
+<h3 id="what-softmax-attention-really-computes">1.1 What Softmax Attention Really Computes</h3>
+<p>Standard softmax attention is most commonly presented as a weighted sum — but it is worth being precise about what probability model it implicitly defines. Given a query <span class="math inline">\(\mathbf{q} \in \mathbb{R}^d\)</span> and a sequence of input representations <span class="math inline">\(\mathbf{x} = (\mathbf{x}_1, \ldots, \mathbf{x}_n)\)</span> with <span class="math inline">\(\mathbf{x}_i \in \mathbb{R}^d\)</span>, attention computes the following distribution over positions and uses it to aggregate inputs:</p>
+<p><span class="math display">\[p(z = i \mid \mathbf{x}, \mathbf{q}) = \frac{\exp(\theta_i)}{\sum_{j=1}^n \exp(\theta_j)}, \qquad \theta_i = \frac{\mathbf{q}^\top \mathbf{x}_i}{\sqrt{d}}, \qquad \mathbf{c} = \sum_{i=1}^n p(z=i) \cdot \mathbf{x}_i\]</span></p>
+<p>The distribution <span class="math inline">\(p(z)\)</span> here is a <em>categorical distribution</em> — a distribution over a finite set of discrete outcomes <span class="math inline">\(\{1, \ldots, n\}\)</span>. Think of it as a weighted die with <span class="math inline">\(n\)</span> sides: the network assigns a probability to each input position, and the context vector <span class="math inline">\(\mathbf{c}\)</span> is the expected value of the input selected by a single roll. The weight on position <span class="math inline">\(i\)</span> is determined entirely by how well <span class="math inline">\(\mathbf{x}_i\)</span> matches the query <span class="math inline">\(\mathbf{q}\)</span>.</p>
+<p>Because the context vector is an expectation over a single-position selection, attention is a <em>mixture model</em>: <span class="math inline">\(\mathbf{c}\)</span> is a convex combination of inputs, with coefficients summing to 1. This framing is not just aesthetic — it reveals the model’s <em>inductive bias</em>, i.e., what class of solutions it naturally prefers. A mixture model prefers solutions where one or a few positions are highly relevant, with relevance scores that are mutually independent.</p>
+<h3 id="the-independence-problem">1.2 The Independence Problem</h3>
+<p>The critical limitation of softmax attention is buried in the word “categorical.” A categorical distribution treats its outcomes as an <em>unordered set</em>: the probability assigned to position 3 is completely independent of the probability assigned to position 4. The model has no built-in mechanism to prefer that positions 3 and 4 are <em>jointly</em> selected — say, because they form a contiguous span — nor to enforce that the selected positions form a coherent syntactic unit.</p>
+<p>Many natural language phenomena have precisely this kind of <em>combinatorial</em> structure:</p>
+<ul>
+<li><strong>Contiguous spans:</strong> In reading comprehension, the answer to a question is typically a contiguous phrase — “the Battle of Hastings,” words 7 through 11. A softmax attention head has no way to encode the constraint that the selected positions should form a run of adjacent tokens.</li>
+<li><strong>Dependency trees:</strong> In syntax, every word in a sentence has a grammatical <em>head</em> — the word it modifies. “Kicked” is the head of “the ball,” and “the boy” depends on “kicked.” These head–dependent relationships form a <em>tree</em> — a connected graph with no cycles — over the <span class="math inline">\(n\)</span> words. Which word is whose head is a binary decision for each pair, and the set of decisions must be consistent (forming a tree).</li>
+<li><strong>Constituency parses:</strong> Sentences nest into phrases: a noun phrase, inside a verb phrase, inside a sentence. The correct parse is a <em>hierarchical tree structure</em> over the words, with exponentially many candidate trees. The right tree is defined by a combinatorial set of binary span decisions.</li>
+</ul>
+<p>In each case the “ideal” attention pattern is a <em>structured subset</em> with internal dependencies between its members. Softmax assigns independent weights to each position, which is a poor inductive bias for these problems. The model can in principle learn to approximate structured behavior, but it must do so without any structural prior built in to guide it.</p>
+<h3 id="structured-latent-variables-and-graphical-models">1.3 Structured Latent Variables and Graphical Models</h3>
+<p>The insight of Structured Attention Networks (Kim, Denton, Hoang, and Rush, ICLR 2017) is to replace the categorical latent variable <span class="math inline">\(z \in \{1, \ldots, n\}\)</span> with a <em>structured</em> latent variable — one whose state space is not a flat list of positions but a combinatorial set of objects like binary sequences or trees.</p>
+<p>To define a probability distribution over such objects, they use a <em>graphical model</em>. Informally, a graphical model is a compact representation of a joint distribution over many random variables, where a graph encodes the dependency structure between variables. Each node is a random variable; an edge between two nodes means those variables are statistically dependent. Variables not connected by an edge are <em>conditionally independent</em> given their neighbors.</p>
+<p>Two graphical models are used in this work:</p>
+<ul>
+<li><strong>Linear-chain CRF (Conditional Random Field):</strong> The latent variable is a binary sequence <span class="math inline">\(z = (z_1, \ldots, z_n)\)</span> with <span class="math inline">\(z_i \in \{0, 1\}\)</span> indicating whether position <span class="math inline">\(i\)</span> is selected. The graph is a chain: each <span class="math inline">\(z_i\)</span> is connected only to <span class="math inline">\(z_{i-1}\)</span> and <span class="math inline">\(z_{i+1}\)</span>. This encoding enforces <em>sequential contiguity</em>: the selection probability of position <span class="math inline">\(i\)</span> is influenced by whether its neighbors are selected.</li>
+<li><strong>Non-projective dependency tree (spanning-tree distribution):</strong> The latent variable is a <em>spanning tree</em> over the <span class="math inline">\(n\)</span> positions — a tree that visits every word, where each directed arc <span class="math inline">\((j \to i)\)</span> represents “<span class="math inline">\(j\)</span> governs <span class="math inline">\(i\)</span>.” The distribution over trees is parameterized by arc weights derived from query-key attention scores.</li>
+</ul>
+<p>In both cases, replacing the softmax categorical with this structured distribution injects the appropriate structural prior directly into the attention mechanism — no post-hoc regularization needed.</p>
+<h3 id="why-inference-not-sampling">1.4 Why Inference, Not Sampling</h3>
+<p>Given a structured distribution <span class="math inline">\(p(z \mid \mathbf{x}, \mathbf{q})\)</span> over sequences or trees, the context vector is still defined as an <em>expectation</em>:</p>
+<p><span class="math display">\[\mathbf{c} = \mathbb{E}_{z \sim p(z \mid \mathbf{x}, \mathbf{q})}\!\left[\sum_i z_i \mathbf{x}_i\right] = \sum_{i=1}^n \underbrace{p(z_i = 1 \mid \mathbf{x}, \mathbf{q})}_{\mu_i} \cdot \mathbf{x}_i\]</span></p>
+<p>The per-position coefficient <span class="math inline">\(\mu_i = p(z_i = 1 \mid \mathbf{x}, \mathbf{q})\)</span> is the <em>marginal probability</em> that position <span class="math inline">\(i\)</span> is included in the selected structure — obtained by summing over all valid structured configurations <span class="math inline">\(z\)</span> that include position <span class="math inline">\(i\)</span>. Computing these coefficients is called <em>marginal inference</em>.</p>
+<p>An alternative to computing marginals would be to <em>sample</em> a structure <span class="math inline">\(z \sim p(z \mid \mathbf{x}, \mathbf{q})\)</span> and use <span class="math inline">\(\mathbf{c} = \sum_i z_i \mathbf{x}_i\)</span> directly. This breaks training: because <span class="math inline">\(z\)</span> is discrete, the mapping from attention parameters <span class="math inline">\(\theta\)</span> to the context vector is a <em>step function</em> — it is zero everywhere it is differentiable, and undefined at the transitions. Gradient descent cannot propagate a learning signal through a discrete sample.</p>
+<p>By instead computing marginals <span class="math inline">\(\mu_i\)</span> exactly, the context vector becomes a <em>smooth, deterministic function</em> of the parameters <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\psi\)</span>. Gradients flow cleanly: <span class="math inline">\(\partial \mathbf{c} / \partial \theta_i = (\partial \mu_i / \partial \theta_i) \mathbf{x}_i\)</span>, and the <span class="math inline">\(\partial \mu_i / \partial \theta_j\)</span> terms are exactly what the backward pass of the inference algorithm computes.</p>
+<h3 id="tractability-via-dynamic-programming">1.5 Tractability via Dynamic Programming</h3>
+<p>Exact marginal inference is not always possible — for a general graphical model over <span class="math inline">\(n\)</span> binary variables, the number of configurations is <span class="math inline">\(2^n\)</span>, making exhaustive summation exponentially expensive. The models studied here are specifically chosen to be <em>tractable</em>: exact inference can be done in polynomial time.</p>
+<p>The two cases, and their costs:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Marginal algorithm</th>
+<th>Time complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear-chain CRF</td>
+<td>Forward-backward</td>
+<td><span class="math inline">\(O(n)\)</span></td>
+</tr>
+<tr class="even">
+<td>Non-projective spanning tree</td>
+<td>Matrix-Tree theorem + matrix inverse</td>
+<td><span class="math inline">\(O(n^3)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Both algorithms are instances of <em>dynamic programming</em> (DP): they break the summation over all configurations into a sequence of smaller subproblems, each solved once and reused. Crucially, both DP algorithms can be implemented as differentiable operations — either by running the backward pass of the DP (for CRFs) or by differentiating through the matrix inverse (for spanning trees). This is what makes structured attention end-to-end trainable without sampling.</p>
+<hr />
+<h2 id="standard-attention-as-marginal-inference">2. Standard Attention as Marginal Inference</h2>
+<p>💡 <strong>Definition (Attention as Posterior Expectation).</strong> Let <span class="math inline">\(z \in \{1, \ldots, n\}\)</span> be a categorical latent variable selecting one input position. Define a distribution over <span class="math inline">\(z\)</span> given inputs and query:</p>
+<p><span class="math display">\[p(z = i \mid \mathbf{x}, \mathbf{q}) = \frac{\exp(\theta_i)}{\sum_{j=1}^{n} \exp(\theta_j)}, \qquad \theta_i = \frac{\mathbf{q}^\top \mathbf{x}_i}{\sqrt{d}}\]</span></p>
+<p>The context vector is the posterior mean of the selected representation:</p>
+<p><span class="math display">\[\mathbf{c} = \mathbb{E}_{z \sim p(z \mid \mathbf{x}, \mathbf{q})}[f(\mathbf{x}, z)] = \sum_{i=1}^{n} p(z = i \mid \mathbf{x}, \mathbf{q}) \cdot \mathbf{x}_i\]</span></p>
+<p>where <span class="math inline">\(f(\mathbf{x}, z) = \mathbf{x}_z\)</span> retrieves the <span class="math inline">\(z\)</span>-th representation.</p>
+<p>This framing exposes the generalization seam: the choice of graphical model governing <span class="math inline">\(z\)</span> is not fixed. If we replace the categorical <span class="math inline">\(z\)</span> with a <em>structured</em> latent variable and replace the softmax normalization with the corresponding <em>partition function</em>, we obtain a family of structured attention mechanisms parameterized by the graphical model.</p>
+<p>💡 <strong>Remark.</strong> The potentials <span class="math inline">\(\theta_i\)</span> play the role of <em>log-unnormalized probabilities</em> in the graphical model. Inference in the categorical model reduces to computing a single normalizing constant — the softmax denominator — which is trivially <span class="math inline">\(O(n)\)</span>. Structured models require more sophisticated inference algorithms but retain the same interpretive skeleton.</p>
+<hr />
+<h2 id="linear-chain-crf-attention">3. Linear-Chain CRF Attention</h2>
+<h3 id="model-definition">3.1 Model Definition</h3>
+<p>📐 <strong>Definition (Linear-Chain CRF Attention).</strong> Let <span class="math inline">\(z = (z_1, \ldots, z_n)\)</span> with each <span class="math inline">\(z_i \in \{0, 1\}\)</span> be a binary sequence indicating which positions are selected. The joint distribution over <span class="math inline">\(z\)</span> is a <em>linear-chain conditional random field</em>:</p>
+<p><span class="math display">\[p(z \mid \mathbf{x}, \mathbf{q}) \propto \exp\!\left(\sum_{i=1}^{n} \textcolor{#2E86C1}{\theta_i} z_i + \sum_{i=1}^{n-1} \textcolor{#D35400}{\psi_{i,i+1}}(z_i, z_{i+1})\right)\]</span></p>
+<p>where:
+- <span class="math inline">\(\theta_i = \mathbf{q}^\top \mathbf{x}_i / \sqrt{d}\)</span> are <em>unary potentials</em> (attention scores for position <span class="math inline">\(i\)</span>),
+- <span class="math inline">\(\psi_{i,i+1} : \{0,1\}^2 \to \mathbb{R}\)</span> are <em>pairwise potentials</em> encoding dependencies between adjacent binary indicators. In the simplest parameterization, <span class="math inline">\(\psi_{i,i+1}\)</span> is a learned <span class="math inline">\(2 \times 2\)</span> parameter matrix shared across positions.</p>
+<p>The context vector is the marginal expectation:</p>
+<p><span class="math display">\[\mathbf{c} = \sum_{i=1}^{n} \textcolor{#1E8449}{\mu_i} \cdot \mathbf{x}_i, \qquad \textcolor{#1E8449}{\mu_i} = p(z_i = 1 \mid \mathbf{x}, \mathbf{q})\]</span></p>
+<p>where <span class="math inline">\(\textcolor{#1E8449}{\mu_i}\)</span> is the <em>unary marginal</em> for position <span class="math inline">\(i\)</span>, obtained via the forward-backward algorithm.</p>
+<h3 id="forward-backward-algorithm">3.2 Forward-Backward Algorithm</h3>
+<p>Define <em>forward messages</em> <span class="math inline">\(\alpha_i(z_i)\)</span> and <em>backward messages</em> <span class="math inline">\(\beta_i(z_i)\)</span> for each <span class="math inline">\(z_i \in \{0, 1\}\)</span>.</p>
+<p>📐 <strong>Initialization:</strong></p>
+<p><span class="math display">\[\textcolor{#D35400}{\alpha_1}(z_1) = \exp(\textcolor{#2E86C1}{\theta_1} z_1)\]</span></p>
+<p><span class="math display">\[\textcolor{#D35400}{\beta_n}(z_n) = 1\]</span></p>
+<p><strong>Recursions:</strong></p>
+<p><span class="math display">\[\textcolor{#D35400}{\alpha_i}(z_i) = \exp(\textcolor{#2E86C1}{\theta_i} z_i) \sum_{z_{i-1} \in \{0,1\}} \exp\!\left(\textcolor{#D35400}{\psi_{i-1,i}}(z_{i-1}, z_i)\right) \textcolor{#D35400}{\alpha_{i-1}}(z_{i-1})\]</span></p>
+<p><span class="math display">\[\textcolor{#D35400}{\beta_i}(z_i) = \sum_{z_{i+1} \in \{0,1\}} \exp\!\left(\textcolor{#D35400}{\psi_{i,i+1}}(z_i, z_{i+1})\right) \exp(\textcolor{#2E86C1}{\theta_{i+1}} z_{i+1}) \,\textcolor{#D35400}{\beta_{i+1}}(z_{i+1})\]</span></p>
+<p><strong>Marginal computation.</strong> The unnormalized joint at position <span class="math inline">\(i\)</span> with <span class="math inline">\(z_i = v\)</span> is <span class="math inline">\(\textcolor{#D35400}{\alpha_i}(v)\, \textcolor{#D35400}{\beta_i}(v)\)</span>. The unary marginal is therefore:</p>
+<p><span class="math display">\[\textcolor{#1E8449}{\mu_i} = p(z_i = 1 \mid \mathbf{x}, \mathbf{q}) = \frac{\textcolor{#D35400}{\alpha_i}(1)\,\textcolor{#D35400}{\beta_i}(1)}{\textcolor{#D35400}{\alpha_i}(0)\,\textcolor{#D35400}{\beta_i}(0) + \textcolor{#D35400}{\alpha_i}(1)\,\textcolor{#D35400}{\beta_i}(1)}\]</span></p>
+<p><strong>Remark.</strong> The forward-backward algorithm is exact for chain-structured graphical models by the elimination principle: the chain topology ensures each variable is eliminated exactly once, and no fill-in is created.</p>
+<h3 id="complexity">3.3 Complexity</h3>
+<p>Each forward or backward step involves a sum over <span class="math inline">\(|\{0,1\}|^2 = 4\)</span> terms, so each step is <span class="math inline">\(O(1)\)</span> in the binary alphabet. Performing <span class="math inline">\(n\)</span> forward steps and <span class="math inline">\(n\)</span> backward steps gives:</p>
+<p><span class="math display">\[\text{Total complexity} = O(n \cdot |\mathcal{Z}|^2) = O(4n) = O(n)\]</span></p>
+<p>🔑 <strong>The linear-chain CRF attention mechanism has the same asymptotic complexity as softmax attention but encodes sequential contiguity structure through the pairwise potentials.</strong></p>
+<hr />
+<h2 id="graph-based-parser-attention">4. Graph-Based Parser Attention</h2>
+<h3 id="projective-dependency-trees">4.1 Projective Dependency Trees</h3>
+<p><strong>Definition (Dependency Tree Attention).</strong> Let <span class="math inline">\(z_{ij} \in \{0, 1\}\)</span> indicate whether token <span class="math inline">\(j\)</span> is the <em>head</em> (parent) of token <span class="math inline">\(i\)</span> in a dependency tree over <span class="math inline">\(n\)</span> tokens. A valid <em>projective dependency tree</em> satisfies:</p>
+<ol type="1">
+<li>Each non-root node <span class="math inline">\(i\)</span> has exactly one parent: <span class="math inline">\(\sum_{j \neq i} z_{ij} = 1\)</span>.</li>
+<li>The directed graph is acyclic.</li>
+<li>The tree is <em>projective</em>: for all arcs <span class="math inline">\((i, j)\)</span>, every token <span class="math inline">\(k\)</span> between <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> is a descendant of <span class="math inline">\(j\)</span> (no crossing arcs).</li>
+</ol>
+<p>The distribution over valid projective trees is:</p>
+<p><span class="math display">\[p(z \mid \mathbf{x}, \mathbf{q}) \propto \exp\!\left(\sum_{i \neq j} z_{ij}\, \theta_{ij}\right) \cdot \mathbf{1}[z \text{ is a valid projective tree}]\]</span></p>
+<p>where <span class="math inline">\(\theta_{ij} = \mathbf{q}^\top \mathbf{x}_j / \sqrt{d}\)</span> is the <em>arc score</em> for the edge from <span class="math inline">\(j\)</span> to <span class="math inline">\(i\)</span>. The context vector aggregates over all arc marginals:</p>
+<p><span class="math display">\[\mathbf{c} = \sum_{i \neq j} \mu_{ij}\, \mathbf{x}_j, \qquad \mu_{ij} = p(z_{ij} = 1 \mid \mathbf{x}, \mathbf{q})\]</span></p>
+<p><em>Edge marginals</em> <span class="math inline">\(\mu_{ij}\)</span> are computed via the <em>inside-outside algorithm</em> for projective dependency parsing, known as the Eisner algorithm. The Eisner algorithm builds complete and incomplete spans bottom-up in <span class="math inline">\(O(n^3)\)</span> time and <span class="math inline">\(O(n^2)\)</span> space.</p>
+<p><strong>Proposition (Eisner Complexity).</strong> The inside-outside algorithm for projective dependency tree marginals runs in <span class="math inline">\(O(n^3)\)</span> time, matching the complexity of CKY parsing for constituency grammars.</p>
+<p>⚠️ <em>This cubic cost is the primary practical overhead of parser attention relative to softmax or CRF attention.</em></p>
+<h3 id="non-projective-trees-and-the-matrix-tree-theorem">4.2 Non-Projective Trees and the Matrix-Tree Theorem</h3>
+<p>For <em>non-projective</em> dependency trees (where crossing arcs are permitted), the set of valid structures is the set of all <em>spanning trees</em> of the complete directed graph on <span class="math inline">\(n\)</span> nodes. The partition function over spanning trees and the edge marginals admit a closed-form via the <em>Matrix-Tree Theorem</em> (Kirchhoff, 1847; extended to directed graphs by Tutte, 1948).</p>
+<p>📐 <strong>Definition (Weighted Laplacian).</strong> Let <span class="math inline">\(\textcolor{#2E86C1}{A} \in \mathbb{R}^{n \times n}\)</span> be the arc-weight matrix with <span class="math inline">\(\textcolor{#2E86C1}{A_{ij}} = \exp(\textcolor{#2E86C1}{\theta_{ij}})\)</span> for <span class="math inline">\(i \neq j\)</span> and <span class="math inline">\(\textcolor{#2E86C1}{A_{ii}} = 0\)</span>. The <em>weighted Laplacian</em> <span class="math inline">\(\textcolor{#D35400}{\mathbf{L}} \in \mathbb{R}^{n \times n}\)</span> is:</p>
+<p><span class="math display">\[\textcolor{#D35400}{L_{ij}} = \begin{cases} \sum_{k \neq i} \textcolor{#2E86C1}{A_{ki}} &amp; i = j \\ -\textcolor{#2E86C1}{A_{ji}} &amp; i \neq j \end{cases}\]</span></p>
+<p>🔑 <strong>Theorem (Matrix-Tree).</strong> The sum of weights of all spanning trees rooted at node <span class="math inline">\(r\)</span> equals any cofactor of <span class="math inline">\(\textcolor{#D35400}{\mathbf{L}}\)</span> obtained by deleting row <span class="math inline">\(r\)</span> and column <span class="math inline">\(r\)</span>. In the unrooted setting, the partition function is <span class="math inline">\(\det(\textcolor{#D35400}{\mathbf{L}^{(r)}})\)</span> where <span class="math inline">\(\textcolor{#D35400}{\mathbf{L}^{(r)}}\)</span> is the <span class="math inline">\((n{-}1) \times (n{-}1)\)</span> reduced Laplacian.</p>
+<p><strong>Corollary (Edge Marginals).</strong> The marginal probability of arc <span class="math inline">\((j \to i)\)</span> in the non-projective spanning-tree distribution is:</p>
+<p><span class="math display">\[\textcolor{#1E8449}{\mu_{ij}} = \textcolor{#2E86C1}{A_{ij}}\, [\textcolor{#D35400}{\mathbf{L}}^{-1}]_{ii}\]</span></p>
+<p>where <span class="math inline">\([\mathbf{L}^{-1}]_{ii}\)</span> is the <span class="math inline">\((i,i)\)</span> entry of the inverse of the reduced Laplacian. This requires a single matrix inversion, costing <span class="math inline">\(O(n^3)\)</span> in general but amenable to GPU parallelism via batched LAPACK routines.</p>
+<hr />
+<h2 id="differentiable-dynamic-programming">5. Differentiable Dynamic Programming</h2>
+<p>For structured attention to be trained end-to-end, gradients must flow from the loss through the context vector <span class="math inline">\(\mathbf{c}\)</span>, through the marginals <span class="math inline">\(\mu\)</span>, and back to the arc potentials <span class="math inline">\(\theta\)</span> and the model parameters that produce them. The forward-backward and inside-outside algorithms are deterministic functions of the potentials; backpropagation requires differentiating through the dynamic programming recurrences.</p>
+<h3 id="log-space-computation">5.1 Log-Space Computation</h3>
+<p>Numerical stability demands that forward and backward passes operate in <em>log-space</em>. Define the <em>log-sum-exp semiring</em> (also called the log-probability semifield):</p>
+<p><span class="math display">\[a \oplus b = \log(\exp(a) + \exp(b)), \qquad a \otimes b = a + b\]</span></p>
+<p>In this semiring, the forward recurrence becomes:</p>
+<p><span class="math display">\[\log \alpha_i(z_i) = \theta_i z_i \oplus \bigoplus_{z_{i-1}} \left(\psi_{i-1,i}(z_{i-1}, z_i) \otimes \log \alpha_{i-1}(z_{i-1})\right)\]</span></p>
+<p>which numerically is a sequence of <code>logsumexp</code> and addition operations — stable under overflow for large <span class="math inline">\(n\)</span>.</p>
+<h3 id="signed-log-space-backward-pass">5.2 Signed Log-Space Backward Pass</h3>
+<p>⚠️ <strong>The critical difficulty in backpropagating through DP recurrences is that gradient expressions involve differences of marginals, which can be negative.</strong> The log-sum-exp semiring cannot represent negative quantities.</p>
+<p>The backward pass therefore uses a <em>signed log-space semifield</em> that tracks each value as a pair <span class="math inline">\((\text{sign}, \log|\text{value}|) \in \{+1, -1\} \times \mathbb{R}\)</span>, with:</p>
+<p><span class="math display">\[(\sigma_a, a') \oplus (\sigma_b, b') = \begin{cases} (\sigma_a, \,a' \oplus b') &amp; \sigma_a = \sigma_b \\ (\operatorname{sgn}(e^{a'} - e^{b'}),\, |a' - b'|) &amp; \text{otherwise (approximately)} \end{cases}\]</span></p>
+<p>Multiplication is sign-multiplicative: <span class="math inline">\((\sigma_a \cdot \sigma_b,\; a' + b')\)</span>. This representation allows reverse-mode autodiff to propagate through DP recurrences that produce negative intermediate gradient values, without losing numerical stability.</p>
+<h3 id="gradient-structure">5.3 Gradient Structure</h3>
+<p>📐 <strong>Proposition (Gradient of Context Vector).</strong> Let <span class="math inline">\(\mathbf{c} = \sum_i \textcolor{#1E8449}{\mu_i} \mathbf{x}_i\)</span> be the CRF attention context vector. The gradient of a scalar loss <span class="math inline">\(\ell\)</span> with respect to the unary potential <span class="math inline">\(\theta_i\)</span> is:</p>
+<p><span class="math display">\[\frac{\partial \ell}{\partial \theta_i} = \frac{\partial \ell}{\partial \mathbf{c}} \cdot \mathbf{x}_i \cdot \frac{\partial \mu_i}{\partial \theta_i} + \sum_{j \neq i} \frac{\partial \ell}{\partial \mathbf{c}} \cdot \mathbf{x}_j \cdot \frac{\partial \mu_j}{\partial \theta_i}\]</span></p>
+<p>The terms <span class="math inline">\(\partial \mu_j / \partial \theta_i\)</span> are entries of the <em>Jacobian of the marginal map</em>, which encodes how changing the potential at one position affects marginals at all others — a quantity that is nonzero in the CRF model (through pairwise couplings) but zero in the softmax model (independent positions). <strong>The full Jacobian has the same dynamic programming structure as the forward pass, with recurrences running in reverse:</strong> the backward recurrences for <span class="math inline">\(\partial \mu / \partial \theta\)</span> have exactly the same topology as the forward-backward algorithm.</p>
+<hr />
+<h2 id="relation-to-standard-attention">6. Relation to Standard Attention</h2>
+<p>The following table places standard softmax attention, linear-chain CRF attention, and parser attention within the unified marginal-inference framework.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Standard Softmax Attention</th>
+<th>Linear-Chain CRF Attention</th>
+<th>Parser Attention</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Latent variable <span class="math inline">\(z\)</span></td>
+<td>Categorical (one-hot)</td>
+<td>Binary sequence</td>
+<td>Projective dependency tree</td>
+</tr>
+<tr class="even">
+<td>Marginal inference</td>
+<td>Softmax (closed-form)</td>
+<td>Forward-backward, <span class="math inline">\(O(n)\)</span></td>
+<td>Inside-outside, <span class="math inline">\(O(n^3)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Context vector</td>
+<td><span class="math inline">\(\sum_i \operatorname{softmax}(\theta)_i \mathbf{x}_i\)</span></td>
+<td><span class="math inline">\(\sum_i \mu_i \mathbf{x}_i\)</span></td>
+<td><span class="math inline">\(\sum_{ij} \mu_{ij} \mathbf{x}_j\)</span></td>
+</tr>
+<tr class="even">
+<td>Structural bias</td>
+<td>None</td>
+<td>Sequential contiguity</td>
+<td>Tree structure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Theorem (Softmax as Degenerate CRF).</strong> Standard softmax attention is the special case of linear-chain CRF attention where all pairwise potentials are zero: <span class="math inline">\(\psi_{i,i+1} \equiv 0\)</span> for all <span class="math inline">\(i\)</span>. In this case the joint distribution factorizes as a product of independent Bernoullis:</p>
+<p><span class="math display">\[p(z \mid \mathbf{x}, \mathbf{q}) \propto \prod_{i=1}^{n} \exp(\theta_i z_i)\]</span></p>
+<p>and the marginals are <span class="math inline">\(\mu_i = \sigma(\theta_i)\)</span> (sigmoid), which under the constraint <span class="math inline">\(\sum_i \mu_i = 1\)</span> — enforced by an additional normalization — reduces to the softmax distribution.</p>
+<p><em>More precisely,</em> the categorical softmax model and the binary CRF model with <span class="math inline">\(\psi = 0\)</span> are not literally identical (categorical <span class="math inline">\(z\)</span> selects exactly one index; binary <span class="math inline">\(z\)</span> can select any subset), but both recover the same context vector formula <span class="math inline">\(\mathbf{c} = \sum_i \operatorname{softmax}(\theta)_i \mathbf{x}_i\)</span> in the limit where the model is constrained to select exactly one position. The CRF with nonzero <span class="math inline">\(\psi\)</span> is therefore a strict generalization, adding sequential dependencies without changing the form of the context vector computation.</p>
+<p>🔑 <strong>The key theoretical unification: structured attention subsumes softmax attention as the zero-coupling degenerate case, and extends it to any tractable graphical model by substituting the appropriate marginal inference algorithm.</strong></p>
+<hr />
+<h2 id="experiments-and-results">7. Experiments and Results</h2>
+<p>Kim et al. (2017) evaluate structured attention on four tasks: tree transduction, neural machine translation (NMT), question answering, and natural language inference (SNLI).</p>
+<p>🔑 <strong>Tree transduction.</strong> Inputs are trees of depth up to 3; the task requires the model to transduce the tree structure from the input. Softmax attention achieves 49.6% accuracy; linear-chain CRF attention achieves 87.0%. The structured model learns to segment inputs along tree boundaries without any explicit structural supervision.</p>
+<p><strong>NMT (Japanese-English, character-to-word).</strong> CRF attention achieves 14.6 BLEU versus 12.6 BLEU for softmax attention, a gain of 2.0 BLEU points. The improvement is attributed to the model’s ability to attend to contiguous character spans corresponding to morphological units.</p>
+<p><strong>SNLI.</strong> Structured attention achieves 86.8% accuracy, matching the performance of intra-sentence attention models while additionally inducing interpretable parse-like structure over premise-hypothesis pairs without supervision.</p>
+<p><em>The parser attention model requires <span class="math inline">\(O(n^3)\)</span> inference per attention head, making it more expensive than CRF attention at longer sequence lengths. In practice, the cubic cost is acceptable for sentence-level tasks (typical <span class="math inline">\(n \leq 50\)</span>) but prohibitive for document-level or large-sequence settings.</em></p>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kim et al. (2017), “Structured Attention Networks”</td>
+<td>Introduces structured attention by replacing softmax with CRF and parser-based distributions; shows gains on NMT, QA, SNLI</td>
+<td><a href="https://arxiv.org/abs/1702.00887">arXiv:1702.00887</a></td>
+</tr>
+<tr class="even">
+<td>Lafferty et al. (2001), “Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data”</td>
+<td>Foundational paper defining linear-chain CRFs and the forward-backward algorithm for exact marginal inference</td>
+<td><a href="https://dl.acm.org/doi/10.5555/645530.655813">ACM DL</a></td>
+</tr>
+<tr class="odd">
+<td>Eisner (1996), “Three New Probabilistic Models for Dependency Parsing”</td>
+<td>Introduces the Eisner algorithm for projective dependency parsing; basis for <span class="math inline">\(O(n^3)\)</span> inside-outside computation used in parser attention</td>
+<td><a href="https://aclanthology.org/C96-1058/">ACL Anthology</a></td>
+</tr>
+<tr class="even">
+<td>Kirchhoff (1847) / Tutte (1948), Matrix-Tree Theorem</td>
+<td>Classical result giving the partition function and edge marginals of spanning-tree distributions via the determinant of the weighted graph Laplacian</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Vaswani et al. (2017), “Attention Is All You Need”</td>
+<td>Introduces the Transformer and scaled dot-product softmax attention; the baseline mechanism that structured attention generalizes</td>
+<td><a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></td>
+</tr>
+<tr class="even">
+<td>Bahdanau et al. (2015), “Neural Machine Translation by Jointly Learning to Align and Translate”</td>
+<td>Original additive attention mechanism for NMT; precursor to the attention-as-marginal-inference framing</td>
+<td><a href="https://arxiv.org/abs/1409.0473">arXiv:1409.0473</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

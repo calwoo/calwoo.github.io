@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>01-categories-functors-natural-transformations - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../../">Home</a>
+                <a href="../../../../../about.html">About</a>
+                <a href="../../../../../contact.html">Contact</a>
+                <a href="../../../../../archive.html">Archive</a>
+                <a href="../../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>01-categories-functors-natural-transformations</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../../notes/#1.-categories%7C1.-categories/">#1. Categories|1. Categories</a>
+<ul>
+<li><a href="../../../../../notes/#1.1-the-definition%7C1.1-the-definition/">#1.1 The Definition|1.1 The Definition</a></li>
+<li><a href="../../../../../notes/#1.2-the-axioms%7C1.2-the-axioms/">#1.2 The Axioms|1.2 The Axioms</a></li>
+<li><a href="../../../../../notes/#1.3-standard-examples%7C1.3-standard-examples/">#1.3 Standard Examples|1.3 Standard Examples</a></li>
+<li><a href="../../../../../notes/#1.4-categorical-structures-as-categories%7C1.4-categorical-structures-as-categories/">#1.4 Categorical Structures as Categories|1.4 Categorical Structures as Categories</a></li>
+<li><a href="../../../../../notes/#1.5-size:-small,-large,-and-locally-small%7C1.5-size:-small,-large,-and-locally-small/">#1.5 Size: Small, Large, and Locally Small|1.5 Size: Small, Large, and Locally Small</a></li>
+<li><a href="../../../../../notes/#1.6-discrete,-empty,-and-terminal-categories%7C1.6-discrete,-empty,-and-terminal-categories/">#1.6 Discrete, Empty, and Terminal Categories|1.6 Discrete, Empty, and Terminal Categories</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#2.-morphisms:-monics,-epics,-isomorphisms%7C2.-morphisms:-monics,-epics,-isomorphisms/">#2. Morphisms: Monics, Epics, Isomorphisms|2. Morphisms: Monics, Epics, Isomorphisms</a>
+<ul>
+<li><a href="../../../../../notes/#2.1-cancellation-properties%7C2.1-cancellation-properties/">#2.1 Cancellation Properties|2.1 Cancellation Properties</a></li>
+<li><a href="../../../../../notes/#2.2-inverses-and-isomorphisms%7C2.2-inverses-and-isomorphisms/">#2.2 Inverses and Isomorphisms|2.2 Inverses and Isomorphisms</a></li>
+<li><a href="../../../../../notes/#2.3-initial,-terminal,-and-zero-objects%7C2.3-initial,-terminal,-and-zero-objects/">#2.3 Initial, Terminal, and Zero Objects|2.3 Initial, Terminal, and Zero Objects</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#3.-subcategories-and-opposite-categories%7C3.-subcategories-and-opposite-categories/">#3. Subcategories and Opposite Categories|3. Subcategories and Opposite Categories</a>
+<ul>
+<li><a href="../../../../../notes/#3.1-subcategories%7C3.1-subcategories/">#3.1 Subcategories|3.1 Subcategories</a></li>
+<li><a href="../../../../../notes/#3.2-the-opposite-category%7C3.2-the-opposite-category/">#3.2 The Opposite Category|3.2 The Opposite Category</a></li>
+<li><a href="../../../../../notes/#3.3-self-dual-categories%7C3.3-self-dual-categories/">#3.3 Self-Dual Categories|3.3 Self-Dual Categories</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#4.-functors%7C4.-functors/">#4. Functors|4. Functors</a>
+<ul>
+<li><a href="../../../../../notes/#4.1-definition-and-first-examples%7C4.1-definition-and-first-examples/">#4.1 Definition and First Examples|4.1 Definition and First Examples</a></li>
+<li><a href="../../../../../notes/#4.2-contravariant-functors%7C4.2-contravariant-functors/">#4.2 Contravariant Functors|4.2 Contravariant Functors</a></li>
+<li><a href="../../../../../notes/#4.3-hom-functors%7C4.3-hom-functors/">#4.3 Hom-Functors|4.3 Hom-Functors</a></li>
+<li><a href="../../../../../notes/#4.4-properties-of-functors%7C4.4-properties-of-functors/">#4.4 Properties of Functors|4.4 Properties of Functors</a></li>
+<li><a href="../../../../../notes/#4.5-the-category-cat%7C4.5-the-category-cat/">#4.5 The Category Cat|4.5 The Category Cat</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#5.-natural-transformations%7C5.-natural-transformations/">#5. Natural Transformations|5. Natural Transformations</a>
+<ul>
+<li><a href="../../../../../notes/#5.1-definition-and-the-naturality-square%7C5.1-definition-and-the-naturality-square/">#5.1 Definition and the Naturality Square|5.1 Definition and the Naturality Square</a></li>
+<li><a href="../../../../../notes/#5.2-vertical-composition%7C5.2-vertical-composition/">#5.2 Vertical Composition|5.2 Vertical Composition</a></li>
+<li><a href="../../../../../notes/#5.3-natural-isomorphisms%7C5.3-natural-isomorphisms/">#5.3 Natural Isomorphisms|5.3 Natural Isomorphisms</a></li>
+<li><a href="../../../../../notes/#5.4-functor-categories-and-horizontal-composition%7C5.4-functor-categories-and-horizontal-composition/">#5.4 Functor Categories and Horizontal Composition|5.4 Functor Categories and Horizontal Composition</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#6.-equivalence-of-categories%7C6.-equivalence-of-categories/">#6. Equivalence of Categories|6. Equivalence of Categories</a>
+<ul>
+<li><a href="../../../../../notes/#6.1-definition-of-equivalence%7C6.1-definition-of-equivalence/">#6.1 Definition of Equivalence|6.1 Definition of Equivalence</a></li>
+<li><a href="../../../../../notes/#6.2-characterization-via-fullness,-faithfulness,-essential-surjectivity%7C6.2-characterization-via-fullness,-faithfulness,-essential-surjectivity/">#6.2 Characterization via Fullness, Faithfulness, Essential Surjectivity|6.2 Characterization via Fullness, Faithfulness, Essential Surjectivity</a></li>
+<li><a href="../../../../../notes/#6.3-comma-categories-and-slice-categories%7C6.3-comma-categories-and-slice-categories/">#6.3 Comma Categories and Slice Categories|6.3 Comma Categories and Slice Categories</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#7.-products-of-categories%7C7.-products-of-categories/">#7. Products of Categories|7. Products of Categories</a>
+<ul>
+<li><a href="../../../../../notes/#7.1-the-product-category%7C7.1-the-product-category/">#7.1 The Product Category|7.1 The Product Category</a></li>
+<li><a href="../../../../../notes/#7.2-functors-of-two-variables-and-currying%7C7.2-functors-of-two-variables-and-currying/">#7.2 Functors of Two Variables and Currying|7.2 Functors of Two Variables and Currying</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#8.-adjoints:-first-encounter%7C8.-adjoints:-first-encounter/">#8. Adjoints: First Encounter|8. Adjoints: First Encounter</a>
+<ul>
+<li><a href="../../../../../notes/#8.1-motivation-via-universal-properties%7C8.1-motivation-via-universal-properties/">#8.1 Motivation via Universal Properties|8.1 Motivation via Universal Properties</a></li>
+<li><a href="../../../../../notes/#8.2-definition-via-hom-set-bijection%7C8.2-definition-via-hom-set-bijection/">#8.2 Definition via Hom-Set Bijection|8.2 Definition via Hom-Set Bijection</a></li>
+<li><a href="../../../../../notes/#8.3-unit-and-counit%7C8.3-unit-and-counit/">#8.3 Unit and Counit|8.3 Unit and Counit</a></li>
+<li><a href="../../../../../notes/#8.4-triangle-identities%7C8.4-triangle-identities/">#8.4 Triangle Identities|8.4 Triangle Identities</a></li>
+<li><a href="../../../../../notes/#8.5-uniqueness-of-adjoints%7C8.5-uniqueness-of-adjoints/">#8.5 Uniqueness of Adjoints|8.5 Uniqueness of Adjoints</a></li>
+<li><a href="../../../../../notes/#8.6-examples%7C8.6-examples/">#8.6 Examples|8.6 Examples</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#9.-leinster:-examples-and-perspective%7C9.-leinster:-examples-and-perspective/">#9. Leinster: Examples and Perspective|9. Leinster: Examples and Perspective</a>
+<ul>
+<li><a href="../../../../../notes/#9.1-abelianisation-as-an-adjunction%7C9.1-abelianisation-as-an-adjunction/">#9.1 Abelianisation as an Adjunction|9.1 Abelianisation as an Adjunction</a></li>
+<li><a href="../../../../../notes/#9.2-stone-cech-compactification%7C9.2-stone-cech-compactification/">#9.2 Stone-Cech Compactification|9.2 Stone-Cech Compactification</a></li>
+<li><a href="../../../../../notes/#9.3-what-category-theory-is-about%7C9.3-what-category-theory-is-about/">#9.3 What Category Theory Is About|9.3 What Category Theory Is About</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#10.-size-matters-📏%7C10.-size-matters-📏/">#10. Size Matters 📏|10. Size Matters 📏</a>
+<ul>
+<li><a href="../../../../../notes/#10.1-small-and-large-categories%7C10.1-small-and-large-categories/">#10.1 Small and Large Categories|10.1 Small and Large Categories</a></li>
+<li><a href="../../../../../notes/#10.2-locally-small-categories%7C10.2-locally-small-categories/">#10.2 Locally Small Categories|10.2 Locally Small Categories</a></li>
+<li><a href="../../../../../notes/#10.3-essentially-small-categories%7C10.3-essentially-small-categories/">#10.3 Essentially Small Categories|10.3 Essentially Small Categories</a></li>
+<li><a href="../../../../../notes/#10.4-why-size-matters:-russell's-paradox-and-adjunctions%7C10.4-why-size-matters:-russell's-paradox-and-adjunctions/">#10.4 Why Size Matters: Russell’s Paradox and Adjunctions|10.4 Why Size Matters: Russell’s Paradox and Adjunctions</a></li>
+<li><a href="../../../../../notes/#10.5-grothendieck-universes%7C10.5-grothendieck-universes/">#10.5 Grothendieck Universes|10.5 Grothendieck Universes</a></li>
+<li><a href="../../../../../notes/#10.6-the-local-smallness-convention%7C10.6-the-local-smallness-convention/">#10.6 The Local Smallness Convention|10.6 The Local Smallness Convention</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#11.-the-2-category-of-categories-🔷%7C11.-the-2-category-of-categories-🔷/">#11. The 2-Category of Categories 🔷|11. The 2-Category of Categories 🔷</a>
+<ul>
+<li><a href="../../../../../notes/#11.1-motivation%7C11.1-motivation/">#11.1 Motivation|11.1 Motivation</a></li>
+<li><a href="../../../../../notes/#11.2-definition-of-a-2-category%7C11.2-definition-of-a-2-category/">#11.2 Definition of a 2-Category|11.2 Definition of a 2-Category</a></li>
+<li><a href="../../../../../notes/#11.3-cat-as-a-2-category%7C11.3-cat-as-a-2-category/">#11.3 Cat as a 2-Category|11.3 Cat as a 2-Category</a></li>
+<li><a href="../../../../../notes/#11.4-2-functors-and-2-natural-transformations%7C11.4-2-functors-and-2-natural-transformations/">#11.4 2-Functors and 2-Natural Transformations|11.4 2-Functors and 2-Natural Transformations</a></li>
+<li><a href="../../../../../notes/#11.5-adjunctions-in-a-2-category%7C11.5-adjunctions-in-a-2-category/">#11.5 Adjunctions in a 2-Category|11.5 Adjunctions in a 2-Category</a></li>
+<li><a href="../../../../../notes/#11.6-modifications%7C11.6-modifications/">#11.6 Modifications|11.6 Modifications</a></li>
+<li><a href="../../../../../notes/#11.7-the-godement-product%7C11.7-the-godement-product/">#11.7 The Godement Product|11.7 The Godement Product</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<div class="callout callout-info">
+<p> Series context
+This is File 1 of 4 in a self-study series based on Tom Leinster’s Part III Cambridge course (Michaelmas 2000). Subsequent files cover <a href="../../../../../notes/concepts/category-theory/02-adjoints-representables%7Cadjoints-and-representables/">concepts/category-theory/02-adjoints-representables|adjoints and representables</a>, <a href="../../../../../notes/concepts/category-theory/03-limits-colimits%7Climits-and-colimits/">concepts/category-theory/03-limits-colimits|limits and colimits</a>, and <a href="../../../../../notes/concepts/category-theory/04-adjoint-functor-theorems-monads%7Cadjoint-functor-theorems-and-monads/">concepts/category-theory/04-adjoint-functor-theorems-monads|adjoint functor theorems and monads</a>. Exercises are taken verbatim from Sheet 1 of the course.</p>
+</div>
+<hr />
+<h2 id="categories">1. Categories 🏗️</h2>
+<h3 id="the-definition">1.1 The Definition</h3>
+<p>Category theory begins with an observation: across all of mathematics, we study not only objects in isolation but the <em>structure-preserving maps</em> between them. The abstraction that captures this uniformly is the notion of a <em>category</em>.</p>
+<p><strong>Definition (Category).</strong> A <em>category</em> <span class="math inline">\(\mathcal{C}\)</span> consists of the following data:</p>
+<ol type="1">
+<li>A collection <span class="math inline">\(\mathrm{ob}(\mathcal{C})\)</span> whose elements are called <em>objects</em>.</li>
+<li>For each pair of objects <span class="math inline">\(A, B \in \mathrm{ob}(\mathcal{C})\)</span>, a collection <span class="math inline">\(\mathcal{C}(A, B)\)</span> (also written <span class="math inline">\(\mathrm{Hom}_{\mathcal{C}}(A,B)\)</span> or <span class="math inline">\(\mathrm{Hom}(A,B)\)</span>) whose elements are called <em>morphisms</em> (or <em>maps</em> or <em>arrows</em>) from <span class="math inline">\(A\)</span> to <span class="math inline">\(B\)</span>. We write <span class="math inline">\(f: A \to B\)</span> to mean <span class="math inline">\(f \in \mathcal{C}(A,B)\)</span>.</li>
+<li>For each triple of objects <span class="math inline">\(A, B, C\)</span>, a function
+<span class="math display">\[\circ \;:\; \mathcal{C}(B,C) \times \mathcal{C}(A,B) \;\longrightarrow\; \mathcal{C}(A,C),\quad (g,f) \mapsto g \circ f,\]</span>
+called <em>composition</em>.</li>
+<li>For each object <span class="math inline">\(A\)</span>, a distinguished morphism <span class="math inline">\(\mathrm{id}_A \in \mathcal{C}(A,A)\)</span> called the <em>identity</em> on <span class="math inline">\(A\)</span>.</li>
+</ol>
+<h3 id="the-axioms">1.2 The Axioms</h3>
+<p>These data must satisfy two axioms.</p>
+<p><strong>Axiom 1 (Associativity).</strong> For all <span class="math inline">\(f: A \to B\)</span>, <span class="math inline">\(g: B \to C\)</span>, <span class="math inline">\(h: C \to D\)</span>,
+<span class="math display">\[h \circ (g \circ f) = (h \circ g) \circ f.\]</span></p>
+<p><strong>Axiom 2 (Unit laws).</strong> For all <span class="math inline">\(f: A \to B\)</span>,
+<span class="math display">\[\mathrm{id}_B \circ f = f \qquad \text{and} \qquad f \circ \mathrm{id}_A = f.\]</span></p>
+<div class="callout callout-warning">
+<p> On the word “collection”
+We deliberately say “collection” rather than “set” to sidestep Russell’s paradox. The objects of a category need not form a set (e.g., <span class="math inline">\(\mathrm{ob}(\mathbf{Set})\)</span> is a proper class). The precise set-theoretic foundation — whether via Grothendieck universes, class-set distinctions, or type theory — varies by author. Mac Lane adopts the distinction between <em>small</em> (set-sized) and <em>large</em> (class-sized) collections; see §1.5.</p>
+</div>
+<div class="callout callout-note">
+<p> Notation conventions
+The collections <span class="math inline">\(\mathcal{C}(A,B)\)</span> are assumed to be <em>disjoint</em> for different pairs <span class="math inline">\((A,B)\)</span>: every morphism has a unique domain and codomain. We sometimes write the domain and codomain of <span class="math inline">\(f\)</span> as <span class="math inline">\(\mathrm{dom}(f)\)</span> and <span class="math inline">\(\mathrm{cod}(f)\)</span>.</p>
+</div>
+<h3 id="standard-examples">1.3 Standard Examples</h3>
+<p>The following are the canonical examples appearing throughout mathematics.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Objects</th>
+<th>Morphisms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Set}\)</span></td>
+<td>Sets</td>
+<td>Functions</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Grp}\)</span></td>
+<td>Groups</td>
+<td>Group homomorphisms</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Ab}\)</span></td>
+<td>Abelian groups</td>
+<td>Group homomorphisms</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Ring}\)</span></td>
+<td>Rings (unital)</td>
+<td>Ring homomorphisms</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Top}\)</span></td>
+<td>Topological spaces</td>
+<td>Continuous maps</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Vect}_k\)</span></td>
+<td><span class="math inline">\(k\)</span>-vector spaces</td>
+<td><span class="math inline">\(k\)</span>-linear maps</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Man}\)</span></td>
+<td>Smooth manifolds</td>
+<td>Smooth maps</td>
+</tr>
+</tbody>
+</table>
+<p>In each case, composition is ordinary function composition, and identities are identity functions. Verification of the axioms is routine.</p>
+<div class="callout callout-info">
+<p> Leinster’s notation convention
+Leinster uses <span class="math inline">\(\mathcal{A}\)</span> (calligraphic) for a generic/variable category, and boldface <span class="math inline">\(\mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Grp}\)</span>, etc., for named categories. He writes <span class="math inline">\(\mathcal{A}(A, B)\)</span> uniformly for hom-sets rather than <span class="math inline">\(\mathrm{Hom}_{\mathcal{A}}(A, B)\)</span>. These notes follow this convention. Leinster also uses the term <em>map</em> interchangeably with <em>morphism</em> and <em>arrow</em>, and emphasises that “map” need not mean a function between sets.</p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- The category of topological spaces and homotopy classes
+Leinster uses <span class="math inline">\(\mathbf{Top}\)</span> in the usual sense (continuous maps as morphisms), but also highlights that one can form the <em>homotopy category</em> <span class="math inline">\(h\mathbf{Top}\)</span> by taking the same objects but replacing morphisms with homotopy classes <span class="math inline">\([X, Y]\)</span> of continuous maps. In <span class="math inline">\(h\mathbf{Top}\)</span>, two spaces are isomorphic if and only if they are <em>homotopy equivalent</em> — a much weaker relation than homeomorphism. For instance, <span class="math inline">\(\mathbb{R}^n\)</span> and the one-point space <span class="math inline">\(\{*\}\)</span> are isomorphic in <span class="math inline">\(h\mathbf{Top}\)</span> (both are contractible), but not homeomorphic.</p>
+<p>This illustrates a key lesson: changing the morphisms of a category changes what “sameness” means.</p>
+</blockquote>
+<div class="callout callout-example">
+<p> The matrix category Mat_k
+💡 Leinster uses this example to illustrate that objects need not be “sets with structure.” Fix a field <span class="math inline">\(k\)</span>. Define the category <span class="math inline">\(\mathbf{Mat}_k\)</span> by:
+- Objects: the natural numbers <span class="math inline">\(0, 1, 2, \ldots\)</span>
+- Morphisms: <span class="math inline">\(\mathbf{Mat}_k(m, n)\)</span> is the set of <span class="math inline">\(n \times m\)</span> matrices over <span class="math inline">\(k\)</span>.
+- Composition: matrix multiplication — if <span class="math inline">\(A \in \mathbf{Mat}_k(m,n)\)</span> and <span class="math inline">\(B \in \mathbf{Mat}_k(n,p)\)</span>, then <span class="math inline">\(B \circ A\)</span> is the <span class="math inline">\(p \times m\)</span> matrix <span class="math inline">\(BA\)</span>.
+- Identities: <span class="math inline">\(\mathrm{id}_n\)</span> is the <span class="math inline">\(n \times n\)</span> identity matrix <span class="math inline">\(I_n\)</span>.</p>
+<p>Associativity follows from associativity of matrix multiplication. This category is equivalent to <span class="math inline">\(\mathbf{FDVect}_k\)</span> (Exercise 9), but the two are not <em>isomorphic</em> as categories — they differ in how many objects they have.</p>
+</div>
+<div class="callout callout-example">
+<p> The homotopy category Hty
+The <em>homotopy category</em> <span class="math inline">\(\mathbf{Hty}\)</span> has topological spaces as objects but takes as morphisms the <em>homotopy classes</em> <span class="math inline">\([f]\)</span> of continuous maps <span class="math inline">\(f: X \to Y\)</span>. Two maps <span class="math inline">\(f, g: X \to Y\)</span> are <em>homotopic</em> if there exists a continuous <span class="math inline">\(H: X \times [0,1] \to Y\)</span> with <span class="math inline">\(H(-,0) = f\)</span> and <span class="math inline">\(H(-,1) = g\)</span>.</p>
+<p>Composition is well-defined on homotopy classes: if <span class="math inline">\(f_0 \simeq f_1: X \to Y\)</span> and <span class="math inline">\(g_0 \simeq g_1: Y \to Z\)</span>, then <span class="math inline">\(g_0 \circ f_0 \simeq g_1 \circ f_1\)</span>. Associativity and unit laws are inherited from <span class="math inline">\(\mathbf{Top}\)</span>. This is a genuinely important example because it is <strong>not</strong> concretely realizable: morphisms are equivalence classes, not functions between the underlying sets.</p>
+</div>
+<div class="callout callout-info">
+<p> Leinster’s notation
+Leinster consistently writes <span class="math inline">\(\mathcal{C}(A, B)\)</span> for hom-sets (rather than <span class="math inline">\(\mathrm{Hom}_{\mathcal{C}}(A, B)\)</span>), and uses <span class="math inline">\(\mathbf{A}, \mathbf{B}\)</span> (bold) for named categories and <span class="math inline">\(\mathcal{A}, \mathcal{B}\)</span> (calligraphic) for variable categories. These notes follow his convention. When Leinster writes <span class="math inline">\(\mathbf{C}(A, B) = \{f : A \to B\}\)</span>, he always means a <em>set</em> (assuming local smallness), not a proper class. This is why local smallness is silently assumed in most results.</p>
+</div>
+<h3 id="categorical-structures-as-categories">1.4 Categorical Structures as Categories</h3>
+<p>Two seemingly degenerate cases are fundamental.</p>
+<p><strong>Definition (Poset as a category).</strong> Let <span class="math inline">\((P, \leq)\)</span> be a <em>poset</em> (partially ordered set). Define a category <span class="math inline">\(\mathcal{P}\)</span> by:
+- Objects: elements of <span class="math inline">\(P\)</span>.
+- Morphisms: <span class="math inline">\(\mathcal{P}(a,b)\)</span> contains exactly one element (conventionally denoted <span class="math inline">\(a \leq b\)</span> or <span class="math inline">\(*\)</span>) if <span class="math inline">\(a \leq b\)</span>, and is empty otherwise.</p>
+<p>The transitivity of <span class="math inline">\(\leq\)</span> supplies composition (<span class="math inline">\(a \leq b\)</span> and <span class="math inline">\(b \leq c\)</span> imply <span class="math inline">\(a \leq c\)</span>), and reflexivity supplies identities (<span class="math inline">\(a \leq a\)</span>). Associativity is trivial since there is at most one morphism between any two objects.</p>
+<div class="callout callout-info">
+<p> Leinster’s formulation of poset categories
+Leinster emphasises that a <em>preorder</em> (where the antisymmetry axiom <span class="math inline">\(a \leq b\)</span> and <span class="math inline">\(b \leq a \Rightarrow a = b\)</span> is dropped) gives an equally valid category. In a preorder, there may be distinct objects <span class="math inline">\(a \neq b\)</span> with morphisms in both directions — corresponding categorically to two distinct objects that are both isomorphic to each other. A poset is a preorder in which the only isomorphisms are the identity morphisms.</p>
+</div>
+<p><strong>Definition (Monoid as a one-object category).</strong> A <em>monoid</em> <span class="math inline">\((M, \cdot, e)\)</span> — a set with an associative binary operation and a unit element — determines a category <span class="math inline">\(\mathbf{B}M\)</span> with:
+- A single object <span class="math inline">\(*\)</span>.
+- <span class="math inline">\(\mathbf{B}M(*,*) = M\)</span> (every element of <span class="math inline">\(M\)</span> is a morphism).
+- Composition given by the monoid operation: <span class="math inline">\(g \circ f := g \cdot f\)</span>.
+- Identity: the unit element <span class="math inline">\(e\)</span>.</p>
+<p>The monoid axioms are exactly the category axioms. <strong>A group is a monoid in which every element is invertible; viewed as a one-object category, it is a category in which every morphism is an isomorphism.</strong></p>
+<div class="callout callout-tip">
+<p> The general principle: categories with one object
+Leinster uses this example to introduce an important general principle: a category with exactly one object is precisely a monoid. More generally, a <em>groupoid</em> (a category in which every morphism is an isomorphism) with one object is precisely a group. This prefigures the idea that functors from <span class="math inline">\(\mathbf{B}G\)</span> to <span class="math inline">\(\mathbf{Set}\)</span> are <span class="math inline">\(G\)</span>-sets, which is the categorical formulation of group actions (see §11.1 of File 2).</p>
+</div>
+<div class="callout callout-info">
+<p> Historical note
+Categories were introduced by Eilenberg and Mac Lane in their 1945 paper “General Theory of Natural Equivalences” precisely to give a rigorous home to the notion of natural transformation. The definitions of category and functor were, as Mac Lane later wrote, “auxiliary” — the real prize was naturalness.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 1
+Write down three examples each of:
+(a) categories,
+(b) functors,
+(c) natural transformations, and
+(d) adjunctions,</p>
+<p>not covered in lectures.</p>
+</div>
+<h3 id="size-small-large-and-locally-small">1.5 Size: Small, Large, and Locally Small</h3>
+<p><strong>Definition (Small and locally small).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>small</em> if both <span class="math inline">\(\mathrm{ob}(\mathcal{C})\)</span> and <span class="math inline">\(\coprod_{A,B} \mathcal{C}(A,B)\)</span> are sets (not proper classes). It is <em>locally small</em> if each hom-collection <span class="math inline">\(\mathcal{C}(A,B)\)</span> is a set for every pair of objects <span class="math inline">\(A, B\)</span>.</p>
+<p>Most familiar categories (<span class="math inline">\(\mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Grp}\)</span>, <span class="math inline">\(\mathbf{Top}\)</span>) are locally small but not small. Any poset and any monoid, viewed as a category, is small.</p>
+<div class="callout callout-warning">
+<p> Why size matters
+Several constructions — notably the functor category <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span> and the Yoneda embedding — require local smallness to avoid set-theoretic pathology. The <em>adjoint functor theorems</em> (covered in <a href="../../../../../notes/concepts/category-theory/04-adjoint-functor-theorems-monads%7Cfile-4/">concepts/category-theory/04-adjoint-functor-theorems-monads|File 4</a>) impose additional smallness conditions.</p>
+</div>
+<h3 id="discrete-empty-and-terminal-categories">1.6 Discrete, Empty, and Terminal Categories</h3>
+<p><strong>Definition.</strong> The <em>discrete category</em> on a set <span class="math inline">\(S\)</span> has object set <span class="math inline">\(S\)</span> and only identity morphisms. The <em>empty category</em> <span class="math inline">\(\mathbf{0}\)</span> has no objects and no morphisms. The <em>terminal category</em> <span class="math inline">\(\mathbf{1}\)</span> has exactly one object <span class="math inline">\(*\)</span> and one morphism <span class="math inline">\(\mathrm{id}_*\)</span>.</p>
+<p>These serve as categorical analogues of the empty set, a singleton set, and a set of indiscrete points.</p>
+<hr />
+<h2 id="morphisms-monics-epics-isomorphisms">2. Morphisms: Monics, Epics, Isomorphisms 🔑</h2>
+<h3 id="cancellation-properties">2.1 Cancellation Properties</h3>
+<p><strong>Definition (Monic).</strong> A morphism <span class="math inline">\(f: A \to B\)</span> is <em>monic</em> (a <em>monomorphism</em>) if for all objects <span class="math inline">\(C\)</span> and all morphisms <span class="math inline">\(g, h: C \to A\)</span>,
+<span class="math display">\[f \circ g = f \circ h \implies g = h.\]</span></p>
+<p><strong>Definition (Epic).</strong> A morphism <span class="math inline">\(f: A \to B\)</span> is <em>epic</em> (an <em>epimorphism</em>) if for all objects <span class="math inline">\(C\)</span> and all morphisms <span class="math inline">\(g, h: B \to C\)</span>,
+<span class="math display">\[g \circ f = h \circ f \implies g = h.\]</span></p>
+<div class="callout callout-note">
+<p> Characterization via cancellation
+These definitions are equivalent to the following:
+- <span class="math inline">\(f\)</span> is monic <span class="math inline">\(\iff\)</span> <span class="math inline">\(f\)</span> is <em>left-cancellable</em>: <span class="math inline">\(f \circ g = f \circ h \Rightarrow g = h\)</span>.
+- <span class="math inline">\(f\)</span> is epic <span class="math inline">\(\iff\)</span> <span class="math inline">\(f\)</span> is <em>right-cancellable</em>: <span class="math inline">\(g \circ f = h \circ f \Rightarrow g = h\)</span>.</p>
+<p>In <span class="math inline">\(\mathbf{Set}\)</span>, monics are exactly injections and epics are exactly surjections. In <span class="math inline">\(\mathbf{Ring}\)</span>, the inclusion <span class="math inline">\(\mathbb{Z} \hookrightarrow \mathbb{Q}\)</span> is epic but not surjective — demonstrating that categorical epics need not be surjective.</p>
+</div>
+<h3 id="inverses-and-isomorphisms">2.2 Inverses and Isomorphisms</h3>
+<p><strong>Definition (Left and right inverses).</strong> Given <span class="math inline">\(f: A \to B\)</span>:
+- A morphism <span class="math inline">\(r: B \to A\)</span> satisfying <span class="math inline">\(f \circ r = \mathrm{id}_B\)</span> is called a <em>right inverse</em> (or <em>retraction</em>) of <span class="math inline">\(f\)</span>; <span class="math inline">\(f\)</span> is then a <em>section</em> of <span class="math inline">\(r\)</span>.
+- A morphism <span class="math inline">\(s: B \to A\)</span> satisfying <span class="math inline">\(s \circ f = \mathrm{id}_A\)</span> is called a <em>left inverse</em> (or <em>section</em>) of <span class="math inline">\(f\)</span>.</p>
+<p><strong>Definition (Isomorphism).</strong> A morphism <span class="math inline">\(f: A \to B\)</span> is an <em>isomorphism</em> if there exists <span class="math inline">\(g: B \to A\)</span> such that <span class="math inline">\(g \circ f = \mathrm{id}_A\)</span> and <span class="math inline">\(f \circ g = \mathrm{id}_B\)</span>. We write <span class="math inline">\(A \cong B\)</span> if such a morphism exists.</p>
+<p><strong>Proposition.</strong> In any category, if <span class="math inline">\(f: A \to B\)</span> has both a left inverse <span class="math inline">\(s\)</span> and a right inverse <span class="math inline">\(r\)</span>, then <span class="math inline">\(f\)</span> is an isomorphism with <span class="math inline">\(s = r\)</span>.</p>
+<p><em>Proof.</em> We compute:
+<span class="math display">\[s = s \circ \mathrm{id}_B = s \circ (f \circ r) = (s \circ f) \circ r = \mathrm{id}_A \circ r = r.\]</span>
+Since <span class="math inline">\(s = r\)</span>, the morphism <span class="math inline">\(f\)</span> has a two-sided inverse, hence is an isomorphism. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 2
+(i) Prove that in any category, a map with both a left inverse and a right inverse is an isomorphism, and that the two inverses are equal.</p>
+<ol start="2" type="i">
+<li>Show that functors preserve isomorphisms: if <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> is a functor and <span class="math inline">\(f: A \to B\)</span> is an isomorphism in <span class="math inline">\(\mathcal{C}\)</span>, then <span class="math inline">\(Ff: FA \to FB\)</span> is an isomorphism in <span class="math inline">\(\mathcal{D}\)</span>.</li>
+</ol>
+</div>
+<p><strong>Proposition.</strong> Every isomorphism is both monic and epic.</p>
+<p><em>Proof sketch.</em> If <span class="math inline">\(f\)</span> has inverse <span class="math inline">\(g\)</span>, and <span class="math inline">\(f \circ h = f \circ k\)</span>, then <span class="math inline">\(h = g \circ f \circ h = g \circ f \circ k = k\)</span>. Similarly for the epic direction. <span class="math inline">\(\square\)</span></p>
+<p><em>The converse fails in general.</em> The inclusion <span class="math inline">\(\mathbb{Z} \hookrightarrow \mathbb{Q}\)</span> in <span class="math inline">\(\mathbf{Ring}\)</span> is both monic and epic but not an isomorphism.</p>
+<h3 id="initial-terminal-and-zero-objects">2.3 Initial, Terminal, and Zero Objects</h3>
+<p><strong>Definition.</strong> An object <span class="math inline">\(I \in \mathcal{C}\)</span> is <em>initial</em> if for every object <span class="math inline">\(A\)</span> there is exactly one morphism <span class="math inline">\(I \to A\)</span>. An object <span class="math inline">\(T \in \mathcal{C}\)</span> is <em>terminal</em> if for every object <span class="math inline">\(A\)</span> there is exactly one morphism <span class="math inline">\(A \to T\)</span>. An object is a <em>zero object</em> if it is both initial and terminal.</p>
+<p><strong>Proposition.</strong> Any two initial objects are isomorphic (via a unique isomorphism). Similarly for terminal objects.</p>
+<p><em>Proof.</em> If <span class="math inline">\(I\)</span> and <span class="math inline">\(I'\)</span> are both initial, there exist unique morphisms <span class="math inline">\(f: I \to I'\)</span> and <span class="math inline">\(g: I' \to I\)</span>. Then <span class="math inline">\(g \circ f: I \to I\)</span> is the unique morphism from <span class="math inline">\(I\)</span> to itself, which must be <span class="math inline">\(\mathrm{id}_I\)</span>. Similarly <span class="math inline">\(f \circ g = \mathrm{id}_{I'}\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> Examples of initial and terminal objects
+- In <span class="math inline">\(\mathbf{Set}\)</span>: <span class="math inline">\(\emptyset\)</span> is initial (there is exactly one function <span class="math inline">\(\emptyset \to A\)</span> for any set <span class="math inline">\(A\)</span>); any singleton <span class="math inline">\(\{*\}\)</span> is terminal.
+- In <span class="math inline">\(\mathbf{Grp}\)</span>: the trivial group <span class="math inline">\(\{e\}\)</span> is both initial and terminal (a zero object).
+- In <span class="math inline">\(\mathbf{Ring}\)</span>: the zero ring <span class="math inline">\(\{0\}\)</span> (where <span class="math inline">\(0 = 1\)</span>) is terminal; <span class="math inline">\(\mathbb{Z}\)</span> is initial (the unique ring map <span class="math inline">\(\mathbb{Z} \to R\)</span> sends <span class="math inline">\(n \mapsto n \cdot 1_R\)</span>).
+- In a poset viewed as a category: an initial object is a least element; a terminal object is a greatest element.</p>
+</div>
+<hr />
+<h2 id="subcategories-and-opposite-categories">3. Subcategories and Opposite Categories 🔁</h2>
+<h3 id="subcategories">3.1 Subcategories</h3>
+<p><strong>Definition (Subcategory).</strong> A <em>subcategory</em> <span class="math inline">\(\mathcal{S}\)</span> of <span class="math inline">\(\mathcal{C}\)</span> consists of:
+- A subcollection <span class="math inline">\(\mathrm{ob}(\mathcal{S}) \subseteq \mathrm{ob}(\mathcal{C})\)</span>,
+- For each <span class="math inline">\(A, B \in \mathrm{ob}(\mathcal{S})\)</span>, a subcollection <span class="math inline">\(\mathcal{S}(A,B) \subseteq \mathcal{C}(A,B)\)</span>,</p>
+<p>such that <span class="math inline">\(\mathcal{S}\)</span> is closed under composition (if <span class="math inline">\(f \in \mathcal{S}(A,B)\)</span> and <span class="math inline">\(g \in \mathcal{S}(B,C)\)</span> then <span class="math inline">\(g \circ f \in \mathcal{S}(A,C)\)</span>) and contains all identity morphisms of its objects (<span class="math inline">\(\mathrm{id}_A \in \mathcal{S}(A,A)\)</span> for all <span class="math inline">\(A \in \mathrm{ob}(\mathcal{S})\)</span>).</p>
+<p><strong>Definition (Full subcategory).</strong> <span class="math inline">\(\mathcal{S}\)</span> is a <em>full</em> subcategory if <span class="math inline">\(\mathcal{S}(A,B) = \mathcal{C}(A,B)\)</span> for all <span class="math inline">\(A, B \in \mathrm{ob}(\mathcal{S})\)</span> — all morphisms between objects of <span class="math inline">\(\mathcal{S}\)</span> are included.</p>
+<p><strong>Definition (Wide subcategory).</strong> <span class="math inline">\(\mathcal{S}\)</span> is a <em>wide</em> (or <em>lluf</em>) subcategory if <span class="math inline">\(\mathrm{ob}(\mathcal{S}) = \mathrm{ob}(\mathcal{C})\)</span> — all objects are included.</p>
+<div class="callout callout-example">
+<p> Examples
+- <span class="math inline">\(\mathbf{Ab}\)</span> is a full subcategory of <span class="math inline">\(\mathbf{Grp}\)</span>.
+- <span class="math inline">\(\mathbf{Grp}\)</span> is a subcategory of <span class="math inline">\(\mathbf{Mon}\)</span> (monoids) that is wide but not full.
+- The category of fields is a full subcategory of <span class="math inline">\(\mathbf{Ring}\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 3
+(i) Characterize the subcategories of a poset <span class="math inline">\(P\)</span> viewed as a category: what are the possible subcategories?</p>
+<ol start="2" type="i">
+<li>Characterize the subcategories of a group <span class="math inline">\(G\)</span> viewed as a one-object category: what structure on <span class="math inline">\(G\)</span> do they correspond to?</li>
+</ol>
+</div>
+<h3 id="the-opposite-category">3.2 The Opposite Category</h3>
+<p><strong>Definition (Opposite category).</strong> Given a category <span class="math inline">\(\mathcal{C}\)</span>, the <em>opposite</em> (or <em>dual</em>) category <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span> is defined by:
+- <span class="math inline">\(\mathrm{ob}(\mathcal{C}^{\mathrm{op}}) = \mathrm{ob}(\mathcal{C})\)</span>.
+- <span class="math inline">\(\mathcal{C}^{\mathrm{op}}(A, B) = \mathcal{C}(B, A)\)</span> for all objects <span class="math inline">\(A, B\)</span>.
+- Composition in <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span>: given <span class="math inline">\(f \in \mathcal{C}^{\mathrm{op}}(A,B)\)</span> and <span class="math inline">\(g \in \mathcal{C}^{\mathrm{op}}(B,C)\)</span> (i.e., <span class="math inline">\(f: B \to A\)</span> and <span class="math inline">\(g: C \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span>), define <span class="math inline">\(g \circ^{\mathrm{op}} f := f \circ g \in \mathcal{C}(C,A) = \mathcal{C}^{\mathrm{op}}(A,C)\)</span>.</p>
+<p>In other words, <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span> is obtained by formally reversing all arrows.</p>
+<div class="callout callout-danger">
+<p> Duality principle
+The <em>duality principle</em> states: any theorem about all categories, when its proof is dualized (all arrows reversed, domain and codomain exchanged), yields another valid theorem. This means every categorical concept comes in a dual pair: monic/epic, initial/terminal, limit/colimit, etc. We get two theorems for the price of one proof.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 4
+(i) Determine the opposite category of a group <span class="math inline">\(G\)</span> (viewed as a one-object category) and establish an isomorphism <span class="math inline">\(G \cong G^{\mathrm{op}}\)</span>.</p>
+<ol start="2" type="i">
+<li>Give an example of (a) a poset and (b) a monoid that are <strong>not</strong> isomorphic to their opposite categories.</li>
+</ol>
+</div>
+<h3 id="self-dual-categories">3.3 Self-Dual Categories</h3>
+<p><strong>Definition (Category isomorphism).</strong> An <em>isomorphism of categories</em> is a functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> that has an inverse functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span> with <span class="math inline">\(GF = \mathrm{id}_{\mathcal{C}}\)</span> and <span class="math inline">\(FG = \mathrm{id}_{\mathcal{D}}\)</span> (equality, not just natural isomorphism).</p>
+<p>A category <span class="math inline">\(\mathcal{C}\)</span> is <em>self-dual</em> if <span class="math inline">\(\mathcal{C} \cong \mathcal{C}^{\mathrm{op}}\)</span>.</p>
+<p>For a group <span class="math inline">\(G\)</span> viewed as a one-object category, the map <span class="math inline">\(g \mapsto g^{-1}\)</span> defines an isomorphism <span class="math inline">\(G \cong G^{\mathrm{op}}\)</span> (since <span class="math inline">\((gh)^{-1} = h^{-1}g^{-1}\)</span>, which reverses composition). Every group, viewed as a category, is self-dual. The category <span class="math inline">\(\mathbf{Ab}\)</span> is also self-dual (via the identity-on-objects map, using commutativity).</p>
+<div class="callout callout-note">
+<p> Exercise 5
+Consider the homotopy category <span class="math inline">\(\mathbf{Hty}\)</span>, whose objects are topological spaces and whose morphisms are homotopy classes of continuous maps. Characterize the objects that are isomorphic (in <span class="math inline">\(\mathbf{Hty}\)</span>) to the one-element space <span class="math inline">\(\{*\}\)</span>.</p>
+</div>
+<p><em>Hint.</em> An object <span class="math inline">\(X\)</span> is isomorphic to <span class="math inline">\(\{*\}\)</span> in <span class="math inline">\(\mathbf{Hty}\)</span> iff there exist maps <span class="math inline">\(f: X \to \{*\}\)</span> and <span class="math inline">\(g: \{*\} \to X\)</span> with <span class="math inline">\(f \circ g \simeq \mathrm{id}_{\{*\}}\)</span> and <span class="math inline">\(g \circ f \simeq \mathrm{id}_X\)</span>. The latter condition says <span class="math inline">\(X\)</span> is <em>contractible</em>.</p>
+<hr />
+<h2 id="functors">4. Functors 🔭</h2>
+<h3 id="definition-and-first-examples">4.1 Definition and First Examples</h3>
+<p><strong>Definition (Functor).</strong> Let <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> be categories. A <em>(covariant) functor</em> <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> consists of:
+- A function <span class="math inline">\(F: \mathrm{ob}(\mathcal{C}) \to \mathrm{ob}(\mathcal{D})\)</span>.
+- For each pair <span class="math inline">\(A, B \in \mathrm{ob}(\mathcal{C})\)</span>, a function <span class="math inline">\(F_{A,B}: \mathcal{C}(A,B) \to \mathcal{D}(FA, FB)\)</span>, written <span class="math inline">\(f \mapsto Ff\)</span>.</p>
+<p>These must satisfy:
+1. <strong>Preservation of composition:</strong> <span class="math inline">\(F(g \circ f) = Fg \circ Ff\)</span> for all composable <span class="math inline">\(f, g\)</span>.
+2. <strong>Preservation of identities:</strong> <span class="math inline">\(F(\mathrm{id}_A) = \mathrm{id}_{FA}\)</span> for all <span class="math inline">\(A\)</span>.</p>
+<div class="callout callout-info">
+<p> Leinster’s emphasis on functors as the primary objects
+Leinster opens Chapter 1 of <em>Basic Category Theory</em> by saying that “category theory takes a bird’s eye view of mathematics.” A key point he makes is that a functor <span class="math inline">\(F : \mathcal{A} \to \mathcal{B}\)</span> must specify <em>both</em> what it does to objects and what it does to maps, and the two specifications must be compatible via the functoriality axioms. He cautions that specifying only the object-level map is not enough — the map-level action is essential data.</p>
+</div>
+<div class="callout callout-example">
+<p> Forgetful functors
+The <em>forgetful functor</em> <span class="math inline">\(U: \mathbf{Grp} \to \mathbf{Set}\)</span> sends a group <span class="math inline">\((G, \cdot, e, {}^{-1})\)</span> to its underlying set <span class="math inline">\(G\)</span>, and sends each homomorphism to the underlying function. It “forgets” the group structure. Similarly one has forgetful functors <span class="math inline">\(\mathbf{Ring} \to \mathbf{Ab} \to \mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Top} \to \mathbf{Set}\)</span>, etc.</p>
+</div>
+<div class="callout callout-example">
+<p> Free functors
+The <em>free group functor</em> <span class="math inline">\(F: \mathbf{Set} \to \mathbf{Grp}\)</span> sends a set <span class="math inline">\(S\)</span> to the free group <span class="math inline">\(F(S)\)</span> generated by <span class="math inline">\(S\)</span>. A function <span class="math inline">\(f: S \to T\)</span> induces a homomorphism <span class="math inline">\(F(f): F(S) \to F(T)\)</span> by extending <span class="math inline">\(f\)</span> to a group homomorphism. Free functors are the left adjoints of forgetful functors.</p>
+</div>
+<div class="callout callout-example">
+<p> Power set functor
+The covariant <em>power set functor</em> <span class="math inline">\(\mathcal{P}: \mathbf{Set} \to \mathbf{Set}\)</span> sends a set <span class="math inline">\(X\)</span> to its power set <span class="math inline">\(\mathcal{P}(X) = \{S \mid S \subseteq X\}\)</span>. For a function <span class="math inline">\(f: X \to Y\)</span>, the map <span class="math inline">\(\mathcal{P}(f): \mathcal{P}(X) \to \mathcal{P}(Y)\)</span> is the direct image: <span class="math inline">\(\mathcal{P}(f)(S) = f(S) = \{f(s) \mid s \in S\}\)</span>.</p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- Functors between posets and monotone maps
+💡 A functor <span class="math inline">\(F : \mathcal{P} \to \mathcal{Q}\)</span> between two posets (viewed as categories) is exactly a <em>monotone map</em>: a function <span class="math inline">\(f : P \to Q\)</span> with <span class="math inline">\(a \leq_P b \Rightarrow f(a) \leq_Q f(b)\)</span>.</p>
+<p><em>Verification.</em> A functor must send each morphism <span class="math inline">\(a \leq b\)</span> in <span class="math inline">\(\mathcal{P}\)</span> (i.e., each pair with <span class="math inline">\(a \leq_P b\)</span>) to a morphism <span class="math inline">\(f(a) \leq f(b)\)</span> in <span class="math inline">\(\mathcal{Q}\)</span> — which is exactly monotonicity. Preservation of composition is automatic (there is at most one morphism between any two objects), as is preservation of identities.</p>
+<p>This shows that adjunctions between posets are exactly <em>Galois connections</em> — a classical concept in order theory. See File 4, §2 for details.</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Functors out of a monoid: representations
+A functor <span class="math inline">\(F : \mathbf{B}M \to \mathbf{Set}\)</span> from a monoid <span class="math inline">\(M\)</span> (viewed as a one-object category) to <span class="math inline">\(\mathbf{Set}\)</span> is exactly a <em>left <span class="math inline">\(M\)</span>-action</em> on the set <span class="math inline">\(S = F(*)\)</span>: each element <span class="math inline">\(m \in M\)</span> acts as a function <span class="math inline">\(F(m) : S \to S\)</span>, and functoriality gives <span class="math inline">\(F(mn) = F(m) \circ F(n)\)</span> and <span class="math inline">\(F(e) = \mathrm{id}_S\)</span>.</p>
+<p>Similarly, a functor <span class="math inline">\(\mathbf{B}G \to \mathbf{Set}\)</span> from a group <span class="math inline">\(G\)</span> is a <em><span class="math inline">\(G\)</span>-set</em>. A functor <span class="math inline">\(\mathbf{B}G \to \mathbf{Vect}_k\)</span> is a <em><span class="math inline">\(k\)</span>-linear representation</em> of <span class="math inline">\(G\)</span>. This is the categorical origin of representation theory.</p>
+</blockquote>
+<div class="callout callout-example">
+<p> The identity and constant functors
+For any category <span class="math inline">\(\mathcal{C}\)</span>: the <em>identity functor</em> <span class="math inline">\(\mathrm{id}_\mathcal{C} : \mathcal{C} \to \mathcal{C}\)</span> sends every object and morphism to itself. For any object <span class="math inline">\(D \in \mathcal{D}\)</span>, the <em>constant functor</em> <span class="math inline">\(\Delta_D : \mathcal{C} \to \mathcal{D}\)</span> sends every object to <span class="math inline">\(D\)</span> and every morphism to <span class="math inline">\(\mathrm{id}_D\)</span>. Constant functors play a central role in the definition of limits (File 3, §1).</p>
+</div>
+<h3 id="contravariant-functors">4.2 Contravariant Functors</h3>
+<p><strong>Definition (Contravariant functor).</strong> A <em>contravariant functor</em> from <span class="math inline">\(\mathcal{C}\)</span> to <span class="math inline">\(\mathcal{D}\)</span> is a covariant functor <span class="math inline">\(F: \mathcal{C}^{\mathrm{op}} \to \mathcal{D}\)</span>. Concretely, it assigns to each <span class="math inline">\(f: A \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span> a morphism <span class="math inline">\(Ff: FB \to FA\)</span> in <span class="math inline">\(\mathcal{D}\)</span>, reversing the direction, with <span class="math inline">\(F(g \circ f) = Ff \circ Fg\)</span>.</p>
+<div class="callout callout-info">
+<p> Leinster on contravariant functors
+Leinster consistently avoids using the term “contravariant functor” as a standalone concept, preferring instead to say “<span class="math inline">\(F\)</span> is a functor <span class="math inline">\(\mathcal{A}^{\mathrm{op}} \to \mathcal{B}\)</span>.” This has the advantage that all general results about functors apply automatically by viewing <span class="math inline">\(\mathcal{A}^{\mathrm{op}}\)</span> as the domain. The term “contravariant” is retained here for expository clarity, but beware that some modern treatments (following Leinster) omit it entirely.</p>
+</div>
+<div class="callout callout-example">
+<p> Contravariant power set
+The contravariant power set functor sends <span class="math inline">\(f: X \to Y\)</span> to the preimage map <span class="math inline">\(f^{-1}: \mathcal{P}(Y) \to \mathcal{P}(X)\)</span>. This is functorial because <span class="math inline">\((g \circ f)^{-1} = f^{-1} \circ g^{-1}\)</span>.</p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- The dual vector space functor
+The functor <span class="math inline">\((-)^* : \mathbf{Vect}_k^{\mathrm{op}} \to \mathbf{Vect}_k\)</span> sending <span class="math inline">\(V \mapsto V^* = \mathrm{Hom}_k(V, k)\)</span> and <span class="math inline">\(f : V \to W\)</span> to <span class="math inline">\(f^* : W^* \to V^*\)</span> (precomposition with <span class="math inline">\(f\)</span>) is a contravariant functor. It is <em>not</em> naturally isomorphic to the identity functor on <span class="math inline">\(\mathbf{FDVect}_k\)</span> (there is no canonical isomorphism <span class="math inline">\(V \cong V^*\)</span>), but the double-dual <span class="math inline">\((-)^{**}\)</span> <em>is</em> naturally isomorphic to the identity — this is the content of the canonical natural transformation <span class="math inline">\(\alpha : \mathrm{id} \Rightarrow (-)^{**}\)</span> described in §5.1.</p>
+</blockquote>
+<h3 id="hom-functors">4.3 Hom-Functors</h3>
+<p>Fix a locally small category <span class="math inline">\(\mathcal{C}\)</span> and an object <span class="math inline">\(A \in \mathcal{C}\)</span>.</p>
+<p><strong>Definition (Covariant hom-functor).</strong> <span class="math inline">\(\mathcal{C}(A, -): \mathcal{C} \to \mathbf{Set}\)</span> sends:
+- An object <span class="math inline">\(B \mapsto \mathcal{C}(A, B)\)</span>.
+- A morphism <span class="math inline">\(f: B \to C \mapsto\)</span> the postcomposition map <span class="math inline">\(f_*: \mathcal{C}(A,B) \to \mathcal{C}(A,C)\)</span>, <span class="math inline">\(g \mapsto f \circ g\)</span>.</p>
+<p><strong>Definition (Contravariant hom-functor).</strong> <span class="math inline">\(\mathcal{C}(-, B): \mathcal{C}^{\mathrm{op}} \to \mathbf{Set}\)</span> sends:
+- An object <span class="math inline">\(A \mapsto \mathcal{C}(A, B)\)</span>.
+- A morphism <span class="math inline">\(f: A \to A'\)</span> in <span class="math inline">\(\mathcal{C}\)</span> (i.e., <span class="math inline">\(f: A' \to A\)</span> in <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span>) <span class="math inline">\(\mapsto\)</span> the precomposition map <span class="math inline">\(f^*: \mathcal{C}(A',B) \to \mathcal{C}(A,B)\)</span>, <span class="math inline">\(g \mapsto g \circ f\)</span>.</p>
+<p>These hom-functors are central: the Yoneda lemma (covered in <a href="../../../../../notes/concepts/category-theory/02-adjoints-representables%7Cfile-2/">concepts/category-theory/02-adjoints-representables|File 2</a>) says they determine a category completely.</p>
+<h3 id="properties-of-functors">4.4 Properties of Functors</h3>
+<p><strong>Definition.</strong> A functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> is:
+- <em>Full</em> if <span class="math inline">\(F_{A,B}: \mathcal{C}(A,B) \to \mathcal{D}(FA,FB)\)</span> is surjective for all <span class="math inline">\(A, B\)</span>.
+- <em>Faithful</em> if <span class="math inline">\(F_{A,B}\)</span> is injective for all <span class="math inline">\(A, B\)</span>.
+- <em>Essentially surjective</em> (or <em>dense</em>) if for every <span class="math inline">\(D \in \mathcal{D}\)</span> there exists <span class="math inline">\(C \in \mathcal{C}\)</span> with <span class="math inline">\(FC \cong D\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 6
+Is there a functor <span class="math inline">\(Z: \mathbf{Grp} \to \mathbf{Grp}\)</span> that sends each group <span class="math inline">\(G\)</span> to its center <span class="math inline">\(Z(G)\)</span>? More precisely: given a group homomorphism <span class="math inline">\(f: G \to H\)</span>, is there a natural candidate for a homomorphism <span class="math inline">\(Z(G) \to Z(H)\)</span> making <span class="math inline">\(Z\)</span> into a functor?</p>
+</div>
+<p><em>Note.</em> The difficulty is that a homomorphism need not map the center into the center in a functorial way. Consider whether <span class="math inline">\(f(Z(G)) \subseteq Z(H)\)</span> always holds.</p>
+<h3 id="the-category-cat">4.5 The Category Cat</h3>
+<p>Functors can be composed: if <span class="math inline">\(F: \mathcal{A} \to \mathcal{B}\)</span> and <span class="math inline">\(G: \mathcal{B} \to \mathcal{C}\)</span> are functors, the composite <span class="math inline">\(G \circ F: \mathcal{A} \to \mathcal{C}\)</span> is defined by <span class="math inline">\((G \circ F)(A) = G(FA)\)</span> and <span class="math inline">\((G \circ F)(f) = G(Ff)\)</span>. The identity functor <span class="math inline">\(\mathrm{id}_{\mathcal{C}}: \mathcal{C} \to \mathcal{C}\)</span> acts as the identity on both objects and morphisms.</p>
+<p><strong>Definition.</strong> The category <span class="math inline">\(\mathbf{Cat}\)</span> has small categories as objects and functors as morphisms, with the composition and identities above.</p>
+<div class="callout callout-warning">
+<p> Size caveat for Cat
+<span class="math inline">\(\mathbf{Cat}\)</span> is itself a large category (its objects form a proper class). One can restrict to a universe-relative version. In the 2-categorical sense, <span class="math inline">\(\mathbf{Cat}\)</span> has an additional layer of structure: natural transformations between functors form the 2-morphisms.</p>
+</div>
+<hr />
+<h2 id="natural-transformations">5. Natural Transformations 🌿</h2>
+<h3 id="definition-and-the-naturality-square">5.1 Definition and the Naturality Square</h3>
+<p>Natural transformations are the morphisms between functors. They encode the notion that a construction is “the same” across all objects of a category in a coherent way.</p>
+<p><strong>Definition (Natural transformation).</strong> Let <span class="math inline">\(F, G: \mathcal{C} \to \mathcal{D}\)</span> be functors. A <em>natural transformation</em> <span class="math inline">\(\alpha: F \Rightarrow G\)</span> is a family of morphisms
+<span class="math display">\[\alpha_A: FA \to GA \quad \text{(for each } A \in \mathrm{ob}(\mathcal{C})\text{)},\]</span>
+called the <em>components</em> of <span class="math inline">\(\alpha\)</span>, such that for every morphism <span class="math inline">\(f: A \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, the following <em>naturality square</em> commutes:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>FA <span class="fu">\arrow</span>[r, &quot;Ff&quot;] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\alpha</span>_A&quot;'] &amp; FB <span class="fu">\arrow</span>[d, &quot;<span class="fu">\alpha</span>_B&quot;] <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>GA <span class="fu">\arrow</span>[r, &quot;Gf&quot;'] &amp; GB</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>That is: <span class="math inline">\(\alpha_B \circ Ff = Gf \circ \alpha_A\)</span> for every <span class="math inline">\(f: A \to B\)</span>.</p>
+<div class="callout callout-info">
+<p> Leinster’s phrasing of naturality
+Leinster phrases the naturality condition precisely as: “the square commutes for every map <span class="math inline">\(f : A \to B\)</span> in <span class="math inline">\(\mathcal{A}\)</span>.” He emphasises that a natural transformation <span class="math inline">\(\alpha : F \Rightarrow G\)</span> is not just a collection of morphisms — the commutativity of the naturality square for <em>every</em> morphism in <span class="math inline">\(\mathcal{A}\)</span> is what makes <span class="math inline">\(\alpha\)</span> “natural” (i.e., independent of arbitrary choices). The original motivation of Eilenberg and Mac Lane was exactly to give a precise definition distinguishing “natural” from “non-natural” isomorphisms.</p>
+</div>
+<div class="callout callout-example">
+<p> A canonical natural transformation
+Let <span class="math inline">\(V\)</span> be a finite-dimensional real vector space. There is a natural transformation <span class="math inline">\(\alpha: \mathrm{id}_{\mathbf{FDVect}_\mathbb{R}} \Rightarrow (-)^{**}\)</span> (the double-dual functor) whose component at <span class="math inline">\(V\)</span> is the canonical map
+<span class="math display">\[\alpha_V: V \to V^{**}, \quad v \mapsto \hat{v}, \quad \hat{v}(\phi) := \phi(v).\]</span>
+Naturality: for any linear map <span class="math inline">\(f: V \to W\)</span>, we need <span class="math inline">\(\alpha_W \circ f = f^{**} \circ \alpha_V\)</span>. This holds because <span class="math inline">\(\widehat{f(v)}(\psi) = \psi(f(v)) = (f^*\psi)(v) = \widehat{v}(f^*\psi) = (f^{**}\hat{v})(\psi)\)</span>.</p>
+<p>In contrast, there is a non-natural isomorphism <span class="math inline">\(V \cong V^*\)</span> (requiring a choice of basis), illustrating that naturality is a substantive condition.</p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- Natural transformations between functors from a group
+Let <span class="math inline">\(G\)</span> be a group viewed as a one-object category <span class="math inline">\(\mathbf{B}G\)</span>, and let <span class="math inline">\(F, H : \mathbf{B}G \to \mathbf{Set}\)</span> be two functors, i.e., two <span class="math inline">\(G\)</span>-sets <span class="math inline">\(S = F(*)\)</span> and <span class="math inline">\(T = H(*)\)</span>. A natural transformation <span class="math inline">\(\alpha : F \Rightarrow H\)</span> consists of a single component <span class="math inline">\(\alpha_* : S \to T\)</span> (one component per object, and <span class="math inline">\(\mathbf{B}G\)</span> has one object). The naturality square for each <span class="math inline">\(g \in G\)</span> (viewed as a morphism <span class="math inline">\(* \to *\)</span>) requires:
+<span class="math display">\[\alpha_* \circ F(g) = H(g) \circ \alpha_*,\]</span>
+i.e., <span class="math inline">\(\alpha_*\)</span> must commute with the <span class="math inline">\(G\)</span>-action on both sides. This is precisely the condition that <span class="math inline">\(\alpha_*\)</span> is a <em><span class="math inline">\(G\)</span>-equivariant map</em> (a morphism of <span class="math inline">\(G\)</span>-sets). <strong>Natural transformations between <span class="math inline">\(G\)</span>-set functors are exactly <span class="math inline">\(G\)</span>-equivariant maps.</strong></p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Determinant as a natural transformation
+💡 For each <span class="math inline">\(n \geq 1\)</span>, the <em>determinant</em> defines a natural transformation <span class="math inline">\(\det : \mathrm{GL}_n \Rightarrow (-)^\times\)</span> from the general linear group functor to the units functor, where both are viewed as functors <span class="math inline">\(\mathbf{CRing} \to \mathbf{Grp}\)</span> from the category of commutative rings to the category of groups.</p>
+<p>Explicitly: for a commutative ring <span class="math inline">\(R\)</span>, <span class="math inline">\(\mathrm{GL}_n(R)\)</span> is the group of <span class="math inline">\(n \times n\)</span> invertible matrices over <span class="math inline">\(R\)</span>, and <span class="math inline">\(R^\times\)</span> is the group of units of <span class="math inline">\(R\)</span>. The determinant <span class="math inline">\(\det_R : \mathrm{GL}_n(R) \to R^\times\)</span> is a group homomorphism for each <span class="math inline">\(R\)</span>. Naturality: for any ring homomorphism <span class="math inline">\(\phi : R \to S\)</span>, the diagram
+<span class="math display">\[\det_S \circ \mathrm{GL}_n(\phi) = \phi^\times \circ \det_R\]</span>
+commutes — applying <span class="math inline">\(\phi\)</span> entry-wise to a matrix and then taking the determinant equals first taking the determinant in <span class="math inline">\(R\)</span> and then applying <span class="math inline">\(\phi\)</span>.</p>
+</blockquote>
+<h3 id="vertical-composition">5.2 Vertical Composition</h3>
+<p><strong>Definition (Vertical composition).</strong> Given natural transformations <span class="math inline">\(\alpha: F \Rightarrow G\)</span> and <span class="math inline">\(\beta: G \Rightarrow H\)</span> between functors <span class="math inline">\(F, G, H: \mathcal{C} \to \mathcal{D}\)</span>, their <em>vertical composite</em> <span class="math inline">\(\beta \circ \alpha: F \Rightarrow H\)</span> has components
+<span class="math display">\[(\beta \circ \alpha)_A := \beta_A \circ \alpha_A: FA \to HA.\]</span></p>
+<p><em>Naturality check.</em> For <span class="math inline">\(f: A \to B\)</span>:
+<span class="math display">\[(\beta \circ \alpha)_B \circ Ff = \beta_B \circ \alpha_B \circ Ff = \beta_B \circ Gf \circ \alpha_A = Hf \circ \beta_A \circ \alpha_A = Hf \circ (\beta \circ \alpha)_A. \quad \square\]</span></p>
+<p>The <em>identity natural transformation</em> <span class="math inline">\(\mathrm{id}_F: F \Rightarrow F\)</span> has components <span class="math inline">\((\mathrm{id}_F)_A = \mathrm{id}_{FA}\)</span>.</p>
+<h3 id="natural-isomorphisms">5.3 Natural Isomorphisms</h3>
+<p><strong>Definition (Natural isomorphism).</strong> A natural transformation <span class="math inline">\(\alpha: F \Rightarrow G\)</span> is a <em>natural isomorphism</em> if there exists a natural transformation <span class="math inline">\(\alpha^{-1}: G \Rightarrow F\)</span> with <span class="math inline">\(\alpha^{-1} \circ \alpha = \mathrm{id}_F\)</span> and <span class="math inline">\(\alpha \circ \alpha^{-1} = \mathrm{id}_G\)</span>. We write <span class="math inline">\(F \cong G\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 7
+Show that a natural transformation <span class="math inline">\(\alpha: F \Rightarrow G\)</span> is a natural isomorphism if and only if each component <span class="math inline">\(\alpha_A: FA \to GA\)</span> is an isomorphism in <span class="math inline">\(\mathcal{D}\)</span>.</p>
+</div>
+<p><em>Proof direction (component-wise iso <span class="math inline">\(\Rightarrow\)</span> natural iso).</em> Define <span class="math inline">\((\alpha^{-1})_A := (\alpha_A)^{-1}\)</span>. One must verify naturality of <span class="math inline">\(\alpha^{-1}\)</span>: for <span class="math inline">\(f: A \to B\)</span>,
+<span class="math display">\[(\alpha^{-1})_B \circ Gf = (\alpha_B)^{-1} \circ Gf = (\alpha_B)^{-1} \circ Gf \circ \alpha_A \circ (\alpha_A)^{-1} = (\alpha_B)^{-1} \circ \alpha_B \circ Ff \circ (\alpha_A)^{-1} = Ff \circ (\alpha^{-1})_A.\]</span></p>
+<h3 id="functor-categories-and-horizontal-composition">5.4 Functor Categories and Horizontal Composition</h3>
+<p><strong>Definition (Functor category).</strong> Given categories <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> (with <span class="math inline">\(\mathcal{C}\)</span> small), the <em>functor category</em> <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span> (also written <span class="math inline">\(\mathcal{D}^{\mathcal{C}}\)</span>) has:
+- Objects: functors <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span>.
+- Morphisms: natural transformations <span class="math inline">\(\alpha: F \Rightarrow G\)</span>.
+- Composition: vertical composition of natural transformations.</p>
+<p><strong>Definition (Horizontal composition / whiskering).</strong> Given <span class="math inline">\(\alpha: F \Rightarrow G\)</span> between <span class="math inline">\(F, G: \mathcal{B} \to \mathcal{C}\)</span> and <span class="math inline">\(\beta: H \Rightarrow K\)</span> between <span class="math inline">\(H, K: \mathcal{C} \to \mathcal{D}\)</span>, the <em>horizontal composite</em> <span class="math inline">\(\beta * \alpha: H \circ F \Rightarrow K \circ G\)</span> has components
+<span class="math display">\[(\beta * \alpha)_A := \beta_{GA} \circ H(\alpha_A) = K(\alpha_A) \circ \beta_{FA}: HFA \to KGA.\]</span></p>
+<p>These two expressions are equal by naturality of <span class="math inline">\(\beta\)</span> applied to <span class="math inline">\(\alpha_A: FA \to GA\)</span>.</p>
+<div class="callout callout-tip">
+<p> Interchange law
+Horizontal and vertical composition satisfy the <em>interchange law</em>: <span class="math inline">\((\beta' \circ \beta) * (\alpha' \circ \alpha) = (\beta' * \alpha') \circ (\beta * \alpha)\)</span> whenever the composites are defined. This makes <span class="math inline">\(\mathbf{Cat}\)</span> into a <em>2-category</em>.</p>
+</div>
+<hr />
+<h2 id="equivalence-of-categories">6. Equivalence of Categories ≃</h2>
+<h3 id="definition-of-equivalence">6.1 Definition of Equivalence</h3>
+<p>Isomorphism of categories (requiring <span class="math inline">\(GF = \mathrm{id}\)</span> and <span class="math inline">\(FG = \mathrm{id}\)</span> on the nose) is too rigid for most purposes. The correct notion is equivalence.</p>
+<p><strong>Definition (Equivalence of categories).</strong> A functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> is an <em>equivalence of categories</em> if there exists a functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span> and natural isomorphisms
+<span class="math display">\[\eta: \mathrm{id}_{\mathcal{C}} \xrightarrow{\;\cong\;} G \circ F \qquad \text{and} \qquad \varepsilon: F \circ G \xrightarrow{\;\cong\;} \mathrm{id}_{\mathcal{D}}.\]</span></p>
+<p>We say <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> are <em>equivalent</em>, written <span class="math inline">\(\mathcal{C} \simeq \mathcal{D}\)</span>.</p>
+<div class="callout callout-danger">
+<p> Equivalence is not isomorphism
+Isomorphism requires the functors to be mutually inverse on the nose. Equivalence only requires natural isomorphism. Most categories that “look the same” are equivalent but not isomorphic — e.g., <span class="math inline">\(\mathbf{FDVect}_k \simeq \mathbf{Mat}_k\)</span> (Exercise 9) but these are not isomorphic as categories.</p>
+</div>
+<h3 id="characterization-via-fullness-faithfulness-essential-surjectivity">6.2 Characterization via Fullness, Faithfulness, Essential Surjectivity</h3>
+<p><strong>Theorem.</strong> A functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> is an equivalence of categories if and only if it is full, faithful, and essentially surjective.</p>
+<p><em>Proof sketch.</em>
+- (<span class="math inline">\(\Rightarrow\)</span>) If <span class="math inline">\(F\)</span> is an equivalence with quasi-inverse <span class="math inline">\(G\)</span> and natural isomorphisms <span class="math inline">\(\eta, \varepsilon\)</span>: essential surjectivity is immediate since <span class="math inline">\(\varepsilon_D: FGD \xrightarrow{\sim} D\)</span> for every <span class="math inline">\(D \in \mathcal{D}\)</span>. Faithfulness: if <span class="math inline">\(Ff = Fg\)</span>, apply <span class="math inline">\(G\)</span> to get <span class="math inline">\(GFf = GFg\)</span>; since <span class="math inline">\(\eta_A: A \xrightarrow{\sim} GFA\)</span> is natural, <span class="math inline">\(f = \eta_B^{-1} \circ GFf \circ \eta_A = \eta_B^{-1} \circ GFg \circ \eta_A = g\)</span>. Fullness: given <span class="math inline">\(h: FA \to FB\)</span>, define <span class="math inline">\(f = \eta_B^{-1} \circ G(h) \circ \eta_A: A \to B\)</span>; then <span class="math inline">\(Ff = \varepsilon_{FB} \circ FG(h) \circ F(\eta_A)\)</span>, and using naturality of <span class="math inline">\(\varepsilon\)</span> (<span class="math inline">\(\varepsilon_{FB} \circ FG(h) = h \circ \varepsilon_{FA}\)</span>) together with the triangle identity <span class="math inline">\(\varepsilon_{FA} \circ F(\eta_A) = \mathrm{id}_{FA}\)</span> gives <span class="math inline">\(Ff = h\)</span>.
+- (<span class="math inline">\(\Leftarrow\)</span>) Requires choosing, for each <span class="math inline">\(D \in \mathcal{D}\)</span>, an object <span class="math inline">\(GD \in \mathcal{C}\)</span> and an isomorphism <span class="math inline">\(\varepsilon_D: FGD \xrightarrow{\sim} D\)</span>. <em>This direction requires the axiom of choice</em> to select the <span class="math inline">\(GD\)</span> and <span class="math inline">\(\varepsilon_D\)</span>.</p>
+<p><strong>Key distinction:</strong> An isomorphism of categories does not require choice; an equivalence (in the <span class="math inline">\(\Leftarrow\)</span> direction) does.</p>
+<p>To see why, contrast the two situations precisely.</p>
+<p>In an <strong>isomorphism</strong> <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span>, the quasi-inverse <span class="math inline">\(G\)</span> is <em>given to you</em>: <span class="math inline">\(G = F^{-1}\)</span>, determined on the nose by the equations <span class="math inline">\(GF = \mathrm{id}_\mathcal{C}\)</span> and <span class="math inline">\(FG = \mathrm{id}_\mathcal{D}\)</span>. There is nothing to choose. In fact, <span class="math inline">\(G(D)\)</span> is the <em>unique</em> object <span class="math inline">\(C\)</span> with <span class="math inline">\(FC = D\)</span>, because <span class="math inline">\(F\)</span> is bijective on objects.</p>
+<p>In an <strong>equivalence</strong> constructed from the <span class="math inline">\((\Leftarrow)\)</span> direction, you are handed only the property: <em>for every <span class="math inline">\(D \in \mathcal{D}\)</span> there exists some <span class="math inline">\(C \in \mathcal{C}\)</span> and some isomorphism <span class="math inline">\(FС \xrightarrow{\sim} D\)</span></em>. “There exists” is not “here it is.” To define a functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span>, you must assign to <em>each</em> <span class="math inline">\(D\)</span> a specific object <span class="math inline">\(G(D)\)</span> and a specific isomorphism <span class="math inline">\(\varepsilon_D: FG(D) \xrightarrow{\sim} D\)</span>. When <span class="math inline">\(\mathcal{D}\)</span> has infinitely many (or a proper class of) objects, making all these choices simultaneously requires the <strong>axiom of choice</strong>.</p>
+<div class="callout callout-example">
+<p> Choosing bases in <span class="math inline">\(\mathbf{FDVect}_k\)</span>
+The functor <span class="math inline">\(F: \mathbf{Mat}_k \to \mathbf{FDVect}_k\)</span> sending <span class="math inline">\(n \mapsto k^n\)</span> is full, faithful, and essentially surjective — every finite-dimensional <span class="math inline">\(k\)</span>-vector space <span class="math inline">\(V\)</span> is <em>isomorphic</em> to some <span class="math inline">\(k^n\)</span>. To build the quasi-inverse <span class="math inline">\(G: \mathbf{FDVect}_k \to \mathbf{Mat}_k\)</span>, you must assign to <em>each</em> <span class="math inline">\(V\)</span> a specific natural number <span class="math inline">\(G(V) = \dim V\)</span> and a specific isomorphism <span class="math inline">\(\varepsilon_V: k^{\dim V} \xrightarrow{\sim} V\)</span>. The isomorphism is just an ordered basis for <span class="math inline">\(V\)</span>. So <strong>constructing <span class="math inline">\(G\)</span> requires choosing a basis for every finite-dimensional vector space simultaneously</strong> — a choice function over all of <span class="math inline">\(\mathbf{FDVect}_k\)</span>, which is exactly an instance of the axiom of choice.</p>
+<p>Note the asymmetry: <span class="math inline">\(F\)</span> (the “canonical” direction, <span class="math inline">\(\mathbf{Mat}_k \to \mathbf{FDVect}_k\)</span>) is completely explicit. The quasi-inverse <span class="math inline">\(G\)</span> (the “coordinatization” direction) is non-canonical — there is no preferred basis.</p>
+</div>
+<div class="callout callout-info">
+<p> Foundational aside: the axiom of choice and equivalences
+The theorem “every full, faithful, and essentially surjective functor is an equivalence” is — over a weak foundational base — <em>equivalent to</em> a form of the axiom of choice. In <strong>constructive mathematics</strong> (where AC is not available), one instead works with <em>split</em> or <em>cloven</em> equivalences: the quasi-inverse and the isomorphisms <span class="math inline">\(\eta\)</span>, <span class="math inline">\(\varepsilon\)</span> are part of the data, not merely asserted to exist. This is the correct notion in homotopy type theory (where it goes by the name <em>adjoint equivalence</em>) and in internal category theory in a topos.</p>
+</div>
+<div class="callout callout-tip">
+<p> “Evil” vs. invariant properties
+This asymmetry is the reason category theorists call isomorphism of categories an <strong>“evil”</strong> notion: it asks whether two categories are <em>equal as structured sets</em>, which is sensitive to the labeling of objects. Equivalence is the <strong>invariant</strong> notion — it asks only whether the categories have the same shape up to coherent isomorphism. A property or construction is considered well-behaved in category theory if it is <em>invariant under equivalence</em>. The principle of equivalence says: never write down a definition that would distinguish between equivalent categories.</p>
+</div>
+<h3 id="comma-categories-and-slice-categories">6.3 Comma Categories and Slice Categories</h3>
+<p><strong>Definition (Comma category).</strong> Given functors <span class="math inline">\(F: \mathcal{A} \to \mathcal{C}\)</span> and <span class="math inline">\(G: \mathcal{B} \to \mathcal{C}\)</span>, the <em>comma category</em> <span class="math inline">\((F \downarrow G)\)</span> (also written <span class="math inline">\(F/G\)</span>) has:
+- Objects: triples <span class="math inline">\((A, B, f)\)</span> where <span class="math inline">\(A \in \mathcal{A}\)</span>, <span class="math inline">\(B \in \mathcal{B}\)</span>, and <span class="math inline">\(f: FA \to GB\)</span> is a morphism in <span class="math inline">\(\mathcal{C}\)</span>.
+- Morphisms <span class="math inline">\((A, B, f) \to (A', B', f')\)</span>: pairs <span class="math inline">\((a: A \to A', b: B \to B')\)</span> such that <span class="math inline">\(f' \circ Fa = Gb \circ f\)</span> (the evident square commutes).</p>
+<p><strong>Definition (Slice category).</strong> Taking <span class="math inline">\(F = \mathrm{id}_{\mathcal{C}}\)</span> and <span class="math inline">\(G\)</span> the inclusion of a single object <span class="math inline">\(A\)</span>: the <em>slice category</em> <span class="math inline">\(\mathcal{C}/A\)</span> has objects <span class="math inline">\((C, f)\)</span> where <span class="math inline">\(f: C \to A\)</span>, and morphisms <span class="math inline">\((C, f) \to (C', f')\)</span> are maps <span class="math inline">\(g: C \to C'\)</span> with <span class="math inline">\(f' \circ g = f\)</span>.</p>
+<p>The <em>coslice</em> <span class="math inline">\(A/\mathcal{C}\)</span> is dual. Taking <span class="math inline">\(\mathcal{A} = \mathbf{1}\)</span> (the terminal category) and <span class="math inline">\(G = \mathrm{id}_{\mathcal{C}}\)</span>, the coslice <span class="math inline">\(*/\mathcal{C}\)</span> is the category of <em>objects under <span class="math inline">\(*\)</span></em>: objects are pairs <span class="math inline">\((C, x)\)</span> where <span class="math inline">\(x: * \to C\)</span> picks out an element of <span class="math inline">\(C\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 8
+(i) A <em>pointed set</em> is a pair <span class="math inline">\((X, x_0)\)</span> where <span class="math inline">\(X\)</span> is a set and <span class="math inline">\(x_0 \in X\)</span> is a chosen basepoint. Let <span class="math inline">\(\mathbf{Set}_*\)</span> be the category of pointed sets, where morphisms are basepoint-preserving functions. Show that <span class="math inline">\(\mathbf{Set}_* \cong (\mathbf{1} \downarrow \mathbf{Set})\)</span> (the comma category of the unique functor <span class="math inline">\(\mathbf{1} \to \mathbf{Set}\)</span> picking out a one-element set and the identity functor).</p>
+<ol start="2" type="i">
+<li>Define an equivalence of categories precisely. Prove that <span class="math inline">\(\mathbf{Set}_*\)</span> is equivalent to <span class="math inline">\(\mathbf{Par}\)</span>, the category whose objects are sets and whose morphisms <span class="math inline">\(X \to Y\)</span> are <em>partial functions</em> from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span> (functions defined on some subset of <span class="math inline">\(X\)</span>).</li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<strong>Part (i).</strong> We construct an isomorphism of categories <span class="math inline">\(\mathbf{Set}_* \cong (\mathbf{1} \downarrow \mathbf{Set})\)</span>.</p>
+<p>Let <span class="math inline">\(* \to \mathbf{Set}\)</span> be the functor picking out the one-element set <span class="math inline">\(\{*\}\)</span>, and let <span class="math inline">\(\mathrm{id}: \mathbf{Set} \to \mathbf{Set}\)</span> be the identity. Objects of the comma category <span class="math inline">\((\mathbf{1} \downarrow \mathrm{id})\)</span> are triples <span class="math inline">\((\mathbf{1}, X, f)\)</span> where <span class="math inline">\(X \in \mathbf{Set}\)</span> and <span class="math inline">\(f: \{*\} \to X\)</span> — i.e., a set <span class="math inline">\(X\)</span> together with a chosen element <span class="math inline">\(f(*) \in X\)</span>. This is exactly a pointed set. A morphism <span class="math inline">\((\mathbf{1}, X, f) \to (\mathbf{1}, Y, g)\)</span> in the comma category is a pair <span class="math inline">\((\mathrm{id}_{\mathbf{1}}, h: X \to Y)\)</span> such that <span class="math inline">\(h \circ f = g\)</span>, i.e., <span class="math inline">\(h(f(*)) = g(*)\)</span> — exactly a basepoint-preserving function. So the two categories have the same objects and morphisms; the functors <span class="math inline">\(\mathbf{Set}_* \to (\mathbf{1} \downarrow \mathrm{id})\)</span> and back are mutually inverse and the isomorphism is immediate. <span class="math inline">\(\square\)</span></p>
+<p><strong>Part (ii).</strong> We construct an equivalence <span class="math inline">\(F: \mathbf{Set}_* \to \mathbf{Par}\)</span>.</p>
+<p><em>Definition.</em> For a pointed set <span class="math inline">\((X, x_0)\)</span>, let <span class="math inline">\(F(X, x_0) = X \setminus \{x_0\}\)</span> (remove the basepoint). For a basepoint-preserving map <span class="math inline">\(\phi: (X, x_0) \to (Y, y_0)\)</span>, define <span class="math inline">\(F(\phi): X \setminus \{x_0\} \to Y \setminus \{y_0\}\)</span> to be the restriction of <span class="math inline">\(\phi\)</span> to the domain where <span class="math inline">\(\phi(x) \neq y_0\)</span>; this is a partial function since <span class="math inline">\(\phi\)</span> might send non-basepoint elements to the basepoint.</p>
+<p>Conversely, define <span class="math inline">\(G: \mathbf{Par} \to \mathbf{Set}_*\)</span> by <span class="math inline">\(G(X) = X_+ = X \sqcup \{*\}\)</span> (adjoin a disjoint basepoint <span class="math inline">\(*\)</span>), and for a partial function <span class="math inline">\(p: X \to Y\)</span> define <span class="math inline">\(G(p): X_+ \to Y_+\)</span> by</p>
+<p><span class="math display">\[G(p)(x) = \begin{cases} p(x) &amp; \text{if } x \in \mathrm{dom}(p), \\ * &amp; \text{if } x \notin \mathrm{dom}(p) \text{ or } x = *. \end{cases}\]</span></p>
+<p>This sends undefined values to the basepoint, making <span class="math inline">\(G(p)\)</span> a well-defined basepoint-preserving function.</p>
+<p><em>Verification that <span class="math inline">\(F\)</span> and <span class="math inline">\(G\)</span> are functors</em> is straightforward from the definitions: <span class="math inline">\(F\)</span> respects composition since restricting a composite to where it lands away from the basepoint is the composite of the restrictions; similarly for <span class="math inline">\(G\)</span>.</p>
+<p><em>Natural isomorphism <span class="math inline">\(\eta: \mathrm{id}_{\mathbf{Set}_*} \xrightarrow{\sim} GF\)</span>.</em> For a pointed set <span class="math inline">\((X, x_0)\)</span>, we have <span class="math inline">\(GF(X, x_0) = (X \setminus \{x_0\})_+ = (X \setminus \{x_0\}) \sqcup \{*\}\)</span>. Define <span class="math inline">\(\eta_{(X,x_0)}: X \to (X \setminus \{x_0\}) \sqcup \{*\}\)</span> by sending <span class="math inline">\(x_0 \mapsto *\)</span> and <span class="math inline">\(x \mapsto x\)</span> for <span class="math inline">\(x \neq x_0\)</span>. This is a bijection, hence an isomorphism in <span class="math inline">\(\mathbf{Set}_*\)</span>, and naturality in <span class="math inline">\((X, x_0)\)</span> is immediate.</p>
+<p><em>Natural isomorphism <span class="math inline">\(\varepsilon: FG \xrightarrow{\sim} \mathrm{id}_{\mathbf{Par}}\)</span>.</em> For a set <span class="math inline">\(X\)</span>, <span class="math inline">\(FG(X) = (X \sqcup \{*\}) \setminus \{*\} = X\)</span>. So <span class="math inline">\(\varepsilon_X = \mathrm{id}_X\)</span>, which is a bijection (in <span class="math inline">\(\mathbf{Par}\)</span>, a total bijection is an isomorphism), and naturality is immediate. <span class="math inline">\(\square\)</span></p>
+</blockquote>
+<div class="callout callout-note">
+<p> Exercise 9
+Fix a field <span class="math inline">\(k\)</span>. Let <span class="math inline">\(\mathbf{Mat}_k\)</span> be the category whose objects are the natural numbers <span class="math inline">\(0, 1, 2, \ldots\)</span> and whose hom-set <span class="math inline">\(\mathbf{Mat}_k(m, n)\)</span> is the set of <span class="math inline">\(n \times m\)</span> matrices over <span class="math inline">\(k\)</span> (equivalently, <span class="math inline">\(k\)</span>-linear maps <span class="math inline">\(k^m \to k^n\)</span>), with composition given by matrix multiplication. Prove that <span class="math inline">\(\mathbf{Mat}_k \simeq \mathbf{FDVect}_k\)</span> (the category of finite-dimensional <span class="math inline">\(k\)</span>-vector spaces and <span class="math inline">\(k\)</span>-linear maps).</p>
+</div>
+<p><em>Proof sketch.</em> Define <span class="math inline">\(F: \mathbf{Mat}_k \to \mathbf{FDVect}_k\)</span> by <span class="math inline">\(F(n) = k^n\)</span> and $F(M) = $ the linear map with matrix <span class="math inline">\(M\)</span>. Show <span class="math inline">\(F\)</span> is full (every linear map <span class="math inline">\(k^m \to k^n\)</span> has a matrix), faithful (different matrices give different maps), and essentially surjective (every f.d. vector space is isomorphic to some <span class="math inline">\(k^n\)</span>).</p>
+<hr />
+<h2 id="products-of-categories">7. Products of Categories ✖️</h2>
+<h3 id="the-product-category">7.1 The Product Category</h3>
+<p><strong>Definition (Product category).</strong> Given categories <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span>, their <em>product</em> <span class="math inline">\(\mathcal{C} \times \mathcal{D}\)</span> has:
+- Objects: pairs <span class="math inline">\((C, D)\)</span> with <span class="math inline">\(C \in \mathcal{C}\)</span> and <span class="math inline">\(D \in \mathcal{D}\)</span>.
+- Morphisms: <span class="math inline">\((C, D) \to (C', D')\)</span> are pairs <span class="math inline">\((f, g)\)</span> with <span class="math inline">\(f: C \to C'\)</span> and <span class="math inline">\(g: D \to D'\)</span>.
+- Composition: <span class="math inline">\((f', g') \circ (f, g) = (f' \circ f, g' \circ g)\)</span>.
+- Identities: <span class="math inline">\(\mathrm{id}_{(C,D)} = (\mathrm{id}_C, \mathrm{id}_D)\)</span>.</p>
+<h3 id="functors-of-two-variables-and-currying">7.2 Functors of Two Variables and Currying</h3>
+<p><strong>Definition.</strong> A <em>bifunctor</em> is a functor <span class="math inline">\(F: \mathcal{A} \times \mathcal{B} \to \mathcal{C}\)</span>. Explicitly:
+- <span class="math inline">\(F\)</span> assigns to each pair <span class="math inline">\((A, B)\)</span> an object <span class="math inline">\(F(A, B) \in \mathcal{C}\)</span>.
+- To each pair <span class="math inline">\((f: A \to A', g: B \to B')\)</span> a morphism <span class="math inline">\(F(f,g): F(A,B) \to F(A',B')\)</span>.
+- With <span class="math inline">\(F(\mathrm{id}_A, \mathrm{id}_B) = \mathrm{id}_{F(A,B)}\)</span> and <span class="math inline">\(F(f' \circ f, g' \circ g) = F(f',g') \circ F(f,g)\)</span>.</p>
+<p><strong>Currying.</strong> A bifunctor <span class="math inline">\(F: \mathcal{A} \times \mathcal{B} \to \mathcal{C}\)</span> determines:
+- For each fixed <span class="math inline">\(A \in \mathcal{A}\)</span>: a functor <span class="math inline">\(F(A, -): \mathcal{B} \to \mathcal{C}\)</span>, <span class="math inline">\(B \mapsto F(A,B)\)</span>, <span class="math inline">\(g \mapsto F(\mathrm{id}_A, g)\)</span>.
+- For each fixed <span class="math inline">\(B \in \mathcal{B}\)</span>: a functor <span class="math inline">\(F(-, B): \mathcal{A} \to \mathcal{C}\)</span>, <span class="math inline">\(A \mapsto F(A,B)\)</span>, <span class="math inline">\(f \mapsto F(f, \mathrm{id}_B)\)</span>.</p>
+<p>Moreover, <span class="math inline">\(f: A \to A'\)</span> determines a natural transformation <span class="math inline">\(F(f,-): F(A,-) \Rightarrow F(A',-)\)</span> with components <span class="math inline">\(F(f, \mathrm{id}_B): F(A,B) \to F(A',B)\)</span>.</p>
+<div class="callout callout-example">
+<p> The tensor product as a bifunctor
+For a commutative ring <span class="math inline">\(R\)</span>, <span class="math inline">\(- \otimes_R -: \mathbf{Mod}_R \times \mathbf{Mod}_R \to \mathbf{Mod}_R\)</span> is a bifunctor. For fixed <span class="math inline">\(M\)</span>, the functor <span class="math inline">\(M \otimes_R -\)</span> is left adjoint to <span class="math inline">\(\mathrm{Hom}_R(M, -)\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 10
+Let <span class="math inline">\(F: \mathcal{A} \times \mathcal{B} \to \mathcal{C}\)</span> be a functor. Suppose we are given:
+- For each <span class="math inline">\(a \in \mathcal{A}\)</span>, a functor <span class="math inline">\(F(a,-): \mathcal{B} \to \mathcal{C}\)</span>.
+- For each <span class="math inline">\(b \in \mathcal{B}\)</span>, a functor <span class="math inline">\(F(-,b): \mathcal{A} \to \mathcal{C}\)</span>.</p>
+<p>such that <span class="math inline">\(F(a,b)\)</span> agrees for both families at each pair <span class="math inline">\((a,b)\)</span>, and such that for each <span class="math inline">\(f: a \to a'\)</span> and <span class="math inline">\(g: b \to b'\)</span>, the square
+<span class="math display">\[F(a,b) \to F(a',b) \to F(a',b') \quad \text{and} \quad F(a,b) \to F(a,b') \to F(a',b')\]</span>
+commute (i.e., <span class="math inline">\(F(f,b') \circ F(a,g) = F(a',g) \circ F(f,b)\)</span>). Show that there is a unique functor <span class="math inline">\(F: \mathcal{A} \times \mathcal{B} \to \mathcal{C}\)</span> whose restrictions to each slice are as specified.</p>
+</div>
+<hr />
+<h2 id="adjoints-first-encounter">8. Adjoints: First Encounter 🔑</h2>
+<h3 id="motivation-via-universal-properties">8.1 Motivation via Universal Properties</h3>
+<p>Universal properties pervade mathematics. When we say “the free group on <span class="math inline">\(S\)</span>” or “the tensor product <span class="math inline">\(M \otimes_R N\)</span>,” we are specifying an object by what maps <em>into</em> or <em>out of</em> it look like. The notion of adjunction is the categorical formalization of this idea.</p>
+<div class="callout callout-info">
+<p> The central philosophy
+Leinster’s course synopsis states: the real objects of study in category theory are “not so much categories themselves as the maps between them.” Adjunctions encode the ubiquitous phenomenon that two seemingly different mapping problems have the same solutions — a bijection of hom-sets that is natural in both variables.</p>
+</div>
+<h3 id="definition-via-hom-set-bijection">8.2 Definition via Hom-Set Bijection</h3>
+<p><strong>Definition (Adjunction).</strong> Let <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> be categories. An <em>adjunction</em> between a functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> and a functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span> is a bijection
+<span class="math display">\[\phi_{A,B}: \mathcal{D}(FA, B) \xrightarrow{\;\sim\;} \mathcal{C}(A, GB)\]</span>
+that is natural in both <span class="math inline">\(A \in \mathcal{C}\)</span> and <span class="math inline">\(B \in \mathcal{D}\)</span>. We say <span class="math inline">\(F\)</span> is <em>left adjoint</em> to <span class="math inline">\(G\)</span> and <span class="math inline">\(G\)</span> is <em>right adjoint</em> to <span class="math inline">\(F\)</span>, written <span class="math inline">\(F \dashv G\)</span>.</p>
+<p>Naturality in <span class="math inline">\(A\)</span> means: for all <span class="math inline">\(f: A' \to A\)</span> in <span class="math inline">\(\mathcal{C}\)</span>,
+<span class="math display">\[\phi_{A',B}(h \circ Ff) = \phi_{A,B}(h) \circ f \quad \text{for all } h \in \mathcal{D}(FA, B).\]</span></p>
+<p>Naturality in <span class="math inline">\(B\)</span> means: for all <span class="math inline">\(g: B \to B'\)</span> in <span class="math inline">\(\mathcal{D}\)</span>,
+<span class="math display">\[\phi_{A,B'}(g \circ h) = Gg \circ \phi_{A,B}(h) \quad \text{for all } h \in \mathcal{D}(FA, B).\]</span></p>
+<p>Together, naturality in both variables is the condition that the assignment <span class="math inline">\((A, B) \mapsto \phi_{A,B}\)</span> defines a natural isomorphism of functors <span class="math inline">\(\mathcal{D}(F-, -) \cong \mathcal{C}(-, G-)\)</span> from <span class="math inline">\(\mathcal{C}^{\mathrm{op}} \times \mathcal{D}\)</span> to <span class="math inline">\(\mathbf{Set}\)</span>.</p>
+<div class="callout callout-info">
+<p> Why adjunctions are the central concept of category theory
+Freyd’s aphorism: <em>“Perhaps the most important concept in all of category theory is adjoint functor.”</em> Mac Lane in <em>Categories for the Working Mathematician</em>: <em>“Adjoint functors arise everywhere.”</em> These are not hyperbole — almost every construction in mathematics defined by a universal property is an adjoint.</p>
+<p><strong>What the hom-set bijection says morally.</strong> The bijection <span class="math inline">\(\mathcal{D}(FA, B) \cong \mathcal{C}(A, GB)\)</span> is a <em>translation between two mapping problems</em>: a morphism out of the “built” object <span class="math inline">\(FA\)</span> carries exactly the same information as a morphism into the “underlying” object <span class="math inline">\(GB\)</span>. The two problems look different — one lives in <span class="math inline">\(\mathcal{D}\)</span>, the other in <span class="math inline">\(\mathcal{C}\)</span> — but are secretly equivalent. An adjunction is a systematic, natural way for two categories to “speak the same language.”</p>
+<p><strong>Left adjoints are free; right adjoints forget.</strong> In the archetypal pattern:
+- The <em>left adjoint</em> <span class="math inline">\(F\)</span> is the <strong>free construction</strong> — it builds the most efficient object in <span class="math inline">\(\mathcal{D}\)</span> that admits a map from <span class="math inline">\(A\)</span>. It adds precisely the structure required and no more.
+- The <em>right adjoint</em> <span class="math inline">\(G\)</span> is the <strong>forgetful functor</strong> — it strips structure away, retaining only what can be expressed back in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p>The unit <span class="math inline">\(\eta_A: A \to GFA\)</span> makes this precise: it is the <em>universal map</em> from <span class="math inline">\(A\)</span> into anything in the image of <span class="math inline">\(G\)</span>. Every map <span class="math inline">\(f: A \to GB\)</span> factors uniquely through <span class="math inline">\(\eta_A\)</span> as <span class="math inline">\(f = G(\bar{f}) \circ \eta_A\)</span> for a unique <span class="math inline">\(\bar{f}: FA \to B\)</span>. So <span class="math inline">\(FA\)</span> is the <em>best approximation</em> to <span class="math inline">\(A\)</span> in <span class="math inline">\(\mathcal{D}\)</span> — the object that “freely generates” from <span class="math inline">\(A\)</span> exactly the structure needed to map into <span class="math inline">\(\mathcal{D}\)</span>, and nothing more.</p>
+<p><strong>Adjunctions arise everywhere.</strong> The free <span class="math inline">\(\dashv\)</span> forgetful pattern recurs throughout mathematics:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Left adjoint <span class="math inline">\(F\)</span></th>
+<th>Right adjoint <span class="math inline">\(G\)</span></th>
+<th>Bijection</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Free group <span class="math inline">\(F(S)\)</span></td>
+<td>Underlying set <span class="math inline">\(U(G)\)</span></td>
+<td>Group homs out of <span class="math inline">\(F(S)\)</span> = functions out of <span class="math inline">\(S\)</span></td>
+</tr>
+<tr class="even">
+<td>Suspension <span class="math inline">\(\Sigma X\)</span></td>
+<td>Loop space <span class="math inline">\(\Omega Y\)</span></td>
+<td>Maps <span class="math inline">\(\Sigma X \to Y\)</span> = based maps <span class="math inline">\(X \to \Omega Y\)</span></td>
+</tr>
+<tr class="odd">
+<td>Tensor <span class="math inline">\(M \otimes_R {-}\)</span></td>
+<td>Hom <span class="math inline">\(\mathrm{Hom}_R(M, {-})\)</span></td>
+<td><span class="math inline">\(\mathrm{Hom}(M \otimes N, P) \cong \mathrm{Hom}(N, \mathrm{Hom}(M, P))\)</span></td>
+</tr>
+<tr class="even">
+<td>Sheafification <span class="math inline">\(a\mathcal{F}\)</span></td>
+<td>Inclusion of sheaves</td>
+<td>Sheaf maps from <span class="math inline">\(a\mathcal{F}\)</span> = presheaf maps from <span class="math inline">\(\mathcal{F}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Colimit <span class="math inline">\(\mathrm{colim}\)</span></td>
+<td>Diagonal <span class="math inline">\(\Delta\)</span></td>
+<td>Cocones under <span class="math inline">\(D\)</span> = maps out of <span class="math inline">\(\mathrm{colim}\, D\)</span></td>
+</tr>
+<tr class="even">
+<td>Existential <span class="math inline">\(\exists_f\)</span></td>
+<td>Pullback <span class="math inline">\(f^*\)</span></td>
+<td><span class="math inline">\(\exists_f P \Rightarrow Q\)</span> iff <span class="math inline">\(P \Rightarrow f^* Q\)</span> (in logic)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Naturality is what makes adjoints powerful.</strong> A bare bijection of hom-sets <span class="math inline">\(\mathcal{D}(FA, B) \cong \mathcal{C}(A, GB)\)</span> would be unstructured and could be an accident. The naturality condition forces <span class="math inline">\(\phi\)</span> to be coherent with every morphism in both categories simultaneously. This coherence is what allows properties of <span class="math inline">\(F\)</span> to be “transported” to properties of <span class="math inline">\(G\)</span> and vice versa — it is the glue that makes the translation systematic rather than coincidental.</p>
+<p><strong>The decisive structural consequence.</strong> Left adjoints preserve all colimits; right adjoints preserve all limits (proved in <a href="../../../../../notes/concepts/category-theory/foundations/03-limits-colimits%7C§03/">concepts/category-theory/foundations/03-limits-colimits|§03</a>). Knowing <span class="math inline">\(F \dashv G\)</span> immediately implies, for free: <span class="math inline">\(F\)</span> preserves coproducts, pushouts, and coequalizers; <span class="math inline">\(G\)</span> preserves products, pullbacks, and equalizers. In practice this is how one proves that <span class="math inline">\(- \otimes M\)</span> distributes over direct sums, that free groups preserve coproducts (free product = coproduct in <span class="math inline">\(\mathbf{Grp}\)</span>), and that inverse image of sheaves is exact on the left.</p>
+</div>
+<h3 id="unit-and-counit">8.3 Unit and Counit</h3>
+<p>An adjunction <span class="math inline">\(F \dashv G\)</span> can equivalently be specified by its <em>unit</em> and <em>counit</em>.</p>
+<p><strong>Definition (Unit and counit).</strong> Given <span class="math inline">\(F \dashv G\)</span> with bijection <span class="math inline">\(\phi\)</span>:
+- The <em>unit</em> <span class="math inline">\(\eta: \mathrm{id}_{\mathcal{C}} \Rightarrow GF\)</span> is the natural transformation with components <span class="math inline">\(\eta_A := \phi_{A, FA}(\mathrm{id}_{FA}) \in \mathcal{C}(A, GFA)\)</span>.
+- The <em>counit</em> <span class="math inline">\(\varepsilon: FG \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span> is the natural transformation with components <span class="math inline">\(\varepsilon_B := \phi_{GB,B}^{-1}(\mathrm{id}_{GB}) \in \mathcal{D}(FGB, B)\)</span>.</p>
+<p>These are natural because <span class="math inline">\(\phi\)</span> is natural. Every morphism <span class="math inline">\(h \in \mathcal{D}(FA, B)\)</span> can be recovered as <span class="math inline">\(h = \varepsilon_B \circ F(\phi(h))\)</span>, and dually.</p>
+<h3 id="triangle-identities">8.4 Triangle Identities</h3>
+<p><strong>Theorem (Triangle identities).</strong> Given an adjunction <span class="math inline">\(F \dashv G\)</span> with unit <span class="math inline">\(\eta\)</span> and counit <span class="math inline">\(\varepsilon\)</span>, the following diagrams commute:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>F <span class="fu">\arrow</span>[r, &quot;F<span class="fu">\eta</span>&quot;] <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\mathrm</span>{id}_F&quot;'] &amp; FGF <span class="fu">\arrow</span>[d, &quot;<span class="fu">\varepsilon</span> F&quot;] <span class="fu">\\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>&amp; F</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>G <span class="fu">\arrow</span>[r, &quot;<span class="fu">\eta</span> G&quot;] <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\mathrm</span>{id}_G&quot;'] &amp; GFG <span class="fu">\arrow</span>[d, &quot;G<span class="fu">\varepsilon</span>&quot;] <span class="fu">\\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>&amp; G</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>That is:
+<span class="math display">\[(\varepsilon F) \circ (F\eta) = \mathrm{id}_F \qquad \text{and} \qquad (G\varepsilon) \circ (\eta G) = \mathrm{id}_G.\]</span></p>
+<p>Here <span class="math inline">\(\varepsilon F\)</span> denotes the natural transformation with components <span class="math inline">\(\varepsilon_{FA}: FGF A \to FA\)</span>, and <span class="math inline">\(F\eta\)</span> has components <span class="math inline">\(F(\eta_A): FA \to FGFA\)</span>.</p>
+<p><em>Proof sketch.</em> At a fixed object <span class="math inline">\(A\)</span>, the composite <span class="math inline">\((\varepsilon_{FA}) \circ F(\eta_A)\)</span> must equal <span class="math inline">\(\mathrm{id}_{FA}\)</span>. Under <span class="math inline">\(\phi_{A, FA}\)</span>, the identity <span class="math inline">\(\mathrm{id}_{FA}\)</span> corresponds to <span class="math inline">\(\eta_A\)</span>. The naturality of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(B\)</span>, applied to <span class="math inline">\(\varepsilon_{FA}: FGA \to FA\)</span> (wait — at object <span class="math inline">\(FA\)</span>), gives <span class="math inline">\(\phi(\varepsilon_{FA} \circ F(\eta_A)) = G(\varepsilon_{FA}) \circ \phi(F(\eta_A))\)</span>. Tracing through the definitions yields both identities.</p>
+<div class="callout callout-note">
+<p> Exercises 12 and 13
+<strong>(Exercise 12)</strong> For posets <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, describe explicitly what an adjunction <span class="math inline">\(f \dashv g\)</span> between order-preserving maps <span class="math inline">\(f: A \to B\)</span> and <span class="math inline">\(g: B \to A\)</span> consists of. (Recall: a poset is a category with at most one morphism between any two objects.)</p>
+<p>Show that the contravariant power set functor <span class="math inline">\(\mathcal{P}: \mathbf{Set}^{\mathrm{op}} \to \mathbf{Set}\)</span> is related to itself by an adjunction: exhibit a bijection <span class="math inline">\(\mathbf{Set}^{\mathrm{op}}(\mathcal{P}(Y), X) \cong \mathbf{Set}(X, \mathcal{P}(Y))\)</span> that is natural in <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> (or formulate the correct adjunction statement involving <span class="math inline">\(\mathcal{P}\)</span>).</p>
+<p><strong>(Exercise 13)</strong> Let <span class="math inline">\(F: \mathcal{C} \rightleftharpoons \mathcal{D}: G\)</span> be an adjunction. Define the unit <span class="math inline">\(\eta: \mathrm{id}_{\mathcal{C}} \Rightarrow GF\)</span> and counit <span class="math inline">\(\varepsilon: FG \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span> explicitly in terms of the hom-set bijection. Verify the triangle identities:
+<span class="math display">\[(\varepsilon F) \circ (F\eta) = \mathrm{id}_F \qquad \text{and} \qquad (G\varepsilon) \circ (\eta G) = \mathrm{id}_G.\]</span>
+Also prove uniqueness: show that the unit and counit together with the triangle identities uniquely determine the adjunction bijection <span class="math inline">\(\phi\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 12
+<strong>Adjunctions between posets.</strong></p>
+<p>A poset <span class="math inline">\((P, \leq)\)</span> is a category in which there is at most one morphism between any two objects, and <span class="math inline">\(a \to b\)</span> exists iff <span class="math inline">\(a \leq b\)</span>. An order-preserving map <span class="math inline">\(f: A \to B\)</span> is a functor. A natural transformation <span class="math inline">\(\alpha: f \Rightarrow g\)</span> between two such functors consists of components <span class="math inline">\(\alpha_a: f(a) \to g(a)\)</span>, i.e., a morphism <span class="math inline">\(f(a) \leq g(a)\)</span> for each <span class="math inline">\(a\)</span> — and naturality is automatic since there is at most one morphism between any two objects.</p>
+<p>An adjunction <span class="math inline">\(f \dashv g\)</span> (with <span class="math inline">\(f: A \to B\)</span>, <span class="math inline">\(g: B \to A\)</span>) requires a bijection <span class="math inline">\(B(f(a), b) \cong A(a, g(b))\)</span> natural in <span class="math inline">\(a \in A\)</span> and <span class="math inline">\(b \in B\)</span>. Since each hom-set has at most one element, the bijection simply says these hom-sets are simultaneously empty or simultaneously inhabited. That is:
+<span class="math display">\[f(a) \leq b \quad \iff \quad a \leq g(b).\]</span>
+This is exactly a <em>Galois connection</em> (or <em>monotone Galois connection</em>) between the posets <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. The unit and counit become:
+- Unit: <span class="math inline">\(\eta_a: a \leq g(f(a))\)</span> — each element is below its “round-trip” through <span class="math inline">\(g \circ f\)</span>.
+- Counit: <span class="math inline">\(\varepsilon_b: f(g(b)) \leq b\)</span> — the round-trip through <span class="math inline">\(f \circ g\)</span> is below the original.</p>
+<p>These follow from the defining condition by setting <span class="math inline">\(b = f(a)\)</span> (giving <span class="math inline">\(f(a) \leq f(a)\)</span>, hence <span class="math inline">\(a \leq g(f(a))\)</span>) and <span class="math inline">\(a = g(b)\)</span> (giving <span class="math inline">\(f(g(b)) \leq b\)</span>).</p>
+<p><em>Example.</em> Let <span class="math inline">\(A = B = \mathbb{R}\)</span> (with the usual order) and <span class="math inline">\(i: \mathbb{Z} \hookrightarrow \mathbb{R}\)</span> the inclusion. Then <span class="math inline">\(\lceil{-}\rceil \dashv i \dashv \lfloor{-}\rfloor\)</span>: ceiling is left adjoint to inclusion and inclusion is left adjoint to floor, since <span class="math inline">\(\lceil x \rceil \leq n \iff x \leq n\)</span> and <span class="math inline">\(n \leq x \iff n \leq \lfloor x \rfloor\)</span> for all <span class="math inline">\(n \in \mathbb{Z}\)</span>.</p>
+<p><strong>The power set self-adjunction.</strong></p>
+<p>The correct statement is that <span class="math inline">\(\mathcal{P}: \mathbf{Set}^{\mathrm{op}} \to \mathbf{Set}\)</span> is <em>self-adjoint on the right</em>, i.e., <span class="math inline">\(\mathcal{P}^{\mathrm{op}} \dashv \mathcal{P}\)</span> (equivalently, <span class="math inline">\(\mathcal{P}\)</span> is right adjoint to its own opposite). More precisely, there is a natural bijection
+<span class="math display">\[\mathbf{Set}(X, \mathcal{P}(Y)) \cong \mathbf{Set}(Y, \mathcal{P}(X)).\]</span>
+Both sides classify subsets of <span class="math inline">\(X \times Y\)</span>: a function <span class="math inline">\(f: X \to \mathcal{P}(Y)\)</span> assigns to each <span class="math inline">\(x \in X\)</span> a subset <span class="math inline">\(f(x) \subseteq Y\)</span>, which is equivalently a relation <span class="math inline">\(R \subseteq X \times Y\)</span> via <span class="math inline">\(R = \{(x, y) : y \in f(x)\}\)</span>. Symmetrically, a function <span class="math inline">\(g: Y \to \mathcal{P}(X)\)</span> corresponds to the <em>transpose</em> relation <span class="math inline">\(R^T \subseteq Y \times X\)</span>. The bijection is <span class="math inline">\((f \leftrightarrow g)\)</span> iff <span class="math inline">\(y \in f(x) \iff x \in g(y)\)</span>, i.e., they encode the same relation and its transpose. Naturality in <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> is immediate from functoriality of taking inverse images. <span class="math inline">\(\square\)</span></p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 13
+<strong>Defining the unit and counit from <span class="math inline">\(\phi\)</span>.</strong></p>
+<p>Given an adjunction <span class="math inline">\(F \dashv G\)</span> with natural bijection <span class="math inline">\(\phi_{A,B}: \mathcal{D}(FA, B) \xrightarrow{\sim} \mathcal{C}(A, GB)\)</span>, define:
+- <span class="math inline">\(\eta_A := \phi_{A,FA}(\mathrm{id}_{FA}) \in \mathcal{C}(A, GFA)\)</span> — apply <span class="math inline">\(\phi\)</span> to the identity on <span class="math inline">\(FA\)</span>.
+- <span class="math inline">\(\varepsilon_B := \phi_{GB,B}^{-1}(\mathrm{id}_{GB}) \in \mathcal{D}(FGB, B)\)</span> — apply <span class="math inline">\(\phi^{-1}\)</span> to the identity on <span class="math inline">\(GB\)</span>.</p>
+<p>Naturality of <span class="math inline">\(\eta\)</span> (i.e., <span class="math inline">\(\eta\)</span> is a natural transformation <span class="math inline">\(\mathrm{id}_\mathcal{C} \Rightarrow GF\)</span>): for <span class="math inline">\(f: A' \to A\)</span>, we need <span class="math inline">\(GFf \circ \eta_A = \eta_{A'} \circ f\)</span>, i.e., <span class="math inline">\(\phi(Ff \circ \mathrm{id}_{FA}) \cdot (-)\)</span> commutes with precomposition by <span class="math inline">\(f\)</span>. This follows directly from naturality of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(A\)</span>. Similarly, naturality of <span class="math inline">\(\varepsilon\)</span> follows from naturality of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(B\)</span>.</p>
+<p><strong>Verifying the triangle identities.</strong></p>
+<p><em>First identity:</em> <span class="math inline">\((\varepsilon_F) \circ (F\eta) = \mathrm{id}_F\)</span>, i.e., <span class="math inline">\(\varepsilon_{FA} \circ F(\eta_A) = \mathrm{id}_{FA}\)</span> for all <span class="math inline">\(A\)</span>.</p>
+<p>Apply <span class="math inline">\(\phi_{A,FA}\)</span> to both sides. We compute <span class="math inline">\(\phi_{A,FA}(\varepsilon_{FA} \circ F(\eta_A))\)</span>. By naturality of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(B\)</span> applied to <span class="math inline">\(\varepsilon_{FA}: FGA \to FA\)</span> (with <span class="math inline">\(B = GFA\)</span> mapped to <span class="math inline">\(FA\)</span>):
+<span class="math display">\[\phi_{A,FA}(\varepsilon_{FA} \circ F(\eta_A)) = G(\varepsilon_{FA}) \circ \phi_{A,FGA}(F(\eta_A)).\]</span>
+Now <span class="math inline">\(\phi_{A,FGA}(F(\eta_A))\)</span>: by naturality of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(A\)</span> applied to <span class="math inline">\(\eta_A: A \to GFA\)</span> (with <span class="math inline">\(A' = A\)</span>, <span class="math inline">\(B = FGA\)</span>), we get <span class="math inline">\(\phi_{A,FGA}(F(\eta_A)) = \phi_{GFA,FGA}(\mathrm{id}_{FGA}) \circ \eta_A = \eta_{GFA} \circ \eta_A\)</span>…</p>
+<p>A cleaner route: use the <em>transpose</em> characterisation. For any <span class="math inline">\(h \in \mathcal{D}(FA, B)\)</span>, the transpose is <span class="math inline">\(\phi(h) \in \mathcal{C}(A, GB)\)</span>, and the inverse is: given <span class="math inline">\(k \in \mathcal{C}(A, GB)\)</span>, the morphism <span class="math inline">\(\phi^{-1}(k) = \varepsilon_B \circ Fk \in \mathcal{D}(FA, B)\)</span>. To verify this formula: <span class="math inline">\(\phi(\varepsilon_B \circ Fk) = G(\varepsilon_B) \circ \phi(Fk) = G(\varepsilon_B) \circ GFk \circ \eta_A\)</span> (by nat. of <span class="math inline">\(\phi\)</span> in <span class="math inline">\(A\)</span> then <span class="math inline">\(B\)</span>). We need this to equal <span class="math inline">\(k\)</span>. Apply the second triangle identity (assuming it for now): <span class="math inline">\(G(\varepsilon_B) \circ \eta_{GB} = \mathrm{id}_{GB}\)</span>. But <span class="math inline">\(GFk \circ \eta_A = \eta_{GB} \circ k\)</span> by naturality of <span class="math inline">\(\eta\)</span>, so <span class="math inline">\(G(\varepsilon_B) \circ \eta_{GB} \circ k = k\)</span>. ✓</p>
+<p>For a direct proof of both identities simultaneously: the bijection <span class="math inline">\(\phi^{-1}(k) = \varepsilon_B \circ Fk\)</span> and <span class="math inline">\(\phi(h) = Gh \circ \eta_A\)</span> together with the requirement <span class="math inline">\(\phi \circ \phi^{-1} = \mathrm{id}\)</span> and <span class="math inline">\(\phi^{-1} \circ \phi = \mathrm{id}\)</span> yield:
+<span class="math display">\[\phi(\phi^{-1}(k)) = G(\varepsilon_B \circ Fk) \circ \eta_A = G\varepsilon_B \circ GFk \circ \eta_A \overset{!}{=} k,\]</span>
+<span class="math display">\[\phi^{-1}(\phi(h)) = \varepsilon_B \circ F(Gh \circ \eta_A) = \varepsilon_B \circ FGh \circ F\eta_A \overset{!}{=} h.\]</span>
+Setting <span class="math inline">\(k = \mathrm{id}_{GB}\)</span> in the first gives <span class="math inline">\((G\varepsilon) \circ (\eta G) = \mathrm{id}_G\)</span> (second triangle identity). Setting <span class="math inline">\(h = \mathrm{id}_{FA}\)</span> in the second gives <span class="math inline">\((\varepsilon F) \circ (F\eta) = \mathrm{id}_F\)</span> (first triangle identity). <span class="math inline">\(\square\)</span></p>
+<p><strong>Uniqueness: unit and counit determine <span class="math inline">\(\phi\)</span>.</strong></p>
+<p>Given <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\varepsilon\)</span> satisfying the triangle identities, define:
+<span class="math display">\[\phi(h) := Gh \circ \eta_A \qquad (h: FA \to B), \qquad \phi^{-1}(k) := \varepsilon_B \circ Fk \qquad (k: A \to GB).\]</span>
+The triangle identities are precisely what ensure <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\phi^{-1}\)</span> are mutual inverses:
+- <span class="math inline">\(\phi(\phi^{-1}(k)) = G(\varepsilon_B \circ Fk) \circ \eta_A = G\varepsilon_B \circ GFk \circ \eta_A = G\varepsilon_B \circ \eta_{GB} \circ k\)</span> (naturality of <span class="math inline">\(\eta\)</span>) <span class="math inline">\(= \mathrm{id}_{GB} \circ k = k\)</span> (second triangle identity).
+- <span class="math inline">\(\phi^{-1}(\phi(h)) = \varepsilon_B \circ F(Gh \circ \eta_A) = \varepsilon_B \circ FGh \circ F\eta_A = h \circ \varepsilon_{FA} \circ F\eta_A\)</span> (naturality of <span class="math inline">\(\varepsilon\)</span>) <span class="math inline">\(= h \circ \mathrm{id}_{FA} = h\)</span> (first triangle identity).</p>
+<p>So the formulas <span class="math inline">\(\phi(h) = Gh \circ \eta_A\)</span> and <span class="math inline">\(\phi^{-1}(k) = \varepsilon_B \circ Fk\)</span> express <span class="math inline">\(\phi\)</span> entirely in terms of <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\varepsilon\)</span>. Since <span class="math inline">\(\eta\)</span> and <span class="math inline">\(\varepsilon\)</span> are themselves determined by <span class="math inline">\(\phi\)</span> (via <span class="math inline">\(\eta_A = \phi(\mathrm{id}_{FA})\)</span> and <span class="math inline">\(\varepsilon_B = \phi^{-1}(\mathrm{id}_{GB})\)</span>), the data <span class="math inline">\((\phi) \leftrightarrow (\eta, \varepsilon)\)</span> are in bijection, with the triangle identities as the compatibility condition. <span class="math inline">\(\square\)</span></p>
+</blockquote>
+<h3 id="uniqueness-of-adjoints">8.5 Uniqueness of Adjoints</h3>
+<p><strong>Proposition.</strong> If <span class="math inline">\(F \dashv G\)</span> and <span class="math inline">\(F \dashv G'\)</span>, then <span class="math inline">\(G \cong G'\)</span> via a natural isomorphism. Left adjoints are unique up to unique natural isomorphism.</p>
+<p><em>Proof.</em> For each <span class="math inline">\(B \in \mathcal{D}\)</span>, the functor <span class="math inline">\(\mathcal{C}(-, GB)\)</span> and <span class="math inline">\(\mathcal{C}(-, G'B)\)</span> are both naturally isomorphic to <span class="math inline">\(\mathcal{D}(F-, B)\)</span>, hence to each other. By the Yoneda lemma (File 2), <span class="math inline">\(GB \cong G'B\)</span> naturally in <span class="math inline">\(B\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="examples">8.6 Examples</h3>
+<div class="callout callout-example">
+<p> Free-forgetful adjunction
+The free group functor <span class="math inline">\(F: \mathbf{Set} \to \mathbf{Grp}\)</span> is left adjoint to the forgetful functor <span class="math inline">\(U: \mathbf{Grp} \to \mathbf{Set}\)</span>:
+<span class="math display">\[\mathbf{Grp}(F(S), G) \cong \mathbf{Set}(S, U(G)).\]</span>
+A group homomorphism <span class="math inline">\(F(S) \to G\)</span> is determined freely by the images of the generators <span class="math inline">\(S\)</span> — any function <span class="math inline">\(S \to U(G)\)</span> extends uniquely to a homomorphism. The unit <span class="math inline">\(\eta_S: S \to UF(S)\)</span> is the inclusion of generators.</p>
+</div>
+<div class="callout callout-example">
+<p> Product-diagonal adjunction
+The diagonal functor <span class="math inline">\(\Delta: \mathcal{C} \to \mathcal{C} \times \mathcal{C}\)</span>, <span class="math inline">\(A \mapsto (A, A)\)</span>, has a right adjoint: the product functor <span class="math inline">\((A \times B): \mathcal{C} \times \mathcal{C} \to \mathcal{C}\)</span> (when <span class="math inline">\(\mathcal{C}\)</span> has binary products). The adjunction is <span class="math inline">\(\mathcal{C}(C, A \times B) \cong \mathcal{C}(C, A) \times \mathcal{C}(C, B)\)</span>, which is the universal property of the product.</p>
+</div>
+<div class="callout callout-example">
+<p> Tensor-hom adjunction
+For a commutative ring <span class="math inline">\(R\)</span> and <span class="math inline">\(R\)</span>-modules <span class="math inline">\(M\)</span>, <span class="math inline">\(N\)</span>, <span class="math inline">\(P\)</span>:
+<span class="math display">\[\mathrm{Hom}_R(M \otimes_R N, P) \cong \mathrm{Hom}_R(M, \mathrm{Hom}_R(N, P)).\]</span>
+This is the adjunction <span class="math inline">\(- \otimes_R N \dashv \mathrm{Hom}_R(N, -)\)</span>.</p>
+</div>
+<div class="callout callout-example">
+<p> Initial objects as degenerate adjoints
+The unique functor <span class="math inline">\(!: \mathcal{C} \to \mathbf{1}\)</span> always has a right adjoint iff <span class="math inline">\(\mathcal{C}\)</span> has a terminal object, and a left adjoint iff <span class="math inline">\(\mathcal{C}\)</span> has an initial object. The functor picking out an initial object <span class="math inline">\(I: \mathbf{1} \to \mathcal{C}\)</span> is left adjoint to <span class="math inline">\(!\)</span> iff <span class="math inline">\(I(*)\)</span> is initial in <span class="math inline">\(\mathcal{C}\)</span>, since <span class="math inline">\(\mathcal{C}(I(*), A) \cong \mathbf{1}(*,*(= \{*\}))\)</span> for all <span class="math inline">\(A\)</span> means exactly one morphism <span class="math inline">\(I(*) \to A\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 11
+(i) Define what it means for a functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> to be left adjoint to <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span>.</p>
+<ol start="2" type="i">
+<li><p>Show that left adjoints preserve initial objects: if <span class="math inline">\(I\)</span> is initial in <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(F \dashv G\)</span>, then <span class="math inline">\(FI\)</span> is initial in <span class="math inline">\(\mathcal{D}\)</span>.</p></li>
+<li><p>Show dually that right adjoints preserve terminal objects.</p></li>
+</ol>
+</div>
+<p><em>Proof sketch for (ii).</em> We need to show <span class="math inline">\(\mathcal{D}(FI, B)\)</span> is a singleton for every <span class="math inline">\(B \in \mathcal{D}\)</span>. By the adjunction bijection, <span class="math inline">\(\mathcal{D}(FI, B) \cong \mathcal{C}(I, GB)\)</span>. Since <span class="math inline">\(I\)</span> is initial, <span class="math inline">\(\mathcal{C}(I, GB)\)</span> has exactly one element. Hence so does <span class="math inline">\(\mathcal{D}(FI, B)\)</span>, making <span class="math inline">\(FI\)</span> initial. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 14
+Let <span class="math inline">\(\mathbf{Bij}\)</span> be the category whose objects are finite sets and whose morphisms are bijections. Define two functors:
+- <span class="math inline">\(\mathrm{Sym}: \mathbf{Bij} \to \mathbf{Set}\)</span>, sending a finite set <span class="math inline">\(X\)</span> to its set of permutations <span class="math inline">\(\mathrm{Sym}(X) = \{\sigma: X \xrightarrow{\sim} X\}\)</span>.
+- <span class="math inline">\(\mathrm{Ord}: \mathbf{Bij} \to \mathbf{Set}\)</span>, sending a finite set <span class="math inline">\(X\)</span> to its set of total orderings.</p>
+<p>Show that <span class="math inline">\(|\mathrm{Sym}(X)| = |\mathrm{Ord}(X)| = n!\)</span> for every <span class="math inline">\(n\)</span>-element set <span class="math inline">\(X\)</span>, so the two functors are pointwise isomorphic. However, show that <span class="math inline">\(\mathrm{Sym}\)</span> and <span class="math inline">\(\mathrm{Ord}\)</span> are <strong>not</strong> naturally isomorphic as functors <span class="math inline">\(\mathbf{Bij} \to \mathbf{Set}\)</span>.</p>
+</div>
+<p><em>Hint.</em> A natural isomorphism would give, for each finite set <span class="math inline">\(X\)</span>, a bijection <span class="math inline">\(\alpha_X: \mathrm{Sym}(X) \to \mathrm{Ord}(X)\)</span> natural in <span class="math inline">\(X\)</span>. Naturality requires <span class="math inline">\(\alpha_X\)</span> to be equivariant with respect to the action of <span class="math inline">\(\mathrm{Sym}(X)\)</span> on itself by conjugation and on orderings by relabeling. Consider the case <span class="math inline">\(|X| = 2\)</span> or <span class="math inline">\(|X| = 3\)</span> and derive a contradiction.</p>
+<hr />
+<hr />
+<h2 id="leinster-examples-and-perspective">9. Leinster: Examples and Perspective 📖</h2>
+<p>This section collects key examples and philosophical remarks from Leinster’s <em>Basic Category Theory</em> that complement and enrich the material above.</p>
+<h3 id="abelianisation-as-an-adjunction">9.1 Abelianisation as an Adjunction</h3>
+<blockquote>
+<p>[!EXAMPLE]- Abelianisation: the most important free-forgetful adjunction
+The <em>abelianisation</em> of a group <span class="math inline">\(G\)</span> is the quotient <span class="math inline">\(G^{\mathrm{ab}} = G / [G, G]\)</span>, where <span class="math inline">\([G, G]\)</span> is the <em>commutator subgroup</em> (the subgroup generated by <span class="math inline">\(\{ghg^{-1}h^{-1} : g, h \in G\}\)</span>). This construction defines a functor <span class="math inline">\(\mathrm{ab} : \mathbf{Grp} \to \mathbf{Ab}\)</span>.</p>
+<p>The key property is that every group homomorphism from <span class="math inline">\(G\)</span> to an abelian group <span class="math inline">\(A\)</span> factors uniquely through <span class="math inline">\(G^{\mathrm{ab}}\)</span>:
+<span class="math display">\[\mathbf{Ab}(G^{\mathrm{ab}}, A) \cong \mathbf{Grp}(G, \iota A),\]</span>
+where <span class="math inline">\(\iota : \mathbf{Ab} \hookrightarrow \mathbf{Grp}\)</span> is the inclusion (forgetful) functor. This is the adjunction <span class="math inline">\(\mathrm{ab} \dashv \iota\)</span>.</p>
+<p>The unit <span class="math inline">\(\eta_G : G \to G^{\mathrm{ab}}\)</span> is the quotient map, and the counit is the identity <span class="math inline">\(\mathrm{id}_A : \mathrm{ab}(\iota A) = A^{\mathrm{ab}} \xrightarrow{\sim} A\)</span> (since <span class="math inline">\(A\)</span> is already abelian, <span class="math inline">\([A, A] = \{e\}\)</span>, so <span class="math inline">\(A^{\mathrm{ab}} = A\)</span>).</p>
+<p>Leinster uses this as a canonical example of a <em>reflective subcategory</em>: <span class="math inline">\(\mathbf{Ab}\)</span> is a reflective full subcategory of <span class="math inline">\(\mathbf{Grp}\)</span>, with the reflector being abelianisation.</p>
+</blockquote>
+<h3 id="stone-cech-compactification">9.2 Stone-Cech Compactification</h3>
+<blockquote>
+<p>[!EXAMPLE]- Stone-Čech compactification as a universal property
+Let <span class="math inline">\(\mathbf{KHaus}\)</span> be the full subcategory of <span class="math inline">\(\mathbf{Top}\)</span> whose objects are compact Hausdorff topological spaces. The inclusion <span class="math inline">\(\iota : \mathbf{KHaus} \hookrightarrow \mathbf{Top}\)</span> has a left adjoint <span class="math inline">\(\beta : \mathbf{Top} \to \mathbf{KHaus}\)</span> called the <em>Stone-Čech compactification</em>: for any topological space <span class="math inline">\(X\)</span> and compact Hausdorff space <span class="math inline">\(K\)</span>, there is a natural bijection
+<span class="math display">\[\mathbf{KHaus}(\beta X, K) \cong \mathbf{Top}(X, K).\]</span>
+The unit <span class="math inline">\(\eta_X : X \to \beta X\)</span> is the canonical dense embedding of <span class="math inline">\(X\)</span> into its Stone-Čech compactification. The universal property says: every continuous map from <span class="math inline">\(X\)</span> to a compact Hausdorff space extends uniquely to <span class="math inline">\(\beta X\)</span>.</p>
+<p>Leinster uses this as an example of an adjunction that cannot be understood concretely without significant set-theoretic machinery — illustrating that the adjunction <em>is</em> the content, not an encoding of some prior construction.</p>
+</blockquote>
+<h3 id="what-category-theory-is-about">9.3 What Category Theory Is About</h3>
+<div class="callout callout-info">
+<p> Leinster’s perspective on the purpose of category theory
+In the preface to <em>Basic Category Theory</em>, Leinster writes: “Category theory takes a bird’s eye view of mathematics. From high up, we can see the common threads that connect different areas of mathematics, and apply the same abstract structures and concepts across different fields.”</p>
+<p>He identifies three recurring themes:
+1. <strong>Sameness:</strong> Equivalences of categories are the right notion of “sameness” for categories — not isomorphism. Two equivalent categories share all categorical properties.
+2. <strong>Universal properties:</strong> Constructions defined by universal properties are unique up to unique isomorphism, and are preserved by functors that respect the relevant structures.
+3. <strong>Functoriality:</strong> The distinction between “functorial” and “non-functorial” constructions is deep. A construction that cannot be made into a functor (e.g., choosing a basis for a vector space) is fundamentally different from one that can.</p>
+<p>Leinster’s book deliberately keeps the scope narrow — categories, functors, natural transformations, adjunctions, representables, and limits — to present these ideas in their cleanest form.</p>
+</div>
+<hr />
+<h2 id="size-matters">10. Size Matters 📏</h2>
+<p>Set-theoretic size is not a bureaucratic afterthought in category theory — it is the boundary condition that determines which theorems are even <em>statable</em>. This section makes precise what it means for a category to be small, locally small, or essentially small, and explains why each condition appears as a hypothesis in the major theorems.</p>
+<h3 id="small-and-large-categories">10.1 Small and Large Categories</h3>
+<p><strong>Definition (Small and large categories).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>small</em> if both <span class="math inline">\(\mathrm{ob}(\mathcal{C})\)</span> and <span class="math inline">\(\mathrm{mor}(\mathcal{C}) = \coprod_{A,B \in \mathcal{C}} \mathcal{C}(A,B)\)</span> are <em>sets</em> (i.e., elements of a fixed set-theoretic universe, not proper classes). A category is <em>large</em> if either collection is a proper class.</p>
+<div class="callout callout-info">
+<p> Examples of small and large categories
+<strong>Large categories:</strong> <span class="math inline">\(\mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Grp}\)</span>, <span class="math inline">\(\mathbf{Top}\)</span>, <span class="math inline">\(\mathbf{Vect}_k\)</span>, <span class="math inline">\(\mathbf{Ring}\)</span>, <span class="math inline">\(\mathbf{Ab}\)</span> — their object collections are proper classes (there is no set of all sets, no set of all groups, etc.).</p>
+<p><strong>Small categories:</strong> Any poset <span class="math inline">\((P, \leq)\)</span> viewed as a category (when <span class="math inline">\(P\)</span> is a set); any monoid <span class="math inline">\(M\)</span> viewed as a one-object category <span class="math inline">\(\mathbf{B}M\)</span>; the <em>ordinal categories</em> <span class="math inline">\(\mathbf{n} = \{0 \to 1 \to \cdots \to n\}\)</span> for <span class="math inline">\(n \geq 0\)</span>; the <em>empty category</em> <span class="math inline">\(\mathbf{0}\)</span>; the <em>terminal category</em> <span class="math inline">\(\mathbf{1}\)</span>.</p>
+<p>💡 Smallness is an absolute condition on the collection of objects and morphisms, whereas local smallness (§10.2) is a condition on each individual hom-collection.</p>
+</div>
+<h3 id="locally-small-categories">10.2 Locally Small Categories</h3>
+<p><strong>Definition (Locally small).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>locally small</em> if for every pair of objects <span class="math inline">\(A, B \in \mathcal{C}\)</span>, the hom-collection <span class="math inline">\(\mathcal{C}(A, B)\)</span> is a set.</p>
+<p>Every small category is locally small. Among large categories, all the named examples — <span class="math inline">\(\mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Grp}\)</span>, <span class="math inline">\(\mathbf{Top}\)</span>, <span class="math inline">\(\mathbf{Vect}_k\)</span> — are locally small, since morphisms between any two fixed objects form a set (e.g., the set of all functions between two sets, the set of all group homomorphisms, etc.).</p>
+<div class="callout callout-warning">
+<p> Local smallness is needed for the Yoneda lemma
+The Yoneda lemma asserts that for <span class="math inline">\(F: \mathcal{C} \to \mathbf{Set}\)</span> and <span class="math inline">\(A \in \mathcal{C}\)</span>, natural transformations <span class="math inline">\(\mathcal{C}(A, -) \Rightarrow F\)</span> are in bijection with <span class="math inline">\(FA\)</span>. The domain functor <span class="math inline">\(\mathcal{C}(A, -)\)</span> is only well-defined as a functor to <span class="math inline">\(\mathbf{Set}\)</span> if <span class="math inline">\(\mathcal{C}(A, B)\)</span> is a <em>set</em> for each <span class="math inline">\(B\)</span> — i.e., if <span class="math inline">\(\mathcal{C}\)</span> is locally small. Without this, <span class="math inline">\(\mathcal{C}(A, B)\)</span> could be a proper class, and it would not be an object of <span class="math inline">\(\mathbf{Set}\)</span>.</p>
+</div>
+<h3 id="essentially-small-categories">10.3 Essentially Small Categories</h3>
+<p><strong>Definition (Essentially small).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>essentially small</em> if it is <em>equivalent</em> (in the sense of §6) to a small category. Equivalently, <span class="math inline">\(\mathcal{C}\)</span> has a <em>small skeleton</em> — a full subcategory containing exactly one object from each isomorphism class.</p>
+<div class="callout callout-example">
+<p> The category of finite sets
+The category <span class="math inline">\(\mathbf{FinSet}\)</span> of all finite sets is <em>not</em> small: there are class-many finite sets (e.g., <span class="math inline">\(\{0\}, \{1\}, \{2\}, \ldots\)</span> are all distinct one-element sets in ZFC). However, <span class="math inline">\(\mathbf{FinSet}\)</span> is essentially small: it is equivalent to the full subcategory <span class="math inline">\(\{\mathbf{0}, \mathbf{1}, \mathbf{2}, \ldots\}\)</span> where <span class="math inline">\(\mathbf{n} = \{0, 1, \ldots, n-1\}\)</span>, which is a small category.</p>
+<p>This illustrates that essential smallness is the invariant notion of smallness under categorical equivalence.</p>
+</div>
+<h3 id="why-size-matters-russells-paradox-and-adjunctions">10.4 Why Size Matters: Russell’s Paradox and Adjunctions</h3>
+<p>📐 The need for size distinctions is not philosophical — it is forced by set theory.</p>
+<p><strong>Russell’s paradox and <span class="math inline">\(\mathbf{Set}\)</span>.</strong> There is no set of all sets: the collection <span class="math inline">\(\{X : X \notin X\}\)</span> leads to a contradiction. Thus <span class="math inline">\(\mathrm{ob}(\mathbf{Set})\)</span> is a proper class, and <span class="math inline">\(\mathbf{Set}\)</span> is large but not small.</p>
+<p><strong>Adjunctions require sets.</strong> The hom-set bijection in an adjunction,
+<span class="math display">\[\mathcal{D}(FA, B) \cong \mathcal{C}(A, GB),\]</span>
+is a natural bijection of <em>sets</em>. If <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> are not locally small, neither side is a set, and the statement is not well-formed. <strong>Local smallness of <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span> is a standing hypothesis in the definition of adjunction via hom-sets.</strong></p>
+<div class="callout callout-warning">
+<p> The General Adjoint Functor Theorem and the solution set condition
+The <em>General Adjoint Functor Theorem</em> (Freyd’s theorem) states: a functor <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span> has a left adjoint if and only if it preserves all small limits and satisfies the <em>solution set condition</em> — for each <span class="math inline">\(A \in \mathcal{C}\)</span>, there exists a <em>set</em> (not a proper class) of morphisms <span class="math inline">\(A \to GB\)</span> that “generates” all morphisms from <span class="math inline">\(A\)</span> to the image of <span class="math inline">\(G\)</span>.</p>
+<p>The solution set condition is precisely a smallness hypothesis. Without it, one would need to take an initial object in a category of potentially class-many candidates, which ZFC set theory does not permit. This is why the theorem is not vacuous: most functors satisfy limit preservation, but fail the solution set condition in pathological cases.</p>
+</div>
+<h3 id="grothendieck-universes">10.5 Grothendieck Universes</h3>
+<p>One clean resolution of the size problem is via <em>Grothendieck universes</em>.</p>
+<p><strong>Definition (Grothendieck universe).</strong> A <em>Grothendieck universe</em> <span class="math inline">\(\mathcal{U}\)</span> is a set satisfying:
+1. If <span class="math inline">\(x \in \mathcal{U}\)</span> and <span class="math inline">\(y \in x\)</span>, then <span class="math inline">\(y \in \mathcal{U}\)</span> (transitivity).
+2. If <span class="math inline">\(x \in \mathcal{U}\)</span>, then <span class="math inline">\(\mathcal{P}(x) \in \mathcal{U}\)</span> (power sets).
+3. If <span class="math inline">\(I \in \mathcal{U}\)</span> and <span class="math inline">\(\{x_i\}_{i \in I} \subseteq \mathcal{U}\)</span>, then <span class="math inline">\(\bigcup_{i \in I} x_i \in \mathcal{U}\)</span> (unions).
+4. <span class="math inline">\(\mathbb{N} \in \mathcal{U}\)</span> (contains the natural numbers).</p>
+<div class="callout callout-info">
+<p> How Grothendieck universes resolve size issues
+Fix a universe <span class="math inline">\(\mathcal{U}\)</span>. Call a set <em><span class="math inline">\(\mathcal{U}\)</span>-small</em> if it is an element of <span class="math inline">\(\mathcal{U}\)</span>. Then:
+- “<span class="math inline">\(\mathcal{U}\)</span>-sets” play the role of “small sets.”
+- “<span class="math inline">\(\mathcal{U}\)</span>-classes” (collections of <span class="math inline">\(\mathcal{U}\)</span>-small sets) play the role of “large sets” / “proper classes.”
+- The category <span class="math inline">\(\mathbf{Set}_{\mathcal{U}}\)</span> of all <span class="math inline">\(\mathcal{U}\)</span>-small sets is an honest <em>set</em> from the perspective of a larger universe <span class="math inline">\(\mathcal{U}'\)</span>, allowing us to form functor categories, slice categories, and presheaf categories without set-theoretic illegality.</p>
+<p>The existence of arbitrarily large Grothendieck universes is not provable in ZFC alone; it requires an additional axiom (the <em>universe axiom</em>, equivalent to the existence of inaccessible cardinals in ZFC). SGA and much of Grothendieck’s algebraic geometry is written in this framework.</p>
+</div>
+<h3 id="the-local-smallness-convention">10.6 The Local Smallness Convention</h3>
+<p>🔑 <strong>Throughout category theory, local smallness is the default standing hypothesis.</strong> The major theorems — the Yoneda lemma (File 2), the adjoint functor theorems (File 4), representability criteria, and limits (File 3) — all require at minimum that the relevant categories be locally small. This hypothesis is frequently left implicit in the literature, but it is never vacuous.</p>
+<p><strong>The practical upshot:</strong> when defining a new category, one should immediately verify local smallness. For most naturally occurring categories this is immediate (morphisms are functions, homomorphisms, or homotopy classes, all of which form sets). The exceptions — such as functor categories <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span> where <span class="math inline">\(\mathcal{C}\)</span> is large — require more care.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Size
+<strong>(i)</strong> Show that the category of all small categories <span class="math inline">\(\mathbf{Cat}\)</span> is large but locally small.
+<em>(Hint: the collection of all small categories is not a set by a cardinality argument, but for any two small categories <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(\mathcal{D}\)</span>, the collection of functors <span class="math inline">\(\mathcal{C} \to \mathcal{D}\)</span> is a set.)</em></p>
+<p><strong>(ii)</strong> Let <span class="math inline">\(\mathcal{C}\)</span> be a locally small category and fix <span class="math inline">\(A \in \mathcal{C}\)</span>. Show that the functor <span class="math inline">\(\mathcal{C}(A, -): \mathcal{C} \to \mathbf{Set}\)</span> is well-defined — i.e., that it sends each object <span class="math inline">\(B\)</span> to an element of <span class="math inline">\(\mathrm{ob}(\mathbf{Set})\)</span> (a genuine set, not a proper class).</p>
+<p><strong>(iii)</strong> Give an example of a category that is locally small but not essentially small.
+<em>(Hint: consider <span class="math inline">\(\mathbf{Set}\)</span> itself — it is locally small, but its isomorphism classes are not a set, since for each cardinality <span class="math inline">\(\kappa\)</span> there is a proper class of sets of cardinality <span class="math inline">\(\kappa\)</span>.)</em></p>
+</div>
+<hr />
+<h2 id="the-2-category-of-categories">11. The 2-Category of Categories 🔷</h2>
+<p>The structure of <span class="math inline">\(\mathbf{Cat}\)</span> — categories, functors, and natural transformations — exhibits a strict hierarchy: there are morphisms (functors) between objects (categories), and morphisms between morphisms (natural transformations). This is the prototype of a <em>2-category</em>, a structure with three levels of data.</p>
+<h3 id="motivation">11.1 Motivation</h3>
+<p>In §5, we defined functor categories <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span> whose objects are functors and whose morphisms are natural transformations. We found two composition operations:</p>
+<ul>
+<li><strong>Vertical composition</strong> (§5.2): given <span class="math inline">\(\alpha: F \Rightarrow G\)</span> and <span class="math inline">\(\beta: G \Rightarrow H\)</span> in <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span>, the composite <span class="math inline">\(\beta \circ \alpha: F \Rightarrow H\)</span> has components <span class="math inline">\((\beta \circ \alpha)_A = \beta_A \circ \alpha_A\)</span>.</li>
+<li><strong>Horizontal composition</strong> (§5.4): given <span class="math inline">\(\alpha: F \Rightarrow G: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(\beta: H \Rightarrow K: \mathcal{D} \to \mathcal{E}\)</span>, the <em>Godement product</em> <span class="math inline">\(\beta * \alpha: HF \Rightarrow KG: \mathcal{C} \to \mathcal{E}\)</span>.</li>
+</ul>
+<p>💡 The existence of two interacting composition operations, together with an interchange law relating them, is precisely the data of a <em>2-category</em>. The category <span class="math inline">\(\mathbf{Cat}\)</span> is the canonical example.</p>
+<h3 id="definition-of-a-2-category">11.2 Definition of a 2-Category</h3>
+<p><strong>Definition (2-category).</strong> A <em>2-category</em> <span class="math inline">\(\mathcal{K}\)</span> consists of:</p>
+<ul>
+<li><strong>0-cells</strong> (objects): a collection <span class="math inline">\(\mathrm{ob}(\mathcal{K})\)</span>, typically denoted <span class="math inline">\(A, B, C, \ldots\)</span></li>
+<li><strong>1-cells</strong> (morphisms between 0-cells): for each pair <span class="math inline">\(A, B\)</span>, a collection <span class="math inline">\(\mathcal{K}(A, B)\)</span> of 1-cells <span class="math inline">\(f: A \to B\)</span>.</li>
+<li><strong>2-cells</strong> (morphisms between 1-cells): for each pair of parallel 1-cells <span class="math inline">\(f, g: A \to B\)</span>, a collection <span class="math inline">\(\mathcal{K}(f, g)\)</span> of 2-cells <span class="math inline">\(\alpha: f \Rightarrow g\)</span>.</li>
+<li><strong>Vertical composition of 2-cells</strong>: for <span class="math inline">\(\alpha: f \Rightarrow g\)</span> and <span class="math inline">\(\beta: g \Rightarrow h\)</span> (same 0-cell boundaries), a 2-cell <span class="math inline">\(\beta \circ_v \alpha: f \Rightarrow h\)</span>, satisfying associativity and unit laws with respect to <em>identity 2-cells</em> <span class="math inline">\(\mathrm{id}_f: f \Rightarrow f\)</span>.</li>
+<li><strong>Horizontal composition of 2-cells</strong> (Godement product): for <span class="math inline">\(\alpha: f \Rightarrow g: A \to B\)</span> and <span class="math inline">\(\beta: h \Rightarrow k: B \to C\)</span>, a 2-cell <span class="math inline">\(\beta *\alpha: h \circ f \Rightarrow k \circ g: A \to C\)</span>.</li>
+<li><strong>Composition and identities for 1-cells</strong>: as in an ordinary category.</li>
+</ul>
+<p>These data must satisfy the <strong>interchange law</strong>:
+<span class="math display">\[(\beta' \circ_v \beta) * (\alpha' \circ_v \alpha) = (\beta' * \alpha') \circ_v (\beta * \alpha),\]</span>
+for composable pairs <span class="math inline">\((\alpha, \alpha')\)</span> of 2-cells with <span class="math inline">\(f \xRightarrow{\alpha} g \xRightarrow{\alpha'} h: A \to B\)</span> and <span class="math inline">\(k \xRightarrow{\beta} l \xRightarrow{\beta'} m: B \to C\)</span>.</p>
+<div class="callout callout-info">
+<p> The interchange law visualized
+The interchange law says that two different ways of composing a <span class="math inline">\(2 \times 2\)</span> grid of 2-cells give the same result:</p>
+<p><span class="math display">\[\begin{array}{ccc} A &amp; \xrightarrow{f} &amp; B &amp; \xrightarrow{h} &amp; C \\ &amp; \Downarrow\!\alpha &amp; &amp; \Downarrow\!\beta &amp; \\ A &amp; \xrightarrow{g} &amp; B &amp; \xrightarrow{k} &amp; C \\ &amp; \Downarrow\!\alpha' &amp; &amp; \Downarrow\!\beta' &amp; \\ A &amp; \xrightarrow{h'} &amp; B &amp; \xrightarrow{m} &amp; C \end{array}\]</span></p>
+<p>One can first compose vertically in each column (getting <span class="math inline">\(\alpha' \circ_v \alpha\)</span> and <span class="math inline">\(\beta' \circ_v \beta\)</span>) and then compose horizontally, or first compose horizontally in each row (getting <span class="math inline">\(\beta * \alpha\)</span> and <span class="math inline">\(\beta' * \alpha'\)</span>) and then compose vertically. The law asserts these are equal.</p>
+</div>
+<div class="callout callout-warning">
+<p> Strict vs. weak 2-categories
+The definition above is for a <em>strict</em> 2-category, where all associativity and unit laws hold on the nose (as equations). A <em>bicategory</em> (also called a <em>weak 2-category</em>) relaxes these to coherent isomorphisms — 2-cells asserting that <span class="math inline">\(f \circ (g \circ h) \cong (f \circ g) \circ h\)</span>, etc. Most naturally occurring examples (<span class="math inline">\(\mathbf{Cat}\)</span>, the 2-category of rings and bimodules) are strict, but higher-dimensional analogues typically require weak structures.</p>
+</div>
+<h3 id="cat-as-a-2-category">11.3 Cat as a 2-Category</h3>
+<p><strong>Theorem.</strong> <span class="math inline">\(\mathbf{Cat}\)</span> is a strict 2-category with:
+- <strong>0-cells:</strong> (small) categories.
+- <strong>1-cells:</strong> functors <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span>.
+- <strong>2-cells:</strong> natural transformations <span class="math inline">\(\alpha: F \Rightarrow G\)</span>.
+- <strong>Vertical composition:</strong> <span class="math inline">\((\beta \circ_v \alpha)_A = \beta_A \circ \alpha_A\)</span> (componentwise composition in <span class="math inline">\(\mathcal{D}\)</span>).
+- <strong>Horizontal composition (Godement product):</strong> <span class="math inline">\((\beta * \alpha)_A = \beta_{GA} \circ H(\alpha_A) = K(\alpha_A) \circ \beta_{FA}\)</span> (both expressions agree by naturality of <span class="math inline">\(\beta\)</span>).
+- <strong>Composition of 1-cells:</strong> functor composition.</p>
+<p>🔑 <strong>The two expressions for horizontal composition are equal precisely because naturality of <span class="math inline">\(\beta\)</span> gives a commutative square.</strong> This is the content of §11.7.</p>
+<div class="callout callout-tip">
+<p> Working with 2-cells in Cat
+When computing in <span class="math inline">\(\mathbf{Cat}\)</span>, remember:
+- Vertical composition is just pointwise composition of natural transformation components.
+- Horizontal composition (whiskering) requires choosing whether to “whisk” with the left or right functor first — but naturality guarantees both choices coincide.
+- The identity 2-cell on a functor <span class="math inline">\(F\)</span> is the natural transformation <span class="math inline">\(\mathrm{id}_F\)</span> with <span class="math inline">\((\mathrm{id}_F)_A = \mathrm{id}_{FA}\)</span>.</p>
+</div>
+<h3 id="functors-and-2-natural-transformations">11.4 2-Functors and 2-Natural Transformations</h3>
+<p><strong>Definition (2-functor).</strong> A <em>strict 2-functor</em> <span class="math inline">\(\Phi: \mathcal{K} \to \mathcal{L}\)</span> between 2-categories assigns:
+- To each 0-cell <span class="math inline">\(A \in \mathcal{K}\)</span>, a 0-cell <span class="math inline">\(\Phi A \in \mathcal{L}\)</span>.
+- To each 1-cell <span class="math inline">\(f: A \to B\)</span>, a 1-cell <span class="math inline">\(\Phi f: \Phi A \to \Phi B\)</span>.
+- To each 2-cell <span class="math inline">\(\alpha: f \Rightarrow g\)</span>, a 2-cell <span class="math inline">\(\Phi \alpha: \Phi f \Rightarrow \Phi g\)</span>.</p>
+<p>preserving all compositions (vertical and horizontal) and all identities (for 0-cells, 1-cells, and 2-cells) strictly.</p>
+<blockquote>
+<p>[!EXAMPLE]- The presheaf 2-functor
+The assignment <span class="math inline">\(\mathcal{C} \mapsto [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> (sending a small category to its presheaf category) extends to a 2-functor <span class="math inline">\(\mathbf{Cat}^{\mathrm{op}} \to \mathbf{CAT}\)</span> (where <span class="math inline">\(\mathbf{CAT}\)</span> is the very large 2-category of all locally small categories):</p>
+<ul>
+<li>A functor <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span> is sent to the <em>precomposition functor</em> <span class="math inline">\(F^*: [\mathcal{D}^{\mathrm{op}}, \mathbf{Set}] \to [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span>, <span class="math inline">\(P \mapsto P \circ F^{\mathrm{op}}\)</span>.</li>
+<li>A natural transformation <span class="math inline">\(\alpha: F \Rightarrow G\)</span> is sent to a natural transformation <span class="math inline">\(\alpha^*: G^* \Rightarrow F^*\)</span> whose component at <span class="math inline">\(P \in [\mathcal{D}^{\mathrm{op}}, \mathbf{Set}]\)</span> is post-composition with <span class="math inline">\(\alpha\)</span>.</li>
+</ul>
+<p>This is contravariant in 1-cells (hence <span class="math inline">\(\mathbf{Cat}^{\mathrm{op}}\)</span>) and covariant in 2-cells. Preservation of compositions follows from associativity of functor composition.</p>
+</blockquote>
+<p><strong>Definition (2-natural transformation).</strong> A <em>2-natural transformation</em> <span class="math inline">\(\Gamma: \Phi \Rightarrow \Psi\)</span> between 2-functors <span class="math inline">\(\Phi, \Psi: \mathcal{K} \to \mathcal{L}\)</span> assigns to each 0-cell <span class="math inline">\(A \in \mathcal{K}\)</span> a 1-cell <span class="math inline">\(\Gamma_A: \Phi A \to \Psi A\)</span> in <span class="math inline">\(\mathcal{L}\)</span>, such that for each 1-cell <span class="math inline">\(f: A \to B\)</span>, there is a <em>specified 2-cell</em> <span class="math inline">\(\Gamma_f: \Gamma_B \circ \Phi f \Rightarrow \Psi f \circ \Gamma_A\)</span> (the 2-dimensional naturality condition), satisfying coherence conditions for 2-cell composition.</p>
+<p><em>Remark.</em> Unlike ordinary natural transformations — whose components are 0-cells (objects) — the components of a 2-natural transformation are 1-cells, and naturality is expressed by a 2-cell filling a square rather than an equation.</p>
+<h3 id="adjunctions-in-a-2-category">11.5 Adjunctions in a 2-Category</h3>
+<p>The notion of adjunction generalizes from <span class="math inline">\(\mathbf{Cat}\)</span> to any 2-category.</p>
+<p><strong>Definition (Adjunction in a 2-category).</strong> An <em>adjunction</em> <span class="math inline">\(F \dashv G\)</span> in a 2-category <span class="math inline">\(\mathcal{K}\)</span> consists of:
+- 0-cells <span class="math inline">\(A, B\)</span>.
+- 1-cells <span class="math inline">\(F: A \to B\)</span> (the <em>left adjoint</em>) and <span class="math inline">\(G: B \to A\)</span> (the <em>right adjoint</em>).
+- 2-cells <span class="math inline">\(\eta: \mathrm{id}_A \Rightarrow G \circ F\)</span> (the <em>unit</em>) and <span class="math inline">\(\varepsilon: F \circ G \Rightarrow \mathrm{id}_B\)</span> (the <em>counit</em>).</p>
+<p>satisfying the <em>triangle identities</em> (expressed as equalities of 2-cells):
+<span class="math display">\[(\varepsilon * \mathrm{id}_F) \circ_v (\mathrm{id}_F * \eta) = \mathrm{id}_F, \qquad (\mathrm{id}_G * \varepsilon) \circ_v (\eta * \mathrm{id}_G) = \mathrm{id}_G.\]</span></p>
+<p>When <span class="math inline">\(\mathcal{K} = \mathbf{Cat}\)</span>, this recovers the usual definition: <span class="math inline">\(F: \mathcal{C} \to \mathcal{D}\)</span>, <span class="math inline">\(G: \mathcal{D} \to \mathcal{C}\)</span>, with unit <span class="math inline">\(\eta: \mathrm{id}_{\mathcal{C}} \Rightarrow GF\)</span> and counit <span class="math inline">\(\varepsilon: FG \Rightarrow \mathrm{id}_{\mathcal{D}}\)</span> satisfying the triangle identities of §8.4.</p>
+<div class="callout callout-tip">
+<p> Adjunctions in 2-categories: what generalizes and what does not
+In <span class="math inline">\(\mathbf{Cat}\)</span>, an adjunction <span class="math inline">\(F \dashv G\)</span> is equivalently described by either the unit-counit data or the hom-set bijection <span class="math inline">\(\mathcal{D}(FA, B) \cong \mathcal{C}(A, GB)\)</span>. In a general 2-category, only the unit-counit formulation generalizes directly (since there are no “hom-sets” for 1-cells in an abstract 2-category). The hom-set bijection requires the 2-category to be <em>locally small</em> (i.e., each hom-category <span class="math inline">\(\mathcal{K}(A, B)\)</span> must be a genuine category with a set of objects).</p>
+</div>
+<h3 id="modifications">11.6 Modifications</h3>
+<p>Having natural transformations between functors and 2-natural transformations between 2-functors, one can go one level higher.</p>
+<p><strong>Definition (Modification).</strong> Given 2-functors <span class="math inline">\(\Phi, \Psi: \mathcal{K} \to \mathcal{L}\)</span> and 2-natural transformations <span class="math inline">\(\Gamma, \Delta: \Phi \Rightarrow \Psi\)</span>, a <em>modification</em> <span class="math inline">\(\Sigma: \Gamma \Rrightarrow \Delta\)</span> assigns to each 0-cell <span class="math inline">\(A \in \mathcal{K}\)</span> a 2-cell <span class="math inline">\(\Sigma_A: \Gamma_A \Rightarrow \Delta_A\)</span> in <span class="math inline">\(\mathcal{L}\)</span>, satisfying a 3-dimensional coherence condition.</p>
+<p><em>Remark.</em> Modifications are the 3-cells of the (strict) 3-category <span class="math inline">\(\mathbf{2CAT}\)</span> of 2-categories, 2-functors, 2-natural transformations, and modifications. This hierarchy — categories, 2-categories, 3-categories, … — is the beginning of the theory of <em><span class="math inline">\((\infty, n)\)</span>-categories</em>, where morphisms exist at all dimensions and become invertible above dimension <span class="math inline">\(n\)</span>.</p>
+<div class="callout callout-question">
+<p> Higher category theory and homotopy
+The relationship between <span class="math inline">\((\infty, 1)\)</span>-categories (where all <span class="math inline">\(k\)</span>-morphisms for <span class="math inline">\(k \geq 2\)</span> are invertible) and homotopy theory is one of the deepest insights of modern mathematics: the homotopy hypothesis asserts that <span class="math inline">\((\infty, 1)\)</span>-categories are equivalent to <em>homotopy types</em> (Kan complexes / <span class="math inline">\(\infty\)</span>-groupoids). This is the foundation of Lurie’s <em>Higher Topos Theory</em> and the work of Voevodsky, Riehl, Verity, and others on homotopy type theory.</p>
+</div>
+<h3 id="the-godement-product">11.7 The Godement Product</h3>
+<p>📐 We make explicit the calculation that defines horizontal composition of natural transformations.</p>
+<p><strong>Proposition (Godement product).</strong> Let <span class="math inline">\(\alpha: F \Rightarrow G: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(\beta: H \Rightarrow K: \mathcal{D} \to \mathcal{E}\)</span> be natural transformations. The <em>Godement product</em> (horizontal composite) <span class="math inline">\(\beta * \alpha: HF \Rightarrow KG: \mathcal{C} \to \mathcal{E}\)</span> has components at <span class="math inline">\(A \in \mathcal{C}\)</span> given by either of the two equal expressions:
+<span class="math display">\[(\beta * \alpha)_A \;=\; K(\alpha_A) \circ \beta_{FA} \;=\; \beta_{GA} \circ H(\alpha_A).\]</span></p>
+<p><em>Proof that both expressions agree.</em> Naturality of <span class="math inline">\(\beta: H \Rightarrow K\)</span> applied to the morphism <span class="math inline">\(\alpha_A: FA \to GA\)</span> in <span class="math inline">\(\mathcal{D}\)</span> gives the commutative square:
+<span class="math display">\[K(\alpha_A) \circ \beta_{FA} = \beta_{GA} \circ H(\alpha_A). \qquad \square\]</span></p>
+<p><strong>Corollary (Interchange law in Cat).</strong> For composable pairs of 2-cells <span class="math inline">\(\alpha: F \Rightarrow G \Rightarrow H: \mathcal{C} \to \mathcal{D}\)</span> and <span class="math inline">\(\beta: K \Rightarrow L \Rightarrow M: \mathcal{D} \to \mathcal{E}\)</span>, denoting vertical composites as <span class="math inline">\(\alpha' \circ \alpha\)</span> and <span class="math inline">\(\beta' \circ \beta\)</span>,
+<span class="math display">\[(\beta' \circ \beta) * (\alpha' \circ \alpha) = (\beta' * \alpha') \circ (\beta * \alpha).\]</span></p>
+<p>🔑 <strong>The interchange law is not an additional axiom in <span class="math inline">\(\mathbf{Cat}\)</span> — it is a consequence of the definition of the Godement product via naturality squares.</strong> It becomes an axiom only when defining abstract 2-categories.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: 2-Categories
+<strong>(i)</strong> Verify the interchange law for <span class="math inline">\(\mathbf{Cat}\)</span>: for composable 2-cells
+<span class="math display">\[F \xRightarrow{\alpha} G \xRightarrow{\alpha'} H : \mathcal{C} \to \mathcal{D}, \qquad K \xRightarrow{\beta} L \xRightarrow{\beta'} M : \mathcal{D} \to \mathcal{E},\]</span>
+show that <span class="math inline">\((\beta' \circ \beta) * (\alpha' \circ \alpha) = (\beta' * \alpha') \circ (\beta * \alpha)\)</span> by computing both sides componentwise using the Godement product formula.</p>
+<p><strong>(ii)</strong> Define a strict 2-functor <span class="math inline">\(\Phi: \mathbf{Cat}^{\mathrm{op}} \to \mathbf{CAT}\)</span>. Show that the assignment <span class="math inline">\(\mathcal{C} \mapsto [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> (taking the presheaf category) extends to such a 2-functor, specifying the action on functors and natural transformations explicitly.</p>
+<p><strong>(iii)</strong> Show that an adjunction <span class="math inline">\(F \dashv G: \mathcal{C} \rightleftharpoons \mathcal{D}\)</span>, when viewed in the 2-category <span class="math inline">\(\mathbf{Cat}\)</span>, satisfies the 2-categorical triangle identities as stated in §11.5. Conversely, verify that the definition of adjunction in any 2-category (via unit and counit 2-cells) implies that the unit <span class="math inline">\(\eta\)</span> and counit <span class="math inline">\(\varepsilon\)</span> are unique given the other, in the sense that a left adjoint <span class="math inline">\(F\)</span> has at most one right adjoint <span class="math inline">\(G\)</span> up to unique isomorphism.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tom Leinster, Part III Category Theory (Cambridge, 2000)</td>
+<td>Original Part III course: 24 lectures, 4 problem sheets; source of all 14 exercises in this note</td>
+<td><a href="https://webhomes.maths.ed.ac.uk/~tl/categories/index.html">Course page</a></td>
+</tr>
+<tr class="even">
+<td>Tom Leinster, <em>Basic Category Theory</em> (Cambridge UP, 2014; arXiv 2016)</td>
+<td>Self-contained introduction to categories, adjunctions, representables, and limits; freely available</td>
+<td><a href="https://arxiv.org/abs/1612.09375">arXiv:1612.09375</a></td>
+</tr>
+<tr class="odd">
+<td>Saunders Mac Lane, <em>Categories for the Working Mathematician</em> (Springer, 1971; 2nd ed. 1998)</td>
+<td>The original comprehensive reference; Leinster calls it “still the best all-round book on the subject”</td>
+<td><a href="https://link.springer.com/book/10.1007/978-1-4757-4721-8">Springer</a></td>
+</tr>
+<tr class="even">
+<td>Francis Borceux, <em>Handbook of Categorical Algebra</em>, 3 vols. (Cambridge UP, 1994)</td>
+<td>Comprehensive modern treatment; covers adjoint functor theorems, monads, enriched categories</td>
+<td><a href="https://www.cambridge.org/core/books/handbook-of-categorical-algebra/AB4CF3C8DC4B1E59A97BF0CF7CCDA9EB">Cambridge UP</a></td>
+</tr>
+<tr class="odd">
+<td>Colin McLarty, <em>Elementary Categories, Elementary Toposes</em> (Oxford UP, 1992)</td>
+<td>Accessible entry point; covers basic category theory en route to topos theory</td>
+<td><a href="https://global.oup.com/academic/product/elementary-categories-elementary-toposes-9780198514732">Oxford UP</a></td>
+</tr>
+<tr class="even">
+<td>F. William Lawvere &amp; Stephen Schanuel, <em>Conceptual Mathematics</em> (Cambridge UP, 1997; 2nd ed. 2009)</td>
+<td>Introductory approach; motivation from first principles</td>
+<td><a href="https://www.cambridge.org/core/books/conceptual-mathematics/C1EC1E30E6B8A34D16FC96F58793D50E">Cambridge UP</a></td>
+</tr>
+<tr class="odd">
+<td>Emily Riehl, <em>Category Theory in Context</em> (Dover, 2016)</td>
+<td>Graduate-level treatment with detailed proofs; freely available online</td>
+<td><a href="https://math.jhu.edu/~eriehl/context.pdf">math.jhu.edu</a></td>
+</tr>
+<tr class="even">
+<td>Samuel Eilenberg &amp; Saunders Mac Lane, “General Theory of Natural Equivalences” (1945)</td>
+<td>Founding paper introducing categories, functors, and natural transformations</td>
+<td><a href="https://www.ams.org/journals/tran/1945-058-00/S0002-9947-1945-0013131-6/">Trans. AMS</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

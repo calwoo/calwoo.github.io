@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>hstu - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>hstu</h1>
+            <article>
+    <section>
+        <p>Jiaqi Zhai, Lucy Liao, Xing Liu, Yueming Wang, Rui Li, Xuan Cao, Leon Gao, Zhaojie Gong, Fangda Gu, Michael He, Yinghai Lu, Yu Shi. Meta Platforms, Inc. arXiv 2402.17152, February 2024.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recommendation paradigm</td>
+<td>Impression-level DLRM: each (user, item) pair scored independently; heterogeneous feature engineering</td>
+<td>Sequential transduction: user history as time series; single generative forward pass covers retrieval and ranking</td>
+<td>+12.4% engagement (ranking), +6.2% retrieval HR@100</td>
+</tr>
+<tr class="even">
+<td>Architecture</td>
+<td>DLRMs with FM-like interactions over static features; Transformers unstable on industrial streaming data</td>
+<td>HSTU: Transformer variant with pointwise attention (no softmax), temporal relative bias, and fused SiLU gating</td>
+<td>Stable training at 1.5T params; NaN-free on industrial streaming data</td>
+</tr>
+<tr class="odd">
+<td>Scale</td>
+<td>DLRM plateau ~200B params; Transformer NaN loss on industrial data</td>
+<td>1.5 trillion parameters; stable training; scaling law across 3 orders of magnitude</td>
+<td>Power-law scaling holds across 3 orders of magnitude in FLOPs</td>
+</tr>
+<tr class="even">
+<td>Inference cost</td>
+<td>Linear in candidates; no amortization across candidates</td>
+<td>M-FALCON: O(n²d) amortized across <span class="math inline">\(b_m\)</span> candidates via modified attention masks</td>
+<td>285× model complexity at 1.5–2.5× throughput improvement</td>
+</tr>
+<tr class="odd">
+<td>Training efficiency</td>
+<td>Impression-level: O(N³d) complexity</td>
+<td>Generative with stochastic length: O(N^α d), α ∈ (1,2]; 5.3–15.2× faster than FlashAttention2</td>
+<td>5.3–15.2× faster than FlashAttention2 on 8192-length sequences</td>
+</tr>
+<tr class="even">
+<td>Online performance</td>
+<td>Baselines</td>
+<td>+12.4% engagement (ranking), +6.2% retrieval HR@100; deployed serving billions of users</td>
+<td>Deployed to billions of users; largest reported rec-sys gains</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../../notes/papers/dhen-ranking%7Cdhen/">papers/dhen-ranking|DHEN</a>
+<strong>Extended by:</strong> <a href="../../../../notes/papers/generative-recommenders/wukong%7Cwukong/">papers/generative-recommenders/wukong|Wukong</a>
+<strong>Concepts used:</strong> <a href="../../../../notes/concepts/ab-testing/foundations%7Ca/b-testing-foundations/">concepts/ab-testing/foundations|A/B Testing Foundations</a>, <a href="../../../../notes/concepts/attention-mechanisms/standard-attention%7Cstandard-attention/">concepts/attention-mechanisms/standard-attention|Standard Attention</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation-and-background%7C1.-motivation-and-background/">#1. Motivation and Background|1. Motivation and Background</a>
+<ul>
+<li><a href="../../../../notes/#1.1-limitations-of-dlrm-style-systems%7C1.1-limitations-of-dlrm-style-systems/">#1.1 Limitations of DLRM-Style Systems|1.1 Limitations of DLRM-Style Systems</a></li>
+<li><a href="../../../../notes/#1.2-why-standard-transformers-fail-on-recommendation-data%7C1.2-why-standard-transformers-fail-on-recommendation-data/">#1.2 Why Standard Transformers Fail on Recommendation Data|1.2 Why Standard Transformers Fail on Recommendation Data</a></li>
+<li><a href="../../../../notes/#1.3-the-generative-recommender-paradigm%7C1.3-the-generative-recommender-paradigm/">#1.3 The Generative Recommender Paradigm|1.3 The Generative Recommender Paradigm</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-sequence-representation%7C2.-sequence-representation/">#2. Sequence Representation|2. Sequence Representation</a>
+<ul>
+<li><a href="../../../../notes/#2.1-unified-time-series%7C2.1-unified-time-series/">#2.1 Unified Time Series|2.1 Unified Time Series</a></li>
+<li><a href="../../../../notes/#2.2-retrieval-vs.-ranking-formulation%7C2.2-retrieval-vs.-ranking-formulation/">#2.2 Retrieval vs. Ranking Formulation|2.2 Retrieval vs. Ranking Formulation</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-hstu-architecture%7C3.-hstu-architecture/">#3. HSTU Architecture|3. HSTU Architecture</a>
+<ul>
+<li><a href="../../../../notes/#3.1-sub-layer-1:-pointwise-projection%7C3.1-sub-layer-1:-pointwise-projection/">#3.1 Sub-Layer 1: Pointwise Projection|3.1 Sub-Layer 1: Pointwise Projection</a></li>
+<li><a href="../../../../notes/#3.2-sub-layer-2:-spatial-aggregation%7C3.2-sub-layer-2:-spatial-aggregation/">#3.2 Sub-Layer 2: Spatial Aggregation|3.2 Sub-Layer 2: Spatial Aggregation</a></li>
+<li><a href="../../../../notes/#3.3-sub-layer-3:-pointwise-transformation%7C3.3-sub-layer-3:-pointwise-transformation/">#3.3 Sub-Layer 3: Pointwise Transformation|3.3 Sub-Layer 3: Pointwise Transformation</a></li>
+<li><a href="../../../../notes/#3.4-why-pointwise-attention-instead-of-softmax%7C3.4-why-pointwise-attention-instead-of-softmax/">#3.4 Why Pointwise Attention Instead of Softmax|3.4 Why Pointwise Attention Instead of Softmax</a></li>
+<li><a href="../../../../notes/#3.5-temporal-relative-attention-bias%7C3.5-temporal-relative-attention-bias/">#3.5 Temporal Relative Attention Bias|3.5 Temporal Relative Attention Bias</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-computational-efficiency%7C4.-computational-efficiency/">#4. Computational Efficiency|4. Computational Efficiency</a>
+<ul>
+<li><a href="../../../../notes/#4.1-generative-training-vs.-impression-level-training%7C4.1-generative-training-vs.-impression-level-training/">#4.1 Generative Training vs. Impression-Level Training|4.1 Generative Training vs. Impression-Level Training</a></li>
+<li><a href="../../../../notes/#4.2-stochastic-length-sparsity%7C4.2-stochastic-length-sparsity/">#4.2 Stochastic Length Sparsity|4.2 Stochastic Length Sparsity</a></li>
+<li><a href="../../../../notes/#4.3-m-falcon:-inference-amortization%7C4.3-m-falcon:-inference-amortization/">#4.3 M-FALCON: Inference Amortization|4.3 M-FALCON: Inference Amortization</a></li>
+<li><a href="../../../../notes/#4.4-memory-efficiency-vs.-standard-transformers%7C4.4-memory-efficiency-vs.-standard-transformers/">#4.4 Memory Efficiency vs. Standard Transformers|4.4 Memory Efficiency vs. Standard Transformers</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-scaling-laws%7C5.-scaling-laws/">#5. Scaling Laws|5. Scaling Laws</a></li>
+<li><a href="../../../../notes/#6.-experiments%7C6.-experiments/">#6. Experiments|6. Experiments</a>
+<ul>
+<li><a href="../../../../notes/#6.1-synthetic-validation:-dirichlet-process-data%7C6.1-synthetic-validation:-dirichlet-process-data/">#6.1 Synthetic Validation: Dirichlet Process Data|6.1 Synthetic Validation: Dirichlet Process Data</a></li>
+<li><a href="../../../../notes/#6.2-public-benchmarks%7C6.2-public-benchmarks/">#6.2 Public Benchmarks|6.2 Public Benchmarks</a></li>
+<li><a href="../../../../notes/#6.3-industrial-streaming-data%7C6.3-industrial-streaming-data/">#6.3 Industrial Streaming Data|6.3 Industrial Streaming Data</a></li>
+<li><a href="../../../../notes/#6.4-online-a/b-tests%7C6.4-online-a/b-tests/">#6.4 Online A/B Tests|6.4 Online A/B Tests</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-relation-to-wukong%7C7.-relation-to-wukong/">#7. Relation to Wukong|7. Relation to Wukong</a></li>
+<li><a href="../../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-and-background">1. Motivation and Background</h2>
+<h3 id="limitations-of-dlrm-style-systems">1.1 Limitations of DLRM-Style Systems</h3>
+<p><em>Deep Learning Recommendation Models</em> (DLRMs) process each (user, item) impression independently: given a user context <span class="math inline">\(u\)</span> and candidate item <span class="math inline">\(x\)</span>, they output <span class="math inline">\(p(\text{click} \mid u, x)\)</span>. The pipeline requires:</p>
+<ol type="1">
+<li>Extensive <em>feature engineering</em>: hand-crafted numerical features (recency, click-through rates, session counts) in addition to raw categorical IDs.</li>
+<li><em>Impression-level training</em>: each example in the training batch is one (user, item, label) triple. For a user with <span class="math inline">\(n_i\)</span> historical interactions, scoring all items requires <span class="math inline">\(n_i\)</span> separate forward passes.</li>
+<li><em>Separate models</em> for retrieval and ranking: different architectures, training pipelines, and feature sets.</li>
+</ol>
+<p>These choices introduce fundamental scalability barriers:
+- Feature engineering is human-bottlenecked: numerical features capture only what engineers think to measure.
+- Impression-level training complexity scales as <span class="math inline">\(O(N^3 d)\)</span> where <span class="math inline">\(N = \max_i n_i\)</span> is the maximum sequence length (shown in Section 4.1).
+- Separate retrieval/ranking pipelines double infrastructure cost and prevent knowledge transfer between stages.</p>
+<p><strong>Why DLRMs fail to scale with compute (Zhao et al., 2023).</strong> The HSTU paper cites Zhao et al. (KDD 2023) as empirical grounding for the scaling failure. Their paper identifies a precise mechanism they term <em>quality saturation</em>: DLRM-style systems that represent items with per-ID embeddings (<em>item-centric ranking</em>, ICR) encounter a parameter explosion as the item inventory grows.</p>
+<p>On creator-economy platforms (feeds, short video), the item inventory grows linearly over time: <span class="math inline">\(|\mathcal{I}| = O(t)\)</span>. Total parameter count therefore grows as:</p>
+<p><span class="math display">\[\text{params}(t) = \text{const} + |\mathcal{I}(t)| \cdot d\]</span></p>
+<p>Meanwhile, the total training data volume grows only as <span class="math inline">\(O(t)\)</span> as well — so the training signal per parameter stays constant rather than improving. Zhao et al. show this leads to a hard asymptotic error floor:</p>
+<p><span class="math display">\[\mathbb{E}\left[\|\hat{\theta}_t - \theta^*\|^2\right]_{\text{ICR}} = \Omega(1) \quad \text{as } t \to \infty\]</span></p>
+<p>compared to <span class="math inline">\(O(1/t)\)</span> for their proposed user-centric alternative. <em>This is not a data problem — it holds even as training data grows without bound.</em> The parameter count simply outruns the available training signal because item embeddings are <em>ephemeral</em>: items leave the inventory (videos deleted, ads expired), and their embeddings accumulate signal briefly before becoming irrelevant. The model cannot amortize compute over a stable vocabulary the way LLMs amortize over a fixed token set.</p>
+<p>Concretely, at 60 days of training data, an ICR model is <strong>21× larger</strong> in total parameters than a user-centric counterpart trained on identical data — yet achieves worse metric performance. Increasing embedding dimension (a direct proxy for model capacity and compute) causes ICR to <em>degrade</em> in production experiments (Table 4 of Zhao et al.), while the user-centric model continues to improve. Distribution drift compounds the problem: model quality degrades significantly within 24 hours of training cutoff on fast-moving item distributions, so additional compute invested in a larger ICR model depreciates rapidly.</p>
+<p>HSTU’s response to this analysis is to abandon per-item embeddings as the primary modeling unit and instead treat recommendation as sequential transduction over a bounded, dense user action space — sidestepping the parameter explosion entirely.</p>
+<h3 id="why-standard-transformers-fail-on-recommendation-data">1.2 Why Standard Transformers Fail on Recommendation Data</h3>
+<p>The natural candidate for replacing DLRMs is the Transformer, which already models sequential data via <a href="../../../../notes/concepts/attention-mechanisms/standard-attention%7Cself-attention/">concepts/attention-mechanisms/standard-attention|self-attention</a>. However, naively applying Transformers to industrial recommendation data fails for three reasons:</p>
+<ol type="1">
+<li><p><strong>Non-stationarity.</strong> User interests shift over time; the item vocabulary changes continuously (new items appear, old ones disappear). Standard Transformers assume a fixed vocabulary and stationary distribution. The non-stationary vocabulary makes softmax attention counterproductive (see Section 3.4).</p></li>
+<li><p><strong>High cardinality.</strong> Recommendation vocabularies contain billions of items. Unlike NLP (50K tokens), the embedding matrix alone can exceed terabytes.</p></li>
+<li><p><strong>Numerical instability.</strong> On industrial streaming data with variable sequence lengths and non-stationary distributions, Transformers produce NaN loss during training (Table 4 shows this empirically — Transformers fail outright on the industrial streaming task).</p></li>
+</ol>
+<h3 id="the-generative-recommender-paradigm">1.3 The Generative Recommender Paradigm</h3>
+<p>HSTU reformulates recommendation as <em>sequential transduction</em>: given the user’s history <span class="math inline">\(h = (x_0, x_1, \ldots, x_{n-1})\)</span> as an ordered time series, predict the next item <span class="math inline">\(x_n\)</span> (retrieval) or the action <span class="math inline">\(a_n\)</span> the user will take on item <span class="math inline">\(x_n\)</span> (ranking).</p>
+<p>This shift has three consequences:</p>
+<ol type="1">
+<li><strong>Unified model</strong>: a single encoder handles both retrieval (next-item prediction) and ranking (next-action prediction) in the same forward pass.</li>
+<li><strong>Training efficiency</strong>: a single sequence generates many training signals (one per history position), eliminating the need for impression-level batching.</li>
+<li><strong>Feature simplification</strong>: raw categorical IDs in chronological order replace engineered numerical features.</li>
+</ol>
+<hr />
+<h2 id="sequence-representation">2. Sequence Representation</h2>
+<h3 id="unified-time-series">2.1 Unified Time Series</h3>
+<p>All user interactions are merged into a single <em>chronological time series</em>. Each event is represented by its item embedding <span class="math inline">\(\mathbf{x}_t \in \mathbb{R}^d\)</span> (from an item ID lookup). Numerical features such as click-through rates, session statistics, and dwell times are <em>removed</em> — the model is expected to infer these implicitly from the action sequence itself.</p>
+<p>The sequence for user <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[h_i = (x_0, x_1, \ldots, x_{n_i - 1}) \in \mathbb{R}^{n_i \times d}\]</span></p>
+<blockquote>
+<p><strong>Aside: what does “target-aware” mean?</strong> In recommendation, you’re always scoring a specific candidate item (the “target”) against a user’s history. A model is <em>target-aware</em> if the user representation it computes depends on which candidate is being scored. A context-free model sum-pools history into one fixed vector <span class="math inline">\(\mathbf{u}\)</span> used identically for every candidate. A target-aware model recomputes <span class="math inline">\(\mathbf{v}_U(A)\)</span> per candidate, upweighting history items semantically related to <span class="math inline">\(A\)</span> and downweighting irrelevant ones — so the same user appears different when scoring a tennis racket vs. a laptop. This is strictly more expressive than any static numerical feature, which commits to a fixed aggregation at engineering time.</p>
+</blockquote>
+<p><strong>Why removing numerical features is justified: the DIN argument (Zhou et al., 2018).</strong> This design choice rests on an observation from the <em>Deep Interest Network</em> paper: the role that handcrafted numerical features play is to summarize the relevance of a user’s behavioral history to the candidate item being scored. Typical features include:</p>
+<ul>
+<li><strong>Weighted/decayed counters</strong>: “number of clicks on sports items in the past 7 days” (approximates recent interest in a category)</li>
+<li><strong>Engagement ratios</strong>: <span class="math inline">\(\text{CTR} = \frac{\text{clicks on category } c}{\text{impressions on category } c}\)</span> (approximates preference intensity per category)</li>
+<li><strong>Aggregated cross-product features</strong>: clicks broken down by (category, brand, price tier) to capture fine-grained preference slices</li>
+</ul>
+<p>All of these are <em>fixed, pre-computed aggregations</em> over the raw history — they collapse the sequence into a scalar or small vector that human engineers believe is informative. The fundamental limitation is that they are <em>context-free</em>: a feature like “7-day sports CTR” is the same regardless of whether the current candidate is a tennis racket or running shoes.</p>
+<p>DIN replaces static pooling with a <strong>local activation unit</strong> that produces a candidate-conditioned user representation:</p>
+<p><span class="math display">\[\mathbf{v}_U(A) = \sum_{j=1}^{H} a(\mathbf{e}_j,\, \mathbf{v}_A)\cdot \mathbf{e}_j\]</span></p>
+<p>where <span class="math inline">\(\mathbf{v}_A\)</span> is the candidate item embedding, <span class="math inline">\(\{\mathbf{e}_j\}\)</span> are history item embeddings, and the scalar weights <span class="math inline">\(a(\mathbf{e}_j, \mathbf{v}_A)\)</span> are output by a small MLP applied to the concatenation <span class="math inline">\([\mathbf{e}_j,\ \mathbf{v}_A,\ \mathbf{e}_j \odot \mathbf{v}_A,\ \mathbf{e}_j \otimes \mathbf{v}_A]\)</span>. The outer product term <span class="math inline">\(\mathbf{e}_j \otimes \mathbf{v}_A\)</span> gives the network explicit access to cross-item feature interactions. Crucially, the weights are <strong>not softmax-normalized</strong> — the magnitude of <span class="math inline">\(\mathbf{v}_U(A)\)</span> encodes preference <em>intensity</em>, not just relative attention.</p>
+<p>The consequence is that DIN subsumes numerical aggregates: the model can learn to selectively upweight the subset of history behaviors semantically related to the candidate, dynamically recomputing what a “sports CTR” counter would have captured but conditioned on the specific candidate at inference time. This is strictly more expressive — it adapts the aggregation to each candidate rather than committing to a single feature partition at feature engineering time.</p>
+<p>HSTU extends this logic to its limit: given a <em>sufficiently expressive</em> sequential transducer (HSTU layers stacked to 1.5T parameters) operating over the full user history, the model can implicitly recompute arbitrary candidate-conditioned aggregations that any handcrafted numerical feature encodes — while also capturing higher-order temporal patterns no static feature could represent. At scale, the raw action sequence is informationally richer than any fixed derived feature set.</p>
+<h3 id="retrieval-vs.-ranking-formulation">2.2 Retrieval vs. Ranking Formulation</h3>
+<p><strong>Retrieval task.</strong> Given history <span class="math inline">\(h_i\)</span> up to position <span class="math inline">\(t\)</span>, the model produces a hidden state <span class="math inline">\(u_t \in \mathbb{R}^d\)</span> and scores all content items:</p>
+<p><span class="math display">\[\text{retrieve: } \arg\max_{x \in \mathcal{X}_c} p(x \mid u_t)\]</span></p>
+<p>where <span class="math inline">\(\mathcal{X}_c\)</span> is the content item vocabulary. Training uses a masked language modeling objective: at each position <span class="math inline">\(t\)</span>, predict <span class="math inline">\(x_{t+1}\)</span> from <span class="math inline">\(u_t\)</span>. A mask <span class="math inline">\(m_t = 0\)</span> when the output is undefined (e.g., non-engagement actions like impressions without clicks).</p>
+<p><strong>Ranking task.</strong> Item events and action events are interleaved:</p>
+<p><span class="math display">\[h_i^{\text{rank}} = (x_0, a_0, x_1, a_1, \ldots, x_{n-1}, a_{n-1})\]</span></p>
+<p>where <span class="math inline">\(a_t \in \{0, 1\}\)</span> (or a richer action space) is the user’s response to item <span class="math inline">\(x_t\)</span>. During ranking inference, the target item <span class="math inline">\(x_{\text{target}}\)</span> is appended, and the model attends over the full history to predict <span class="math inline">\(a_{\text{target}}\)</span>. This <em>target-aware cross-attention</em> is handled in a single forward pass by including the target in the sequence with a special mask.</p>
+<hr />
+<h2 id="hstu-architecture">3. HSTU Architecture</h2>
+<p>The <em>Hierarchical Sequential Transduction Unit</em> (HSTU) is a single block that replaces the Transformer block. Each HSTU layer applies three sub-layers in sequence:</p>
+<h3 id="sub-layer-1-pointwise-projection">3.1 Sub-Layer 1: Pointwise Projection</h3>
+<p><span class="math display">\[U(X),\ V(X),\ Q(X),\ K(X) = \text{Split}\!\left(\varphi_1\!\left(f_1(X)\right)\right)\]</span></p>
+<p>where:
+- <span class="math inline">\(f_1(X) = W_1 X + b_1\)</span> is a single linear projection expanding the embedding dimension by 4×.
+- <span class="math inline">\(\varphi_1\)</span> is the <em>SiLU</em> (Sigmoid Linear Unit) nonlinearity: <span class="math inline">\(\text{SiLU}(z) = z \cdot \sigma(z)\)</span>.
+- <span class="math inline">\(\text{Split}\)</span> partitions the 4×-expanded projection into four equal parts: <span class="math inline">\(U, V, Q, K \in \mathbb{R}^{n \times d}\)</span>.</p>
+<p><strong>Motivation:</strong> The four-way split separates the representation into two roles:
+- <span class="math inline">\(Q, K\)</span> are used for <em>spatial aggregation</em> (computing attention weights).
+- <span class="math inline">\(U\)</span> is used for <em>gating</em> after aggregation.
+- <span class="math inline">\(V\)</span> is used for <em>value aggregation</em>.</p>
+<p>The SiLU nonlinearity (rather than ReLU) provides smooth gating behavior and was empirically found to stabilize training on non-stationary data.</p>
+<h3 id="sub-layer-2-spatial-aggregation">3.2 Sub-Layer 2: Spatial Aggregation</h3>
+<p><span class="math display">\[A(X) V(X) = \varphi_2\!\left(Q(X) K(X)^\top + \text{rab}^{p,t}\right) V(X)\]</span></p>
+<p>where:
+- <span class="math inline">\(Q(X) K(X)^\top \in \mathbb{R}^{n \times n}\)</span> is the standard unnormalized attention score matrix.
+- <span class="math inline">\(\text{rab}^{p,t}\)</span> is a <em>relative attention bias</em> incorporating both positional (<span class="math inline">\(p\)</span>) and temporal (<span class="math inline">\(t\)</span>) information (see Section 3.5).
+- <span class="math inline">\(\varphi_2\)</span> is again SiLU — applied <em>elementwise</em> to each attention score before multiplying by <span class="math inline">\(V\)</span>.
+- Crucially, <strong>there is no softmax normalization</strong>.</p>
+<p><strong>Motivation:</strong> This is the central architectural departure from Transformers. See Section 3.4 for the detailed argument.</p>
+<h3 id="sub-layer-3-pointwise-transformation">3.3 Sub-Layer 3: Pointwise Transformation</h3>
+<p><span class="math display">\[Y(X) = f_2\!\left(\text{Norm}\!\left(A(X) V(X)\right) \odot U(X)\right)\]</span></p>
+<p>where:
+- <span class="math inline">\(\text{Norm}\)</span> is layer normalization applied to the aggregated values.
+- <span class="math inline">\(\odot\)</span> is elementwise (Hadamard) multiplication — this is the <em>gating</em> step.
+- <span class="math inline">\(f_2\)</span> is a final linear projection back to dimension <span class="math inline">\(d\)</span>.</p>
+<p><strong>Motivation for gating:</strong> The multiplicative interaction <span class="math inline">\(\text{Norm}(AV) \odot U\)</span> is a <em>content-dependent gate</em>: <span class="math inline">\(U\)</span> (derived from the input <span class="math inline">\(X\)</span> via <span class="math inline">\(f_1\)</span>) modulates how much of the aggregated value to pass through. This is similar to the gated mechanism in GRUs, but applied pointwise. It allows the model to suppress irrelevant aggregated information at each position.</p>
+<p><img src="figures/hstu-block-diagram.png" alt="Figure 3 from Zhai et al. (2024): Side-by-side comparison of DLRM vs. Generative Recommender (HSTU) architectures, showing the HSTU block’s three sub-layers: Pointwise Projection, Spatial Aggregation (pointwise attention), and Pointwise Transformation with gating" />
+<em>Figure 3 (Zhai et al., 2024): Architecture comparison of traditional DLRMs (left) vs. Generative Recommenders using HSTU (right). The HSTU block replaces the Transformer block with three sequential sub-layers: (1) a pointwise SiLU projection expanding to <span class="math inline">\(U, V, Q, K\)</span>; (2) spatial aggregation via <span class="math inline">\(\varphi_2(QK^\top + \text{rab}) V\)</span> without softmax normalization; and (3) a pointwise transformation gating the aggregated values by <span class="math inline">\(U\)</span>.</em></p>
+<h3 id="why-pointwise-attention-instead-of-softmax">3.4 Why Pointwise Attention Instead of Softmax</h3>
+<p>The key departure is replacing softmax with SiLU. This is motivated by a formal argument about <em>non-stationary vocabularies</em>.</p>
+<p><strong>Softmax normalization forces</strong>: <span class="math inline">\(\sum_j \alpha_{ij} = 1\)</span> for each query <span class="math inline">\(i\)</span>. This <em>normalizes away the magnitude</em> of preference signals. If a user strongly prefers item <span class="math inline">\(j\)</span>, the attention weight <span class="math inline">\(\alpha_{ij}\)</span> is high relative to others — but the absolute magnitude <span class="math inline">\(q_i^\top k_j\)</span> is lost in the normalization.</p>
+<p><strong>The non-stationarity problem</strong>: In recommendation, user preferences are non-stationary — the set of relevant items and actions changes over time. Under a Dirichlet Process model of item popularity (a realistic model for streaming recommendation data), the authors show that softmax attention is suboptimal because it cannot distinguish <em>how strongly</em> the user prefers an item — only <em>relatively</em> among the current candidate set.</p>
+<p><strong>Empirical validation</strong> (Table 1 on synthetic Dirichlet Process data):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>HR@10</th>
+<th>HR@50</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard Transformer (softmax)</td>
+<td>0.0442</td>
+<td>0.2025</td>
+</tr>
+<tr class="even">
+<td>HSTU (no rab, softmax)</td>
+<td>0.0617</td>
+<td>0.2496</td>
+</tr>
+<tr class="odd">
+<td>HSTU (no rab, pointwise SiLU)</td>
+<td>0.0893</td>
+<td>0.3170</td>
+</tr>
+</tbody>
+</table>
+<p>The gap between softmax and pointwise HSTU is <strong>44.7% relative</strong> on HR@10 — a dramatic validation of the theoretical argument.</p>
+<p><img src="figures/hstu-dlrm-comparison.png" alt="Figure 2 from Zhai et al. (2024): Comparison of DLRMs vs. Generative Recommenders (GRs) showing unified vs. heterogeneous feature handling, impression-level vs. generative training objectives, and the architectural shift from separate retrieval/ranking pipelines to a single sequential transducer" />
+<em>Figure 2 (Zhai et al., 2024): The paradigm shift from DLRMs to Generative Recommenders. DLRMs (left) require separate feature engineering for numerical and categorical features, impression-level training, and distinct retrieval/ranking pipelines. HSTU-based GRs (right) consume raw categorical sequences in a single forward pass, using a unified generative objective that simultaneously trains retrieval and ranking.</em></p>
+<h3 id="temporal-relative-attention-bias">3.5 Temporal Relative Attention Bias</h3>
+<p>The term <span class="math inline">\(\text{rab}^{p,t}\)</span> adds a learned bias to each attention score based on the <em>relative position</em> and <em>relative time</em> between positions <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>:</p>
+<p><span class="math display">\[\text{rab}^{p,t}_{ij} = b^p_{|i-j|} + b^t_{\lfloor \log_2(\Delta t_{ij}) \rfloor}\]</span></p>
+<p>where <span class="math inline">\(\Delta t_{ij}\)</span> is the elapsed time (in seconds) between events <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, log-bucketed. This encodes two inductive biases:
+- <strong>Positional locality</strong>: recent interactions are more relevant (captured by position offset <span class="math inline">\(|i-j|\)</span>).
+- <strong>Temporal recency</strong>: items interacted with recently (small <span class="math inline">\(\Delta t\)</span>) are more relevant (log-scale bucketing covers seconds to months).</p>
+<p><strong>Motivation:</strong> Absolute positional encodings (sinusoidal or learned) assume a fixed sequence structure, which is violated when sequence lengths vary by orders of magnitude (some users have 10 interactions, others have 100,000). Relative biases are invariant to absolute position and generalize across sequence lengths.</p>
+<hr />
+<h2 id="computational-efficiency">4. Computational Efficiency</h2>
+<h3 id="generative-training-vs.-impression-level-training">4.1 Generative Training vs. Impression-Level Training</h3>
+<p><strong>Where the per-pass cost comes from.</strong> An attention-based model processing a sequence of length <span class="math inline">\(n\)</span> has two dominant operations per layer:</p>
+<ol type="1">
+<li><em>Self-attention</em>: the query-key product <span class="math inline">\(QK^\top \in \mathbb{R}^{n \times n}\)</span> requires <span class="math inline">\(n^2\)</span> dot products, each over a <span class="math inline">\(d\)</span>-dimensional vector — cost <span class="math inline">\(O(n^2 d)\)</span>.</li>
+<li><em>Feed-forward</em>: a position-wise MLP with hidden dimension <span class="math inline">\(d_{\text{ff}}\)</span> applies an <span class="math inline">\(O(d_{\text{ff}} d)\)</span> operation at each of the <span class="math inline">\(n\)</span> positions — cost <span class="math inline">\(O(n d_{\text{ff}} d)\)</span>.</li>
+</ol>
+<p>A single forward pass over a sequence of length <span class="math inline">\(n_i\)</span> therefore costs <span class="math inline">\(O(n_i^2 d + n_i d_{\text{ff}} d)\)</span>.</p>
+<hr />
+<p><strong>Impression-level training.</strong> In DLRM-style training, each user contributes <span class="math inline">\(n_i\)</span> independent training examples — one per logged impression. Each example is a tuple <span class="math inline">\((\text{user features},\ x_t,\ y_t)\)</span> where <span class="math inline">\(x_t\)</span> is the item shown in that impression and <span class="math inline">\(y_t \in \{0,1\}\)</span> is whether the user clicked. The model takes the user’s compressed representation (built from history aggregates and engineered features) together with <span class="math inline">\(x_t\)</span>’s features and predicts <span class="math inline">\(p(\text{click} \mid u, x_t)\)</span>. Each example is processed as a fully independent forward pass — there is no mechanism to share computation across the <span class="math inline">\(n_i\)</span> examples belonging to the same user. To train on all <span class="math inline">\(n_i\)</span> impressions for user <span class="math inline">\(i\)</span>, the model runs <span class="math inline">\(n_i\)</span> <em>separate</em> forward passes:</p>
+<p><span class="math display">\[\text{Cost}_i^{\text{impression}} = n_i \cdot \underbrace{\left(n_i^2 d + n_i d_{\text{ff}} d\right)}_{\text{one forward pass of length } n_i}\]</span></p>
+<p>Summing over users and bounding by the worst case <span class="math inline">\(N = \max_i n_i\)</span>:</p>
+<p><span class="math display">\[\sum_i \text{Cost}_i^{\text{impression}} = O(N^3 d + N^2 d_{\text{ff}} d)\]</span></p>
+<p>Why <span class="math inline">\(n_i\)</span> separate passes? Because impression-level training processes each (user, candidate) pair as a self-contained example — there is no mechanism to share computation across the <span class="math inline">\(n_i\)</span> targets of the same user. Each pass encodes the full user history into a fixed-length vector and scores one target against it.</p>
+<hr />
+<p><strong>Generative training.</strong> The generative approach replaces <span class="math inline">\(n_i\)</span> separate passes with a single <em>teacher-forced</em> forward pass under a causal mask. Concretely:</p>
+<ul>
+<li>The full sequence <span class="math inline">\((x_0, x_1, \ldots, x_{n_i - 1})\)</span> is fed into the model at once.</li>
+<li>A <em>causal mask</em> enforces that position <span class="math inline">\(t\)</span> can only attend to positions <span class="math inline">\(0, \ldots, t-1\)</span> — the model never sees the future within the same pass.</li>
+<li>The output at position <span class="math inline">\(t\)</span> is a prediction of <span class="math inline">\(x_{t+1}\)</span>, using only the causal prefix.</li>
+</ul>
+<p>One forward pass at cost <span class="math inline">\(O(n_i^2 d + n_i d_{\text{ff}} d)\)</span> therefore produces <em>all</em> <span class="math inline">\(n_i\)</span> predictions simultaneously. The causal mask makes this informationally equivalent to running <span class="math inline">\(n_i\)</span> separate prefix-conditioned passes — but shares the <span class="math inline">\(O(n_i^2 d)\)</span> attention computation across all predictions rather than repeating it <span class="math inline">\(n_i\)</span> times.</p>
+<hr />
+<p><strong>The role of <span class="math inline">\(s_u(n_i)\)</span>.</strong> Even though the generative forward pass produces <span class="math inline">\(n_i\)</span> predictions, you don’t necessarily compute the loss — and backpropagate gradients — for all of them. The scalar <span class="math inline">\(s_u(n_i) \in (0, 1]\)</span> is the <em>fraction of positions sampled as loss targets</em> in a given training step.</p>
+<p>Two reasons to set <span class="math inline">\(s_u &lt; 1\)</span>:</p>
+<ol type="1">
+<li><strong>Gradient normalization.</strong> A user with <span class="math inline">\(n_i = 10{,}000\)</span> interactions would contribute 1,000× more gradient signal than a user with <span class="math inline">\(n_i = 10\)</span> if all positions were used. Setting <span class="math inline">\(s_u(n_i) = c / n_i\)</span> for a constant <span class="math inline">\(c\)</span> equalizes each user’s contribution regardless of sequence length.</li>
+<li><strong>Output projection cost.</strong> Predicting the next item requires projecting the hidden state <span class="math inline">\(u_t \in \mathbb{R}^d\)</span> into the item embedding space — a cost of <span class="math inline">\(O(d^2)\)</span> or <span class="math inline">\(O(d \cdot |\mathcal{V}|)\)</span> per position. For large item vocabularies, this per-position output cost dominates if all <span class="math inline">\(n_i\)</span> positions are used.</li>
+</ol>
+<p>The key point is that <strong><span class="math inline">\(s_u\)</span> does not affect the attention computation</strong>. The <span class="math inline">\(O(n_i^2 d)\)</span> forward pass is incurred once regardless of how many targets are sampled — you cannot avoid attending over the full sequence just because you only want one prediction. <span class="math inline">\(s_u\)</span> only controls how many output projections and loss evaluations follow the shared forward pass.</p>
+<p><strong>Example.</strong> Say user <span class="math inline">\(i\)</span> has history <span class="math inline">\((x_0, x_1, x_2, x_3, x_4)\)</span>. One causal forward pass produces hidden states at every position:</p>
+<p><span class="math display">\[\underbrace{x_0 \to u_0,\quad x_1 \to u_1,\quad x_2 \to u_2,\quad x_3 \to u_3,\quad x_4 \to u_4}_{\text{one forward pass, cost } O(n_i^2 d)}\]</span></p>
+<p>where <span class="math inline">\(u_t\)</span> is conditioned on <span class="math inline">\((x_0, \ldots, x_t)\)</span> only (enforced by the causal mask). Each <span class="math inline">\(u_t\)</span> can predict the next item <span class="math inline">\(x_{t+1}\)</span>, giving four candidate loss targets:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Position <span class="math inline">\(t\)</span></th>
+<th>Prediction</th>
+<th>Ground truth</th>
+<th>Compute loss?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td><span class="math inline">\(\text{proj}(u_0) \approx x_1\)</span></td>
+<td><span class="math inline">\(x_1\)</span></td>
+<td>maybe</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td><span class="math inline">\(\text{proj}(u_1) \approx x_2\)</span></td>
+<td><span class="math inline">\(x_2\)</span></td>
+<td>maybe</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td><span class="math inline">\(\text{proj}(u_2) \approx x_3\)</span></td>
+<td><span class="math inline">\(x_3\)</span></td>
+<td>maybe</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><span class="math inline">\(\text{proj}(u_3) \approx x_4\)</span></td>
+<td><span class="math inline">\(x_4\)</span></td>
+<td>maybe</td>
+</tr>
+</tbody>
+</table>
+<p>With <span class="math inline">\(s_u = 1/n_i = 1/5\)</span>, one position is sampled at random — say <span class="math inline">\(t = 2\)</span>. Only <span class="math inline">\(-\log p(x_3 \mid u_2)\)</span> is evaluated; the hidden states at positions 0, 1, 3 are computed but discarded. The <span class="math inline">\(O(n_i^2 d)\)</span> attention cost was already paid for all of them.</p>
+<p>Setting <span class="math inline">\(s_u(n_i) = 1/n_i\)</span> (one target per user per step), the total cost per user is:</p>
+<p><span class="math display">\[\text{Cost}_i^{\text{generative}} = \underbrace{n_i^2 d + n_i d_{\text{ff}} d}_{\text{forward pass (fixed)}} + \underbrace{\frac{1}{n_i} \cdot n_i \cdot d^2}_{s_u \cdot n_i \text{ output projections}} = n_i^2 d + n_i d_{\text{ff}} d + d^2\]</span></p>
+<p>Dropping the <span class="math inline">\(d^2\)</span> term (dominated for large <span class="math inline">\(n_i\)</span>) and summing over users:</p>
+<p><span class="math display">\[\sum_i \text{Cost}_i^{\text{generative}} = O(N^2 d + N d_{\text{ff}} d)\]</span></p>
+<p><strong>This is an <span class="math inline">\(O(N)\)</span> reduction</strong> relative to impression-level training. A user with 1,000 interactions costs <span class="math inline">\(O(N^2 d)\)</span> rather than <span class="math inline">\(O(N^3 d)\)</span>, simply because the forward pass is shared across all their predictions instead of repeated for each one.</p>
+<h3 id="stochastic-length-sparsity">4.2 Stochastic Length Sparsity</h3>
+<p>Long sequences (power-law distributed in real recommendation data) dominate attention cost. HSTU handles them via <em>stochastic length</em> (SL) truncation. Let <span class="math inline">\(N^\alpha\)</span> be a target complexity budget with <span class="math inline">\(\alpha \in (1, 2]\)</span>. For user <span class="math inline">\(i\)</span> with sequence length <span class="math inline">\(n_i\)</span>:</p>
+<p><span class="math display">\[\text{SL}(n_i, N^{\alpha/2}) = \begin{cases}
+(x_0, \ldots, x_{n_i-1}) &amp; \text{if } n_i \leq N^{\alpha/2} \\
+\Gamma(n_i, N^{\alpha/2}) &amp; \text{if } n_i &gt; N^{\alpha/2},\ \text{with probability } 1 - N^\alpha / n_i^2 \\
+(x_0, \ldots, x_{n_i-1}) &amp; \text{if } n_i &gt; N^{\alpha/2},\ \text{with probability } N^\alpha / n_i^2
+\end{cases}\]</span></p>
+<p>where <span class="math inline">\(\Gamma(n_i, N^{\alpha/2})\)</span> denotes random subsampling to length <span class="math inline">\(N^{\alpha/2}\)</span>.</p>
+<p>The expected attention cost per user becomes <span class="math inline">\(O(N^\alpha d)\)</span>. With <span class="math inline">\(\alpha &lt; 2\)</span>, this is subquadratic. For <span class="math inline">\(\alpha = 1.5\)</span>, for example, a sequence of length <span class="math inline">\(10^6\)</span> has effective cost <span class="math inline">\(O(10^9)\)</span> instead of <span class="math inline">\(O(10^{12})\)</span>.</p>
+<p><em>Empirically</em>, this achieves 80%+ sparsity on long-tail users with less than 0.2% metric degradation.</p>
+<h3 id="m-falcon-inference-amortization">4.3 M-FALCON: Inference Amortization</h3>
+<p>At inference time, ranking requires scoring <span class="math inline">\(b_m\)</span> candidate items. Naively, each candidate requires a separate forward pass: cost <span class="math inline">\(O(b_m \cdot n^2 d)\)</span>.</p>
+<p>M-FALCON (<em>Microbatch FALCON</em>) processes <span class="math inline">\(b_m\)</span> candidates simultaneously by modifying attention masks so that candidate items attend to user history but not to each other:</p>
+<ul>
+<li>User history of length <span class="math inline">\(n\)</span> is computed once: cost <span class="math inline">\(O(n^2 d)\)</span>.</li>
+<li>Each candidate <span class="math inline">\(x_c\)</span> attends to the history via cross-attention: cost <span class="math inline">\(O(n d)\)</span> per candidate.</li>
+<li>Total: <span class="math inline">\(O(n^2 d + b_m n d)\)</span> — amortized to effectively <span class="math inline">\(O(n^2 d)\)</span> when <span class="math inline">\(b_m \ll n\)</span>.</li>
+</ul>
+<p>The relative attention bias <span class="math inline">\(\text{rab}^{p,t}\)</span> is modified to place candidates at a consistent temporal position relative to the user history, enabling consistent attention patterns across the microbatch.</p>
+<p>This achieves 5.6× inference speedup and allows a <strong>285× model complexity increase</strong> while maintaining 1.5–2.5× throughput improvements in production.</p>
+<p><img src="figures/hstu-mfalcon-throughput.png" alt="Figure 7 from Zhai et al. (2024): M-FALCON inference throughput — queries per second (QPS) vs. candidates scored per microbatch, for GR at 101× FLOPs, GR at 285× FLOPs, and DLRM at 1× FLOPs baseline" />
+<em>Figure 7 (Zhai et al., 2024): M-FALCON inference throughput. By processing <span class="math inline">\(b_m\)</span> candidate items simultaneously via modified attention masks (candidates attend to history but not each other), GR at 285× model complexity achieves 1.3–1.9× the throughput of the DLRM baseline (red line) for microbatch sizes <span class="math inline">\(m \geq 256\)</span>. The amortization effect is visible as QPS rises with larger <span class="math inline">\(m\)</span>.</em></p>
+<h3 id="memory-efficiency-vs.-standard-transformers">4.4 Memory Efficiency vs. Standard Transformers</h3>
+<p>Standard Transformer blocks have per-layer activation memory proportional to <span class="math inline">\(33d\)</span> (in bfloat16). HSTU reduces this to <span class="math inline">\(14d\)</span> through:</p>
+<ul>
+<li>Eliminating the softmax normalization step (saves the <span class="math inline">\(n \times n\)</span> softmax matrix).</li>
+<li>Fusing the SiLU nonlinearity into the projection.</li>
+<li>The gated structure removes the need for a separate feed-forward sublayer.</li>
+</ul>
+<p><strong>Result:</strong> HSTU can stack 2× deeper networks for the same GPU memory budget, contributing directly to the scaling law results.</p>
+<p><img src="figures/hstu-latency-vs-transformer.png" alt="Figure 6 from Zhai et al. (2024): HSTU vs. standard Transformer latency (ms) at sequence lengths 1024, 2048, 4096, and 8192 — HSTU at 4.3ms vs 9.5ms at length 1024, growing to 21.5ms vs 121.3ms at length 8192" />
+<em>Figure 6 (Zhai et al., 2024): Training latency comparison between HSTU and standard Transformers across sequence lengths. HSTU’s subquadratic attention (via stochastic length sparsity and fused raggified attention) scales substantially better: at sequence length 8,192, HSTU achieves 21.5ms latency vs. 121.3ms for a standard Transformer — a 5.6× speedup.</em></p>
+<hr />
+<h2 id="scaling-laws">5. Scaling Laws</h2>
+<p>HSTU demonstrates power-law scaling across <em>three orders of magnitude</em> in training compute, matching the scaling behavior of GPT-3 and LLaMA-2:</p>
+<p><span class="math display">\[\text{HR@100} \propto C^\beta \quad \text{for } C \in [10^{20},\ 10^{23}] \text{ FLOPs}\]</span></p>
+<p>where the exponent <span class="math inline">\(\beta\)</span> is empirically fitted from Figure 7. The paper does not state the exact value of <span class="math inline">\(\beta\)</span>, but the log-log plot shows a clean linear fit — characteristic of a true power law.</p>
+<p><strong>Key observations:</strong></p>
+<ul>
+<li>DLRMs plateau around 200B parameters; HSTU continues scaling to <strong>1.5 trillion parameters</strong>.</li>
+<li>The scaling behavior holds for <em>both</em> retrieval (HR@100) and ranking (NE) metrics.</li>
+<li>The scaling curve matches the training-compute curves of GPT-3/LLaMA-2 when plotted on the same axes.</li>
+</ul>
+<p><strong>Why does HSTU scale while DLRMs do not?</strong></p>
+<p>DLRMs use impression-level scoring, which fundamentally limits data efficiency: each training example provides exactly one bit of supervision (click or no-click) for one (user, item) pair. As the model grows, the training signal per parameter decreases faster than for sequence models, leading to early saturation.</p>
+<p>HSTU’s generative training extracts <span class="math inline">\(n_i\)</span> supervised signals per user sequence: each position predicts the next item. For a user with 1,000 interactions, this is a 1,000× improvement in supervision density per forward pass. More parameters can be productively trained because the signal-to-parameter ratio remains favorable.</p>
+<p><img src="figures/hstu-scaling-law-ne.png" alt="Figure 7 (NE panel) from Zhai et al. (2024): Scaling law — Eval NE (normalized entropy, lower is better) vs. training PetaFLOPs per day for Traditional DLRMs (red diamonds) vs. Generative Recommenders (blue stars), with fitted power-law L = 0.549 − 5.3e-3 ln C across 3 orders of magnitude" />
+<em>Figure 7c (Zhai et al., 2024): Ranking scaling law (NE metric). GRs follow a clean log-linear scaling law <span class="math inline">\(L = 0.549 - 5.3 \times 10^{-3} \ln C\)</span> across three orders of magnitude in training compute (<span class="math inline">\(10^3\)</span> to <span class="math inline">\(10^6\)</span> PetaFLOPs/day), while traditional DLRMs plateau and fail to improve beyond a compute threshold. This is the recommendation-domain analogue of the Chinchilla scaling law.</em></p>
+<p><img src="figures/hstu-scaling-law-hr100.png" alt="Figure 7 (HR@100 panel) from Zhai et al. (2024): Retrieval scaling law — Eval Hit Rate@100 vs. training PetaFLOPs per day for DLRMs vs. GRs, fitted power-law L = 0.15 + 0.0195 ln C" />
+<em>Figure 7a (Zhai et al., 2024): Retrieval scaling law (HR@100 metric). GRs scale continuously with compute — fit <span class="math inline">\(\text{HR@100} = 0.15 + 0.0195 \ln C\)</span> — while DLRMs (red) cluster around HR@100 ≈ 0.28–0.29 regardless of compute budget, confirming the plateau is architectural rather than fundamental.</em></p>
+<hr />
+<h2 id="experiments">6. Experiments</h2>
+<h3 id="synthetic-validation-dirichlet-process-data">6.1 Synthetic Validation: Dirichlet Process Data</h3>
+<p>To isolate architectural effects from data-specific factors, the authors generate synthetic data from a Dirichlet Process (DP) model of user preferences:
+- Items are drawn from a DP with concentration <span class="math inline">\(\theta\)</span>: popular items receive exponentially more weight.
+- Each user has a hidden preference distribution; their history is sampled from it.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Architecture</th>
+<th>HR@10</th>
+<th>HR@50</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard Transformer</td>
+<td>0.0442</td>
+<td>0.2025</td>
+</tr>
+<tr class="even">
+<td>HSTU (no rab, softmax)</td>
+<td>0.0617</td>
+<td>0.2496</td>
+</tr>
+<tr class="odd">
+<td>HSTU (no rab, pointwise)</td>
+<td>0.0893</td>
+<td>0.3170</td>
+</tr>
+<tr class="even">
+<td>HSTU (full)</td>
+<td><em>best</em></td>
+<td><em>best</em></td>
+</tr>
+</tbody>
+</table>
+<p>The 44.7% gap between softmax and pointwise (no rab, same architecture otherwise) directly validates the theory about preference intensity and non-stationarity.</p>
+<h3 id="public-benchmarks">6.2 Public Benchmarks</h3>
+<p>On MovieLens-1M:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>HR@10</th>
+<th>NDCG@10</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SASRec</td>
+<td>0.2828</td>
+<td>0.1545</td>
+</tr>
+<tr class="even">
+<td>BERT4Rec</td>
+<td>0.2701</td>
+<td>0.1445</td>
+</tr>
+<tr class="odd">
+<td>HSTU (base)</td>
+<td>0.3043 (+7.6%)</td>
+<td>0.1700 (+10.1%)</td>
+</tr>
+<tr class="even">
+<td>HSTU-large</td>
+<td>0.3306 (+16.9%)</td>
+<td>0.1858 (+20.3%)</td>
+</tr>
+</tbody>
+</table>
+<p>On Amazon Books (HR@10):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>HR@10</th>
+<th>NDCG@10</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SASRec</td>
+<td>baseline</td>
+<td>baseline</td>
+</tr>
+<tr class="even">
+<td>HSTU-large</td>
+<td>+60.6% relative</td>
+<td>+65.8% relative</td>
+</tr>
+</tbody>
+</table>
+<h3 id="industrial-streaming-data">6.3 Industrial Streaming Data</h3>
+<p>Standard Transformers produce NaN loss on industrial streaming data with long-tail sequence lengths and non-stationary vocabulary. HSTU trains stably on sequences of length up to 8,192 with the following efficiency:</p>
+<ul>
+<li>Training throughput: <strong>5.3–15.2× faster</strong> than FlashAttention2-based Transformers.</li>
+<li>Memory bandwidth: <span class="math inline">\(O(\sum_i n_i^2 d_{qk}^2 R^{-1})\)</span> through raggified attention fusion (R = reuse factor).</li>
+</ul>
+<h3 id="online-ab-tests">6.4 Online A/B Tests</h3>
+<p>Deployed as GR (Generative Recommender) at Meta scale (billions of users), validated via <a href="../../../../notes/concepts/ab-testing/foundations%7Ca/b-testing/">concepts/ab-testing/foundations|A/B testing</a>:</p>
+<table>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Metric</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GR Ranking</td>
+<td>Engagement (online A/B)</td>
+<td>+12.4%</td>
+</tr>
+<tr class="even">
+<td>GR Retrieval</td>
+<td>HR@100</td>
+<td>+5.1%</td>
+</tr>
+<tr class="odd">
+<td>GR Retrieval</td>
+<td>HR@500</td>
+<td>+1.9%</td>
+</tr>
+<tr class="even">
+<td>GR Retrieval</td>
+<td>Engagement</td>
+<td>+6.2%</td>
+</tr>
+<tr class="odd">
+<td>GR Retrieval</td>
+<td>Consumption</td>
+<td>+5.0%</td>
+</tr>
+</tbody>
+</table>
+<p>These are among the largest reported recommendation system improvements in recent literature.</p>
+<hr />
+<h2 id="relation-to-wukong">7. Relation to Wukong</h2>
+<p>See <a href="../../../../notes/papers/generative-recommenders/wukong%7Cwukong/">papers/generative-recommenders/wukong|Wukong</a> for the companion paper. Despite appearing in the same month and addressing the same fundamental gap (no scaling law for recommendation systems), Wukong and HSTU are structurally very different:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Wukong</th>
+<th>HSTU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Problem framing</strong></td>
+<td>CTR prediction over dense feature sets</td>
+<td>Sequential transduction over user behavior history</td>
+</tr>
+<tr class="even">
+<td><strong>Core operation</strong></td>
+<td>Factorization Machine (pairwise dot products)</td>
+<td>Attention (query-key matching)</td>
+</tr>
+<tr class="odd">
+<td><strong>Data representation</strong></td>
+<td>Feature matrix <span class="math inline">\(X \in \mathbb{R}^{n \times d}\)</span> (one row per feature)</td>
+<td>Time series <span class="math inline">\(h \in \mathbb{R}^{T \times d}\)</span> (one row per event)</td>
+</tr>
+<tr class="even">
+<td><strong>Interaction mechanism</strong></td>
+<td>Explicit: <span class="math inline">\(XX^\top Y\)</span> generates controlled cross-feature products</td>
+<td>Implicit: <span class="math inline">\(QK^\top\)</span> generates attention-weighted history aggregation</td>
+</tr>
+<tr class="odd">
+<td><strong>Scaling driver</strong></td>
+<td>Depth → exponential interaction order (<span class="math inline">\(2^l\)</span> after <span class="math inline">\(l\)</span> layers)</td>
+<td>Scale → more parameters efficiently trained via generative supervision</td>
+</tr>
+<tr class="even">
+<td><strong>Submission date</strong></td>
+<td>March 4, 2024</td>
+<td>February 26, 2024</td>
+</tr>
+<tr class="odd">
+<td><strong>Team</strong></td>
+<td>Meta Ads (same team as [papers/dhen-ranking</td>
+<td>DHEN](/notes/papers/dhen-ranking</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The logical connection.</strong> Both papers are best understood as responses to the same empirical observation: DLRM-style models plateau while LLMs scale. Wukong’s response is <em>within</em> the DLRM paradigm: fix the interaction module so that expressivity grows with depth. HSTU’s response is <em>across paradigms</em>: abandon the DLRM framing entirely and treat recommendation as a generative sequential problem.</p>
+<p>Neither paper is a strict continuation of the other (HSTU was submitted first). Rather, they are parallel evidence for the same thesis: <strong>the recommendation scaling barrier is architectural, not fundamental</strong>. Together they triangulate the space of solutions — one extending the feature-interaction approach to its principled limit, the other importing the full generative modeling paradigm from NLP.</p>
+<p>A unified future architecture would likely combine:
+- Wukong’s principled feature interaction (FM stack) for structured contextual features
+- HSTU’s sequential modeling and generative training for user history sequences</p>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Actions Speak Louder than Words: Trillion-Parameter Sequential Transducers</td>
+<td>Main HSTU paper</td>
+<td>https://arxiv.org/abs/2402.17152</td>
+</tr>
+<tr class="even">
+<td>Wukong: Towards a Scaling Law for Large-Scale Recommendation</td>
+<td>Companion paper; FM-stack approach</td>
+<td>https://arxiv.org/abs/2403.02545</td>
+</tr>
+<tr class="odd">
+<td>SASRec: Self-Attentive Sequential Recommendation</td>
+<td>Key sequential recommendation baseline</td>
+<td>https://arxiv.org/abs/1808.09781</td>
+</tr>
+<tr class="even">
+<td>BERT4Rec: Sequential Recommendation with BERT</td>
+<td>BERT-based sequential baseline</td>
+<td>https://arxiv.org/abs/1904.06690</td>
+</tr>
+<tr class="odd">
+<td>Scaling Laws for Neural Language Models (Kaplan et al.)</td>
+<td>Original power-law scaling for LLMs</td>
+<td>https://arxiv.org/abs/2001.08361</td>
+</tr>
+<tr class="even">
+<td>FlashAttention-2: Faster Attention with Better Parallelism</td>
+<td>Efficient attention baseline for speed comparison</td>
+<td>https://arxiv.org/abs/2307.08691</td>
+</tr>
+<tr class="odd">
+<td>DLRM: An Advanced, Open Source Deep Learning Recommendation Model</td>
+<td>Meta DLRM baseline that plateaus</td>
+<td>https://arxiv.org/abs/1906.00091</td>
+</tr>
+<tr class="even">
+<td>Deep Interest Network for Click-Through Rate Prediction (Zhou et al., KDD 2018)</td>
+<td>Introduces target-aware local activation: candidate-conditioned attention over user history where weights are derived from the outer product of history and candidate embeddings (no softmax normalization). Foundational justification for removing handcrafted numerical features in HSTU — target-aware attention implicitly recomputes what static aggregates approximate, conditioned on each candidate.</td>
+<td>https://arxiv.org/abs/1706.06978</td>
+</tr>
+<tr class="odd">
+<td>Breaking the Curse of Quality Saturation with User-Centric Ranking (Zhao et al., KDD 2023)</td>
+<td>Formal analysis and empirical evidence that item-centric DLRMs hit a hard asymptotic error floor as item inventory grows; motivates HSTU’s abandonment of per-item embeddings</td>
+<td>https://arxiv.org/abs/2305.15333</td>
+</tr>
+<tr class="even">
+<td>SiLU / Swish Activation: Gaussian Error Linear Units</td>
+<td>Theoretical basis for SiLU nonlinearity</td>
+<td>https://arxiv.org/abs/1606.08415</td>
+</tr>
+<tr class="odd">
+<td>Dirichlet Process Mixture Models</td>
+<td>Statistical model motivating pointwise attention design</td>
+<td>https://www.gatsby.ucl.ac.uk/~ywteh/research/npbayes/dpchp.pdf</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

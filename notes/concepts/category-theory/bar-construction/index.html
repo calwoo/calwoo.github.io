@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>bar-construction - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>bar-construction</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation:-the-resolution-problem%7C1.-motivation:-the-resolution-problem/">#1. Motivation: The Resolution Problem|1. Motivation: The Resolution Problem</a>
+<ul>
+<li><a href="../../../../notes/#1.1-canonical-resolutions-and-functoriality%7C1.1-canonical-resolutions-and-functoriality/">#1.1 Canonical Resolutions and Functoriality|1.1 Canonical Resolutions and Functoriality</a></li>
+<li><a href="../../../../notes/#1.2-the-key-idea:-resolve-using-the-algebra-itself%7C1.2-the-key-idea:-resolve-using-the-algebra-itself/">#1.2 The Key Idea: Resolve Using the Algebra Itself|1.2 The Key Idea: Resolve Using the Algebra Itself</a></li>
+<li><a href="../../../../notes/#1.3-a-unified-perspective%7C1.3-a-unified-perspective/">#1.3 A Unified Perspective|1.3 A Unified Perspective</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-the-algebraic-bar-construction%7C2.-the-algebraic-bar-construction/">#2. The Algebraic Bar Construction|2. The Algebraic Bar Construction</a>
+<ul>
+<li><a href="../../../../notes/#2.1-setup:-augmented-algebras%7C2.1-setup:-augmented-algebras/">#2.1 Setup: Augmented Algebras|2.1 Setup: Augmented Algebras</a></li>
+<li><a href="../../../../notes/#2.2-the-one-sided-bar-complex-b(k,-a,-k)%7C2.2-the-one-sided-bar-complex-b(k,-a,-k)/">#2.2 The One-Sided Bar Complex B(k, A, k)|2.2 The One-Sided Bar Complex B(k, A, k)</a></li>
+<li><a href="../../../../notes/#2.3-the-two-sided-bar-construction-b(m,-a,-n)%7C2.3-the-two-sided-bar-construction-b(m,-a,-n)/">#2.3 The Two-Sided Bar Construction B(M, A, N)|2.3 The Two-Sided Bar Construction B(M, A, N)</a></li>
+<li><a href="../../../../notes/#2.4-acyclicity:-the-contracting-homotopy%7C2.4-acyclicity:-the-contracting-homotopy/">#2.4 Acyclicity: The Contracting Homotopy|2.4 Acyclicity: The Contracting Homotopy</a></li>
+<li><a href="../../../../notes/#2.5-computing-tor-via-the-bar-resolution%7C2.5-computing-tor-via-the-bar-resolution/">#2.5 Computing Tor via the Bar Resolution|2.5 Computing Tor via the Bar Resolution</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-the-simplicial-perspective%7C3.-the-simplicial-perspective/">#3. The Simplicial Perspective|3. The Simplicial Perspective</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-bar-construction-as-a-simplicial-object%7C3.1-the-bar-construction-as-a-simplicial-object/">#3.1 The Bar Construction as a Simplicial Object|3.1 The Bar Construction as a Simplicial Object</a></li>
+<li><a href="../../../../notes/#3.2-face-and-degeneracy-maps%7C3.2-face-and-degeneracy-maps/">#3.2 Face and Degeneracy Maps|3.2 Face and Degeneracy Maps</a></li>
+<li><a href="../../../../notes/#3.3-the-normalized-chain-complex-and-dold-kan%7C3.3-the-normalized-chain-complex-and-dold-kan/">#3.3 The Normalized Chain Complex and Dold-Kan|3.3 The Normalized Chain Complex and Dold-Kan</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-the-topological-bar-construction:-classifying-spaces%7C4.-the-topological-bar-construction:-classifying-spaces/">#4. The Topological Bar Construction: Classifying Spaces|4. The Topological Bar Construction: Classifying Spaces</a>
+<ul>
+<li><a href="../../../../notes/#4.1-the-nerve-of-a-group%7C4.1-the-nerve-of-a-group/">#4.1 The Nerve of a Group|4.1 The Nerve of a Group</a></li>
+<li><a href="../../../../notes/#4.2-the-classifying-space-bg%7C4.2-the-classifying-space-bg/">#4.2 The Classifying Space BG|4.2 The Classifying Space BG</a></li>
+<li><a href="../../../../notes/#4.3-the-universal-bundle-eg-via-the-two-sided-bar%7C4.3-the-universal-bundle-eg-via-the-two-sided-bar/">#4.3 The Universal Bundle EG via the Two-Sided Bar|4.3 The Universal Bundle EG via the Two-Sided Bar</a></li>
+<li><a href="../../../../notes/#4.4-homotopy-colimits-as-bar-constructions%7C4.4-homotopy-colimits-as-bar-constructions/">#4.4 Homotopy Colimits as Bar Constructions|4.4 Homotopy Colimits as Bar Constructions</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-the-monadic-bar-construction%7C5.-the-monadic-bar-construction/">#5. The Monadic Bar Construction|5. The Monadic Bar Construction</a>
+<ul>
+<li><a href="../../../../notes/#5.1-setup-and-definition%7C5.1-setup-and-definition/">#5.1 Setup and Definition|5.1 Setup and Definition</a></li>
+<li><a href="../../../../notes/#5.2-the-canonical-simplicial-resolution%7C5.2-the-canonical-simplicial-resolution/">#5.2 The Canonical Simplicial Resolution|5.2 The Canonical Simplicial Resolution</a></li>
+<li><a href="../../../../notes/#5.3-connection-to-beck-monadicity%7C5.3-connection-to-beck-monadicity/">#5.3 Connection to Beck Monadicity|5.3 Connection to Beck Monadicity</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-the-bar-cobar-adjunction-and-koszul-duality%7C6.-the-bar-cobar-adjunction-and-koszul-duality/">#6. The Bar-Cobar Adjunction and Koszul Duality|6. The Bar-Cobar Adjunction and Koszul Duality</a>
+<ul>
+<li><a href="../../../../notes/#6.1-the-cobar-construction%7C6.1-the-cobar-construction/">#6.1 The Cobar Construction|6.1 The Cobar Construction</a></li>
+<li><a href="../../../../notes/#6.2-the-adjunction-b-dashv-omega%7C6.2-the-adjunction-b-dashv-omega/">#6.2 The Adjunction B Dashv Omega|6.2 The Adjunction B Dashv Omega</a></li>
+<li><a href="../../../../notes/#6.3-koszul-duality%7C6.3-koszul-duality/">#6.3 Koszul Duality|6.3 Koszul Duality</a></li>
+<li><a href="../../../../notes/#6.4-adams'-cobar-construction-for-loop-spaces%7C6.4-adams'-cobar-construction-for-loop-spaces/">#6.4 Adams’ Cobar Construction for Loop Spaces|6.4 Adams’ Cobar Construction for Loop Spaces</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-hochschild-homology-and-the-cyclic-bar-construction%7C7.-hochschild-homology-and-the-cyclic-bar-construction/">#7. Hochschild Homology and the Cyclic Bar Construction|7. Hochschild Homology and the Cyclic Bar Construction</a>
+<ul>
+<li><a href="../../../../notes/#7.1-the-hochschild-complex-as-a-bar-complex%7C7.1-the-hochschild-complex-as-a-bar-complex/">#7.1 The Hochschild Complex as a Bar Complex|7.1 The Hochschild Complex as a Bar Complex</a></li>
+<li><a href="../../../../notes/#7.2-the-cyclic-bar-construction%7C7.2-the-cyclic-bar-construction/">#7.2 The Cyclic Bar Construction|7.2 The Cyclic Bar Construction</a></li>
+<li><a href="../../../../notes/#7.3-cyclic-homology-and-the-circle-action%7C7.3-cyclic-homology-and-the-circle-action/">#7.3 Cyclic Homology and the Circle Action|7.3 Cyclic Homology and the Circle Action</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-the-categorical-and-infinity-categorical-perspective%7C8.-the-categorical-and-infinity-categorical-perspective/">#8. The Categorical and Infinity-Categorical Perspective|8. The Categorical and Infinity-Categorical Perspective</a>
+<ul>
+<li><a href="../../../../notes/#8.1-bar-as-colimit:-the-coequalizer-interpretation%7C8.1-bar-as-colimit:-the-coequalizer-interpretation/">#8.1 Bar as Colimit: The Coequalizer Interpretation|8.1 Bar as Colimit: The Coequalizer Interpretation</a></li>
+<li><a href="../../../../notes/#8.2-the-infinity-categorical-bar-construction%7C8.2-the-infinity-categorical-bar-construction/">#8.2 The Infinity-Categorical Bar Construction|8.2 The Infinity-Categorical Bar Construction</a></li>
+<li><a href="../../../../notes/#8.3-everything-is-one-construction%7C8.3-everything-is-one-construction/">#8.3 Everything Is One Construction|8.3 Everything Is One Construction</a></li>
+</ul></li>
+<li><a href="../../../../notes/#9.-the-bar-construction-in-spectra:-b-as-categorical-suspension%7C9.-the-bar-construction-in-spectra:-b-as-categorical-suspension/">#9. The Bar Construction in Spectra: B as Categorical Suspension|9. The Bar Construction in Spectra: B as Categorical Suspension</a>
+<ul>
+<li><a href="../../../../notes/#9.1-augmented-ring-spectra-and-the-spectral-bar-construction%7C9.1-augmented-ring-spectra-and-the-spectral-bar-construction/">#9.1 Augmented Ring Spectra and the Spectral Bar Construction|9.1 Augmented Ring Spectra and the Spectral Bar Construction</a></li>
+<li><a href="../../../../notes/#9.2-b-as-categorical-suspension,-not-spectrum-suspension%7C9.2-b-as-categorical-suspension,-not-spectrum-suspension/">#9.2 B as Categorical Suspension, Not Spectrum Suspension|9.2 B as Categorical Suspension, Not Spectrum Suspension</a></li>
+<li><a href="../../../../notes/#9.3-the-free-algebra-case:-when-ba-simeq-sigma-m%7C9.3-the-free-algebra-case:-when-ba-simeq-sigma-m/">#9.3 The Free Algebra Case: When BA Simeq Sigma M|9.3 The Free Algebra Case: When BA Simeq Sigma M</a></li>
+<li><a href="../../../../notes/#9.4-iterated-bar-and-en-algebras%7C9.4-iterated-bar-and-en-algebras/">#9.4 Iterated Bar and En-Algebras|9.4 Iterated Bar and En-Algebras</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-the-resolution-problem">1. Motivation: The Resolution Problem 🔍</h2>
+<h3 id="canonical-resolutions-and-functoriality">1.1 Canonical Resolutions and Functoriality</h3>
+<p>Let <span class="math inline">\(A\)</span> be a ring (or algebra over a field <span class="math inline">\(k\)</span>) and let <span class="math inline">\(M\)</span>, <span class="math inline">\(N\)</span> be <span class="math inline">\(A\)</span>-modules. One of the central problems of homological algebra is the computation of the <em>derived functors</em> <span class="math inline">\(\mathrm{Tor}_*^A(M, N)\)</span> and <span class="math inline">\(\mathrm{Ext}^*_A(M, N)\)</span>. By definition, these require choosing a projective (or free) resolution of one of the modules. For example, to compute <span class="math inline">\(\mathrm{Tor}_*^A(M,N)\)</span>, one finds a free resolution</p>
+<p><span class="math display">\[\cdots \to F_2 \to F_1 \to F_0 \to M \to 0,\]</span></p>
+<p>then applies <span class="math inline">\((-) \otimes_A N\)</span> and takes homology.</p>
+<p>The trouble is that free resolutions are not unique. Different choices of resolution give the same answer — but constructing the comparison chain map and verifying independence requires work. For abstract existence theorems this is fine, but for explicit computation and for <em>functoriality in <span class="math inline">\(A\)</span></em> it is not.</p>
+<p><strong>The question:</strong> Is there a <em>canonical</em>, functorial free resolution — one that requires no choices, depends only on <span class="math inline">\(A\)</span> and <span class="math inline">\(M\)</span>, and varies naturally with maps of rings or modules?</p>
+<h3 id="the-key-idea-resolve-using-the-algebra-itself">1.2 The Key Idea: Resolve Using the Algebra Itself</h3>
+<p>The answer is yes, and the key observation is almost embarrassingly simple: <strong>use the algebra <span class="math inline">\(A\)</span> to build its own resolution.</strong> Rather than choosing generators for a free module, observe that <span class="math inline">\(A\)</span> itself is free of rank one over <span class="math inline">\(A\)</span>. We can then build a resolution of <span class="math inline">\(k\)</span> (the ground field, viewed as an <span class="math inline">\(A\)</span>-module via the augmentation <span class="math inline">\(\varepsilon: A \to k\)</span>) using only tensor products of <span class="math inline">\(A\)</span> with itself:</p>
+<p><span class="math display">\[\cdots \to A \otimes_k A \otimes_k A \to A \otimes_k A \to A \to k \to 0.\]</span></p>
+<p>The differential encodes the multiplication of <span class="math inline">\(A\)</span>: it alternately multiplies adjacent tensor factors or removes boundary factors. This is the <em>bar resolution</em>, and it is entirely determined by the algebra structure of <span class="math inline">\(A\)</span>.</p>
+<div class="callout callout-info">
+<p> Why “bar”?
+The notation <span class="math inline">\([a_1 | a_2 | \cdots | a_n]\)</span> — elements of <span class="math inline">\(A\)</span> separated by vertical bars — was introduced by Eilenberg and Mac Lane in their 1950s study of the cohomology of Eilenberg–MacLane spaces <span class="math inline">\(K(\pi, n)\)</span>. The bars are literally typographic separators between tensor factors, and the name stuck.</p>
+</div>
+<h3 id="a-unified-perspective">1.3 A Unified Perspective</h3>
+<p>What makes the bar construction remarkable is that this same idea — <em>resolve an object by freely generated objects built from the generating structure</em> — appears identically in at least five different mathematical contexts:</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 18%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Context</th>
+<th>Input</th>
+<th>Bar construction gives</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Homological algebra</td>
+<td>Ring <span class="math inline">\(A\)</span>, module <span class="math inline">\(M\)</span></td>
+<td>Free resolution <span class="math inline">\(B(M,A,N) \to M \otimes_A N\)</span></td>
+</tr>
+<tr class="even">
+<td>Group homology</td>
+<td>Group <span class="math inline">\(G\)</span></td>
+<td>Resolution <span class="math inline">\(\mathbb{Z}[G^{\bullet+1}] \to \mathbb{Z}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Topology</td>
+<td>Topological group <span class="math inline">\(G\)</span></td>
+<td>Classifying space <span class="math inline">\(BG = \lvert NG \rvert\)</span></td>
+</tr>
+<tr class="even">
+<td>Category theory</td>
+<td>Monad <span class="math inline">\(T\)</span> on <span class="math inline">\(\mathcal{C}\)</span></td>
+<td>Simplicial resolution <span class="math inline">\(B_\bullet(T,X) \to X\)</span></td>
+</tr>
+<tr class="odd">
+<td>Koszul duality</td>
+<td>dg-algebra <span class="math inline">\(A\)</span></td>
+<td>dg-coalgebra <span class="math inline">\(BA\)</span> with bar differential</td>
+</tr>
+</tbody>
+</table>
+<p>The unifying principle — section <a href="../../../../notes/#8.3-everything-is-one-construction%7C8.3/">#8.3 Everything Is One Construction|8.3</a> — is that every bar construction is the geometric realization of a simplicial object arising from a monad.</p>
+<hr />
+<h2 id="the-algebraic-bar-construction">2. The Algebraic Bar Construction 🔩</h2>
+<h3 id="setup-augmented-algebras">2.1 Setup: Augmented Algebras</h3>
+<p><strong>Definition (Augmented algebra).</strong> An <em>augmented <span class="math inline">\(k\)</span>-algebra</em> is a <span class="math inline">\(k\)</span>-algebra <span class="math inline">\(A\)</span> equipped with a <span class="math inline">\(k\)</span>-algebra homomorphism <span class="math inline">\(\varepsilon: A \to k\)</span> called the <em>augmentation</em>. The <em>augmentation ideal</em> is <span class="math inline">\(\bar{A} = \ker(\varepsilon)\)</span>, so <span class="math inline">\(A \cong k \oplus \bar{A}\)</span> as <span class="math inline">\(k\)</span>-modules.</p>
+<p>The prototypical examples are group algebras <span class="math inline">\(k[G]\)</span> with <span class="math inline">\(\varepsilon(g) = 1\)</span> for all <span class="math inline">\(g \in G\)</span>, and free algebras <span class="math inline">\(T(V) = \bigoplus_{n \geq 0} V^{\otimes n}\)</span> with <span class="math inline">\(\varepsilon\)</span> projecting to <span class="math inline">\(V^{\otimes 0} = k\)</span>.</p>
+<div class="callout callout-note">
+<p> Why augmentation?
+The augmentation allows us to view <span class="math inline">\(k\)</span> as a left (or right) <span class="math inline">\(A\)</span>-module via <span class="math inline">\(a \cdot \lambda = \varepsilon(a)\lambda\)</span>. This is the module we will resolve. Without an augmentation, there is no canonical choice of “trivial” module to resolve.</p>
+</div>
+<h3 id="the-one-sided-bar-complex-bk-a-k">2.2 The One-Sided Bar Complex B(k, A, k)</h3>
+<p><strong>Definition (Bar complex).</strong> Let <span class="math inline">\(A\)</span> be an augmented <span class="math inline">\(k\)</span>-algebra with augmentation ideal <span class="math inline">\(\bar{A}\)</span>. The <em>bar complex</em> <span class="math inline">\(B(A) = B(k, A, k)\)</span> is the chain complex with:</p>
+<ul>
+<li><strong>Underlying graded module:</strong> <span class="math inline">\(B_n(A) = \bar{A}^{\otimes_k n}\)</span> in degree <span class="math inline">\(n \geq 0\)</span>.</li>
+<li><strong>Notation:</strong> An element <span class="math inline">\(a_1 \otimes \cdots \otimes a_n \in \bar{A}^{\otimes n}\)</span> is written <span class="math inline">\([a_1 | a_2 | \cdots | a_n]\)</span>.</li>
+<li><strong>Differential:</strong> <span class="math inline">\(\partial: B_n(A) \to B_{n-1}(A)\)</span> is given by</li>
+</ul>
+<p><span class="math display">\[\partial[a_1 | a_2 | \cdots | a_n] = \sum_{i=1}^{n-1} (-1)^{i-1} [a_1 | \cdots | a_i a_{i+1} | \cdots | a_n].\]</span></p>
+<p>The map <span class="math inline">\(\partial\)</span> simply multiplies together adjacent pairs, alternating signs. It is degree <span class="math inline">\(-1\)</span>, and the standard telescoping argument gives <span class="math inline">\(\partial^2 = 0\)</span> (adjacent terms cancel in pairs).</p>
+<blockquote>
+<p>[!TIP]- Proof that the differential squares to zero
+Expand <span class="math inline">\(\partial^2 [a_1 | \cdots | a_n]\)</span>. The term <span class="math inline">\((-1)^{i-1}(-1)^{j-1}\)</span> from first applying <span class="math inline">\(\partial\)</span> at position <span class="math inline">\(i\)</span> then at position <span class="math inline">\(j\)</span> equals <span class="math inline">\((-1)^{i+j}\)</span>. For <span class="math inline">\(j &lt; i\)</span>, the second application acts before the first, giving sign <span class="math inline">\((-1)^{j-1}(-1)^{i-2} = (-1)^{i+j-1}\)</span>. These two signs are opposite, so every pair of terms <span class="math inline">\((i,j)\)</span> and <span class="math inline">\((j, i)\)</span> cancels. (Here <span class="math inline">\(1 \le j &lt; i \le n-1\)</span>, and after applying <span class="math inline">\(\partial\)</span> at position <span class="math inline">\(j\)</span> the elements shift, giving the <span class="math inline">\(i-1\)</span> instead of <span class="math inline">\(i\)</span>.) This is the standard sign-bookkeeping for the alternating sum of face maps of a simplicial object — see section <a href="../../../../notes/#3.2-face-and-degeneracy-maps%7C3.2/">#3.2 Face and Degeneracy Maps|3.2</a>.</p>
+</blockquote>
+<p>The complex <span class="math inline">\(B(A)\)</span> is augmented by the map <span class="math inline">\(\varepsilon: B_0(A) = \bar{A} \hookrightarrow A \xrightarrow{\varepsilon} k\)</span> (here we use the inclusion <span class="math inline">\(\bar{A} \subset A\)</span>, then augment; equivalently one appends <span class="math inline">\(k\)</span> in degree <span class="math inline">\(-1\)</span>).</p>
+<h3 id="the-two-sided-bar-construction-bm-a-n">2.3 The Two-Sided Bar Construction B(M, A, N)</h3>
+<p>The one-sided bar complex computes the homology of <span class="math inline">\(k\)</span> over <span class="math inline">\(A\)</span>. For computing <span class="math inline">\(\mathrm{Tor}_*^A(M, N)\)</span> for general modules, we need the <em>two-sided bar construction</em>.</p>
+<p><strong>Definition (Two-sided bar construction).</strong> Let <span class="math inline">\(M\)</span> be a right <span class="math inline">\(A\)</span>-module and <span class="math inline">\(N\)</span> a left <span class="math inline">\(A\)</span>-module. The <em>two-sided bar complex</em> <span class="math inline">\(B(M, A, N)\)</span> is the chain complex with:</p>
+<ul>
+<li><strong>Degree <span class="math inline">\(n\)</span> piece:</strong> <span class="math inline">\(B_n(M, A, N) = M \otimes_k \bar{A}^{\otimes_k n} \otimes_k N\)</span>.</li>
+<li><strong>Notation:</strong> An element <span class="math inline">\(m \otimes [a_1 | \cdots | a_n] \otimes n'\)</span> is written <span class="math inline">\(m[a_1 | \cdots | a_n]n'\)</span>.</li>
+<li><strong>Differential:</strong> <span class="math inline">\(\partial: B_n(M,A,N) \to B_{n-1}(M,A,N)\)</span> is</li>
+</ul>
+<p><span class="math display">\[\partial(m[a_1|\cdots|a_n]n') = ma_1[a_2|\cdots|a_n]n' + \sum_{i=1}^{n-1}(-1)^i m[a_1|\cdots|a_i a_{i+1}|\cdots|a_n]n' + (-1)^n m[a_1|\cdots|a_{n-1}]a_n n'.\]</span></p>
+<p>The first term absorbs <span class="math inline">\(a_1\)</span> into the right <span class="math inline">\(A\)</span>-action on <span class="math inline">\(M\)</span>; the last term absorbs <span class="math inline">\(a_n\)</span> into the left <span class="math inline">\(A\)</span>-action on <span class="math inline">\(N\)</span>; the middle terms multiply adjacent elements of <span class="math inline">\(\bar{A}\)</span>.</p>
+<div class="callout callout-example">
+<p> The first few differentials
+- <span class="math inline">\(\partial(m[\,]n') = mn'\)</span> (the augmentation: degree <span class="math inline">\(0\)</span> maps to <span class="math inline">\(M \otimes_k N\)</span>, then to <span class="math inline">\(M \otimes_A N\)</span> by the universal property)
+- <span class="math inline">\(\partial(m[a]n') = ma[\,]n' - m[\,]an'\)</span> (in <span class="math inline">\(M \otimes_k N\)</span>, this is <span class="math inline">\(ma \otimes n' - m \otimes an'\)</span>, which maps to zero in <span class="math inline">\(M \otimes_A N\)</span> — this is precisely the relation defining <span class="math inline">\(\otimes_A\)</span>!)
+- <span class="math inline">\(\partial(m[a|b]n') = ma[b]n' - m[ab]n' + m[a]bn'\)</span></p>
+</div>
+<p><strong>Key observation:</strong> The complex <span class="math inline">\(B(M,A,N)\)</span> is not over <span class="math inline">\(A\)</span>; it is a complex of <span class="math inline">\(k\)</span>-modules, and its homology in degree <span class="math inline">\(-1\)</span> (after appending <span class="math inline">\(M \otimes_A N\)</span> as the augmentation target) is precisely <span class="math inline">\(\mathrm{Tor}_*^A(M,N)\)</span>.</p>
+<h3 id="acyclicity-the-contracting-homotopy">2.4 Acyclicity: The Contracting Homotopy</h3>
+<p>The bar resolution is a free resolution of <span class="math inline">\(k\)</span> as an <span class="math inline">\(A\)</span>-module. The proof is explicit:</p>
+<p><strong>Proposition (Acyclicity).</strong> The augmented bar complex</p>
+<p><span class="math display">\[\cdots \to B_2(k,A,k) \xrightarrow{\partial} B_1(k,A,k) \xrightarrow{\partial} B_0(k,A,k) \xrightarrow{\varepsilon} k \to 0\]</span></p>
+<p>is exact.</p>
+<p><em>Proof.</em> We exhibit a <em>contracting homotopy</em> <span class="math inline">\(s: B_n \to B_{n+1}\)</span> defined by</p>
+<p><span class="math display">\[s[a_1 | a_2 | \cdots | a_n] = [1 | a_1 | a_2 | \cdots | a_n]\]</span></p>
+<p>(prepend the unit <span class="math inline">\(1 \in A\)</span> to the bar sequence; note <span class="math inline">\(1 \notin \bar{A}\)</span>, so we must work in the unreduced bar complex where the <span class="math inline">\(a_i\)</span> range over all of <span class="math inline">\(A\)</span>, not just <span class="math inline">\(\bar{A}\)</span>). A direct computation gives <span class="math inline">\(\partial s + s \partial = \mathrm{id}\)</span>, hence <span class="math inline">\(H_n(B(A)) = 0\)</span> for <span class="math inline">\(n &gt; 0\)</span> and <span class="math inline">\(H_0 \cong k\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Why this homotopy is not <span class="math inline">\(A\)</span>-linear
+The map <span class="math inline">\(s\)</span> is only a <span class="math inline">\(k\)</span>-linear contracting homotopy, not a map of <span class="math inline">\(A\)</span>-modules. This is fine: acyclicity of the bar complex as a complex of <span class="math inline">\(k\)</span>-modules is all that is needed to conclude it is a free resolution of <span class="math inline">\(k\)</span> as an <span class="math inline">\(A\)</span>-module. The freeness is evident since each <span class="math inline">\(B_n(k,A,k) = \bar{A}^{\otimes n}\)</span> is free as a <span class="math inline">\(k\)</span>-module (and <span class="math inline">\(B_n(M,A,N)\)</span> is the tensor product of a free module with <span class="math inline">\(M\)</span> and <span class="math inline">\(N\)</span>).</p>
+</div>
+<p>The same argument applies to the two-sided bar complex <span class="math inline">\(B(M,A,N)\)</span>: the contracting homotopy prepends a unit to the bar sequence, and one obtains:</p>
+<p><strong>Corollary.</strong> <span class="math inline">\(B_\bullet(M,A,N) \to M \otimes_A N \to 0\)</span> is a resolution of <span class="math inline">\(M \otimes_A N\)</span> by free <span class="math inline">\(k\)</span>-modules.</p>
+<h3 id="computing-tor-via-the-bar-resolution">2.5 Computing Tor via the Bar Resolution</h3>
+<p>Since <span class="math inline">\(B(A) = B(k,A,k)\)</span> is a free resolution of <span class="math inline">\(k\)</span> over <span class="math inline">\(A\)</span>, we have:</p>
+<p><span class="math display">\[\mathrm{Tor}_n^A(M, N) \cong H_n(M \otimes_A B(A) \otimes_A N) = H_n(B(M,A,N)).\]</span></p>
+<p>This is the <em>canonical</em> computation of Tor: no choices of resolution were made. The bar complex is determined entirely by the algebra structure of <span class="math inline">\(A\)</span>.</p>
+<div class="callout callout-warning">
+<p> Efficiency vs. canonicity
+The bar resolution is almost never the most efficient resolution to work with. For a polynomial algebra <span class="math inline">\(A = k[x]\)</span>, the bar resolution is an infinite complex, while <span class="math inline">\(0 \to A \xrightarrow{x} A \to k \to 0\)</span> is a two-term free resolution. The bar construction’s value is not computational efficiency — it is functoriality, canonicity, and its role as a universal object.</p>
+</div>
+<hr />
+<h2 id="the-simplicial-perspective">3. The Simplicial Perspective 🔺</h2>
+<h3 id="the-bar-construction-as-a-simplicial-object">3.1 The Bar Construction as a Simplicial Object</h3>
+<p>The bar complex <span class="math inline">\(B(M,A,N)\)</span> is not just a chain complex — it is naturally a <em>simplicial</em> <span class="math inline">\(k\)</span>-module. Understanding this simplicial structure is key to seeing why the bar construction generalizes so broadly.</p>
+<p>Recall that a <em>simplicial object</em> in a category <span class="math inline">\(\mathcal{C}\)</span> is a functor <span class="math inline">\(X_\bullet: \Delta^{\mathrm{op}} \to \mathcal{C}\)</span>, where <span class="math inline">\(\Delta\)</span> is the simplex category with objects <span class="math inline">\([n] = \{0 &lt; 1 &lt; \cdots &lt; n\}\)</span> and morphisms the order-preserving maps.</p>
+<p><strong>Definition (Simplicial bar construction).</strong> The simplicial <span class="math inline">\(k\)</span>-module <span class="math inline">\(B_\bullet(M,A,N)\)</span> has:
+- <strong>Degree <span class="math inline">\(n\)</span> term:</strong> <span class="math inline">\(B_n(M,A,N) = M \otimes_k A^{\otimes_k n} \otimes_k N\)</span></p>
+<p>(note: here we use all of <span class="math inline">\(A\)</span>, not just <span class="math inline">\(\bar{A}\)</span> — the augmentation ideal arises from the normalized chain complex).</p>
+<h3 id="face-and-degeneracy-maps">3.2 Face and Degeneracy Maps</h3>
+<p>The structure maps are:</p>
+<p><strong>Face maps</strong> <span class="math inline">\(d_i: B_n \to B_{n-1}\)</span> for <span class="math inline">\(0 \leq i \leq n\)</span>:</p>
+<p><span class="math display">\[d_i(m \otimes a_1 \otimes \cdots \otimes a_n \otimes n') = \begin{cases} ma_1 \otimes a_2 \otimes \cdots \otimes a_n \otimes n' &amp; i = 0 \\ m \otimes a_1 \otimes \cdots \otimes a_i a_{i+1} \otimes \cdots \otimes a_n \otimes n' &amp; 0 &lt; i &lt; n \\ m \otimes a_1 \otimes \cdots \otimes a_{n-1} \otimes a_n n' &amp; i = n \end{cases}\]</span></p>
+<p><strong>Degeneracy maps</strong> <span class="math inline">\(s_j: B_n \to B_{n+1}\)</span> for <span class="math inline">\(0 \leq j \leq n\)</span>:</p>
+<p><span class="math display">\[s_j(m \otimes a_1 \otimes \cdots \otimes a_n \otimes n') = m \otimes a_1 \otimes \cdots \otimes a_j \otimes 1_A \otimes a_{j+1} \otimes \cdots \otimes a_n \otimes n'\]</span></p>
+<p>The degeneracy maps insert a unit <span class="math inline">\(1_A \in A\)</span> at position <span class="math inline">\(j+1\)</span>.</p>
+<div class="callout callout-note">
+<p> Simplicial identities
+These maps satisfy the simplicial identities <span class="math inline">\(d_i d_j = d_{j-1} d_i\)</span> for <span class="math inline">\(i &lt; j\)</span>, and the analogous identities for <span class="math inline">\(s_j\)</span> and mixed <span class="math inline">\(d_i s_j\)</span>. These identities encode the functoriality of <span class="math inline">\([n] \mapsto B_n\)</span> with respect to order-preserving maps.</p>
+</div>
+<h3 id="the-normalized-chain-complex-and-dold-kan">3.3 The Normalized Chain Complex and Dold-Kan</h3>
+<p>The relationship between the simplicial bar construction and the chain complex bar construction is given by the <em>Dold-Kan correspondence</em>.</p>
+<p><strong>Theorem (Dold-Kan, informal).</strong> There is an equivalence of categories between simplicial abelian groups and non-negatively graded chain complexes of abelian groups. Under this equivalence, a simplicial module <span class="math inline">\(X_\bullet\)</span> corresponds to its <em>normalized chain complex</em> <span class="math inline">\(N(X)_n = X_n / (\text{images of all degeneracy maps})\)</span>, with differential <span class="math inline">\(\sum_{i=0}^{n} (-1)^i d_i\)</span>.</p>
+<p>For the simplicial bar construction: the normalized chain complex of <span class="math inline">\(B_\bullet(M,A,N)\)</span> is precisely the two-sided bar complex <span class="math inline">\(B(M,A,N)\)</span> defined in section <a href="../../../../notes/#2.3-the-two-sided-bar-construction-b(m,-a,-n)%7C2.3/">#2.3 The Two-Sided Bar Construction B(M, A, N)|2.3</a>. (The images of the degeneracy maps — which insert units — exactly account for the difference between using <span class="math inline">\(A\)</span> and using <span class="math inline">\(\bar{A}\)</span> in each tensor factor.)</p>
+<div class="callout callout-info">
+<p> The nerve interpretation
+The simplicial set <span class="math inline">\(B_\bullet(*, G, *)\)</span> for a discrete group <span class="math inline">\(G\)</span> (with <span class="math inline">\(*\)</span> the trivial module / single point) is the <em>nerve</em> <span class="math inline">\(NG\)</span> of the category <span class="math inline">\(\mathbf{B}G\)</span> (the one-object groupoid with morphisms <span class="math inline">\(G\)</span>). This is the bridge to the topological bar construction — see section <a href="../../../../notes/#4.-the-topological-bar-construction:-classifying-spaces%7C4/">#4. The Topological Bar Construction: Classifying Spaces|4</a>.</p>
+</div>
+<hr />
+<h2 id="the-topological-bar-construction-classifying-spaces">4. The Topological Bar Construction: Classifying Spaces 🌐</h2>
+<h3 id="the-nerve-of-a-group">4.1 The Nerve of a Group</h3>
+<p>Let <span class="math inline">\(G\)</span> be a topological group. The same simplicial formulas define a <em>simplicial topological space</em> <span class="math inline">\(NG\)</span> (the <em>nerve</em> of <span class="math inline">\(G\)</span>, viewed as a one-object groupoid):</p>
+<ul>
+<li><span class="math inline">\(NG_n = G^n\)</span> (the <span class="math inline">\(n\)</span>-fold product)</li>
+<li>Face maps: <span class="math inline">\(d_0(g_1, \ldots, g_n) = (g_2, \ldots, g_n)\)</span>; <span class="math inline">\(d_i(g_1, \ldots, g_n) = (g_1, \ldots, g_i g_{i+1}, \ldots, g_n)\)</span> for <span class="math inline">\(0 &lt; i &lt; n\)</span>; <span class="math inline">\(d_n(g_1, \ldots, g_n) = (g_1, \ldots, g_{n-1})\)</span></li>
+<li>Degeneracy maps: <span class="math inline">\(s_j(g_1, \ldots, g_n) = (g_1, \ldots, g_j, 1, g_{j+1}, \ldots, g_n)\)</span></li>
+</ul>
+<p>These are exactly the same algebraic formulas as the bar construction with <span class="math inline">\(A = k[G]\)</span>, <span class="math inline">\(M = N = k\)</span>, now interpreted topologically.</p>
+<h3 id="the-classifying-space-bg">4.2 The Classifying Space BG</h3>
+<p><strong>Definition (Classifying space).</strong> The <em>classifying space</em> of <span class="math inline">\(G\)</span> is</p>
+<p><span class="math display">\[BG = |NG| = B(*, G, *)\]</span></p>
+<p>the geometric realization of the nerve <span class="math inline">\(NG\)</span>. Here <span class="math inline">\(*\)</span> denotes the one-point space (the trivial <span class="math inline">\(G\)</span>-space).</p>
+<p><em>Geometric realization</em> replaces each <span class="math inline">\(G^n\)</span> with a copy of the standard topological <span class="math inline">\(n\)</span>-simplex <span class="math inline">\(\Delta^n\)</span>, glued together along the face and degeneracy maps:</p>
+<p><span class="math display">\[|NG| = \left(\bigsqcup_{n \geq 0} G^n \times \Delta^n\right) \bigg/ \sim\]</span></p>
+<p>where <span class="math inline">\((d_i(g), t) \sim (g, \delta_i(t))\)</span> and <span class="math inline">\((s_j(g), t) \sim (g, \sigma_j(t))\)</span>, with <span class="math inline">\(\delta_i, \sigma_j\)</span> the standard face and degeneracy maps on simplices.</p>
+<p><strong>Key properties:</strong>
+- When <span class="math inline">\(G\)</span> is a discrete group, <span class="math inline">\(\pi_1(BG) \cong G\)</span> and <span class="math inline">\(\pi_k(BG) = 0\)</span> for <span class="math inline">\(k &gt; 1\)</span> — so <span class="math inline">\(BG = K(G,1)\)</span> is the Eilenberg-MacLane space.
+- <span class="math inline">\(H_*(BG; \mathbb{Z}) \cong H_*(G; \mathbb{Z})\)</span> — the singular homology of <span class="math inline">\(BG\)</span> recovers group homology.
+- A principal <span class="math inline">\(G\)</span>-bundle <span class="math inline">\(P \to X\)</span> is classified by a map <span class="math inline">\(X \to BG\)</span>; homotopy classes of such maps are in bijection with isomorphism classes of principal <span class="math inline">\(G\)</span>-bundles.</p>
+<div class="callout callout-info">
+<p> Historical note
+Milnor (1956) first constructed <span class="math inline">\(BG\)</span> via the infinite join construction <span class="math inline">\(G * G * G * \cdots\)</span>, which is homeomorphic to <span class="math inline">\(|NG|\)</span> but less transparent. The simplicial/bar construction perspective was developed by Segal (1968), who showed <span class="math inline">\(BG = |NG|\)</span> and used it to construct spectra via <span class="math inline">\(\Gamma\)</span>-spaces — see <a href="../../../../notes/papers/matryoshka-representation-learning%7Csegal-(1974)/">papers/matryoshka-representation-learning|Segal (1974)</a> and <a href="../../../../notes/concepts/category-theory/segal-categories-cohomology%7Cthe-segal-note/">concepts/category-theory/segal-categories-cohomology|the Segal note</a>.</p>
+</div>
+<h3 id="the-universal-bundle-eg-via-the-two-sided-bar">4.3 The Universal Bundle EG via the Two-Sided Bar</h3>
+<p>The <em>universal principal <span class="math inline">\(G\)</span>-bundle</em> <span class="math inline">\(EG \to BG\)</span> also arises from the bar construction. Using <span class="math inline">\(G\)</span> itself as a left <span class="math inline">\(G\)</span>-space (via left multiplication):</p>
+<p><span class="math display">\[EG = B(G, G, *) = |[n \mapsto G^{n+1}]|\]</span></p>
+<p>The face maps for <span class="math inline">\(EG\)</span> are: <span class="math inline">\(d_0(g_0, g_1, \ldots, g_n) = (g_0 g_1^{-1} \cdot \text{something})\)</span>… more precisely, <span class="math inline">\(EG\)</span> is the realization of the simplicial space with <span class="math inline">\(n\)</span>-simplices <span class="math inline">\(G^{n+1}\)</span> and face map <span class="math inline">\(d_i\)</span> multiplying the <span class="math inline">\(i\)</span>-th and <span class="math inline">\((i+1)\)</span>-th entries.</p>
+<p>The bundle map <span class="math inline">\(EG \to BG\)</span> is induced by the simplicial map <span class="math inline">\(G^{n+1} \to G^n\)</span> that forgets the first factor and records the ratios <span class="math inline">\(g_0^{-1}g_1, g_1^{-1}g_2, \ldots\)</span></p>
+<p><strong>Theorem.</strong> <span class="math inline">\(EG\)</span> is contractible and <span class="math inline">\(G\)</span> acts freely on <span class="math inline">\(EG\)</span> with quotient <span class="math inline">\(EG/G \cong BG\)</span>.</p>
+<p><em>Proof sketch.</em> The contracting homotopy <span class="math inline">\(s([g_0 | g_1 | \cdots | g_n]) = [e | g_0 | \cdots | g_n]\)</span> (prepend the identity, exactly as in the algebraic case) shows <span class="math inline">\(EG\)</span> is contractible. The free <span class="math inline">\(G\)</span>-action is by <span class="math inline">\((g \cdot (g_0, g_1, \ldots, g_n)) = (gg_0, gg_1, \ldots, gg_n)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>More generally, the two-sided bar construction <span class="math inline">\(B(Y, G, X)\)</span> for <span class="math inline">\(G\)</span>-spaces <span class="math inline">\(Y\)</span> (right) and <span class="math inline">\(X\)</span> (left) gives the <em>homotopy quotient</em> (Borel construction):</p>
+<p><span class="math display">\[B(Y, G, X) \simeq Y \times_G EG \times_G X.\]</span></p>
+<h3 id="homotopy-colimits-as-bar-constructions">4.4 Homotopy Colimits as Bar Constructions</h3>
+<p>The bar construction also computes <em>homotopy colimits</em> of diagrams. Let <span class="math inline">\(\mathcal{D}\)</span> be a small category and <span class="math inline">\(F: \mathcal{D} \to \mathbf{Top}\)</span> a diagram. The <em>homotopy colimit</em> of <span class="math inline">\(F\)</span> is</p>
+<p><span class="math display">\[\mathrm{hocolim}_{\mathcal{D}}\, F = B(*, \mathcal{D}, F) = \left\lvert [n \mapsto \bigsqcup_{d_0 \to d_1 \to \cdots \to d_n} F(d_0)] \right\rvert\]</span></p>
+<p>where the coproduct runs over all composable chains of <span class="math inline">\(n\)</span> morphisms in <span class="math inline">\(\mathcal{D}\)</span>.</p>
+<ul>
+<li>Face map <span class="math inline">\(d_0\)</span> applies <span class="math inline">\(F\)</span> to the first morphism <span class="math inline">\(d_0 \to d_1\)</span> (functoriality).</li>
+<li>Face maps <span class="math inline">\(d_i\)</span> for <span class="math inline">\(0 &lt; i &lt; n\)</span> compose adjacent morphisms <span class="math inline">\(d_i \to d_{i+1}\)</span>.</li>
+<li>Face map <span class="math inline">\(d_n\)</span> forgets the last object.</li>
+<li>Degeneracy maps insert identity morphisms.</li>
+</ul>
+<p>This perspective (Malkiewich’s notes on homotopy colimits) shows that <span class="math inline">\(\mathrm{hocolim}\)</span> is a systematic version of the bar construction with <span class="math inline">\(G\)</span> replaced by the category <span class="math inline">\(\mathcal{D}\)</span> and a point replaced by the functor <span class="math inline">\(F\)</span>.</p>
+<div class="callout callout-example">
+<p> Hocolim as homotopy pushout
+For <span class="math inline">\(\mathcal{D} = \bullet \leftarrow \bullet \rightarrow \bullet\)</span> (the span category) and <span class="math inline">\(F = (A \leftarrow C \rightarrow B)\)</span>, the bar construction <span class="math inline">\(B(*, \mathcal{D}, F)\)</span> recovers the homotopy pushout <span class="math inline">\(A \sqcup^h_C B = (A \sqcup (C \times [0,1]) \sqcup B)/(c,0) \sim f(c), (c,1) \sim g(c)\)</span>.</p>
+</div>
+<hr />
+<h2 id="the-monadic-bar-construction">5. The Monadic Bar Construction 🏗️</h2>
+<h3 id="setup-and-definition">5.1 Setup and Definition</h3>
+<p>The algebraic and topological bar constructions are both special cases of the <em>monadic bar construction</em>. See <a href="../../../../notes/concepts/category-theory/foundations/04-adjoint-functor-theorems-monads%7Cthe-monads-note/">concepts/category-theory/foundations/04-adjoint-functor-theorems-monads|the monads note</a> for background on monads.</p>
+<p><strong>Definition (Monad).</strong> A <em>monad</em> on a category <span class="math inline">\(\mathcal{C}\)</span> is a triple <span class="math inline">\((T, \mu, \eta)\)</span> where <span class="math inline">\(T: \mathcal{C} \to \mathcal{C}\)</span> is a functor, <span class="math inline">\(\mu: T^2 \Rightarrow T\)</span> is the <em>multiplication</em> (a natural transformation), and <span class="math inline">\(\eta: \mathrm{Id} \Rightarrow T\)</span> is the <em>unit</em>, satisfying the associativity and unit axioms.</p>
+<p><strong>Definition (Monadic bar construction).</strong> Given a monad <span class="math inline">\((T, \mu, \eta)\)</span> on <span class="math inline">\(\mathcal{C}\)</span> and an object <span class="math inline">\(X \in \mathcal{C}\)</span>, the <em>bar construction</em> <span class="math inline">\(B_\bullet(T, X)\)</span> is the simplicial object with:</p>
+<ul>
+<li><p><strong>Degree <span class="math inline">\(n\)</span> term:</strong> <span class="math inline">\(B_n(T, X) = T^{n+1}X\)</span></p></li>
+<li><p><strong>Face maps:</strong> <span class="math inline">\(d_i = T^i \mu T^{n-i}: T^{n+2}X \to T^{n+1}X\)</span> for <span class="math inline">\(0 \leq i \leq n\)</span></p>
+<p>(apply the monad multiplication <span class="math inline">\(\mu: T^2 \Rightarrow T\)</span> at the <span class="math inline">\(i\)</span>-th position)</p></li>
+<li><p><strong>Degeneracy maps:</strong> <span class="math inline">\(s_j = T^j \eta T^{n-j}: T^{n+1}X \to T^{n+2}X\)</span> for <span class="math inline">\(0 \leq j \leq n\)</span></p>
+<p>(apply the monad unit <span class="math inline">\(\eta: \mathrm{Id} \Rightarrow T\)</span> at the <span class="math inline">\(j\)</span>-th position)</p></li>
+</ul>
+<p>If <span class="math inline">\(X\)</span> is a <span class="math inline">\(T\)</span>-algebra with structure map <span class="math inline">\(\xi: TX \to X\)</span>, then the augmentation <span class="math inline">\(d_{n+1} = T^n \xi: T^{n+1}X \to T^n X\)</span> extends this to an <em>augmented</em> simplicial object.</p>
+<div class="callout callout-note">
+<p> The algebra case
+When <span class="math inline">\(T = A \otimes_k (-)\)</span> is the monad for modules over an algebra <span class="math inline">\(A\)</span> (with <span class="math inline">\(\eta\)</span> the unit map and <span class="math inline">\(\mu\)</span> the multiplication of <span class="math inline">\(A\)</span>), <span class="math inline">\(B_\bullet(T, k)\)</span> recovers exactly the simplicial bar construction <span class="math inline">\(B_\bullet(k, A, k)\)</span> of section <a href="../../../../notes/#3.-the-simplicial-perspective%7C3/">#3. The Simplicial Perspective|3</a>.</p>
+</div>
+<h3 id="the-canonical-simplicial-resolution">5.2 The Canonical Simplicial Resolution</h3>
+<p><strong>Theorem.</strong> For any <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((X, \xi)\)</span>, the augmented simplicial object</p>
+<p><span class="math display">\[B_\bullet(T,X) \xrightarrow{\xi \circ \mu^n} X\]</span></p>
+<p>is a <em>simplicial resolution</em> of <span class="math inline">\(X\)</span> by free <span class="math inline">\(T\)</span>-algebras: each <span class="math inline">\(T^{n+1}X\)</span> is freely generated (as a <span class="math inline">\(T\)</span>-algebra) by <span class="math inline">\(T^n X\)</span>.</p>
+<p>The <em>geometric realization</em> <span class="math inline">\(|B_\bullet(T,X)|\)</span> is, when it exists (e.g., when <span class="math inline">\(\mathcal{C}\)</span> is a model category with enough structure), the <em>cofibrant replacement</em> of <span class="math inline">\(X\)</span> in the model category of <span class="math inline">\(T\)</span>-algebras.</p>
+<p>The contracting homotopy of the algebraic bar complex has a monadic incarnation: the maps <span class="math inline">\(s_{-1} = \eta_{T^{n+1}X}: T^{n+1}X \to T^{n+2}X\)</span> (apply <span class="math inline">\(\eta\)</span> on the outside) provide a simplicial homotopy between the identity and the constant map, showing that <span class="math inline">\(|B_\bullet(T,X)|\)</span> is contractible before applying the algebra structure.</p>
+<h3 id="connection-to-beck-monadicity">5.3 Connection to Beck Monadicity</h3>
+<p>The bar construction is intimately connected to Beck’s monadicity theorem (see <a href="../../../../notes/concepts/category-theory/descent-monadicity%7Cdescent-and-monadicity/">concepts/category-theory/descent-monadicity|Descent and Monadicity</a>). Given an adjunction <span class="math inline">\(F \dashv U: \mathcal{C} \to \mathcal{D}\)</span> with induced monad <span class="math inline">\(T = UF\)</span> on <span class="math inline">\(\mathcal{D}\)</span>:</p>
+<ul>
+<li>The bar construction <span class="math inline">\(B_\bullet(T, X)\)</span> for <span class="math inline">\(X \in \mathcal{D}\)</span> is the <em>canonical</em> resolution of <span class="math inline">\(X\)</span> by free <span class="math inline">\(T\)</span>-algebras.</li>
+<li>The coequalizer of <span class="math inline">\(UFUFX \rightrightarrows UFX\)</span> is <span class="math inline">\(X\)</span> itself (when <span class="math inline">\(U\)</span> reflects isomorphisms).</li>
+<li>Beck’s theorem says <span class="math inline">\(\mathcal{C}\)</span> is equivalent to <span class="math inline">\(\mathcal{D}^T\)</span> exactly when <span class="math inline">\(U\)</span> preserves and reflects coequalizers of <span class="math inline">\(U\)</span>-split pairs — and the bar construction provides the canonical <em>split pair</em> witnessing this.</li>
+</ul>
+<p><strong>The bar construction as the canonical splitting:</strong> The pair <span class="math inline">\((UFUF X, UFX)\)</span> with face maps <span class="math inline">\(UFU(\varepsilon_X): UFUFX \to UFX\)</span> (counit applied inside) and <span class="math inline">\(\varepsilon_{UFX}: UFUFX \to UFX\)</span> (counit applied outside) is always <span class="math inline">\(U\)</span>-split by the bar construction. The geometric realization <span class="math inline">\(|B_\bullet(T,X)|\)</span> gives the free resolution of <span class="math inline">\(X\)</span> used in descent theory.</p>
+<div class="callout callout-info">
+<p> Why the bar construction deloops
+The moral reason the bar construction deloops <span class="math inline">\(G\)</span> to <span class="math inline">\(BG\)</span> is the <em>fibration sequence</em>
+<span class="math display">\[G \longrightarrow EG \longrightarrow BG\]</span>
+with <span class="math inline">\(EG = B(G, G, *)\)</span> contractible. Since <span class="math inline">\(EG\)</span> is contractible, the long exact sequence of homotopy groups collapses to <span class="math inline">\(\pi_k(BG) \cong \pi_{k-1}(G)\)</span> for all <span class="math inline">\(k\)</span> — so <span class="math inline">\(BG\)</span> is, by definition, the delooping: <span class="math inline">\(\Omega BG \simeq G\)</span>.</p>
+<p><strong>Why is <span class="math inline">\(EG\)</span> contractible?</strong> The “prepend the identity” map <span class="math inline">\(s_{-1}(g_0, \ldots, g_n) = (e, g_0, \ldots, g_n)\)</span> is a <em>simplicial contraction</em>: the face map <span class="math inline">\(d_0 \circ s_{-1} = \mathrm{id}\)</span>, and <span class="math inline">\(s_{-1}\)</span> homotopes everything to a cone. This is the same algebraic trick as the acyclicity of the bar complex — <em>prepend the unit</em> — but now running topologically.</p>
+<p><strong>The simplicial picture</strong>: The <span class="math inline">\(n\)</span>-simplices <span class="math inline">\(G^{n+1}\)</span> of <span class="math inline">\(EG\)</span> are <em>chains</em> <span class="math inline">\((g_0, g_1, \ldots, g_n)\)</span> — think of them as paths of length <span class="math inline">\(n\)</span> in <span class="math inline">\(G\)</span>. The face maps multiply adjacent elements, collapsing paths. The geometric realization “fills in” all possible interpolations by stretching each chain over a topological <span class="math inline">\(n\)</span>-simplex. The quotient by the free <span class="math inline">\(G\)</span>-action <span class="math inline">\((g \cdot (g_0, \ldots, g_n)) = (gg_0, \ldots, gg_n)\)</span> forgets the “starting point” and records only the <em>ratios</em> <span class="math inline">\(g_i^{-1}g_{i+1}\)</span> — which is exactly <span class="math inline">\(BG = B(*,G,*)\)</span>.</p>
+<p><strong>A_∞ recognition theorem</strong>: More generally, Stasheff (1963) and May (1972) showed that a connected, well-pointed space <span class="math inline">\(X\)</span> has the homotopy type of <span class="math inline">\(\Omega Y\)</span> for some <span class="math inline">\(Y\)</span> <em>if and only if</em> <span class="math inline">\(X\)</span> is an <em><span class="math inline">\(A_\infty\)</span>-space</em> (a space with a homotopy-coherently associative multiplication). When <span class="math inline">\(X = G\)</span> is a topological <em>group</em>, the <span class="math inline">\(A_\infty\)</span> structure is strict, so the recognition theorem applies cleanly: the delooping is <span class="math inline">\(Y = |B_\bullet(*,G,*)| = BG\)</span>, the bar construction. For <em>iterated</em> deloopings (<span class="math inline">\(X \simeq \Omega^k Y\)</span>), one needs a <span class="math inline">\(k\)</span>-fold structure — the little <span class="math inline">\(k\)</span>-cubes operad — and the iterated bar construction <span class="math inline">\(B^k\)</span>; see <a href="https://amathew.wordpress.com/2012/01/09/delooping-and-the-bar-construction/">Mathew (2012)</a> for a lucid exposition.</p>
+<p><strong>Summary</strong>: The bar construction deloops because it <em>is</em> the path space construction in disguise — <span class="math inline">\(EG\)</span> is the contractible total space, <span class="math inline">\(BG\)</span> the base, and <span class="math inline">\(G\)</span> the fiber. Every delooping machine ultimately builds a contractible “path object” one dimension up and takes the quotient.</p>
+</div>
+<div class="callout callout-info">
+<p> Godement’s standard construction
+The monadic bar construction is sometimes called <em>Godement’s standard construction</em> or <em>the standard resolution</em> of a <span class="math inline">\(T\)</span>-algebra, reflecting its role as the canonical (choice-free) resolution in categorical algebra.</p>
+</div>
+<hr />
+<h2 id="the-bar-cobar-adjunction-and-koszul-duality">6. The Bar-Cobar Adjunction and Koszul Duality 🔄</h2>
+<h3 id="the-cobar-construction">6.1 The Cobar Construction</h3>
+<p>Every bar construction has a dual: the <em>cobar construction</em>, which turns coalgebras into algebras.</p>
+<p><strong>Definition (Coaugmented coalgebra).</strong> A <em>coaugmented dg-coalgebra</em> is a dg-coalgebra <span class="math inline">\((C, \Delta, \varepsilon)\)</span> with a map <span class="math inline">\(\eta: k \to C\)</span> (the <em>coaugmentation</em>) such that <span class="math inline">\(\varepsilon \circ \eta = \mathrm{id}_k\)</span>. The <em>coaugmentation coideal</em> is <span class="math inline">\(\bar{C} = \ker(\varepsilon: C \to k)\)</span>.</p>
+<p><strong>Definition (Cobar construction).</strong> The <em>cobar construction</em> <span class="math inline">\(\Omega C\)</span> of a coaugmented dg-coalgebra <span class="math inline">\(C\)</span> is the dg-algebra:</p>
+<ul>
+<li><strong>Underlying graded algebra:</strong> <span class="math inline">\(T(s^{-1}\bar{C})\)</span>, the free associative algebra on the <em>desuspension</em> <span class="math inline">\(s^{-1}\bar{C}\)</span> (shift of grading by <span class="math inline">\(-1\)</span>).</li>
+<li><strong>Notation:</strong> An element <span class="math inline">\((s^{-1}c_1) \otimes \cdots \otimes (s^{-1}c_n)\)</span> is written <span class="math inline">\([c_1 | \cdots | c_n]\)</span> (same bar notation, different meaning).</li>
+<li><strong>Differential:</strong> The differential on <span class="math inline">\(\Omega C\)</span> has two parts:
+<ol type="1">
+<li>The internal differential of <span class="math inline">\(C\)</span>, applied to each <span class="math inline">\(c_i\)</span>.</li>
+<li>The <em>cobar differential</em> <span class="math inline">\(\delta[c_1|\cdots|c_n] = \sum_i (-1)^{|c_1|+\cdots+|c_{i-1}|} [c_1|\cdots|\Delta(c_i)|\cdots|c_n]\)</span>, using the reduced coproduct <span class="math inline">\(\bar{\Delta}: \bar{C} \to \bar{C} \otimes \bar{C}\)</span>.</li>
+</ol></li>
+</ul>
+<h3 id="the-adjunction-b-dashv-omega">6.2 The Adjunction B Dashv Omega</h3>
+<p>There is an <em>adjunction</em> between the category of augmented dg-algebras and the category of coaugmented conilpotent dg-coalgebras:</p>
+<p><span class="math display">\[B \dashv \Omega: \mathbf{dgAlg}_{\mathrm{aug}} \rightleftharpoons \mathbf{dgCoalg}_{\mathrm{coaug}}^{\mathrm{conil}}\]</span></p>
+<p>The <em>bar construction</em> <span class="math inline">\(BA\)</span> of an augmented dg-algebra <span class="math inline">\(A\)</span> is the dg-coalgebra with:
+- <strong>Underlying coalgebra:</strong> <span class="math inline">\(T^c(s\bar{A})\)</span>, the cofree conilpotent coalgebra on the suspension <span class="math inline">\(s\bar{A}\)</span>.
+- <strong>Differential:</strong> The bar differential from section <a href="../../../../notes/#2.2-the-one-sided-bar-complex-b(k,-a,-k)%7C2.2/">#2.2 The One-Sided Bar Complex B(k, A, k)|2.2</a>, now incorporating any internal differential on <span class="math inline">\(A\)</span>.
+- <strong>Coproduct:</strong> The <em>deconcatenation coproduct</em> <span class="math inline">\(\Delta[a_1|\cdots|a_n] = \sum_{i=0}^n [a_1|\cdots|a_i] \otimes [a_{i+1}|\cdots|a_n]\)</span>.</p>
+<p>The adjunction unit <span class="math inline">\(A \to \Omega BA\)</span> is the <em>bar-cobar resolution</em> of <span class="math inline">\(A\)</span>.</p>
+<div class="callout callout-warning">
+<p> Conilpotency
+The coalgebra <span class="math inline">\(BA\)</span> is <em>conilpotent</em>: every element is annihilated by sufficiently many applications of the reduced coproduct <span class="math inline">\(\bar{\Delta}\)</span>. Without this condition, the adjunction breaks down. For non-conilpotent coalgebras, one needs the <em>extended bar construction</em>.</p>
+</div>
+<h3 id="koszul-duality">6.3 Koszul Duality</h3>
+<p>For a <em>quadratic algebra</em> <span class="math inline">\(A = T(V)/(R)\)</span> where <span class="math inline">\(R \subset V^{\otimes 2}\)</span>, the <em>Koszul dual coalgebra</em> is <span class="math inline">\(A^¡ = T^c(sV)/(sR)^{\perp}\)</span>. The algebra <span class="math inline">\(A\)</span> is <em>Koszul</em> if the natural map</p>
+<p><span class="math display">\[\Omega(A^¡) \xrightarrow{\sim} A\]</span></p>
+<p>is a quasi-isomorphism — i.e., the bar-cobar resolution through the Koszul dual is <em>minimal</em> (the bar-cobar resolution of a general algebra is always a resolution, but typically far from minimal).</p>
+<p><strong>Examples of Koszul algebras:</strong>
+- Polynomial algebras <span class="math inline">\(k[x_1, \ldots, n]\)</span> (Koszul dual: exterior algebra <span class="math inline">\(\Lambda[x_1^*, \ldots, x_n^*]\)</span>)
+- Exterior algebras (Koszul dual: polynomial algebra)
+- The universal enveloping algebra <span class="math inline">\(U(\mathfrak{g})\)</span> for a Lie algebra <span class="math inline">\(\mathfrak{g}\)</span> (Koszul dual: the Chevalley-Eilenberg algebra)</p>
+<div class="callout callout-info">
+<p> Koszul duality in homotopy theory
+Koszul duality has a deep homotopy-theoretic interpretation: the bar construction <span class="math inline">\(BA\)</span> is a model for the <em>suspension</em> of <span class="math inline">\(A\)</span> in an appropriate sense, and the cobar construction <span class="math inline">\(\Omega C\)</span> models the <em>loop space</em> functor. The Koszul duality <span class="math inline">\(\Omega(A^!) \simeq A\)</span> says that for Koszul algebras, one loop of one suspension returns you home — exactly as <span class="math inline">\(\Omega\Sigma X \simeq X\)</span> for simply-connected spaces under suitable conditions.</p>
+</div>
+<h3 id="adams-cobar-construction-for-loop-spaces">6.4 Adams’ Cobar Construction for Loop Spaces</h3>
+<p>The original motivation for the cobar construction was purely topological. <em>J. Frank Adams</em> (1956) showed:</p>
+<p><strong>Theorem (Adams).</strong> For a simply-connected topological space <span class="math inline">\(X\)</span> with basepoint, there is a quasi-isomorphism of dg-algebras</p>
+<p><span class="math display">\[\Omega C_*(X, *) \xrightarrow{\sim} C_*(\Omega X)\]</span></p>
+<p>where <span class="math inline">\(C_*(X, *)\)</span> is the singular chain coalgebra of <span class="math inline">\(X\)</span> (with coproduct given by the Alexander-Whitney map), and <span class="math inline">\(\Omega X\)</span> is the based loop space with its Pontryagin product.</p>
+<p>This remarkable theorem says: <em>the cobar construction on the chains of a space models the chains on its loop space.</em> The bar-cobar adjunction is the algebraic shadow of the geometric suspension-loop adjunction <span class="math inline">\(\Sigma \dashv \Omega\)</span>.</p>
+<hr />
+<h2 id="hochschild-homology-and-the-cyclic-bar-construction">7. Hochschild Homology and the Cyclic Bar Construction ♻️</h2>
+<h3 id="the-hochschild-complex-as-a-bar-complex">7.1 The Hochschild Complex as a Bar Complex</h3>
+<p>Let <span class="math inline">\(A\)</span> be a <span class="math inline">\(k\)</span>-algebra and <span class="math inline">\(M\)</span> an <span class="math inline">\(A\)</span>-bimodule (equivalently, a left <span class="math inline">\(A \otimes_k A^{\mathrm{op}}\)</span>-module). The <em>Hochschild complex</em> <span class="math inline">\(C_*(A, M)\)</span> is:</p>
+<p><span class="math display">\[C_n(A, M) = M \otimes_k A^{\otimes_k n}, \quad n \geq 0\]</span></p>
+<p>with differential <span class="math inline">\(b: C_n \to C_{n-1}\)</span> given by</p>
+<p><span class="math display">\[b(m \otimes a_1 \otimes \cdots \otimes a_n) = ma_1 \otimes a_2 \otimes \cdots \otimes a_n + \sum_{i=1}^{n-1}(-1)^i m \otimes a_1 \otimes \cdots \otimes a_i a_{i+1} \otimes \cdots \otimes a_n + (-1)^n a_n m \otimes a_1 \otimes \cdots \otimes a_{n-1}.\]</span></p>
+<p><strong>Observation:</strong> <span class="math inline">\(C_*(A, M) = B(M, A, k)\)</span> — the two-sided bar complex with <span class="math inline">\(N = k\)</span> and the bimodule action folding into the two-sided structure. The <em>Hochschild homology</em> is therefore</p>
+<p><span class="math display">\[HH_n(A, M) = H_n(C_*(A, M)) = \mathrm{Tor}_n^{A \otimes A^{\mathrm{op}}}(A, M).\]</span></p>
+<p>For <span class="math inline">\(M = A\)</span> (with the natural bimodule structure), <span class="math inline">\(HH_*(A, A) = \mathrm{Tor}_*^{A^e}(A, A)\)</span> where <span class="math inline">\(A^e = A \otimes_k A^{\mathrm{op}}\)</span>.</p>
+<h3 id="the-cyclic-bar-construction">7.2 The Cyclic Bar Construction</h3>
+<p>Hochschild homology carries an extra structure: a <em>cyclic symmetry</em>. The key observation is that <span class="math inline">\(C_n(A,A) = A^{\otimes(n+1)}\)</span> admits a cyclic action by the cyclic group <span class="math inline">\(C_{n+1}\)</span> via</p>
+<p><span class="math display">\[t_n(a_0 \otimes a_1 \otimes \cdots \otimes a_n) = (-1)^n a_n \otimes a_0 \otimes a_1 \otimes \cdots \otimes a_{n-1}\]</span></p>
+<p>(cyclic rotation with sign). This is the <em>cyclic operator</em> of Connes.</p>
+<p><strong>Definition (Cyclic bar construction).</strong> The <em>cyclic bar construction</em> <span class="math inline">\(B^{\mathrm{cy}}_\bullet(A)\)</span> is the cyclic object with <span class="math inline">\(B^{\mathrm{cy}}_n(A) = A^{\otimes(n+1)}\)</span>, face maps <span class="math inline">\(d_i\)</span> as in the Hochschild complex, and the cyclic operator <span class="math inline">\(t_n\)</span> above.</p>
+<p>A <em>cyclic object</em> in <span class="math inline">\(\mathcal{C}\)</span> is a simplicial object with compatible cyclic actions — formally, a functor from Connes’ cyclic category <span class="math inline">\(\Lambda\)</span> to <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<h3 id="cyclic-homology-and-the-circle-action">7.3 Cyclic Homology and the Circle Action</h3>
+<p>The geometric realization <span class="math inline">\(|B^{\mathrm{cy}}_\bullet(A)|\)</span> carries an <span class="math inline">\(S^1\)</span>-action (since cyclic objects realize to spaces with circle actions), and:</p>
+<p><span class="math display">\[HH_*(A) = \pi_*(|B^{\mathrm{cy}}_\bullet(A)|)\]</span></p>
+<p>The circle action on <span class="math inline">\(|B^{\mathrm{cy}}(A)|\)</span> gives, via the fibration <span class="math inline">\(ES^1 \to BS^1 = \mathbb{CP}^\infty\)</span>, the <em>cyclic homology</em> <span class="math inline">\(HC_*(A)\)</span> as the <span class="math inline">\(S^1\)</span>-equivariant version:</p>
+<p><span class="math display">\[HC_*(A) = H_*^{S^1}(|B^{\mathrm{cy}}(A)|)\]</span></p>
+<p>and the <em>periodic cyclic homology</em> <span class="math inline">\(HP_*(A)\)</span> is the corresponding Tate construction.</p>
+<div class="callout callout-info">
+<p> Topological Hochschild Homology
+In stable homotopy theory, replacing <span class="math inline">\(k\)</span>-modules with spectra and the tensor product <span class="math inline">\(\otimes_k\)</span> with the smash product <span class="math inline">\(\wedge\)</span> yields <em>topological Hochschild homology</em> <span class="math inline">\(THH(A) = |B^{\mathrm{cy}}_\bullet(A)|\)</span> for a ring spectrum <span class="math inline">\(A\)</span>. This is the starting point for trace methods in algebraic <span class="math inline">\(K\)</span>-theory (via the cyclotomic trace <span class="math inline">\(K(A) \to TC(A)\)</span>).</p>
+</div>
+<hr />
+<h2 id="the-categorical-and-infinity-categorical-perspective">8. The Categorical and Infinity-Categorical Perspective 🌌</h2>
+<h3 id="bar-as-colimit-the-coequalizer-interpretation">8.1 Bar as Colimit: The Coequalizer Interpretation</h3>
+<p>The geometric realization of the bar construction is a <em>colimit</em>. The simplest case: for a <span class="math inline">\(T\)</span>-algebra <span class="math inline">\(X\)</span>, the realization <span class="math inline">\(|B_\bullet(T,X)|\)</span> is the <em>coequalizer</em> in <span class="math inline">\(\mathcal{C}\)</span>:</p>
+<p><span class="math display">\[T^2 X \underset{T\xi}{\overset{\mu_X}{\rightrightarrows}} TX \to X\]</span></p>
+<p>where <span class="math inline">\(\mu_X: T^2X \to TX\)</span> is the monad multiplication and <span class="math inline">\(T\xi: T^2X \to TX\)</span> applies <span class="math inline">\(T\)</span> to the algebra structure <span class="math inline">\(\xi: TX \to X\)</span>. This coequalizer is the <em>Beck coequalizer</em> and is always split (by the <span class="math inline">\(T\)</span>-algebra axioms), hence absolute.</p>
+<p>More precisely, <span class="math inline">\(|B_\bullet(T,X)|\)</span> is the <em>geometric realization</em> (= colimit over <span class="math inline">\(\Delta^{\mathrm{op}}\)</span>) of the entire simplicial diagram, not just the coequalizer of the first two face maps. But for good enough monads, these agree.</p>
+<p><strong>Proposition.</strong> When <span class="math inline">\(T\)</span> preserves reflexive coequalizers and <span class="math inline">\(\mathcal{C}\)</span> has such coequalizers, <span class="math inline">\(|B_\bullet(T,X)| \cong X\)</span> for any <span class="math inline">\(T\)</span>-algebra <span class="math inline">\((X, \xi)\)</span>.</p>
+<p><em>Proof sketch.</em> The colimit of <span class="math inline">\(B_\bullet(T,X)\)</span> is the coequalizer of <span class="math inline">\(T^2X \rightrightarrows TX\)</span>, which by the split pair argument is <span class="math inline">\(X\)</span> itself. <span class="math inline">\(\square\)</span></p>
+<h3 id="the-infinity-categorical-bar-construction">8.2 The Infinity-Categorical Bar Construction</h3>
+<p>In the <span class="math inline">\(\infty\)</span>-categorical setting (Lurie’s Higher Algebra), the bar construction works even better because <em>geometric realization</em> (= <span class="math inline">\(\infty\)</span>-colimit over <span class="math inline">\(\Delta^{\mathrm{op}}\)</span>) is better behaved than ordinary coequalizers.</p>
+<p><strong>Theorem (Barr-Beck-Lurie).</strong> Let <span class="math inline">\(f: \mathcal{C} \to \mathcal{D}\)</span> be a functor of <span class="math inline">\(\infty\)</span>-categories admitting a left adjoint <span class="math inline">\(g\)</span>. Then <span class="math inline">\(f\)</span> is monadic if and only if:
+1. <span class="math inline">\(f\)</span> is conservative (reflects equivalences).
+2. <span class="math inline">\(\mathcal{C}\)</span> admits geometric realizations of <span class="math inline">\(f\)</span>-split simplicial objects, and <span class="math inline">\(f\)</span> preserves them.</p>
+<p>Under monadicity, the canonical comparison <span class="math inline">\(|B_\bullet(T, X)| \simeq X\)</span> holds for every <span class="math inline">\(T\)</span>-algebra <span class="math inline">\(X\)</span>.</p>
+<p>The <span class="math inline">\(\infty\)</span>-categorical bar construction also gives the functor</p>
+<p><span class="math display">\[B: \mathbf{Alg}_{\mathcal{O}}(\mathcal{C}) \to \mathbf{CoAlg}_{\mathcal{O}^!}(\mathcal{C})\]</span></p>
+<p>from <span class="math inline">\(\mathcal{O}\)</span>-algebras to <span class="math inline">\(\mathcal{O}^!\)</span>-coalgebras for an operad <span class="math inline">\(\mathcal{O}\)</span> and its Koszul dual <span class="math inline">\(\mathcal{O}^!\)</span> — Koszul duality for <span class="math inline">\(\infty\)</span>-operads (Lurie HA §4.4).</p>
+<div class="callout callout-info">
+<p> The bar construction and deformation theory
+In derived algebraic geometry, the bar construction controls deformation theory: the formal moduli problem of deforming an <span class="math inline">\(\mathcal{O}\)</span>-algebra structure is controlled by the bar construction <span class="math inline">\(B\)</span> and its Koszul dual <span class="math inline">\(\Omega\)</span>. This is the content of Lurie’s theorem on formal moduli problems (HA §5.1).</p>
+</div>
+<h3 id="everything-is-one-construction">8.3 Everything Is One Construction</h3>
+<p>We can now state the unifying principle:</p>
+<p><strong>Every bar construction is the geometric realization of a simplicial object arising from a monad, with the face maps given by the monad multiplication and the augmentation given by an algebra structure map.</strong></p>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 31%" />
+<col style="width: 15%" />
+<col style="width: 27%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Version</th>
+<th>Category <span class="math inline">\(\mathcal{C}\)</span></th>
+<th>Monad <span class="math inline">\(T\)</span></th>
+<th>Algebra <span class="math inline">\((X, \xi)\)</span></th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Algebraic bar</td>
+<td><span class="math inline">\(k\)</span>-modules</td>
+<td><span class="math inline">\(A \otimes_k (-)\)</span></td>
+<td><span class="math inline">\((k, \varepsilon)\)</span></td>
+<td><span class="math inline">\(B(k,A,k) \to k\)</span></td>
+</tr>
+<tr class="even">
+<td>Two-sided bar</td>
+<td><span class="math inline">\(k\)</span>-modules</td>
+<td><span class="math inline">\(A \otimes_k (-)\)</span></td>
+<td><span class="math inline">\((N, \text{action})\)</span></td>
+<td><span class="math inline">\(B(M,A,N) \to M \otimes_A N\)</span></td>
+</tr>
+<tr class="odd">
+<td>Group homology</td>
+<td><span class="math inline">\(\mathbb{Z}\)</span>-modules</td>
+<td><span class="math inline">\(\mathbb{Z}[G] \otimes (-)\)</span></td>
+<td><span class="math inline">\((\mathbb{Z}, \text{trivial})\)</span></td>
+<td><span class="math inline">\(B(k,G,k)\)</span></td>
+</tr>
+<tr class="even">
+<td>Classifying space</td>
+<td>Topological spaces</td>
+<td><span class="math inline">\(G \times (-)\)</span></td>
+<td><span class="math inline">\((\{*\}, \text{trivial})\)</span></td>
+<td><span class="math inline">\(BG = |NG|\)</span></td>
+</tr>
+<tr class="odd">
+<td>Homotopy colimit</td>
+<td>Topological spaces</td>
+<td><span class="math inline">\(\bigsqcup_{d \to -} F(d)\)</span></td>
+<td>(functor <span class="math inline">\(F\)</span>)</td>
+<td><span class="math inline">\(\mathrm{hocolim}_{\mathcal{D}} F\)</span></td>
+</tr>
+<tr class="even">
+<td>Hochschild</td>
+<td><span class="math inline">\(k\)</span>-modules</td>
+<td><span class="math inline">\(A \otimes_k (-) \otimes_k A\)</span></td>
+<td><span class="math inline">\((A, \mu)\)</span></td>
+<td><span class="math inline">\(HH_*(A)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Cobar/Koszul</td>
+<td>dg-modules</td>
+<td><span class="math inline">\(T(s^{-1}\bar{C} \otimes -)\)</span></td>
+<td><span class="math inline">\((A, \text{alg. str.})\)</span></td>
+<td><span class="math inline">\(\Omega C \to A\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><em>Surprisingly,</em> the contracting homotopy that proves acyclicity is always the same map: <em>prepend the unit</em> (of the monad, of the algebra, of the group, …). The sign conventions vary but the idea is universal.</p>
+<div class="callout callout-question">
+<p> Open question: operadic bar constructions
+The bar construction generalizes further to <em>operads</em>: the bar construction of an operad <span class="math inline">\(\mathcal{P}\)</span> is the cooperad <span class="math inline">\(B\mathcal{P}\)</span>, and Koszul duality for operads says <span class="math inline">\(\mathcal{P}\)</span> is Koszul iff <span class="math inline">\(\Omega(B\mathcal{P}) \simeq \mathcal{P}\)</span> (quasi-isomorphism). Loday-Vallette give a comprehensive treatment. Much of derived algebraic geometry and deformation theory reduces to questions about these operadic bar constructions.</p>
+</div>
+<hr />
+<h2 id="the-bar-construction-in-spectra-b-as-categorical-suspension">9. The Bar Construction in Spectra: B as Categorical Suspension 🌠</h2>
+<h3 id="augmented-ring-spectra-and-the-spectral-bar-construction">9.1 Augmented Ring Spectra and the Spectral Bar Construction</h3>
+<p>In the ∞-categorical setting, the bar construction generalizes to <strong>ring spectra</strong> — <span class="math inline">\(\mathbb{E}_1\)</span>- or <span class="math inline">\(\mathbb{E}_\infty\)</span>-algebra objects in the stable ∞-category of spectra <span class="math inline">\(\mathrm{Sp}\)</span>. The algebraic field <span class="math inline">\(k\)</span> is replaced by the <em>sphere spectrum</em> <span class="math inline">\(\mathbb{S}\)</span> (the unit for the smash product <span class="math inline">\(\wedge\)</span>), and the tensor product <span class="math inline">\(\otimes_k\)</span> is replaced by <span class="math inline">\(\wedge\)</span>.</p>
+<p>The input is an <em>augmented</em> <span class="math inline">\(\mathbb{E}_n\)</span>-ring spectrum: an <span class="math inline">\(\mathbb{E}_n\)</span>-algebra <span class="math inline">\(A\)</span> with a map of <span class="math inline">\(\mathbb{E}_n\)</span>-algebras <span class="math inline">\(\varepsilon: A \to \mathbb{S}\)</span>. The <em>augmentation ideal</em> is the fiber:</p>
+<p><span class="math display">\[\bar{A} = \mathrm{fib}(\varepsilon: A \to \mathbb{S}), \quad \text{fitting into } \bar{A} \to A \xrightarrow{\varepsilon} \mathbb{S}.\]</span></p>
+<p><strong>Definition (Spectral bar construction).</strong> The <em>bar construction</em> of an augmented <span class="math inline">\(\mathbb{E}_1\)</span>-ring spectrum <span class="math inline">\(A\)</span> is the <em>relative smash product</em>:</p>
+<p><span class="math display">\[BA = \mathbb{S} \wedge_A \mathbb{S}\]</span></p>
+<p>i.e., the geometric realization of the simplicial spectrum <span class="math inline">\(B_\bullet(\mathbb{S}, A, \mathbb{S})\)</span> with <span class="math inline">\(B_n = \mathbb{S} \wedge A^{\wedge n} \wedge \mathbb{S}\)</span>, face maps using the multiplication of <span class="math inline">\(A\)</span> and the augmentation maps at the ends, degeneracy maps inserting the unit <span class="math inline">\(\eta: \mathbb{S} \to A\)</span>.</p>
+<h3 id="b-as-categorical-suspension-not-spectrum-suspension">9.2 B as Categorical Suspension, Not Spectrum Suspension</h3>
+<p>The key clarification: <strong><span class="math inline">\(BA\)</span> is not <span class="math inline">\(\Sigma A\)</span> as a spectrum</strong>, but rather the suspension of <span class="math inline">\(A\)</span> <em>in the ∞-category of augmented <span class="math inline">\(\mathbb{E}_\infty\)</span>-algebras</em>.</p>
+<p>The <em>suspension functor</em> in any pointed ∞-category <span class="math inline">\(\mathcal{C}\)</span> (with zero object <span class="math inline">\(0\)</span>) is:</p>
+<p><span class="math display">\[\Sigma_\mathcal{C}\, X = 0 \sqcup_X 0 \quad (\text{pushout of two maps } X \to 0).\]</span></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category <span class="math inline">\(\mathcal{C}\)</span></th>
+<th>Zero object</th>
+<th><span class="math inline">\(\Sigma_\mathcal{C}\, X\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pointed spaces <span class="math inline">\(\mathcal{S}_*\)</span></td>
+<td><span class="math inline">\(*\)</span></td>
+<td><span class="math inline">\(S^1 \wedge X\)</span> (unreduced suspension)</td>
+</tr>
+<tr class="even">
+<td>Spectra <span class="math inline">\(\mathrm{Sp}\)</span></td>
+<td><span class="math inline">\(*\)</span></td>
+<td><span class="math inline">\(\Sigma X\)</span> (shift by 1)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathrm{Alg}^{\mathrm{aug}}_{\mathbb{E}_\infty}\)</span></td>
+<td><span class="math inline">\(\mathbb{S}\)</span> (initial and terminal)</td>
+<td><span class="math inline">\(\mathbb{S} \sqcup_A \mathbb{S} = \mathbb{S} \wedge_A \mathbb{S} = BA\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>So <span class="math inline">\(BA\)</span> <strong>is</strong> the suspension of <span class="math inline">\(A\)</span> — but only in the ∞-category of augmented <span class="math inline">\(\mathbb{E}_\infty\)</span>-algebras. The forgetful functor <span class="math inline">\(\mathrm{Alg}^{\mathrm{aug}}_{\mathbb{E}_\infty} \to \mathrm{Sp}\)</span> does not preserve pushouts, so this algebraic suspension does not coincide with the spectrum-level suspension.</p>
+<div class="callout callout-warning">
+<p> <span class="math inline">\(BA \neq \Sigma A\)</span> as spectra
+The homotopy groups of <span class="math inline">\(BA\)</span> are computed by the <em>bar spectral sequence</em>:</p>
+<p><span class="math display">\[E^2_{p,q} = \mathrm{Tor}^{\pi_*A}_{p,q}(\pi_*\mathbb{S},\ \pi_*\mathbb{S}) \implies \pi_{p+q}(BA).\]</span></p>
+<p>For a non-free algebra, this spectral sequence has multiple non-zero rows and the result is far from <span class="math inline">\(\Sigma A\)</span>. For example, for <span class="math inline">\(A = H\mathbb{F}_p\)</span> (the Eilenberg-MacLane spectrum), <span class="math inline">\(BA \simeq H\mathbb{F}_p \wedge_{H\mathbb{F}_p \wedge H\mathbb{F}_p} H\mathbb{F}_p\)</span> computes the dual Steenrod algebra, not <span class="math inline">\(\Sigma H\mathbb{F}_p\)</span>.</p>
+</div>
+<h3 id="the-free-algebra-case-when-ba-simeq-sigma-m">9.3 The Free Algebra Case: When BA Simeq Sigma M</h3>
+<p>The one case where spectral bar and spectrum suspension coincide is for <strong>free algebras</strong>.</p>
+<p><strong>Theorem.</strong> Let <span class="math inline">\(M\)</span> be a spectrum. For the free <span class="math inline">\(\mathbb{E}_\infty\)</span>-algebra <span class="math inline">\(\mathrm{Sym}(M) = \bigoplus_{n \geq 0} (M^{\wedge n})_{h\Sigma_n}\)</span> on <span class="math inline">\(M\)</span>:</p>
+<p><span class="math display">\[B(\mathrm{Sym}(M)) \simeq \Sigma M \quad \text{(as spectra)}.\]</span></p>
+<p><em>Why.</em> The bar spectral sequence degenerates: <span class="math inline">\(\mathrm{Tor}^{\pi_*\mathrm{Sym}(M)}_{p,*}(\pi_*\mathbb{S}, \pi_*\mathbb{S}) = 0\)</span> for <span class="math inline">\(p \geq 2\)</span>, because the Tor groups of a polynomial algebra over itself vanish above the indecomposables (homological degree 1). The first column is <span class="math inline">\(\bar{A}/\bar{A}^{\otimes 2} \simeq \Sigma M\)</span> and everything else is zero.</p>
+<p>This is the spectral version of the classical fact: the <em>indecomposables</em> of <span class="math inline">\(k[V] = \mathrm{Sym}(V)\)</span> are just <span class="math inline">\(V\)</span> (all higher-order terms are decomposable). The bar construction strips away everything but the generators.</p>
+<div class="callout callout-example">
+<p> Polynomial algebra over a field
+Let <span class="math inline">\(A = k[x]\)</span> with <span class="math inline">\(|x| = n\)</span>, augmented by <span class="math inline">\(\varepsilon(x) = 0\)</span>. The classical bar complex <span class="math inline">\(B(k, k[x], k)\)</span> has <span class="math inline">\(E^2_{1,*} = \bar{A}/\bar{A}^2 = k\cdot x\)</span> concentrated in homological degree 1. All higher Tor groups vanish (polynomial algebras are Koszul). So <span class="math inline">\(B(k[x]) \simeq \Sigma k\cdot x\)</span> — a single class shifted by one. This is the <span class="math inline">\(k\)</span>-linear version of <span class="math inline">\(B(\mathrm{Sym}(M)) \simeq \Sigma M\)</span>.</p>
+</div>
+<h3 id="iterated-bar-and-en-algebras">9.4 Iterated Bar and En-Algebras</h3>
+<p>The bar construction can be iterated, and each application “uses up” one level of commutativity. For an augmented <span class="math inline">\(\mathbb{E}_n\)</span>-algebra <span class="math inline">\(A\)</span> (for <span class="math inline">\(n \geq 1\)</span>), the <em><span class="math inline">\(n\)</span>-fold bar construction</em> is:</p>
+<p><span class="math display">\[B^n A = \underbrace{B \circ B \circ \cdots \circ B}_{n}(A)\]</span></p>
+<p>Each <span class="math inline">\(B\)</span> lowers the <span class="math inline">\(\mathbb{E}_k\)</span>-level by one: <span class="math inline">\(B\)</span> sends augmented <span class="math inline">\(\mathbb{E}_k\)</span>-algebras to augmented <span class="math inline">\(\mathbb{E}_{k-1}\)</span>-coalgebras. So <span class="math inline">\(B^n A\)</span> requires <span class="math inline">\(A\)</span> to be an <span class="math inline">\(\mathbb{E}_n\)</span>-algebra (at minimum), and produces an <span class="math inline">\(\mathbb{E}_0\)</span>-coalgebra (a coaugmented cochain complex / cospectra).</p>
+<p><strong>The iterated bar construction is the <span class="math inline">\(\mathbb{E}_n\)</span>-suspension:</strong></p>
+<p><span class="math display">\[B^n A = \Sigma_{\mathrm{Alg}^{\mathrm{aug}}_{\mathbb{E}_n}} A.\]</span></p>
+<p>For free algebras, this degenerates cleanly:</p>
+<p><span class="math display">\[B^n(\mathrm{Free}_{\mathbb{E}_n}(M)) \simeq \Sigma^n M.\]</span></p>
+<p>The full hierarchy of structures and their delooping machines:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Algebra structure on <span class="math inline">\(A\)</span></th>
+<th><span class="math inline">\(B^n A\)</span></th>
+<th>Geometric meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbb{E}_1\)</span> (associative)</td>
+<td><span class="math inline">\(BA = \mathbb{S} \wedge_A \mathbb{S}\)</span></td>
+<td>Classifying space / one delooping</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbb{E}_2\)</span> (braided)</td>
+<td><span class="math inline">\(B^2 A = B(BA)\)</span></td>
+<td>Two-fold delooping</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbb{E}_n\)</span></td>
+<td><span class="math inline">\(B^n A\)</span></td>
+<td><span class="math inline">\(n\)</span>-fold delooping</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbb{E}_\infty\)</span> (commutative)</td>
+<td><span class="math inline">\(B^\infty A\)</span></td>
+<td>Suspension spectrum <span class="math inline">\(\Sigma^\infty_+ A\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>In the <span class="math inline">\(\mathbb{E}_\infty\)</span> (fully commutative / stable) case, the ∞-fold bar construction of a grouplike <span class="math inline">\(\mathbb{E}_\infty\)</span>-space <span class="math inline">\(A\)</span> is its <em>suspension spectrum</em> <span class="math inline">\(\Sigma^\infty_+ A\)</span> — the stable homotopy type encoding only the additive structure of <span class="math inline">\(A\)</span>.</p>
+<div class="callout callout-info">
+<p> Koszul duality as <span class="math inline">\(B^n \dashv \Omega^n\)</span>
+The iterated cobar construction <span class="math inline">\(\Omega^n C\)</span> inverts <span class="math inline">\(B^n\)</span>: <span class="math inline">\(\Omega^n(B^n A) \simeq A\)</span> for Koszul <span class="math inline">\(\mathbb{E}_n\)</span>-algebras (those for which the bar-cobar resolution is minimal). This is Francis-Gaitsgory’s <em><span class="math inline">\(\mathbb{E}_n\)</span>-Koszul duality</em>. For <span class="math inline">\(n = 1\)</span>, it reduces to classical Koszul duality of §6.3. For <span class="math inline">\(n = \infty\)</span>, it recovers the equivalence between connective <span class="math inline">\(\mathbb{E}_\infty\)</span>-algebras and connective cocommutative coalgebras — a spectral version of the Milnor-Moore theorem.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.2307/1969820">Eilenberg &amp; Mac Lane (1953)</a></td>
+<td>Original bar notation for homology of <span class="math inline">\(K(\pi,n)\)</span></td>
+<td>https://doi.org/10.2307/1969820</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.2307/1969983">Milnor (1956)</a></td>
+<td>Universal bundle <span class="math inline">\(EG \to BG\)</span> via infinite join</td>
+<td>https://doi.org/10.2307/1969983</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1073/pnas.42.7.409">Adams (1956)</a></td>
+<td>Cobar construction <span class="math inline">\(\Omega C\)</span> for loop spaces</td>
+<td>https://doi.org/10.1073/pnas.42.7.409</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1090/S0002-9947-1963-99936-3">Stasheff (1963)</a></td>
+<td>Associahedra, <span class="math inline">\(A_\infty\)</span>-spaces, bar for <span class="math inline">\(H\)</span>-spaces</td>
+<td>https://doi.org/10.1090/S0002-9947-1963-99936-3</td>
+</tr>
+<tr class="odd">
+<td><a href="https://link.springer.com/article/10.1007/BF02684591">Segal (1968)</a></td>
+<td>Nerve <span class="math inline">\(BG = |NG|\)</span>; classifying spaces</td>
+<td>https://link.springer.com/article/10.1007/BF02684591</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.math.uchicago.edu/~may/BOOKS/gils.pdf">May (1972), Geometry of Iterated Loop Spaces</a></td>
+<td>Two-sided bar <span class="math inline">\(B(Y,M,X)\)</span>, monadic bar</td>
+<td>https://www.math.uchicago.edu/~may/BOOKS/gils.pdf</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1090/memo/0155">May (1975), Classifying Spaces and Fibrations</a></td>
+<td>Geometric bar for fibrations</td>
+<td>https://doi.org/10.1090/memo/0155</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.sas.rochester.edu/mth/sites/doug-ravenel/otherpapers/weibel-homv2.pdf">Weibel (1994)</a></td>
+<td>Algebraic bar resolution, Tor, Ext</td>
+<td>https://www.sas.rochester.edu/mth/sites/doug-ravenel/otherpapers/weibel-homv2.pdf</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.cambridge.org/core/books/users-guide-to-spectral-sequences/524E3BD5DDD6D387E3C609910142F6E6">McCleary (2001)</a></td>
+<td>Eilenberg-Moore SS, cobar construction</td>
+<td>https://www.cambridge.org/core/books/users-guide-to-spectral-sequences/524E3BD5DDD6D387E3C609910142F6E6</td>
+</tr>
+<tr class="even">
+<td><a href="https://link.springer.com/book/10.1007/978-3-662-11389-9">Loday (1992), Cyclic Homology</a></td>
+<td>Cyclic bar construction, <span class="math inline">\(HC_*\)</span></td>
+<td>https://link.springer.com/book/10.1007/978-3-662-11389-9</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.math.univ-paris13.fr/~vallette/Operads.pdf">Loday &amp; Vallette (2012), Algebraic Operads</a></td>
+<td>Bar/cobar for operads, Koszul duality</td>
+<td>https://www.math.univ-paris13.fr/~vallette/Operads.pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://webhomes.maths.ed.ac.uk/~v1ranick/papers/mayponto.pdf">May &amp; Ponto (2012)</a></td>
+<td>Modern classifying spaces, model categories</td>
+<td>https://webhomes.maths.ed.ac.uk/~v1ranick/papers/mayponto.pdf</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.math.ias.edu/~lurie/papers/HA.pdf">Lurie (2017), Higher Algebra</a></td>
+<td><span class="math inline">\(\infty\)</span>-bar construction, Barr-Beck-Lurie</td>
+<td>https://www.math.ias.edu/~lurie/papers/HA.pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://golem.ph.utexas.edu/category/2007/05/on_the_bar_construction.html">Trimble/Schreiber (2007), n-Café</a></td>
+<td>Categorical acyclicity of bar complex</td>
+<td>https://golem.ph.utexas.edu/category/2007/05/on_the_bar_construction.html</td>
+</tr>
+<tr class="odd">
+<td><a href="https://people.math.binghamton.edu/malkiewich/bar.pdf">Malkiewich, “The Bar Construction”</a></td>
+<td>Self-contained notes on algebraic bar</td>
+<td>https://people.math.binghamton.edu/malkiewich/bar.pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://people.math.binghamton.edu/malkiewich/hocolim_bar.pdf">Malkiewich, “Homotopy Colimits via Bar”</a></td>
+<td>Hocolim <span class="math inline">\(= B(*,\mathcal{D},F)\)</span></td>
+<td>https://people.math.binghamton.edu/malkiewich/hocolim_bar.pdf</td>
+</tr>
+<tr class="odd">
+<td><a href="https://ncatlab.org/nlab/show/two-sided+bar+construction">nLab, “two-sided bar construction”</a></td>
+<td>Categorical unification of all versions</td>
+<td>https://ncatlab.org/nlab/show/two-sided+bar+construction</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.sciencedirect.com/science/article/pii/0040938374900226">Segal (1974)</a></td>
+<td><span class="math inline">\(\Gamma\)</span>-spaces; bar construction as classifying space of <span class="math inline">\(\Gamma\)</span>-category</td>
+<td>https://www.sciencedirect.com/science/article/pii/0040938374900226</td>
+</tr>
+<tr class="odd">
+<td><a href="http://math.uchicago.edu/~may/REU2019/REUPapers/Zhang,Ruoqi(Rachel).pdf">Zhang (2019), Two-Sided Bar Construction</a></td>
+<td>REU paper: two-sided bar, Tor, homotopy colimits</td>
+<td>http://math.uchicago.edu/~may/REU2019/REUPapers/Zhang,Ruoqi(Rachel).pdf</td>
+</tr>
+<tr class="even">
+<td><a href="https://amathew.wordpress.com/2012/01/09/delooping-and-the-bar-construction/">Mathew (2012), “Delooping and the Bar Construction”</a></td>
+<td>Intuitive explanation of why bar deloops; <span class="math inline">\(A_\infty\)</span> recognition, iterated deloopings, little cubes operads</td>
+<td>https://amathew.wordpress.com/2012/01/09/delooping-and-the-bar-construction/</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

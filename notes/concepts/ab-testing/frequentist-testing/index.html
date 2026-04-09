@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>frequentist-testing - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>frequentist-testing</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-the-test-statistic-framework%7C1.-the-test-statistic-framework/">#1. The Test Statistic Framework|1. The Test Statistic Framework</a>
+<ul>
+<li><a href="../../../../notes/#1.1-definition-and-requirements%7C1.1-definition-and-requirements/">#1.1 Definition and Requirements|1.1 Definition and Requirements</a></li>
+<li><a href="../../../../notes/#1.2-sufficient-statistics%7C1.2-sufficient-statistics/">#1.2 Sufficient Statistics|1.2 Sufficient Statistics</a></li>
+<li><a href="../../../../notes/#1.3-pivotal-quantities%7C1.3-pivotal-quantities/">#1.3 Pivotal Quantities|1.3 Pivotal Quantities</a></li>
+<li><a href="../../../../notes/#1.4-rejection-regions-and-critical-values%7C1.4-rejection-regions-and-critical-values/">#1.4 Rejection Regions and Critical Values|1.4 Rejection Regions and Critical Values</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-proportions:-the-z-test%7C2.-proportions:-the-z-test/">#2. Proportions: The Z-test|2. Proportions: The Z-test</a>
+<ul>
+<li><a href="../../../../notes/#2.1-setup-and-null-hypothesis%7C2.1-setup-and-null-hypothesis/">#2.1 Setup and Null Hypothesis|2.1 Setup and Null Hypothesis</a></li>
+<li><a href="../../../../notes/#2.2-the-pooled-z-statistic-and-its-asymptotic-distribution%7C2.2-the-pooled-z-statistic-and-its-asymptotic-distribution/">#2.2 The Pooled Z-statistic and Its Asymptotic Distribution|2.2 The Pooled Z-statistic and Its Asymptotic Distribution</a></li>
+<li><a href="../../../../notes/#2.3-unpooled-variance-for-composite-nulls%7C2.3-unpooled-variance-for-composite-nulls/">#2.3 Unpooled Variance for Composite Nulls|2.3 Unpooled Variance for Composite Nulls</a></li>
+<li><a href="../../../../notes/#2.4-normal-approximation-validity%7C2.4-normal-approximation-validity/">#2.4 Normal Approximation Validity|2.4 Normal Approximation Validity</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-continuous-metrics:-the-t-test%7C3.-continuous-metrics:-the-t-test/">#3. Continuous Metrics: The T-test|3. Continuous Metrics: The T-test</a>
+<ul>
+<li><a href="../../../../notes/#3.1-setup%7C3.1-setup/">#3.1 Setup|3.1 Setup</a></li>
+<li><a href="../../../../notes/#3.2-student's-t-statistic:-equal-variances%7C3.2-student's-t-statistic:-equal-variances/">#3.2 Student’s T-statistic: Equal Variances|3.2 Student’s T-statistic: Equal Variances</a></li>
+<li><a href="../../../../notes/#3.3-welch's-t-test:-unequal-variances%7C3.3-welch's-t-test:-unequal-variances/">#3.3 Welch’s T-test: Unequal Variances|3.3 Welch’s T-test: Unequal Variances</a></li>
+<li><a href="../../../../notes/#3.4-the-welch-satterthwaite-degrees-of-freedom%7C3.4-the-welch-satterthwaite-degrees-of-freedom/">#3.4 The Welch-Satterthwaite Degrees of Freedom|3.4 The Welch-Satterthwaite Degrees of Freedom</a></li>
+<li><a href="../../../../notes/#3.5-assumptions-and-violations%7C3.5-assumptions-and-violations/">#3.5 Assumptions and Violations|3.5 Assumptions and Violations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-confidence-intervals%7C4.-confidence-intervals/">#4. Confidence Intervals|4. Confidence Intervals</a>
+<ul>
+<li><a href="../../../../notes/#4.1-duality-with-hypothesis-tests%7C4.1-duality-with-hypothesis-tests/">#4.1 Duality with Hypothesis Tests|4.1 Duality with Hypothesis Tests</a></li>
+<li><a href="../../../../notes/#4.2-ci-for-the-difference-in-proportions%7C4.2-ci-for-the-difference-in-proportions/">#4.2 CI for the Difference in Proportions|4.2 CI for the Difference in Proportions</a></li>
+<li><a href="../../../../notes/#4.3-interpretation:-correct-and-incorrect%7C4.3-interpretation:-correct-and-incorrect/">#4.3 Interpretation: Correct and Incorrect|4.3 Interpretation: Correct and Incorrect</a></li>
+<li><a href="../../../../notes/#4.4-width-and-the-precision-cost-tradeoff%7C4.4-width-and-the-precision-cost-tradeoff/">#4.4 Width and the Precision-Cost Tradeoff|4.4 Width and the Precision-Cost Tradeoff</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-sample-size-formulas%7C5.-sample-size-formulas/">#5. Sample Size Formulas|5. Sample Size Formulas</a>
+<ul>
+<li><a href="../../../../notes/#5.1-derivation-from-the-power-equation%7C5.1-derivation-from-the-power-equation/">#5.1 Derivation from the Power Equation|5.1 Derivation from the Power Equation</a></li>
+<li><a href="../../../../notes/#5.2-special-case:-proportions%7C5.2-special-case:-proportions/">#5.2 Special Case: Proportions|5.2 Special Case: Proportions</a></li>
+<li><a href="../../../../notes/#5.3-unequal-allocation%7C5.3-unequal-allocation/">#5.3 Unequal Allocation|5.3 Unequal Allocation</a></li>
+<li><a href="../../../../notes/#5.4-rule-of-thumb%7C5.4-rule-of-thumb/">#5.4 Rule of Thumb|5.4 Rule of Thumb</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-multiple-variants:-one-way-anova%7C6.-multiple-variants:-one-way-anova/">#6. Multiple Variants: One-Way ANOVA|6. Multiple Variants: One-Way ANOVA</a>
+<ul>
+<li><a href="../../../../notes/#6.1-setup-and-sum-of-squares-decomposition%7C6.1-setup-and-sum-of-squares-decomposition/">#6.1 Setup and Sum of Squares Decomposition|6.1 Setup and Sum of Squares Decomposition</a></li>
+<li><a href="../../../../notes/#6.2-the-f-statistic-and-its-distribution%7C6.2-the-f-statistic-and-its-distribution/">#6.2 The F-statistic and Its Distribution|6.2 The F-statistic and Its Distribution</a></li>
+<li><a href="../../../../notes/#6.3-scope-and-limitations%7C6.3-scope-and-limitations/">#6.3 Scope and Limitations|6.3 Scope and Limitations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ol>
+<hr />
+<h2 id="the-test-statistic-framework">1. The Test Statistic Framework</h2>
+<h3 id="definition-and-requirements">1.1 Definition and Requirements</h3>
+<p>This note focuses on the mechanics of frequentist hypothesis tests used in A/B experiments. For the hypothesis framework, Type I/II error tradeoffs, p-values, power, and MDE, see <code>foundations.md</code>.</p>
+<p><strong>Definition (Test Statistic).</strong> A <em>test statistic</em> <span class="math inline">\(W_n = W_n(X_1, \ldots, X_n)\)</span> is a measurable function of the observed data whose distribution under the null hypothesis <span class="math inline">\(H_0\)</span> is known — either exactly or asymptotically as <span class="math inline">\(n \to \infty\)</span>.</p>
+<p>Three requirements make a test statistic useful:</p>
+<ol type="1">
+<li><strong>Known null distribution.</strong> We must be able to compute <span class="math inline">\(P_{H_0}(W_n &gt; c)\)</span> for any threshold <span class="math inline">\(c\)</span> in order to calibrate false positive rates.</li>
+<li><strong>Sensitivity to the alternative.</strong> Under <span class="math inline">\(H_1\)</span>, the distribution of <span class="math inline">\(W_n\)</span> should shift in a detectable direction. The power of the test depends directly on this shift.</li>
+<li><strong>Computability.</strong> The statistic must be computable from observed data without knowledge of unknown parameters (nuisance parameters must be eliminated or estimated consistently).</li>
+</ol>
+<h3 id="sufficient-statistics">1.2 Sufficient Statistics</h3>
+<p><strong>Definition (Sufficient Statistic).</strong> A statistic <span class="math inline">\(T(X_1, \ldots, X_n)\)</span> is <em>sufficient</em> for a parameter <span class="math inline">\(\theta\)</span> if the conditional distribution of the data given <span class="math inline">\(T\)</span> does not depend on <span class="math inline">\(\theta\)</span>. That is, <span class="math inline">\(T\)</span> captures all information in the data relevant to <span class="math inline">\(\theta\)</span>.</p>
+<p>The relevance to testing: by the <em>Fisher-Neyman factorization theorem</em>, the likelihood factors as <span class="math inline">\(f(\mathbf{x} \mid \theta) = g(T(\mathbf{x}), \theta) \cdot h(\mathbf{x})\)</span>, so any optimal test — in the sense of maximizing power for a given size — should depend on the data only through <span class="math inline">\(T\)</span>. More precisely, the Neyman-Pearson lemma ensures that a most powerful test of a simple null against a simple alternative is a function of the likelihood ratio, which for exponential families is a function of the sufficient statistic. Basing <span class="math inline">\(W_n\)</span> on the sufficient statistic is therefore not merely convenient; it is necessary for optimality.</p>
+<p>For two Bernoulli samples of sizes <span class="math inline">\(n_A\)</span> and <span class="math inline">\(n_B\)</span>, the sufficient statistic for <span class="math inline">\((p_A, p_B)\)</span> is <span class="math inline">\((\sum X_i^A, \sum X_j^B) = (n_A \hat{p}_A,\, n_B \hat{p}_B)\)</span>. The Z-test below depends on the data only through these counts.</p>
+<h3 id="pivotal-quantities">1.3 Pivotal Quantities</h3>
+<p><strong>Definition (Pivotal Quantity).</strong> A test statistic <span class="math inline">\(W_n\)</span> is a <em>pivotal quantity</em> (or <em>pivot</em>) if its distribution under <span class="math inline">\(H_0\)</span> does not depend on any unknown nuisance parameters.</p>
+<p>This matters practically: if the null distribution of <span class="math inline">\(W_n\)</span> depends on, say, the common variance <span class="math inline">\(\sigma^2\)</span> — which is unknown — then we cannot compute critical values without estimating <span class="math inline">\(\sigma^2\)</span> first, which introduces additional randomness. Pivots avoid this problem by construction.</p>
+<p>The t-statistics discussed in Section 3 are exact pivots under normality: the unknown variance <span class="math inline">\(\sigma^2\)</span> cancels in the ratio. The Z-statistics in Section 2 are <em>asymptotic</em> pivots: they depend on unknown proportions, but consistently estimating those proportions and invoking Slutsky’s theorem makes the limiting distribution standard normal regardless of the true <span class="math inline">\(p\)</span>.</p>
+<h3 id="rejection-regions-and-critical-values">1.4 Rejection Regions and Critical Values</h3>
+<p>For a test at significance level <span class="math inline">\(\alpha \in (0, 1)\)</span>, the <em>rejection region</em> for a one-sided upper-tail test is:</p>
+<p><span class="math display">\[\mathcal{R} = \{W_n &gt; c_\alpha\}\]</span></p>
+<p>where the <em>critical value</em> <span class="math inline">\(c_\alpha\)</span> satisfies <span class="math inline">\(P_{H_0}(W_n &gt; c_\alpha) = \alpha\)</span>. For a two-sided test at level <span class="math inline">\(\alpha\)</span>:</p>
+<p><span class="math display">\[\mathcal{R} = \{|W_n| &gt; c_{\alpha/2}\}\]</span></p>
+<p>with <span class="math inline">\(P_{H_0}(|W_n| &gt; c_{\alpha/2}) = \alpha\)</span>. In A/B testing, two-sided tests are standard because we typically have no prior directional commitment (a new feature could hurt as well as help). The critical value <span class="math inline">\(c_{\alpha/2} = z_{\alpha/2}\)</span> when <span class="math inline">\(W_n\)</span> is asymptotically standard normal, and <span class="math inline">\(c_{\alpha/2} = t_{\alpha/2, \nu}\)</span> when <span class="math inline">\(W_n\)</span> follows a t-distribution with <span class="math inline">\(\nu\)</span> degrees of freedom.</p>
+<hr />
+<h2 id="proportions-the-z-test">2. Proportions: The Z-test</h2>
+<h3 id="setup-and-null-hypothesis">2.1 Setup and Null Hypothesis</h3>
+<p>Suppose we observe two independent samples of binary outcomes:</p>
+<p><span class="math display">\[X_1^A, \ldots, X_{n_A}^A \overset{\text{iid}}{\sim} \text{Bernoulli}(p_A), \qquad X_1^B, \ldots, X_{n_B}^B \overset{\text{iid}}{\sim} \text{Bernoulli}(p_B)\]</span></p>
+<p>The natural estimators of the group rates are the sample proportions:</p>
+<p><span class="math display">\[\hat{p}_A = \frac{1}{n_A}\sum_{i=1}^{n_A} X_i^A, \qquad \hat{p}_B = \frac{1}{n_B}\sum_{j=1}^{n_B} X_j^B\]</span></p>
+<p>The null and two-sided alternative are:</p>
+<p><span class="math display">\[H_0: p_A = p_B \qquad \text{vs.} \qquad H_1: p_A \neq p_B\]</span></p>
+<h3 id="the-pooled-z-statistic-and-its-asymptotic-distribution">2.2 The Pooled Z-statistic and Its Asymptotic Distribution</h3>
+<p><strong>Why pool?</strong> Under <span class="math inline">\(H_0\)</span>, both groups share a common success probability <span class="math inline">\(p := p_A = p_B\)</span>. The most efficient estimate of this common <span class="math inline">\(p\)</span> under <span class="math inline">\(H_0\)</span> is the <em>pooled proportion</em>, which combines both samples:</p>
+<p><span class="math display">\[\hat{p} = \frac{n_A \hat{p}_A + n_B \hat{p}_B}{n_A + n_B} = \frac{\text{total successes}}{\text{total observations}}\]</span></p>
+<p>Using <span class="math inline">\(\hat{p}\)</span> rather than group-specific estimates is not arbitrary: it is the maximum likelihood estimate of <span class="math inline">\(p\)</span> under the constraint <span class="math inline">\(p_A = p_B\)</span>, and hence the most efficient estimator of the nuisance parameter under <span class="math inline">\(H_0\)</span>.</p>
+<p><strong>Definition (Pooled Z-statistic).</strong></p>
+<p><span class="math display">\[Z = \frac{\hat{p}_B - \hat{p}_A}{\sqrt{\hat{p}(1-\hat{p})\left(\dfrac{1}{n_A}+\dfrac{1}{n_B}\right)}}\]</span></p>
+<p><strong>Proposition.</strong> Under <span class="math inline">\(H_0: p_A = p_B = p\)</span> and as <span class="math inline">\(n_A, n_B \to \infty\)</span> with <span class="math inline">\(n_A/(n_A + n_B) \to \lambda \in (0,1)\)</span>,</p>
+<p><span class="math display">\[Z \xrightarrow{d} \mathcal{N}(0, 1)\]</span></p>
+<p><strong>Derivation.</strong> We proceed in two steps.</p>
+<p><em>Step 1: CLT for the numerator.</em> The CLT is applied separately to each group: <span class="math inline">\(\sqrt{n_A}(\hat{p}_A - p) \xrightarrow{d} \mathcal{N}(0, p(1-p))\)</span> and <span class="math inline">\(\sqrt{n_B}(\hat{p}_B - p) \xrightarrow{d} \mathcal{N}(0, p(1-p))\)</span>. Since <span class="math inline">\(\hat{p}_A\)</span> and <span class="math inline">\(\hat{p}_B\)</span> are independent, the difference <span class="math inline">\(\hat{p}_B - \hat{p}_A\)</span> satisfies:</p>
+<p><span class="math display">\[\frac{\hat{p}_B - \hat{p}_A}{\sqrt{p(1-p)(1/n_A + 1/n_B)}} \xrightarrow{d} \mathcal{N}(0, 1)\]</span></p>
+<p>This follows because <span class="math inline">\(\text{Var}(\hat{p}_B - \hat{p}_A) = \text{Var}(\hat{p}_B) + \text{Var}(\hat{p}_A) = p(1-p)/n_B + p(1-p)/n_A\)</span>.</p>
+<p><em>Step 2: Replace true <span class="math inline">\(p\)</span> with <span class="math inline">\(\hat{p}\)</span> via Slutsky.</em> The denominator above contains the unknown <span class="math inline">\(p\)</span>. We replace it with <span class="math inline">\(\hat{p}\)</span>. Since <span class="math inline">\(\hat{p}\)</span> is a consistent estimator of <span class="math inline">\(p\)</span> under <span class="math inline">\(H_0\)</span> (it is the MLE), we have <span class="math inline">\(\hat{p} \xrightarrow{p} p\)</span>, and by the continuous mapping theorem <span class="math inline">\(\hat{p}(1-\hat{p}) \xrightarrow{p} p(1-p)\)</span>. Slutsky’s theorem then guarantees that replacing the denominator’s <span class="math inline">\(p\)</span> with the consistent estimator <span class="math inline">\(\hat{p}\)</span> does not change the limiting distribution:</p>
+<p><span class="math display">\[Z = \frac{\hat{p}_B - \hat{p}_A}{\sqrt{p(1-p)(1/n_A + 1/n_B)}} \cdot \frac{\sqrt{p(1-p)(1/n_A+1/n_B)}}{\sqrt{\hat{p}(1-\hat{p})(1/n_A+1/n_B)}} \xrightarrow{d} \mathcal{N}(0,1) \cdot 1 = \mathcal{N}(0,1)\]</span></p>
+<p>where the second factor converges in probability to 1. <span class="math inline">\(\square\)</span></p>
+<h3 id="unpooled-variance-for-composite-nulls">2.3 Unpooled Variance for Composite Nulls</h3>
+<p>The pooled estimator is only valid under the simple null <span class="math inline">\(H_0: p_A = p_B\)</span>. When testing a <em>shifted null</em> <span class="math inline">\(H_0: p_B - p_A = \delta_0\)</span> for some <span class="math inline">\(\delta_0 \neq 0\)</span>, the null does not force a common probability, so pooling is invalid — it produces a biased estimator of the true variance.</p>
+<p>In this case, we use the <em>unpooled</em> standard error, estimating each group’s variance separately:</p>
+<p><span class="math display">\[\text{SE}_{\text{unpooled}} = \sqrt{\frac{\hat{p}_A(1-\hat{p}_A)}{n_A} + \frac{\hat{p}_B(1-\hat{p}_B)}{n_B}}\]</span></p>
+<p>This is simply the estimated standard deviation of <span class="math inline">\(\hat{p}_B - \hat{p}_A\)</span> when <span class="math inline">\(p_A\)</span> and <span class="math inline">\(p_B\)</span> are allowed to differ. The corresponding test statistic</p>
+<p><span class="math display">\[Z_{\text{unpooled}} = \frac{(\hat{p}_B - \hat{p}_A) - \delta_0}{\text{SE}_{\text{unpooled}}}\]</span></p>
+<p>is again asymptotically <span class="math inline">\(\mathcal{N}(0,1)\)</span> under <span class="math inline">\(H_0: p_B - p_A = \delta_0\)</span>, by the same CLT-plus-Slutsky argument. As we will see in Section 4, confidence intervals for <span class="math inline">\(p_B - p_A\)</span> use the unpooled SE, not the pooled SE, because they invert the family of unpooled tests.</p>
+<h3 id="normal-approximation-validity">2.4 Normal Approximation Validity</h3>
+<p>The CLT applies in finite samples only approximately. A standard rule of thumb for adequate approximation quality is that both</p>
+<p><span class="math display">\[n_A \hat{p}_A (1 - \hat{p}_A) \geq 10 \qquad \text{and} \qquad n_B \hat{p}_B(1-\hat{p}_B) \geq 10\]</span></p>
+<p>This threshold ensures each group has at least 10 expected successes and 10 expected failures, providing a reasonable approximation to normality. The condition is most binding when <span class="math inline">\(p\)</span> is close to 0 or 1 (rare events), which is common in practice: click rates of <span class="math inline">\(0.5\%\)</span>, conversion rates of <span class="math inline">\(2\%\)</span>, etc.</p>
+<p>When this condition fails — typically because <span class="math inline">\(p\)</span> is very small or sample sizes are limited — the normal approximation is unreliable and <em>Fisher’s exact test</em> should be used instead. Fisher’s test conditions on both marginal totals of the <span class="math inline">\(2 \times 2\)</span> contingency table and computes an exact p-value from the hypergeometric distribution, at the cost of being conservative (i.e., having power below the nominal level).</p>
+<hr />
+<h2 id="continuous-metrics-the-t-test">3. Continuous Metrics: The T-test</h2>
+<h3 id="setup">3.1 Setup</h3>
+<p>Suppose we observe two independent samples of a continuous outcome <span class="math inline">\(Y\)</span>:</p>
+<p><span class="math display">\[Y_1^A, \ldots, Y_{n_A}^A \overset{\text{iid}}{\sim} F_A \qquad \text{and} \qquad Y_1^B, \ldots, Y_{n_B}^B \overset{\text{iid}}{\sim} F_B\]</span></p>
+<p>Let <span class="math inline">\(\mu_A = \mathbb{E}[Y^A]\)</span>, <span class="math inline">\(\mu_B = \mathbb{E}[Y^B]\)</span>, <span class="math inline">\(\sigma_A^2 = \text{Var}(Y^A)\)</span>, <span class="math inline">\(\sigma_B^2 = \text{Var}(Y^B)\)</span>. The null hypothesis is <span class="math inline">\(H_0: \mu_A = \mu_B\)</span> (equivalently <span class="math inline">\(\mu_B - \mu_A = 0\)</span>). The sample means and variances are:</p>
+<p><span class="math display">\[\bar{Y}_A = \frac{1}{n_A}\sum_{i=1}^{n_A} Y_i^A, \qquad s_A^2 = \frac{1}{n_A - 1}\sum_{i=1}^{n_A}(Y_i^A - \bar{Y}_A)^2\]</span></p>
+<p>and analogously for group B.</p>
+<h3 id="students-t-statistic-equal-variances">3.2 Student’s T-statistic: Equal Variances</h3>
+<p>When we assume <span class="math inline">\(\sigma_A^2 = \sigma_B^2 =: \sigma^2\)</span> (homoskedasticity) and <span class="math inline">\(F_A, F_B\)</span> are both normal, we can construct an exact pivot. The two sample variances <span class="math inline">\(s_A^2\)</span> and <span class="math inline">\(s_B^2\)</span> each estimate <span class="math inline">\(\sigma^2\)</span>, so the most efficient combined estimate is the <em>pooled sample variance</em>, which is a weighted average:</p>
+<p><span class="math display">\[s_p^2 = \frac{(n_A - 1)s_A^2 + (n_B - 1)s_B^2}{n_A + n_B - 2}\]</span></p>
+<p>The weights <span class="math inline">\((n_k - 1)\)</span> are the degrees of freedom contributed by each group to the within-group sum of squares. Under normality, <span class="math inline">\((n_A - 1)s_A^2/\sigma^2 \sim \chi^2_{n_A - 1}\)</span> and <span class="math inline">\((n_B - 1)s_B^2/\sigma^2 \sim \chi^2_{n_B - 1}\)</span>, independently, so their sum <span class="math inline">\((n_A + n_B - 2)s_p^2/\sigma^2 \sim \chi^2_{n_A + n_B - 2}\)</span>.</p>
+<p><strong>Definition (Student’s T-statistic).</strong></p>
+<p><span class="math display">\[t = \frac{\bar{Y}_B - \bar{Y}_A}{s_p\sqrt{1/n_A + 1/n_B}}\]</span></p>
+<p><strong>Proposition.</strong> Under normality, equal variances, and <span class="math inline">\(H_0: \mu_A = \mu_B\)</span>,</p>
+<p><span class="math display">\[t \sim t_{n_A + n_B - 2}\]</span></p>
+<p><strong>Proof sketch.</strong> The numerator <span class="math inline">\(\bar{Y}_B - \bar{Y}_A \sim \mathcal{N}(0, \sigma^2(1/n_A + 1/n_B))\)</span> under <span class="math inline">\(H_0\)</span>, because both group means are normal and independent. Dividing by <span class="math inline">\(\sigma\sqrt{1/n_A + 1/n_B}\)</span> gives a standard normal <span class="math inline">\(Z\)</span>. The denominator <span class="math inline">\(s_p\sqrt{1/n_A + 1/n_B}\)</span> equals <span class="math inline">\(\sigma\sqrt{1/n_A + 1/n_B}\)</span> times a factor <span class="math inline">\(s_p / \sigma\)</span>, where <span class="math inline">\((n_A + n_B - 2)(s_p/\sigma)^2 \sim \chi^2_{n_A + n_B - 2}\)</span>. Since <span class="math inline">\(Z\)</span> and this <span class="math inline">\(\chi^2\)</span> are independent (by the independence of the sample mean and sample variance in a normal population — Cochran’s theorem),</p>
+<p><span class="math display">\[t = \frac{Z}{\sqrt{\chi^2_{n_A+n_B-2}/(n_A+n_B-2)}} \sim t_{n_A+n_B-2}\]</span></p>
+<p>by the definition of the t-distribution. <span class="math inline">\(\square\)</span></p>
+<h3 id="welchs-t-test-unequal-variances">3.3 Welch’s T-test: Unequal Variances</h3>
+<p>When <span class="math inline">\(\sigma_A^2 \neq \sigma_B^2\)</span>, pooling is no longer valid — pooling imposes a constraint (equal variances) that is false under the alternative model, and the resulting statistic is no longer pivotal. Instead we estimate each variance separately.</p>
+<p><strong>Definition (Welch’s T-statistic).</strong></p>
+<p><span class="math display">\[t_W = \frac{\bar{Y}_B - \bar{Y}_A}{\sqrt{s_A^2/n_A + s_B^2/n_B}}\]</span></p>
+<p>The denominator is a consistent estimator of <span class="math inline">\(\sqrt{\text{Var}(\bar{Y}_B - \bar{Y}_A)} = \sqrt{\sigma_A^2/n_A + \sigma_B^2/n_B}\)</span> because <span class="math inline">\(s_k^2 \xrightarrow{p} \sigma_k^2\)</span> for each group. Under <span class="math inline">\(H_0\)</span> and normality, the numerator is <span class="math inline">\(\mathcal{N}(0, \sigma_A^2/n_A + \sigma_B^2/n_B)\)</span>. Under these conditions, <span class="math inline">\(t_W\)</span> is approximately t-distributed, but the exact degrees of freedom depends on the variance ratio <span class="math inline">\(\sigma_A^2/\sigma_B^2\)</span>, which is unknown.</p>
+<p><em>Surprisingly,</em> Welch’s t-test is nearly uniformly preferable to Student’s t-test, even when variances truly are equal. The efficiency loss from not pooling is negligible for moderate sample sizes, while the robustness gain against variance heterogeneity is substantial. In practice, always use Welch’s test by default.</p>
+<h3 id="the-welch-satterthwaite-degrees-of-freedom">3.4 The Welch-Satterthwaite Degrees of Freedom</h3>
+<p>The key distributional problem for <span class="math inline">\(t_W\)</span> is that its denominator is a sum of two random terms, <span class="math inline">\(s_A^2/n_A\)</span> and <span class="math inline">\(s_B^2/n_B\)</span>, which follow scaled chi-squared distributions with different degrees of freedom. We need an effective degrees of freedom <span class="math inline">\(\nu\)</span> such that <span class="math inline">\(t_W \approx t_\nu\)</span>.</p>
+<p><strong>The moment matching argument.</strong> Define <span class="math inline">\(U = s_A^2/n_A\)</span> and <span class="math inline">\(V = s_B^2/n_B\)</span>. Under normality, <span class="math inline">\((n_A - 1)s_A^2/\sigma_A^2 \sim \chi^2_{n_A-1}\)</span>, so <span class="math inline">\(U = \sigma_A^2 \chi^2_{n_A-1} / (n_A(n_A-1))\)</span>. Similarly for <span class="math inline">\(V\)</span>. Thus:</p>
+<p><span class="math display">\[\mathbb{E}[U] = \frac{\sigma_A^2}{n_A}, \qquad \text{Var}(U) = \frac{2\sigma_A^4}{n_A^2(n_A - 1)}\]</span></p>
+<p>and analogously for <span class="math inline">\(V\)</span>. We want to find <span class="math inline">\(\nu\)</span> such that <span class="math inline">\(W := U + V\)</span> is well approximated by <span class="math inline">\(\frac{\sigma_W^2}{d}\chi^2_d\)</span> for some <span class="math inline">\(d = \nu\)</span> and <span class="math inline">\(\sigma_W^2 = \mathbb{E}[W]\)</span>. Matching the first two moments of <span class="math inline">\(W\)</span> to those of <span class="math inline">\(c \cdot \chi^2_\nu\)</span>:</p>
+<ul>
+<li><span class="math inline">\(\mathbb{E}[W] = \mathbb{E}[c\chi^2_\nu] \Rightarrow c\nu = \mathbb{E}[U] + \mathbb{E}[V]\)</span></li>
+<li><span class="math inline">\(\text{Var}(W) = \text{Var}(c\chi^2_\nu) \Rightarrow 2c^2\nu = \text{Var}(U) + \text{Var}(V)\)</span> (by independence)</li>
+</ul>
+<p>Dividing the second equation by the square of the first:</p>
+<p><span class="math display">\[\frac{2c^2\nu}{c^2\nu^2} = \frac{\text{Var}(U) + \text{Var}(V)}{(\mathbb{E}[U] + \mathbb{E}[V])^2} \implies \frac{2}{\nu} = \frac{\text{Var}(W)}{\mathbb{E}[W]^2}\]</span></p>
+<p>Solving for <span class="math inline">\(\nu\)</span> and substituting the expressions for <span class="math inline">\(\text{Var}(U)\)</span> and <span class="math inline">\(\text{Var}(V)\)</span>:</p>
+<p><span class="math display">\[\nu \approx \frac{(s_A^2/n_A + s_B^2/n_B)^2}{\dfrac{(s_A^2/n_A)^2}{n_A - 1} + \dfrac{(s_B^2/n_B)^2}{n_B - 1}}\]</span></p>
+<p>This is the <em>Welch-Satterthwaite</em> effective degrees of freedom. We take the floor <span class="math inline">\(\lfloor\nu\rfloor\)</span> and use quantiles from <span class="math inline">\(t_{\lfloor\nu\rfloor}\)</span>. Note that <span class="math inline">\(\nu\)</span> lies between <span class="math inline">\(\min(n_A, n_B) - 1\)</span> and <span class="math inline">\(n_A + n_B - 2\)</span>, with the upper bound achieved when <span class="math inline">\(\sigma_A^2/n_A = \sigma_B^2/n_B\)</span> (the equal-variance case).</p>
+<h3 id="assumptions-and-violations">3.5 Assumptions and Violations</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Assumption</th>
+<th>Consequence of violation</th>
+<th>Remedy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normality of <span class="math inline">\(Y\)</span></td>
+<td>Exact t-distribution fails</td>
+<td>CLT saves us for <span class="math inline">\(n \gtrsim 30\)</span>; for heavy tails use bootstrap</td>
+</tr>
+<tr class="even">
+<td>Independence within and across groups</td>
+<td>Variance is underestimated, Type I error inflates</td>
+<td>Use cluster-robust SE if units are clustered</td>
+</tr>
+<tr class="odd">
+<td>Homoskedasticity (<span class="math inline">\(\sigma_A^2 = \sigma_B^2\)</span>)</td>
+<td>Student’s t is invalid; pooled SE is biased</td>
+<td>Use Welch’s t-test</td>
+</tr>
+</tbody>
+</table>
+<p>The normality assumption is the least concerning in A/B testing: by the CLT, <span class="math inline">\(\bar{Y}_A\)</span> and <span class="math inline">\(\bar{Y}_B\)</span> are approximately normal for large <span class="math inline">\(n\)</span>, so the numerator of <span class="math inline">\(t_W\)</span> is approximately normal regardless of <span class="math inline">\(F_A, F_B\)</span>. <em>The CLT typically kicks in around <span class="math inline">\(n \geq 30\)</span> for moderately skewed distributions, but for highly skewed metrics like revenue-per-user, <span class="math inline">\(n\)</span> in the hundreds may be necessary.</em></p>
+<p>The independence assumption is more fragile. In practice, users in the same geographic cluster, or who interact socially, can produce correlated outcomes. Violating independence inflates the effective sample size, underestimates the standard error, and inflates Type I error. Clustering corrections (e.g., the delta method with cluster-robust variance estimators) are necessary in such settings.</p>
+<hr />
+<h2 id="confidence-intervals">4. Confidence Intervals</h2>
+<h3 id="duality-with-hypothesis-tests">4.1 Duality with Hypothesis Tests</h3>
+<p>The <em>test-inversion</em> principle establishes a formal equivalence between hypothesis tests and confidence intervals. Given a family of level-<span class="math inline">\(\alpha\)</span> tests <span class="math inline">\(\{\phi_{\delta_0}\}\)</span> indexed by null value <span class="math inline">\(\delta_0\)</span>, the corresponding <span class="math inline">\(1-\alpha\)</span> confidence interval for <span class="math inline">\(\tau = \mu_B - \mu_A\)</span> is:</p>
+<p><span class="math display">\[\text{CI}_{1-\alpha} = \{\delta_0 : \phi_{\delta_0} \text{ does not reject}\}\]</span></p>
+<p>This is not a computational convenience but a logical identity: the CI contains precisely those parameter values that would not be rejected as null hypotheses by the test.</p>
+<p>For the two-sample z-test with asymptotically normal <span class="math inline">\(\hat{\tau} = \bar{Y}_B - \bar{Y}_A\)</span> and standard error <span class="math inline">\(\text{SE}(\hat{\tau})\)</span>, the test at level <span class="math inline">\(\alpha\)</span> rejects <span class="math inline">\(H_0: \tau = \delta_0\)</span> when <span class="math inline">\(|(\hat{\tau} - \delta_0)/\text{SE}| &gt; z_{\alpha/2}\)</span>. Inverting this condition — finding all <span class="math inline">\(\delta_0\)</span> for which the test does not reject — yields:</p>
+<p><span class="math display">\[\text{CI}_{1-\alpha} = \left[\hat{\tau} - z_{\alpha/2} \cdot \text{SE},\; \hat{\tau} + z_{\alpha/2} \cdot \text{SE}\right]\]</span></p>
+<h3 id="ci-for-the-difference-in-proportions">4.2 CI for the Difference in Proportions</h3>
+<p>For the difference <span class="math inline">\(\hat{p}_B - \hat{p}_A\)</span>, the standard error to use in a confidence interval is the <em>unpooled</em> SE. This is because the CI inverts the family of unpooled tests: for each <span class="math inline">\(\delta_0\)</span>, the relevant test of <span class="math inline">\(H_0: p_B - p_A = \delta_0\)</span> does not pool (since the null does not force <span class="math inline">\(p_A = p_B\)</span> unless <span class="math inline">\(\delta_0 = 0\)</span>). Using the pooled SE in a CI would be internally inconsistent — pooling is only valid at the single point <span class="math inline">\(\delta_0 = 0\)</span>, not across the range of <span class="math inline">\(\delta_0\)</span> values whose inclusion in the CI we are checking.</p>
+<p>The resulting <em>Wald confidence interval</em> for the difference in proportions is:</p>
+<p><span class="math display">\[(\hat{p}_B - \hat{p}_A) \pm z_{\alpha/2}\sqrt{\frac{\hat{p}_A(1-\hat{p}_A)}{n_A} + \frac{\hat{p}_B(1-\hat{p}_B)}{n_B}}\]</span></p>
+<p><em>Caveat: the Wald interval can undercover when <span class="math inline">\(p\)</span> is near 0 or 1 or when sample sizes are small. The Wilson score interval or the Agresti-Caffo interval for differences offer better coverage in those regimes.</em></p>
+<h3 id="interpretation-correct-and-incorrect">4.3 Interpretation: Correct and Incorrect</h3>
+<p><strong>Correct interpretation.</strong> The confidence interval is a statement about the procedure, not about a single realized interval. If we were to repeat the experiment many times, <span class="math inline">\(100(1-\alpha)\%\)</span> of the constructed intervals would contain the true <span class="math inline">\(\tau\)</span>. The true <span class="math inline">\(\tau\)</span> is fixed (it is not random); the interval endpoints are random because they depend on the data.</p>
+<p><strong>Incorrect interpretation.</strong> “There is a <span class="math inline">\(95\%\)</span> probability that the true effect lies in <span class="math inline">\([L, U]\)</span>” — this is a Bayesian posterior probability statement, not a frequentist confidence statement. Once the data are observed and <span class="math inline">\([L, U]\)</span> is computed, the interval either does or does not contain <span class="math inline">\(\tau\)</span>; no probability is involved. The <span class="math inline">\(95\%\)</span> refers to the long-run coverage frequency of the procedure, not to a posterior.</p>
+<h3 id="width-and-the-precision-cost-tradeoff">4.4 Width and the Precision-Cost Tradeoff</h3>
+<p>The width of the confidence interval is:</p>
+<p><span class="math display">\[\text{Width} = 2 z_{\alpha/2} \cdot \text{SE} = 2 z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}\]</span></p>
+<p>(in the equal-variance, equal-allocation case). This shows:</p>
+<ul>
+<li><strong>Width decreases as <span class="math inline">\(1/\sqrt{n}\)</span>.</strong> Halving the width requires quadrupling the sample size. This is the fundamental precision-cost tradeoff of frequentist inference.</li>
+<li><strong>Width increases with <span class="math inline">\(z_{\alpha/2}\)</span>.</strong> A 99% CI is wider than a 95% CI: requiring more coverage demands more uncertainty. Specifically, <span class="math inline">\(z_{0.005} \approx 2.576\)</span> vs. <span class="math inline">\(z_{0.025} \approx 1.960\)</span>.</li>
+<li><strong>Width is proportional to <span class="math inline">\(\sigma\)</span>.</strong> High-variance metrics (e.g., revenue per user) require larger samples to achieve the same precision as lower-variance metrics (e.g., binary conversion).</li>
+</ul>
+<p><strong>The CI width equals twice the margin of error, which in turn equals the MDE at the threshold power level</strong> (see <code>foundations.md</code>, Section 7 for the MDE derivation).</p>
+<hr />
+<h2 id="sample-size-formulas">5. Sample Size Formulas</h2>
+<h3 id="derivation-from-the-power-equation">5.1 Derivation from the Power Equation</h3>
+<p>We derive the required per-group sample size for a two-tailed z-test with equal allocation <span class="math inline">\(n_A = n_B = n\)</span>. Let <span class="math inline">\(\delta = \mu_B - \mu_A\)</span> denote the true effect under the alternative, and let <span class="math inline">\(\sigma_A^2, \sigma_B^2\)</span> be the group variances. Denote <span class="math inline">\(\hat{\tau} = \bar{Y}_B - \bar{Y}_A\)</span>.</p>
+<p><strong>Step 1: Distribution of the test statistic under the alternative.</strong> Under <span class="math inline">\(H_1: \mu_B - \mu_A = \delta\)</span>, the test statistic</p>
+<p><span class="math display">\[Z = \frac{\hat{\tau}}{\sqrt{\sigma_A^2/n + \sigma_B^2/n}}\]</span></p>
+<p>follows (asymptotically) a normal distribution with mean</p>
+<p><span class="math display">\[\mu_Z = \frac{\delta}{\sqrt{(\sigma_A^2 + \sigma_B^2)/n}} = \frac{\delta\sqrt{n}}{\sqrt{\sigma_A^2 + \sigma_B^2}}\]</span></p>
+<p>and variance 1. So <span class="math inline">\(Z \sim \mathcal{N}(\mu_Z, 1)\)</span> under <span class="math inline">\(H_1\)</span>.</p>
+<p><strong>Step 2: Express power in terms of <span class="math inline">\(n\)</span>.</strong> The test rejects <span class="math inline">\(H_0\)</span> when <span class="math inline">\(|Z| &gt; z_{\alpha/2}\)</span>. Power is <span class="math inline">\(P_{H_1}(|Z| &gt; z_{\alpha/2})\)</span>. Because <span class="math inline">\(\mu_Z &gt; 0\)</span> for <span class="math inline">\(\delta &gt; 0\)</span>, the dominant rejection event is <span class="math inline">\(Z &gt; z_{\alpha/2}\)</span>, and the lower-tail contribution <span class="math inline">\(P(Z &lt; -z_{\alpha/2})\)</span> is negligible for <span class="math inline">\(\delta &gt; 0\)</span> (an <span class="math inline">\(O(\Phi(-2z_{\alpha/2}))\)</span> error). <em>This approximation is accurate when <span class="math inline">\(\delta\)</span> is not too small relative to the noise; for very small effects (near the MDE boundary), the omitted term can be non-negligible and the formula underestimates the true required <span class="math inline">\(n\)</span>.</em> The power is approximately:</p>
+<p><span class="math display">\[1 - \beta \approx P\!\left(Z &gt; z_{\alpha/2} \mid Z \sim \mathcal{N}(\mu_Z, 1)\right) = P\!\left(\mathcal{N}(0,1) &gt; z_{\alpha/2} - \mu_Z\right) = \Phi\!\left(\mu_Z - z_{\alpha/2}\right)\]</span></p>
+<p><strong>Step 3: Set power equal to <span class="math inline">\(1 - \beta\)</span> and solve.</strong> Require <span class="math inline">\(\Phi(\mu_Z - z_{\alpha/2}) = 1 - \beta\)</span>. Since <span class="math inline">\(\Phi(z_\beta) = 1 - \beta\)</span>, we need:</p>
+<p><span class="math display">\[\mu_Z - z_{\alpha/2} = z_\beta \implies \mu_Z = z_{\alpha/2} + z_\beta\]</span></p>
+<p>Substituting <span class="math inline">\(\mu_Z = \delta\sqrt{n}/\sqrt{\sigma_A^2 + \sigma_B^2}\)</span>:</p>
+<p><span class="math display">\[\frac{\delta\sqrt{n}}{\sqrt{\sigma_A^2 + \sigma_B^2}} = z_{\alpha/2} + z_\beta\]</span></p>
+<p>Squaring both sides and solving for <span class="math inline">\(n\)</span>:</p>
+<p><span class="math display">\[n = \frac{(z_{\alpha/2} + z_\beta)^2(\sigma_A^2 + \sigma_B^2)}{\delta^2}\]</span></p>
+<p><strong>Step 4: Apply ceiling.</strong> Since <span class="math inline">\(n\)</span> must be an integer, the required per-group size is <span class="math inline">\(\lceil n \rceil\)</span>.</p>
+<p><strong>The two key drivers are the effect size <span class="math inline">\(\delta\)</span> (in the denominator, quadratically) and the sum of variances (in the numerator). Doubling the MDE reduces the required sample size by a factor of four.</strong></p>
+<h3 id="special-case-proportions">5.2 Special Case: Proportions</h3>
+<p>For binary outcomes, <span class="math inline">\(\sigma_A^2 = p_A(1-p_A)\)</span> and <span class="math inline">\(\sigma_B^2 = p_B(1-p_B)\)</span>. Substituting:</p>
+<p><span class="math display">\[n = \frac{(z_{\alpha/2} + z_\beta)^2[p_A(1-p_A) + p_B(1-p_B)]}{\delta^2}\]</span></p>
+<p>where <span class="math inline">\(\delta = p_B - p_A\)</span>. In terms of relative lift <span class="math inline">\(\ell = \delta/p_A = (p_B - p_A)/p_A\)</span>, so <span class="math inline">\(p_B = p_A(1+\ell)\)</span> and <span class="math inline">\(\delta = p_A \ell\)</span>:</p>
+<p><span class="math display">\[n = \frac{(z_{\alpha/2} + z_\beta)^2[p_A(1-p_A) + p_A(1+\ell)(1 - p_A(1+\ell))]}{p_A^2 \ell^2}\]</span></p>
+<p>This highlights that for rare events (<span class="math inline">\(p_A \ll 1\)</span>), both variances are approximately <span class="math inline">\(p_A\)</span> and <span class="math inline">\(p_A(1+\ell)\)</span>, so <span class="math inline">\(n \propto p_A^{-1}\ell^{-2}\)</span>: rarer base rates and smaller relative lifts require dramatically larger samples.</p>
+<h3 id="unequal-allocation">5.3 Unequal Allocation</h3>
+<p>Let <span class="math inline">\(n_B = k \cdot n_A\)</span> for some ratio <span class="math inline">\(k &gt; 0\)</span>. The variance of <span class="math inline">\(\hat{\tau}\)</span> is:</p>
+<p><span class="math display">\[\text{Var}(\hat{\tau}) = \frac{\sigma_A^2}{n_A} + \frac{\sigma_B^2}{k n_A} = \frac{1}{n_A}\left(\sigma_A^2 + \frac{\sigma_B^2}{k}\right)\]</span></p>
+<p>For fixed total <span class="math inline">\(N = n_A + n_B = n_A(1+k)\)</span>, we have <span class="math inline">\(n_A = N/(1+k)\)</span>, so:</p>
+<p><span class="math display">\[\text{Var}(\hat{\tau}) = \frac{1+k}{N}\left(\sigma_A^2 + \frac{\sigma_B^2}{k}\right)\]</span></p>
+<p>To minimize this over <span class="math inline">\(k\)</span>, differentiate with respect to <span class="math inline">\(k\)</span> and set to zero:</p>
+<p><span class="math display">\[\frac{d}{dk}\left[(1+k)\left(\sigma_A^2 + \frac{\sigma_B^2}{k}\right)\right] = \sigma_A^2 + \frac{\sigma_B^2}{k} - \frac{\sigma_B^2(1+k)}{k^2} = 0\]</span></p>
+<p>Solving: <span class="math inline">\(\sigma_A^2 k^2 = \sigma_B^2\)</span>, hence:</p>
+<p><span class="math display">\[k^* = \frac{\sigma_B}{\sigma_A}\]</span></p>
+<p><strong>The optimal allocation ratio equals the ratio of standard deviations.</strong> If group B has higher variance, it should receive more units. For equal variances, <span class="math inline">\(k^* = 1\)</span> (equal allocation) is optimal. <em>In practice, unequal allocation is used when one group is more costly to measure, or when exposing users to a risky treatment variant should be minimized (underpowering the treatment arm is acceptable in early-phase tests).</em></p>
+<h3 id="rule-of-thumb">5.4 Rule of Thumb</h3>
+<p>For standard parameters — two-tailed test at <span class="math inline">\(\alpha = 0.05\)</span> (so <span class="math inline">\(z_{0.025} \approx 1.96\)</span>), power <span class="math inline">\(= 80\%\)</span> (so <span class="math inline">\(z_{0.20} \approx 0.84\)</span>), and equal variances <span class="math inline">\(\sigma_A^2 = \sigma_B^2 = \sigma^2\)</span> — the formula gives:</p>
+<p><span class="math display">\[n = \frac{(1.96 + 0.84)^2 \cdot 2\sigma^2}{\delta^2} = \frac{7.84 \cdot 2\sigma^2}{\delta^2} \approx \frac{15.68\,\sigma^2}{\delta^2}\]</span></p>
+<p><strong>Rule of thumb: <span class="math inline">\(n \approx 16\sigma^2/\delta^2\)</span> per group</strong> for a two-tailed 5%-level test at 80% power with equal variances.</p>
+<p>For 90% power (<span class="math inline">\(z_{0.10} \approx 1.28\)</span>):</p>
+<p><span class="math display">\[n \approx \frac{(1.96 + 1.28)^2 \cdot 2\sigma^2}{\delta^2} \approx \frac{21\,\sigma^2}{\delta^2}\]</span></p>
+<p>The increase from <span class="math inline">\(16\sigma^2/\delta^2\)</span> to <span class="math inline">\(21\sigma^2/\delta^2\)</span> reflects the cost of the extra 10 percentage points of power.</p>
+<hr />
+<h2 id="multiple-variants-one-way-anova">6. Multiple Variants: One-Way ANOVA</h2>
+<h3 id="setup-and-sum-of-squares-decomposition">6.1 Setup and Sum of Squares Decomposition</h3>
+<p>Suppose we run an A/B/n test with <span class="math inline">\(K \geq 3\)</span> variants. Let <span class="math inline">\(n_k\)</span> denote the number of units in group <span class="math inline">\(k\)</span>, and <span class="math inline">\(N = \sum_{k=1}^K n_k\)</span> the total. The outcome for unit <span class="math inline">\(i\)</span> in group <span class="math inline">\(k\)</span> is <span class="math inline">\(Y_{ik}\)</span>. The group means and grand mean are:</p>
+<p><span class="math display">\[\bar{Y}_k = \frac{1}{n_k}\sum_{i=1}^{n_k} Y_{ik}, \qquad \bar{Y} = \frac{1}{N}\sum_{k=1}^K \sum_{i=1}^{n_k} Y_{ik} = \frac{\sum_k n_k \bar{Y}_k}{N}\]</span></p>
+<p>The null hypothesis is the <em>omnibus null</em>: <span class="math inline">\(H_0: \mu_1 = \mu_2 = \cdots = \mu_K\)</span>.</p>
+<p>The one-way ANOVA framework is built on a decomposition of the <em>total sum of squares</em> (<span class="math inline">\(\text{SST}\)</span>):</p>
+<p><span class="math display">\[\text{SST} = \sum_{k=1}^K\sum_{i=1}^{n_k}(Y_{ik} - \bar{Y})^2\]</span></p>
+<p>Write <span class="math inline">\(Y_{ik} - \bar{Y} = (Y_{ik} - \bar{Y}_k) + (\bar{Y}_k - \bar{Y})\)</span>. Squaring and summing:</p>
+<p><span class="math display">\[\text{SST} = \underbrace{\sum_{k=1}^K\sum_{i=1}^{n_k}(Y_{ik} - \bar{Y}_k)^2}_{\text{SSW}} + \underbrace{\sum_{k=1}^K n_k(\bar{Y}_k - \bar{Y})^2}_{\text{SSB}} + 2\underbrace{\sum_{k=1}^K(\bar{Y}_k - \bar{Y})\sum_{i=1}^{n_k}(Y_{ik}-\bar{Y}_k)}_{ = 0}\]</span></p>
+<p>The cross-term vanishes because <span class="math inline">\(\sum_{i=1}^{n_k}(Y_{ik} - \bar{Y}_k) = 0\)</span> for each <span class="math inline">\(k\)</span>. Therefore:</p>
+<p><span class="math display">\[\text{SST} = \text{SSB} + \text{SSW}\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\text{SSB} = \sum_{k=1}^K n_k(\bar{Y}_k - \bar{Y})^2\)</span> is the <em>between-group sum of squares</em>, measuring how much group means vary around the grand mean.</li>
+<li><span class="math inline">\(\text{SSW} = \sum_{k=1}^K\sum_{i=1}^{n_k}(Y_{ik} - \bar{Y}_k)^2\)</span> is the <em>within-group sum of squares</em>, measuring variation within each group.</li>
+</ul>
+<h3 id="the-f-statistic-and-its-distribution">6.2 The F-statistic and Its Distribution</h3>
+<p>The <em>mean squares</em> normalize each sum of squares by its degrees of freedom:</p>
+<p><span class="math display">\[\text{MSB} = \frac{\text{SSB}}{K-1}, \qquad \text{MSW} = \frac{\text{SSW}}{N-K}\]</span></p>
+<p>The degrees of freedom <span class="math inline">\(K-1\)</span> for SSB reflects that <span class="math inline">\(K\)</span> group means are constrained to one relation (they sum to <span class="math inline">\(N\bar{Y}\)</span>), so there are <span class="math inline">\(K-1\)</span> free contrasts. The degrees of freedom <span class="math inline">\(N-K\)</span> for SSW reflects that within each group <span class="math inline">\(k\)</span>, we lose 1 degree of freedom for estimating <span class="math inline">\(\bar{Y}_k\)</span>, leaving <span class="math inline">\(n_k - 1\)</span> per group, totaling <span class="math inline">\(\sum_k(n_k - 1) = N - K\)</span>.</p>
+<p><strong>Definition (F-statistic).</strong></p>
+<p><span class="math display">\[F = \frac{\text{MSB}}{\text{MSW}} = \frac{\text{SSB}/(K-1)}{\text{SSW}/(N-K)}\]</span></p>
+<p><strong>Proposition.</strong> Under <span class="math inline">\(H_0: \mu_1 = \cdots = \mu_K\)</span>, normality, and homoskedasticity (<span class="math inline">\(\sigma_k^2 = \sigma^2\)</span> for all <span class="math inline">\(k\)</span>):</p>
+<p><span class="math display">\[F \sim F(K-1,\, N-K)\]</span></p>
+<p><strong>Conceptual derivation.</strong> The <span class="math inline">\(F\)</span>-distribution with <span class="math inline">\((d_1, d_2)\)</span> degrees of freedom is defined as the ratio of two independent chi-squared random variables, each divided by its degrees of freedom: <span class="math inline">\(F = (\chi^2_{d_1}/d_1) / (\chi^2_{d_2}/d_2)\)</span>.</p>
+<p>Under <span class="math inline">\(H_0\)</span> and normality, both MSB and MSW are unbiased estimators of <span class="math inline">\(\sigma^2\)</span>:</p>
+<ul>
+<li><span class="math inline">\(\mathbb{E}[\text{MSW}] = \sigma^2\)</span> always (regardless of whether <span class="math inline">\(H_0\)</span> holds), because <span class="math inline">\(\text{SSW}/\sigma^2 \sim \chi^2_{N-K}\)</span> — within each group, <span class="math inline">\((n_k-1)s_k^2/\sigma^2 \sim \chi^2_{n_k-1}\)</span>, and these are independent across groups.</li>
+<li><span class="math inline">\(\mathbb{E}[\text{MSB}] = \sigma^2\)</span> only under <span class="math inline">\(H_0\)</span>. This follows because each group mean <span class="math inline">\(\bar{Y}_k \sim \mathcal{N}(\mu_k, \sigma^2/n_k)\)</span>, so under <span class="math inline">\(H_0\)</span>, the group means are i.i.d. <span class="math inline">\(\mathcal{N}(\mu, \sigma^2/n_k)\)</span> (up to the weighting), and <span class="math inline">\(\text{SSB}/\sigma^2 \sim \chi^2_{K-1}\)</span> by a similar argument. <em>The chi-squared distribution for <span class="math inline">\(\text{SSB}/\sigma^2\)</span> is exact for balanced designs (<span class="math inline">\(n_k = n\)</span> for all <span class="math inline">\(k\)</span>); unbalanced designs require the general Cochran theorem.</em></li>
+</ul>
+<p>Furthermore, SSB and SSW are independent under normality (this follows from Cochran’s theorem on the independence of quadratic forms in normal random vectors). Therefore, under <span class="math inline">\(H_0\)</span>:</p>
+<p><span class="math display">\[F = \frac{\text{SSB}/(\sigma^2(K-1))}{\text{SSW}/(\sigma^2(N-K))} = \frac{\chi^2_{K-1}/(K-1)}{\chi^2_{N-K}/(N-K)} \sim F(K-1, N-K)\]</span></p>
+<p>Under <span class="math inline">\(H_1\)</span> (at least one <span class="math inline">\(\mu_k\)</span> differs), <span class="math inline">\(\mathbb{E}[\text{MSB}] &gt; \sigma^2\)</span>, so <span class="math inline">\(F\)</span> tends to be inflated, and the rejection region is <span class="math inline">\(\{F &gt; F_{\alpha, K-1, N-K}\}\)</span> (one-sided upper tail only, since only a large <span class="math inline">\(F\)</span> is evidence against <span class="math inline">\(H_0\)</span>).</p>
+<h3 id="scope-and-limitations">6.3 Scope and Limitations</h3>
+<p>ANOVA tests the omnibus null <span class="math inline">\(H_0: \mu_1 = \cdots = \mu_K\)</span>. Rejecting it tells us only that at least one group differs from the others — it does not identify which pairs differ or by how much. Pairwise comparisons after a significant ANOVA require <em>post-hoc correction</em> for multiple testing (e.g., Bonferroni, Tukey’s HSD, Holm-Bonferroni) to control the familywise error rate; see <code>experimental-design.md</code> for details.</p>
+<p>Homoskedasticity (<span class="math inline">\(\sigma_1^2 = \cdots = \sigma_K^2\)</span>) can be tested with Levene’s test before running ANOVA. When it fails, <em>Welch’s one-way ANOVA</em> — which generalizes Welch’s two-sample t-test to <span class="math inline">\(K\)</span> groups — provides a robust alternative, using a modified F-statistic with Satterthwaite-adjusted degrees of freedom.</p>
+<p><em>ANOVA also requires independence of observations across all <span class="math inline">\(NK\)</span> units, not just within groups. Clustering, time effects, or carry-over between test variants all violate this assumption and require mixed-effects models or stratified analysis.</em></p>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Casella &amp; Berger, <em>Statistical Inference</em> (2nd ed.)</td>
+<td>Graduate-level reference for sufficient statistics, pivotal quantities, UMP tests, and the theory of test inversion for confidence intervals</td>
+<td><a href="https://www.routledge.com/Statistical-Inference/Casella-Berger/p/book/9781032593036">Routledge</a></td>
+</tr>
+<tr class="even">
+<td>Wikipedia: Welch-Satterthwaite equation</td>
+<td>Statement of the Satterthwaite approximation and moment-matching derivation for effective degrees of freedom</td>
+<td><a href="https://en.wikipedia.org/wiki/Welch%E2%80%93Satterthwaite_equation">Wikipedia</a></td>
+</tr>
+<tr class="odd">
+<td>Wikipedia: Two-proportion Z-test</td>
+<td>Derivation of the pooled and unpooled z-statistics for comparing two proportions, with discussion of when each applies</td>
+<td><a href="https://en.wikipedia.org/wiki/Two-proportion_Z-test">Wikipedia</a></td>
+</tr>
+<tr class="even">
+<td>PSU STAT 415, Lesson 25.3: Sample Size Calculations</td>
+<td>Step-by-step derivation of two-sample z-test sample size formulas with worked examples</td>
+<td><a href="https://online.stat.psu.edu/stat415/lesson/25/25.3">PSU Online</a></td>
+</tr>
+<tr class="odd">
+<td>PSU STAT 415, Lesson 13.2: The ANOVA Table</td>
+<td>Derivation of the SST = SSB + SSW decomposition and the F-distribution result under the omnibus null</td>
+<td><a href="https://online.stat.psu.edu/stat415/lesson/13/13.2">PSU Online</a></td>
+</tr>
+<tr class="even">
+<td>Kohavi, Tang &amp; Xu, <em>Trustworthy Online Controlled Experiments</em> (2020)</td>
+<td>Practitioner reference for A/B testing at scale; covers variance reduction, multiple testing, and metric selection</td>
+<td><a href="https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59">Cambridge UP</a></td>
+</tr>
+<tr class="odd">
+<td>Powell, <em>Elements of Asymptotic Theory</em> (Berkeley lecture notes)</td>
+<td>Formal treatment of Slutsky’s theorem and its application to replacing nuisance parameters with consistent estimates in hypothesis tests</td>
+<td><a href="https://eml.berkeley.edu/~powell/e240b_sp10/asynotes.pdf">Berkeley</a></td>
+</tr>
+<tr class="even">
+<td>Wei (2019), “Probing into Minimum Sample Size Formula” (<em>Towards Data Science</em>)</td>
+<td>Step-by-step derivation of the two-sample sample size formula from the power equation</td>
+<td><a href="https://medium.com/data-science/probing-into-minimum-sample-size-formula-derivation-and-usage-8db9a556280b">Medium</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

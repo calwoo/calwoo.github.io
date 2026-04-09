@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>note - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>note</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#what-is-self-organized-criticality?%7Cwhat-is-self-organized-criticality?/">#What Is Self-Organized Criticality?|What Is Self-Organized Criticality?</a>
+<ul>
+<li><a href="../../../../notes/#ordinary-criticality-vs.-soc%7Cordinary-criticality-vs.-soc/">#Ordinary Criticality vs. SOC|Ordinary Criticality vs. SOC</a></li>
+<li><a href="../../../../notes/#the-three-empirical-hallmarks%7Cthe-three-empirical-hallmarks/">#The Three Empirical Hallmarks|The Three Empirical Hallmarks</a></li>
+<li><a href="../../../../notes/#natural-examples-and-connection-to-scaling-laws%7Cnatural-examples-and-connection-to-scaling-laws/">#Natural Examples and Connection to Scaling Laws|Natural Examples and Connection to Scaling Laws</a></li>
+</ul></li>
+<li><a href="../../../../notes/#the-btw-sandpile-model%7Cthe-btw-sandpile-model/">#The BTW Sandpile Model|The BTW Sandpile Model</a>
+<ul>
+<li><a href="../../../../notes/#2.1-formal-definition%7C2.1-formal-definition/">#2.1 Formal Definition|2.1 Formal Definition</a></li>
+<li><a href="../../../../notes/#2.2-time-scale-separation%7C2.2-time-scale-separation/">#2.2 Time-Scale Separation|2.2 Time-Scale Separation</a></li>
+<li><a href="../../../../notes/#2.3-avalanche-observables%7C2.3-avalanche-observables/">#2.3 Avalanche Observables|2.3 Avalanche Observables</a></li>
+<li><a href="../../../../notes/#2.4-the-1/f-noise-connection%7C2.4-the-1/f-noise-connection/">#2.4 The 1/f Noise Connection|2.4 The 1/f Noise Connection</a></li>
+</ul></li>
+<li><a href="../../../../notes/#why-self-organized-criticality?%7Cwhy-self-organized-criticality?/">#Why Self-Organized Criticality?|Why Self-Organized Criticality?</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-attractor-argument%7C3.1-the-attractor-argument/">#3.1 The Attractor Argument|3.1 The Attractor Argument</a></li>
+<li><a href="../../../../notes/#3.2-connection-to-absorbing-state-phase-transitions%7C3.2-connection-to-absorbing-state-phase-transitions/">#3.2 Connection to Absorbing State Phase Transitions|3.2 Connection to Absorbing State Phase Transitions</a></li>
+</ul></li>
+<li><a href="../../../../notes/#the-abelian-sandpile-(dhar-1990)%7Cthe-abelian-sandpile-(dhar-1990)/">#The Abelian Sandpile (Dhar 1990)|The Abelian Sandpile (Dhar 1990)</a>
+<ul>
+<li><a href="../../../../notes/#4.1-setup-on-a-general-graph%7C4.1-setup-on-a-general-graph/">#4.1 Setup on a General Graph|4.1 Setup on a General Graph</a></li>
+<li><a href="../../../../notes/#4.2-the-abelian-property%7C4.2-the-abelian-property/">#4.2 The Abelian Property|4.2 The Abelian Property</a></li>
+<li><a href="../../../../notes/#4.3-the-toppling-lemma%7C4.3-the-toppling-lemma/">#4.3 The Toppling Lemma|4.3 The Toppling Lemma</a></li>
+<li><a href="../../../../notes/#4.4-recurrent-configurations-and-the-sandpile-group%7C4.4-recurrent-configurations-and-the-sandpile-group/">#4.4 Recurrent Configurations and the Sandpile Group|4.4 Recurrent Configurations and the Sandpile Group</a></li>
+</ul></li>
+<li><a href="../../../../notes/#scaling-theory-and-exponents%7Cscaling-theory-and-exponents/">#Scaling Theory and Exponents|Scaling Theory and Exponents</a>
+<ul>
+<li><a href="../../../../notes/#5.1-finite-size-scaling%7C5.1-finite-size-scaling/">#5.1 Finite-Size Scaling|5.1 Finite-Size Scaling</a></li>
+<li><a href="../../../../notes/#5.2-scaling-relations%7C5.2-scaling-relations/">#5.2 Scaling Relations|5.2 Scaling Relations</a></li>
+<li><a href="../../../../notes/#5.3-known-values-for-2d-btw%7C5.3-known-values-for-2d-btw/">#5.3 Known Values for 2D BTW|5.3 Known Values for 2D BTW</a></li>
+<li><a href="../../../../notes/#5.4-universality%7C5.4-universality/">#5.4 Universality|5.4 Universality</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ol>
+<hr />
+<h2 id="what-is-self-organized-criticality">What Is Self-Organized Criticality?</h2>
+<h3 id="ordinary-criticality-vs.-soc">Ordinary Criticality vs. SOC</h3>
+<p>In equilibrium statistical mechanics, a critical point — for instance the Ising model at temperature <span class="math inline">\(T = T_c\)</span> — requires fine-tuning a <em>control parameter</em> to a special value. The free energy landscape has a non-analytic point precisely at the critical temperature, and generically, the system is off-critical. Away from <span class="math inline">\(T_c\)</span>, the correlation length <span class="math inline">\(\xi\)</span> is finite:</p>
+<p><span class="math display">\[\xi \sim |T - T_c|^{-\nu}\]</span></p>
+<p>and fluctuations are characterized by an intrinsic length scale <span class="math inline">\(\xi\)</span>. The divergence of <span class="math inline">\(\xi\)</span> at <span class="math inline">\(T_c\)</span> is what produces scale-free behavior (power-law correlations, critical opalescence, etc.), but this behavior is a set of measure zero in parameter space.</p>
+<p><strong><em>Self-organized criticality</em> (SOC)</strong>, introduced by Bak, Tang, and Wiesenfeld (1987), asserts that a broad class of complex systems — those with many slowly-driven, weakly-dissipative components — can spontaneously evolve to a critical state exhibiting scale-free behavior without any external fine-tuning of parameters.</p>
+<p><strong>The “self-organized” aspect is the key conceptual departure: the dynamics itself tunes the system to the critical point.</strong> The critical state is an <em>attractor</em> of the dynamics, not a fine-tuned boundary condition imposed by an external agent. The control parameter (analogous to <span class="math inline">\(T\)</span>) is not fixed externally but is instead an emergent property of the stationary state reached by the dynamics under slow drive and weak dissipation.</p>
+<h3 id="the-three-empirical-hallmarks">The Three Empirical Hallmarks</h3>
+<p>A system exhibiting SOC is characterized by three signatures, all of which reflect the absence of a characteristic scale:</p>
+<ol type="1">
+<li><p><strong>Power-law event-size distributions</strong>: the probability of an event (<em>avalanche</em>, earthquake, neural cascade) of size <span class="math inline">\(s\)</span> satisfies</p>
+<p><span class="math display">\[P(s) \sim s^{-\tau}, \quad s \to \infty\]</span></p>
+<p>with no exponential cutoff. Compare to an exponential distribution <span class="math inline">\(P(s) \sim e^{-s/s_0}\)</span>, which has a characteristic scale <span class="math inline">\(s_0\)</span> and arises generically away from criticality. The <em>power law</em> implies that large events are not exponentially rare — they are merely power-law suppressed.</p></li>
+<li><p><strong><span class="math inline">\(1/f\)</span> noise</strong>: the <em>power spectral density</em> of the system’s output signal <span class="math inline">\(\phi(t)\)</span> satisfies</p>
+<p><span class="math display">\[S(f) = |\hat{\phi}(f)|^2 \sim f^{-\beta}, \quad \beta \approx 1\]</span></p>
+<p>This is “pink noise,” intermediate between white noise (<span class="math inline">\(\beta = 0\)</span>, flat spectrum, no temporal correlations) and Brownian motion (<span class="math inline">\(\beta = 2\)</span>, corresponding to a random walk). Pink noise implies temporal correlations at all scales — no characteristic time.</p></li>
+<li><p><strong>Fractal spatial geometry</strong>: the spatial footprint of events has no characteristic length scale and is statistically self-similar across scales. Formally, if <span class="math inline">\(M(r)\)</span> is the mass (number of active sites) within radius <span class="math inline">\(r\)</span> of the event origin, then</p>
+<p><span class="math display">\[M(r) \sim r^{D_f}\]</span></p>
+<p>for some fractal dimension <span class="math inline">\(D_f &lt; d\)</span> (the embedding dimension). This is to be contrasted with compact events (<span class="math inline">\(D_f = d\)</span>) or point-like events (<span class="math inline">\(D_f = 0\)</span>).</p></li>
+</ol>
+<p>All three hallmarks are consequences of the same underlying criticality: the system sits at a second-order phase transition point where the correlation length diverges, but the system arrives there dynamically rather than by external tuning.</p>
+<h3 id="natural-examples-and-connection-to-scaling-laws">Natural Examples and Connection to Scaling Laws</h3>
+<p><strong>Earthquakes.</strong> The Gutenberg-Richter law states</p>
+<p><span class="math display">\[\log_{10} N(M) = a - bM, \quad b \approx 1\]</span></p>
+<p>where <span class="math inline">\(N(M)\)</span> is the number of earthquakes with magnitude <span class="math inline">\(\geq M\)</span> and <span class="math inline">\(M = \frac{2}{3}\log_{10} E + \text{const}\)</span> is the moment magnitude. Substituting, this implies a power law for seismic energy release:</p>
+<p><span class="math display">\[P(E) \sim E^{-\tau_E}, \quad \tau_E = 1 + \frac{2b}{3} \approx \frac{5}{3}\]</span></p>
+<p><strong>Forest fires.</strong> In certain ecosystems, the distribution of fire sizes is approximately power-law, consistent with the forest-fire model of Drossel and Schwabl (1992), itself an SOC model.</p>
+<p><strong>Biological evolution.</strong> Bak and Sneppen (1993) proposed SOC as a mechanistic explanation for punctuated equilibrium in the fossil record — long periods of stasis interrupted by rapid bursts of evolutionary change. The Bak-Sneppen model produces power-law distributions of extinction cascade sizes.</p>
+<p><strong>Neural avalanches.</strong> Beggs and Plenz (2003) recorded local field potentials in cortical slices and observed that spontaneous bursts of neural activity (neural avalanches) have power-law size distributions with exponent <span class="math inline">\(\tau \approx 3/2\)</span>, consistent with a mean-field branching process at criticality. This suggests that neural networks may operate near an SOC critical point, potentially to maximize dynamic range and information transmission.</p>
+<p><strong>Caveat.</strong> <em>The causal attribution of empirical power laws to SOC is debated. Many mechanisms can produce heavy-tailed or power-law distributions without SOC: preferential attachment (Barabasi-Albert), multiplicative noise, mixtures of exponentials, and simple self-similar geometry. The presence of a power law is necessary but not sufficient for SOC.</em></p>
+<p><strong>Connection to neural scaling laws.</strong> Bahri et al. (2021) provided a statistical mechanics derivation of neural network scaling laws (of the form <span class="math inline">\(L(N) \sim N^{-\alpha}\)</span> for loss <span class="math inline">\(L\)</span> as a function of model size <span class="math inline">\(N\)</span>), arguing that the scaling exponent <span class="math inline">\(\alpha\)</span> is inversely proportional to the intrinsic dimension <span class="math inline">\(d\)</span> of the data manifold:</p>
+<p><span class="math display">\[\alpha \propto \frac{1}{d}\]</span></p>
+<p>This mirrors how SOC exponents depend on the geometry of the underlying system — in both cases, a power law emerges from an underlying geometric or statistical structure, and the exponent encodes dimensionality information. This is a deep structural analogy: in SOC, the critical exponents are determined by the dimension of the lattice and the universality class of the phase transition; in neural scaling, the loss exponents are determined by the intrinsic dimension of the data distribution.</p>
+<hr />
+<h2 id="the-btw-sandpile-model">The BTW Sandpile Model</h2>
+<p>The <em>Bak-Tang-Wiesenfeld (BTW) sandpile model</em>, introduced in Bak et al. (1987), is the canonical model of SOC. We give a precise mathematical definition.</p>
+<h3 id="formal-definition">2.1 Formal Definition</h3>
+<p><strong>Lattice.</strong> Let <span class="math inline">\(\Lambda = \{1, \ldots, L\}^2 \subset \mathbb{Z}^2\)</span> be an <span class="math inline">\(L \times L\)</span> square lattice with open (absorbing) boundaries. Denote the set of boundary sites as <span class="math inline">\(\partial\Lambda\)</span> (those with fewer than 4 neighbors in <span class="math inline">\(\Lambda\)</span>) and interior sites as <span class="math inline">\(\Lambda^\circ = \Lambda \setminus \partial\Lambda\)</span>.</p>
+<p><strong>State space.</strong> A configuration is a function <span class="math inline">\(z : \Lambda \to \mathbb{Z}_{\geq 0}\)</span>, where <span class="math inline">\(z_i\)</span> is the “height” (number of sand grains) at site <span class="math inline">\(i \in \Lambda\)</span>. The state space is <span class="math inline">\(\Omega = \mathbb{Z}_{\geq 0}^{|\Lambda|}\)</span>.</p>
+<p><strong>Threshold.</strong> The critical threshold is <span class="math inline">\(z_c = 4\)</span> (the degree of an interior site on <span class="math inline">\(\mathbb{Z}^2\)</span>).</p>
+<p><strong>Toppling rule.</strong> A site <span class="math inline">\(i\)</span> is <strong><em>unstable</em></strong> if <span class="math inline">\(z_i \geq z_c = 4\)</span>. When an unstable site <span class="math inline">\(i\)</span> topples:</p>
+<p><span class="math display">\[z_i \to z_i - 4, \qquad z_j \to z_j + 1 \quad \forall j \in \mathcal{N}(i)\]</span></p>
+<p>where <span class="math inline">\(\mathcal{N}(i)\)</span> is the set of nearest neighbors of <span class="math inline">\(i\)</span> in <span class="math inline">\(\Lambda\)</span> (with <span class="math inline">\(|\mathcal{N}(i)| \leq 4\)</span>). If <span class="math inline">\(i \in \partial\Lambda\)</span>, it has <span class="math inline">\(|\mathcal{N}(i)| &lt; 4\)</span> neighbors; the <span class="math inline">\(4 - |\mathcal{N}(i)|\)</span> “missing” grains are lost to the boundary. This loss constitutes the <strong>dissipation mechanism</strong> — the only way grains leave the system.</p>
+<p><strong>Stable configurations.</strong> A configuration <span class="math inline">\(z\)</span> is <strong><em>stable</em></strong> if <span class="math inline">\(z_i &lt; 4\)</span> for all <span class="math inline">\(i \in \Lambda\)</span>. The set of stable configurations is <span class="math inline">\(\mathcal{S} = \{0,1,2,3\}^{|\Lambda|}\)</span>.</p>
+<p><strong>Relaxation operator.</strong> Given any configuration <span class="math inline">\(z \in \Omega\)</span>, the relaxation <span class="math inline">\(\mathcal{R}(z)\)</span> is the unique stable configuration reached by repeatedly toppling any unstable site. (Uniqueness is guaranteed by the <em>Abelian property</em>; see Section 4.2.)</p>
+<h3 id="time-scale-separation">2.2 Time-Scale Separation</h3>
+<p>The BTW dynamics consists of two processes operating on separated time scales:</p>
+<p><strong>Slow drive.</strong> At discrete time <span class="math inline">\(t = 1, 2, 3, \ldots\)</span>, add one grain to a uniformly random site <span class="math inline">\(i_t \sim \text{Uniform}(\Lambda)\)</span>:</p>
+<p><span class="math display">\[z \to z + \mathbf{e}_{i_t}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{e}_i\)</span> is the unit vector at site <span class="math inline">\(i\)</span>.</p>
+<p><strong>Fast relaxation.</strong> Immediately after each addition, apply the relaxation operator:</p>
+<p><span class="math display">\[z(t) = \mathcal{R}(z(t-1) + \mathbf{e}_{i_t})\]</span></p>
+<p>The relaxation (avalanche) runs to completion before the next grain is added.</p>
+<p><strong>Time-scale separation condition.</strong> The drive rate <span class="math inline">\(h\)</span> (grains per unit time) is taken to zero, <span class="math inline">\(h \to 0\)</span>, relative to the relaxation rate. This ensures:
+1. At most one avalanche is active at any instant.
+2. The system is always in a stable configuration between additions.
+3. The avalanche statistics are not contaminated by overlap between successive perturbations.</p>
+<p>This separation is not merely a technical convenience — it is physically essential. <em>If <span class="math inline">\(h\)</span> is too large (the “fast-drive” limit), avalanches overlap and the critical behavior is destroyed.</em></p>
+<p><strong>Stationary distribution.</strong> Under this dynamics, the system reaches a unique stationary distribution <span class="math inline">\(\mu^*\)</span> over stable configurations. The SOC phenomenology (power-law avalanche statistics) is a property of this stationary distribution. Computing <span class="math inline">\(\mu^*\)</span> exactly is the content of Dhar’s abelian sandpile theory (Section 4).</p>
+<h3 id="avalanche-observables">2.3 Avalanche Observables</h3>
+<p>After adding a grain at time <span class="math inline">\(t\)</span>, the resulting avalanche is characterized by three observables:</p>
+<p><strong>Size</strong> <span class="math inline">\(s\)</span>: the total number of topplings summed over all sites and all time steps of the avalanche,</p>
+<p><span class="math display">\[s = \sum_{i \in \Lambda} n_i\]</span></p>
+<p>where <span class="math inline">\(n_i\)</span> is the number of times site <span class="math inline">\(i\)</span> topples during the avalanche.</p>
+<p><strong>Duration</strong> <span class="math inline">\(T\)</span>: the number of parallel update steps (synchronous updates) until stability. In each step, all currently unstable sites topple simultaneously.</p>
+<p><strong>Area</strong> <span class="math inline">\(a\)</span>: the number of distinct sites that topple at least once,</p>
+<p><span class="math display">\[a = |\{i \in \Lambda : n_i \geq 1\}|\]</span></p>
+<p>Note the inequalities <span class="math inline">\(a \leq s\)</span> (since multiple topplings at a single site count once in <span class="math inline">\(a\)</span> but multiple times in <span class="math inline">\(s\)</span>) and <span class="math inline">\(T \leq s\)</span> (since each step involves at least one toppling).</p>
+<p><strong>Empirical distributions in the stationary regime.</strong> <strong>For large <span class="math inline">\(L\)</span>, the distributions of <span class="math inline">\(s\)</span>, <span class="math inline">\(T\)</span>, and <span class="math inline">\(a\)</span> in the stationary state follow power laws with exponential cutoffs imposed by the finite system size:</strong></p>
+<p><span class="math display">\[P(s) \sim s^{-\tau_s} \, g_s(s / L^{D_s}), \qquad \tau_s \approx 1.20, \quad D_s \approx 2.75\]</span></p>
+<p><span class="math display">\[P(T) \sim T^{-\tau_T} \, g_T(T / L^{z}), \qquad \tau_T \approx 1.37, \quad z \approx 1.57\]</span></p>
+<p><span class="math display">\[P(a) \sim a^{-\tau_a} \, g_a(a / L^{2}), \qquad \tau_a \approx 1.14\]</span></p>
+<p>where <span class="math inline">\(g_s, g_T, g_a\)</span> are scaling functions that decay rapidly for argument <span class="math inline">\(\gg 1\)</span> and approach constants for argument <span class="math inline">\(\ll 1\)</span>. The exponent <span class="math inline">\(D_s\)</span> is the <strong>avalanche fractal dimension</strong> (relating avalanche mass to its spatial extent), and <span class="math inline">\(z\)</span> is the <strong>dynamical exponent</strong> (relating duration to spatial extent via <span class="math inline">\(T \sim r^z\)</span>).</p>
+<p><strong>Remark on exact values.</strong> The exponents <span class="math inline">\(\tau_s, \tau_T, D_s, z\)</span> for the 2D BTW sandpile are not known exactly and are determined numerically. This is in contrast to the 1D sandpile (trivially solved) and the mean-field case (<span class="math inline">\(d \geq 4\)</span>, where exact exponents are known via branching process arguments: <span class="math inline">\(\tau_s = 3/2\)</span>, <span class="math inline">\(\tau_T = 2\)</span>).</p>
+<h3 id="the-1f-noise-connection">2.4 The 1/f Noise Connection</h3>
+<p>Consider the time series <span class="math inline">\(\{\phi(t)\}_{t \geq 1}\)</span> where <span class="math inline">\(\phi(t)\)</span> is the number of grains dissipated through the boundary during the avalanche triggered at time <span class="math inline">\(t\)</span>. Bak, Tang, and Wiesenfeld argued that this signal exhibits <em>1/f noise</em>.</p>
+<p><strong>Heuristic argument.</strong> Model each avalanche as a rectangular pulse of height <span class="math inline">\(h_0\)</span> and duration <span class="math inline">\(T\)</span>. The Fourier transform of a single pulse of duration <span class="math inline">\(T\)</span> has power concentrated at frequencies <span class="math inline">\(f \lesssim 1/T\)</span>:</p>
+<p><span class="math display">\[|\hat{\phi}_T(f)|^2 \approx h_0^2 T^2 \cdot \mathbf{1}[f \lesssim 1/T]\]</span></p>
+<p>The aggregate power spectrum is the average over avalanche durations drawn from <span class="math inline">\(P(T) \sim T^{-\tau_T}\)</span>:</p>
+<p><span class="math display">\[S(f) \sim \int_0^\infty P(T) \, |\hat{\phi}_T(f)|^2 \, dT \sim \int_{1/f}^\infty T^{-\tau_T} \cdot T^2 \, dT \sim f^{-(3 - \tau_T)}\]</span></p>
+<p>where the lower limit of integration is <span class="math inline">\(1/f\)</span> because pulses shorter than <span class="math inline">\(1/f\)</span> contribute negligibly at frequency <span class="math inline">\(f\)</span>. Therefore:</p>
+<p><span class="math display">\[\boxed{S(f) \sim f^{-(3-\tau_T)}}\]</span></p>
+<p>For <span class="math inline">\(\tau_T \approx 1.37\)</span>: <span class="math inline">\(S(f) \sim f^{-1.63}\)</span>, which is close to but not exactly <span class="math inline">\(1/f\)</span>. The exact <span class="math inline">\(\beta = 1\)</span> (pink noise) would require <span class="math inline">\(\tau_T = 2\)</span>, which is the mean-field value.</p>
+<p><strong>Caveat.</strong> <em>The <span class="math inline">\(1/f\)</span> label is used loosely. More precisely, BTW predicts <span class="math inline">\(S(f) \sim f^{-\beta}\)</span> with <span class="math inline">\(\beta = 3 - \tau_T \in (1, 2)\)</span> depending on the model. Furthermore, <span class="math inline">\(1/f\)</span> noise is not unique to SOC: any superposition of relaxation processes (Lorentzians) with a power-law distribution of relaxation times <span class="math inline">\(P(\tau) \sim \tau^{-1}\)</span> produces <span class="math inline">\(S(f) \sim f^{-1}\)</span> without any SOC dynamics. The presence of <span class="math inline">\(1/f\)</span> noise is consistent with SOC but does not establish it.</em></p>
+<h2 id="why-self-organized-criticality">Why Self-Organized Criticality?</h2>
+<h3 id="the-attractor-argument">3.1 The Attractor Argument</h3>
+<p>Argue that the critical state is the unique stationary state. Consider the average height <span class="math inline">\(\langle z \rangle\)</span>:</p>
+<ul>
+<li><p><strong>Subcritical regime</strong> (<span class="math inline">\(\langle z \rangle \ll z_c\)</span>): most sites are far from threshold. Avalanches are small — a grain addition typically causes 0 or 1 topplings. The output flux (grains leaving at the boundary) is much less than the input flux (one grain per step). Therefore <span class="math inline">\(\langle z \rangle\)</span> increases monotonically. The subcritical state is not stationary — it drifts upward.</p></li>
+<li><p><strong>Supercritical regime</strong> (<span class="math inline">\(\langle z \rangle \gtrsim z_c\)</span>): many sites are near threshold. Grain additions trigger large avalanches that reach the boundary and dissipate many grains. The output flux exceeds the input flux. Therefore <span class="math inline">\(\langle z \rangle\)</span> decreases. The supercritical state is also not stationary.</p></li>
+<li><p><strong>Critical state</strong> (<span class="math inline">\(\langle z \rangle = \langle z \rangle_c\)</span>): the unique average height at which input flux equals output flux in the stationary sense. This is a balance point that the dynamics drives the system toward from both sides — a dynamical attractor. <strong>No external control is needed to reach or maintain it.</strong></p></li>
+</ul>
+<p>The slow drive (<span class="math inline">\(h \to 0\)</span>) and open boundaries (dissipation) are both essential: without slow drive, the system cannot evolve; without dissipation at the boundary, grains accumulate without limit and there is no attractor.</p>
+<h3 id="connection-to-absorbing-state-phase-transitions">3.2 Connection to Absorbing State Phase Transitions</h3>
+<p>A more formal perspective (Dickman, Muñoz, Vespignani, Zapperi 2000): interpret the activity (number of active/unstable sites) as an <em>order parameter</em>. In the limit <span class="math inline">\(h \to 0\)</span>, <span class="math inline">\(\epsilon \to 0\)</span> (where <span class="math inline">\(h\)</span> is the drive rate and <span class="math inline">\(\epsilon\)</span> is the per-toppling dissipation rate):</p>
+<ul>
+<li>For <span class="math inline">\(h &gt; 0\)</span> fixed and <span class="math inline">\(\epsilon &gt; 0\)</span>: the system is always in the <strong>active phase</strong> — eventually all configurations are visited, including highly active ones.</li>
+<li>For <span class="math inline">\(h = 0\)</span>, <span class="math inline">\(\epsilon &gt; 0\)</span>: the system falls into an <strong>absorbing state</strong> (no unstable sites, no driving). This is the absorbing phase.</li>
+<li>The boundary between these phases — the <strong>absorbing state phase transition</strong> — is where SOC lives.</li>
+</ul>
+<p>Formally, SOC corresponds to the <strong>self-tuning</strong> of the system to this phase boundary via the feedback between drive and dissipation. The SOC critical point is in the <em>universality class</em> of the Manna model (for stochastic sandpiles) or a separate class for the deterministic BTW model. This connection to absorbing state criticality provides a field-theoretic framework for computing SOC exponents — though the calculations are technically difficult and exponents are generally known only numerically.</p>
+<hr />
+<h2 id="the-abelian-sandpile-dhar-1990">The Abelian Sandpile (Dhar 1990)</h2>
+<h3 id="setup-on-a-general-graph">4.1 Setup on a General Graph</h3>
+<p>Let <span class="math inline">\(G = (V \cup \{s\}, E)\)</span> be a finite connected undirected graph with vertex set <span class="math inline">\(V\)</span> (non-sink vertices) and a distinguished sink vertex <span class="math inline">\(s\)</span>. The toppling matrix <span class="math inline">\(\Delta\)</span> is the <span class="math inline">\(|V| \times |V|\)</span> matrix:
+<span class="math display">\[\Delta_{ij} = \begin{cases} \deg(i) &amp; i = j \\ -1 &amp; \{i,j\} \in E,\ i \neq j \\ 0 &amp; \text{otherwise} \end{cases}\]</span>
+where <span class="math inline">\(\deg(i)\)</span> counts all edges from <span class="math inline">\(i\)</span>, including edges to <span class="math inline">\(s\)</span>. This is the graph Laplacian restricted to non-sink vertices — equivalently, the full Laplacian with the sink row and column deleted.</p>
+<p>The height variable <span class="math inline">\(z_i \in \mathbb{Z}_{\geq 0}\)</span> at each <span class="math inline">\(i \in V\)</span>. Site <span class="math inline">\(i\)</span> is <strong>stable</strong> if <span class="math inline">\(z_i &lt; \deg(i)\)</span> and <strong>unstable</strong> if <span class="math inline">\(z_i \geq \deg(i)\)</span>. The <em>toppling rule</em> at site <span class="math inline">\(i\)</span>:
+<span class="math display">\[z_i \to z_i - \deg(i), \qquad z_j \to z_j + 1 \quad \forall \{i,j\} \in E, j \neq s\]</span>
+Grains sent to <span class="math inline">\(s\)</span> are lost (dissipation). In matrix form: a toppling at <span class="math inline">\(i\)</span> changes the height vector by <span class="math inline">\(-\Delta_{i\cdot}\)</span> (subtract the <span class="math inline">\(i\)</span>-th row of <span class="math inline">\(\Delta\)</span>).</p>
+<h3 id="the-abelian-property">4.2 The Abelian Property</h3>
+<p><strong>Theorem (Dhar 1990).</strong> Let <span class="math inline">\(\eta\)</span> be a configuration (possibly unstable). If there exists a finite legal toppling sequence — a sequence of topplings of unstable sites — that stabilizes <span class="math inline">\(\eta\)</span>, then:
+1. Every legal toppling sequence from <span class="math inline">\(\eta\)</span> also stabilizes <span class="math inline">\(\eta\)</span>.
+2. All stabilizing sequences produce the same final stable configuration <span class="math inline">\(\eta'\)</span>.
+3. Each site <span class="math inline">\(i \in V\)</span> topples the same number of times <span class="math inline">\(n_i\)</span> in every stabilizing sequence.</p>
+<p><strong>Proof.</strong></p>
+<p>Let <span class="math inline">\(\mathbf{n}^\alpha \in \mathbb{Z}_{\geq 0}^{|V|}\)</span> denote the toppling vector for sequence <span class="math inline">\(\alpha\)</span> (number of times each site topples). After sequence <span class="math inline">\(\alpha\)</span>:
+<span class="math display">\[\eta'_i = \eta_i - \sum_j \Delta_{ij} n_j^\alpha = \eta_i - (\Delta \mathbf{n}^\alpha)_i\]</span>
+or in vector form <span class="math inline">\(\eta' = \eta - \Delta \mathbf{n}^\alpha\)</span>.</p>
+<p>If <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> both stabilize <span class="math inline">\(\eta\)</span>:
+<span class="math display">\[\eta - \Delta \mathbf{n}^\alpha = \eta - \Delta \mathbf{n}^\beta \implies \Delta(\mathbf{n}^\alpha - \mathbf{n}^\beta) = \mathbf{0}\]</span></p>
+<p><strong>Key claim:</strong> <span class="math inline">\(\Delta\)</span> is positive definite on <span class="math inline">\(\mathbb{R}^{|V|}\)</span>, hence <span class="math inline">\(\ker(\Delta) = \{\mathbf{0}\}\)</span>.</p>
+<p><em>Proof of positive definiteness:</em> <span class="math inline">\(\Delta\)</span> is the graph Laplacian restricted to <span class="math inline">\(V\)</span>, with the sink providing a “ground.” For any <span class="math inline">\(\mathbf{x} \in \mathbb{R}^{|V|}\)</span>:
+<span class="math display">\[\mathbf{x}^\top \Delta \mathbf{x} = \sum_{\{i,j\} \in E, i,j \in V} (x_i - x_j)^2 + \sum_{i \in V,\ \{i,s\} \in E} x_i^2 \geq 0\]</span>
+Since <span class="math inline">\(G\)</span> is connected and <span class="math inline">\(s\)</span> is adjacent to at least one vertex in <span class="math inline">\(V\)</span>, the quadratic form is strictly positive for <span class="math inline">\(\mathbf{x} \neq \mathbf{0}\)</span>.</p>
+<p>Therefore <span class="math inline">\(\mathbf{n}^\alpha = \mathbf{n}^\beta\)</span>, and hence <span class="math inline">\(\eta'^\alpha = \eta'^\beta\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>The abelian property is why the sandpile is analytically tractable: the stabilization map <span class="math inline">\(\eta \mapsto \eta'\)</span> and the toppling numbers <span class="math inline">\(\mathbf{n}(\eta)\)</span> are well-defined functions, independent of implementation order.</p>
+<h3 id="the-toppling-lemma">4.3 The Toppling Lemma</h3>
+<p><strong>Lemma.</strong> Let <span class="math inline">\(\eta\)</span> be a configuration that can be stabilized. If <span class="math inline">\(n_i(\eta) \geq 1\)</span> (site <span class="math inline">\(i\)</span> topples at least once in the stabilization of <span class="math inline">\(\eta\)</span>), then <span class="math inline">\(n_i(\eta + \mathbf{e}_j) \geq n_i(\eta)\)</span> for any grain addition <span class="math inline">\(\mathbf{e}_j\)</span> (adding a grain at site <span class="math inline">\(j\)</span>).</p>
+<p>More simply: <strong>adding grains can only increase the number of topplings, never decrease it.</strong></p>
+<p><strong>Proof sketch:</strong> Adding a grain at <span class="math inline">\(j\)</span> can only make <span class="math inline">\(\eta + \mathbf{e}_j\)</span> “more unstable” than <span class="math inline">\(\eta\)</span>. Any toppling sequence that stabilizes <span class="math inline">\(\eta\)</span> is also legal for <span class="math inline">\(\eta + \mathbf{e}_j\)</span> (the extra grain at <span class="math inline">\(j\)</span> never makes a previously legal toppling illegal). By the abelian property, the toppling numbers <span class="math inline">\(\mathbf{n}(\eta + \mathbf{e}_j) \geq \mathbf{n}(\eta)\)</span> componentwise. <span class="math inline">\(\square\)</span></p>
+<p>This monotonicity is essential for proving properties of the stationary distribution.</p>
+<h3 id="recurrent-configurations-and-the-sandpile-group">4.4 Recurrent Configurations and the Sandpile Group</h3>
+<p>A stable configuration <span class="math inline">\(\eta\)</span> is <strong><em>recurrent</em></strong> if it appears with positive probability in the unique stationary distribution of the Markov chain (add grain at random site, stabilize, repeat). A configuration is <strong><em>transient</em></strong> if it is visited at most finitely often (probability zero in stationarity).</p>
+<p><strong><em>Dhar’s burning algorithm</em></strong> (criterion for recurrence): <span class="math inline">\(\eta\)</span> is recurrent if and only if the following process terminates with all vertices burned:
+1. Initialize: mark the sink <span class="math inline">\(s\)</span> as “burned.”
+2. Iterate: if an unburned vertex <span class="math inline">\(i\)</span> has <span class="math inline">\(z_i \geq\)</span> (number of unburned neighbors of <span class="math inline">\(i\)</span>), mark <span class="math inline">\(i\)</span> as burned.
+3. Repeat until no more vertices can be burned.
+4. <span class="math inline">\(\eta\)</span> is recurrent iff all vertices in <span class="math inline">\(V\)</span> are eventually burned.</p>
+<p>Intuitively: a recurrent configuration is one “dense enough” that every site could topple at least once if grains arrived from burned (stabilized) neighbors — it cannot be “blocked” by any cluster of sites.</p>
+<p><strong>The sandpile group.</strong> The set <span class="math inline">\(\mathcal{R}\)</span> of recurrent configurations forms an <strong>abelian group</strong> under the operation:
+<span class="math display">\[\eta_1 \oplus \eta_2 = \text{Stab}(\eta_1 + \eta_2)\]</span>
+(add the configurations componentwise, then stabilize). This group is:
+- <strong>Abelian</strong>: by the abelian property, <span class="math inline">\(\eta_1 \oplus \eta_2 = \eta_2 \oplus \eta_1\)</span>
+- <strong>Finite</strong>: <span class="math inline">\(|\mathcal{R}| = \det(\Delta)\)</span> (a remarkable identity proved by Dhar)
+- <strong>Cyclic structure</strong>: for the <span class="math inline">\(L \times L\)</span> grid, <span class="math inline">\(\det(\Delta)\)</span> grows as <span class="math inline">\(e^{c L^2}\)</span> where <span class="math inline">\(c = \frac{4G}{\pi}\)</span> and <span class="math inline">\(G\)</span> is Catalan’s constant</p>
+<p>The sandpile group is one of the rare examples of a non-trivial algebraic structure arising from a dynamical system, and its study connects to algebraic combinatorics, chip-firing games, and tropical geometry.</p>
+<h2 id="scaling-theory-and-exponents">Scaling Theory and Exponents</h2>
+<h3 id="finite-size-scaling">5.1 Finite-Size Scaling</h3>
+<p>For a system of linear size <span class="math inline">\(L\)</span>, the avalanche size distribution is not a pure power law — it is cut off at large <span class="math inline">\(s\)</span> by the system size. The <strong><em>finite-size scaling</em> ansatz</strong> is:</p>
+<p><span class="math display">\[P(s, L) = s^{-\tau_s}\, g\!\left(\frac{s}{L^D}\right)\]</span></p>
+<p>where:
+- <span class="math inline">\(\tau_s &gt; 1\)</span> is the <strong>size exponent</strong>
+- <span class="math inline">\(D &gt; 0\)</span> is the <strong>avalanche fractal dimension</strong> — the exponent relating the typical maximum avalanche size to system size: <span class="math inline">\(s_{\max} \sim L^D\)</span>
+- <span class="math inline">\(g : (0,\infty) \to (0,\infty)\)</span> is a <strong>universal scaling function</strong> satisfying <span class="math inline">\(g(u) \approx \text{const}\)</span> for <span class="math inline">\(u \ll 1\)</span> and <span class="math inline">\(g(u) \to 0\)</span> rapidly (faster than any power) for <span class="math inline">\(u \gg 1\)</span></p>
+<p>In the <span class="math inline">\(L \to \infty\)</span> limit, the cutoff moves to infinity and <span class="math inline">\(P(s) \sim s^{-\tau_s}\)</span> for all <span class="math inline">\(s\)</span> — a pure power law. For finite <span class="math inline">\(L\)</span>, the distribution follows the power law for <span class="math inline">\(s \ll L^D\)</span> and is exponentially suppressed for <span class="math inline">\(s \gg L^D\)</span>.</p>
+<p>The same ansatz applies to the duration and area distributions:
+<span class="math display">\[P(T, L) = T^{-\tau_T} \tilde{g}\!\left(\frac{T}{L^z}\right), \qquad P(a, L) = a^{-\tau_a} \hat{g}\!\left(\frac{a}{L^{d_f}}\right)\]</span>
+where <span class="math inline">\(z\)</span> is the <strong>dynamical exponent</strong> and <span class="math inline">\(d_f\)</span> is the spatial fractal dimension of avalanche footprints.</p>
+<h3 id="scaling-relations">5.2 Scaling Relations</h3>
+<p>The exponents are not all independent — they are related by scaling laws derived from the internal consistency of the finite-size scaling ansatz.</p>
+<p><strong>Relation 1</strong> — from <span class="math inline">\(s \sim T^{\sigma}\)</span> (size scales as duration to a power):
+<span class="math display">\[\tau_T = 1 + \sigma(\tau_s - 1), \qquad \sigma = D/z\]</span></p>
+<p><strong>Relation 2</strong> — from <span class="math inline">\(a \sim s^{d_f/D}\)</span> (area scales as a power of size):
+<span class="math display">\[\tau_a = 1 + \frac{D}{d_f}(\tau_s - 1)\]</span></p>
+<p><strong>Relation 3</strong> — from conservation: in the BTW sandpile, each toppling conserves grains in the interior. The total number of grains dissipated equals the avalanche size reaching the boundary. For <span class="math inline">\(d\)</span>-dimensional systems, conservation implies:
+<span class="math display">\[D = d + 2 - \tau_s \cdot d \quad \text{(heuristic)}\]</span>
+This is an approximate relation; the exact form depends on the universality class.</p>
+<p><strong>These relations mean that, in principle, only two independent exponents characterize an SOC universality class (analogous to two independent exponents in equilibrium critical phenomena).</strong></p>
+<h3 id="known-values-for-2d-btw">5.3 Known Values for 2D BTW</h3>
+<p>Numerically established values for the <span class="math inline">\(2\)</span>-dimensional BTW sandpile on <span class="math inline">\(\mathbb{Z}^2\)</span> (exact analytic values remain open):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Exponent</th>
+<th>Symbol</th>
+<th>Numerical value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Size exponent</td>
+<td><span class="math inline">\(\tau_s\)</span></td>
+<td><span class="math inline">\(1.20 \pm 0.01\)</span></td>
+</tr>
+<tr class="even">
+<td>Duration exponent</td>
+<td><span class="math inline">\(\tau_T\)</span></td>
+<td><span class="math inline">\(1.37 \pm 0.02\)</span></td>
+</tr>
+<tr class="odd">
+<td>Area exponent</td>
+<td><span class="math inline">\(\tau_a\)</span></td>
+<td><span class="math inline">\(1.14 \pm 0.01\)</span></td>
+</tr>
+<tr class="even">
+<td>Avalanche dimension</td>
+<td><span class="math inline">\(D\)</span></td>
+<td><span class="math inline">\(2.75 \pm 0.05\)</span></td>
+</tr>
+<tr class="odd">
+<td>Dynamical exponent</td>
+<td><span class="math inline">\(z\)</span></td>
+<td><span class="math inline">\(1.57 \pm 0.05\)</span></td>
+</tr>
+<tr class="even">
+<td>Spatial fractal dimension</td>
+<td><span class="math inline">\(d_f\)</span></td>
+<td><span class="math inline">\(\approx 2\)</span> (space-filling)</td>
+</tr>
+</tbody>
+</table>
+<p>Important caveats:
+- The 2D BTW sandpile is believed to have <strong>logarithmic corrections</strong> to pure power-law scaling, arising from its exact abelian structure. These corrections make numerical estimation of exponents particularly difficult.
+- Some exact results are known on special graphs (complete graph, trees) where the abelian structure can be exploited fully, but the 2D square lattice remains analytically open.
+- There is ongoing debate in the literature about the exact values of exponents and whether the 2D BTW sandpile is truly critical in the thermodynamic limit or exhibits only quasi-critical behavior.</p>
+<h3 id="universality">5.4 Universality</h3>
+<p>Different SOC models belong to different universality classes, characterized by different sets of exponents:</p>
+<ul>
+<li><strong>BTW (deterministic)</strong>: topplings are deterministic — a site always sends exactly one grain to each neighbor. This determinism may produce logarithmic corrections and place BTW in a distinct class.</li>
+<li><strong>Manna model (stochastic)</strong>: when site <span class="math inline">\(i\)</span> topples, it sends 2 grains to randomly chosen neighbors. This stochasticity places the Manna model in the “Manna universality class” — believed to be the generic class for stochastic sandpiles, with <span class="math inline">\(\tau_s^{\text{Manna}} \approx 1.28\)</span> in 2D.</li>
+<li><strong>Conserved vs. non-conserved</strong>: the BTW sandpile is locally conserved (grains only lost at boundary). Non-conserved models (e.g., Olami-Feder-Christensen earthquake model) generally exhibit different scaling.</li>
+</ul>
+<p>The universality class is determined by symmetries of the toppling rule (deterministic vs. stochastic, conserved vs. non-conserved, spatial dimension), not merely by the qualitative presence of power-law avalanche statistics.</p>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bak, Tang, Wiesenfeld (1987), “Self-organized criticality: An explanation of the 1/f noise”</td>
+<td>Original paper introducing the BTW sandpile and the SOC concept; establishes power-law avalanche statistics and the 1/f noise connection</td>
+<td>https://doi.org/10.1103/PhysRevLett.59.381</td>
+</tr>
+<tr class="even">
+<td>Dhar (1990), “Self-organized critical state of sandpile automaton models”</td>
+<td>Introduces the Abelian sandpile on general graphs; proves the abelian property, toppling lemma, and</td>
+<td>R</td>
+</tr>
+<tr class="odd">
+<td>Bak (1996), “How Nature Works: The Science of Self-Organized Criticality”</td>
+<td>Accessible book-length introduction to SOC by one of its creators; covers motivation, natural examples, and conceptual framework with minimal formalism</td>
+<td>https://link.springer.com/book/10.1007/978-1-4757-5426-1</td>
+</tr>
+<tr class="even">
+<td>Jensen (1998), “Self-Organized Criticality: Emergent Complex Behavior in Physical and Biological Systems”</td>
+<td>Graduate-level textbook covering BTW, Abelian sandpile, scaling theory, and applications; the standard first mathematical reference</td>
+<td>https://doi.org/10.1017/CBO9780511622717</td>
+</tr>
+<tr class="odd">
+<td>Dickman, Muñoz, Vespignani, Zapperi (2000), “Paths to self-organized criticality”</td>
+<td>Reviews the connection between SOC and absorbing state phase transitions; clarifies the role of drive rate and dissipation in self-tuning to criticality</td>
+<td>https://doi.org/10.1590/S0103-97332000000100030</td>
+</tr>
+<tr class="even">
+<td>Pruessner (2012), “Self-Organised Criticality: Theory, Models and Characterisation”</td>
+<td>Comprehensive modern reference; covers field-theoretic approaches, numerical methods, and many SOC models; the most complete mathematical treatment available</td>
+<td>https://doi.org/10.1017/CBO9780511977671</td>
+</tr>
+<tr class="odd">
+<td>Christensen and Moloney (2005), “Complexity and Criticality”</td>
+<td>Textbook with detailed BTW and Abelian sandpile chapters; worked examples and problem sets; well-suited for self-study</td>
+<td>https://doi.org/10.1142/p365</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

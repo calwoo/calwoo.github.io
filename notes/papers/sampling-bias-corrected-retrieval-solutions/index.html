@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>sampling-bias-corrected-retrieval-solutions - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>sampling-bias-corrected-retrieval-solutions</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#mathematical-development%7Cmathematical-development/">#Mathematical Development|Mathematical Development</a>
+<ul>
+<li><a href="../../../notes/#problem-1-gradient-of-the-full-softmax-loss%7Cproblem-1:-gradient-of-the-full-softmax-loss/">#Problem 1 Gradient of the Full Softmax Loss|Problem 1: Gradient of the Full Softmax Loss</a></li>
+<li><a href="../../../notes/#problem-2-bias-of-the-uncorrected-batch-softmax%7Cproblem-2:-bias-of-the-uncorrected-batch-softmax/">#Problem 2 Bias of the Uncorrected Batch Softmax|Problem 2: Bias of the Uncorrected Batch Softmax</a></li>
+<li><a href="../../../notes/#problem-3-formal-derivation-of-the-expected-batch-softmax-objective%7Cproblem-3:-formal-derivation-of-the-expected-batch-softmax-objective/">#Problem 3 Formal Derivation of the Expected Batch Softmax Objective|Problem 3: Formal Derivation of the Expected Batch Softmax Objective</a></li>
+<li><a href="../../../notes/#problem-4-logq-correction-as-importance-weighted-estimation%7Cproblem-4:-logq-correction-as-importance-weighted-estimation/">#Problem 4 LogQ Correction as Importance-Weighted Estimation|Problem 4: LogQ Correction as Importance-Weighted Estimation</a></li>
+<li><a href="../../../notes/#problem-5-consistency-of-the-sbc-estimator%7Cproblem-5:-consistency-of-the-sbc-estimator/">#Problem 5 Consistency of the SBC Estimator|Problem 5: Consistency of the SBC Estimator</a></li>
+<li><a href="../../../notes/#problem-6-variance-of-the-logq-correction-term%7Cproblem-6:-variance-of-the-logq-correction-term/">#Problem 6 Variance of the LogQ Correction Term|Problem 6: Variance of the LogQ Correction Term</a></li>
+<li><a href="../../../notes/#problem-7-streaming-estimator-bias-and-variance%7Cproblem-7:-streaming-estimator-bias-and-variance/">#Problem 7 Streaming Estimator Bias and Variance|Problem 7: Streaming Estimator Bias and Variance</a></li>
+<li><a href="../../../notes/#problem-8-bias-variance-tradeoff-and-optimal-learning-rate%7Cproblem-8:-bias-variance-tradeoff-and-optimal-learning-rate/">#Problem 8 Bias-Variance Tradeoff and Optimal Learning Rate|Problem 8: Bias-Variance Tradeoff and Optimal Learning Rate</a></li>
+<li><a href="../../../notes/#problem-9-tracking-lag-under-distribution-shift%7Cproblem-9:-tracking-lag-under-distribution-shift/">#Problem 9 Tracking Lag Under Distribution Shift|Problem 9: Tracking Lag Under Distribution Shift</a></li>
+<li><a href="../../../notes/#problem-10-equivalence-between-sbc-and-importance-sampling-from-uniform%7Cproblem-10:-equivalence-between-sbc-and-importance-sampling-from-uniform/">#Problem 10 Equivalence Between SBC and Importance Sampling from Uniform|Problem 10: Equivalence Between SBC and Importance Sampling from Uniform</a></li>
+<li><a href="../../../notes/#problem-11-effect-of-in-batch-negatives-on-gradient-variance%7Cproblem-11:-effect-of-in-batch-negatives-on-gradient-variance/">#Problem 11 Effect of In-Batch Negatives on Gradient Variance|Problem 11: Effect of In-Batch Negatives on Gradient Variance</a></li>
+<li><a href="../../../notes/#problem-12-temperature-and-softmax-entropy%7Cproblem-12:-temperature-and-softmax-entropy/">#Problem 12 Temperature and Softmax Entropy|Problem 12: Temperature and Softmax Entropy</a></li>
+<li><a href="../../../notes/#problem-13-lower-bound-on-recall-at-k-from-bias-magnitude%7Cproblem-13:-lower-bound-on-recall-at-k-from-bias-magnitude/">#Problem 13 Lower Bound on Recall at K from Bias Magnitude|Problem 13: Lower Bound on Recall at K from Bias Magnitude</a></li>
+<li><a href="../../../notes/#problem-14-inner-product-decomposability-and-mips-indexing%7Cproblem-14:-inner-product-decomposability-and-mips-indexing/">#Problem 14 Inner Product Decomposability and MIPS Indexing|Problem 14: Inner Product Decomposability and MIPS Indexing</a></li>
+<li><a href="../../../notes/#problem-15-multiple-hashings-vs.-larger-single-array%7Cproblem-15:-multiple-hashings-vs.-larger-single-array/">#Problem 15 Multiple Hashings vs. Larger Single Array|Problem 15: Multiple Hashings vs. Larger Single Array</a></li>
+<li><a href="../../../notes/#problem-16-reward-weighting-and-the-learned-distribution%7Cproblem-16:-reward-weighting-and-the-learned-distribution/">#Problem 16 Reward Weighting and the Learned Distribution|Problem 16: Reward Weighting and the Learned Distribution</a></li>
+<li><a href="../../../notes/#problem-17-sequential-training-under-distribution-shift%7Cproblem-17:-sequential-training-under-distribution-shift/">#Problem 17 Sequential Training Under Distribution Shift|Problem 17: Sequential Training Under Distribution Shift</a></li>
+</ul></li>
+<li><a href="../../../notes/#algorithmic-applications%7Calgorithmic-applications/">#Algorithmic Applications|Algorithmic Applications</a>
+<ul>
+<li><a href="../../../notes/#problem-18-corrected-batch-softmax-loss%7Cproblem-18:-corrected-batch-softmax-loss/">#Problem 18 Corrected Batch Softmax Loss|Problem 18: Corrected Batch Softmax Loss</a></li>
+<li><a href="../../../notes/#problem-19-distributed-streaming-frequency-estimation%7Cproblem-19:-distributed-streaming-frequency-estimation/">#Problem 19 Distributed Streaming Frequency Estimation|Problem 19: Distributed Streaming Frequency Estimation</a></li>
+<li><a href="../../../notes/#problem-20-multiple-hashing-frequency-estimator%7Cproblem-20:-multiple-hashing-frequency-estimator/">#Problem 20 Multiple-Hashing Frequency Estimator|Problem 20: Multiple-Hashing Frequency Estimator</a></li>
+<li><a href="../../../notes/#problem-21-recall-at-k-evaluation-against-a-full-corpus%7Cproblem-21:-recall-at-k-evaluation-against-a-full-corpus/">#Problem 21 Recall at K Evaluation Against a Full Corpus|Problem 21: Recall at K Evaluation Against a Full Corpus</a></li>
+<li><a href="../../../notes/#problem-22-sequential-training-with-online-frequency-updates%7Cproblem-22:-sequential-training-with-online-frequency-updates/">#Problem 22 Sequential Training with Online Frequency Updates|Problem 22: Sequential Training with Online Frequency Updates</a></li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="mathematical-development">Mathematical Development</h2>
+<h3 id="problem-1-gradient-of-the-full-softmax-loss">Problem 1: Gradient of the Full Softmax Loss</h3>
+<p><strong>Key insight:</strong> The softmax gradient has an exact contrastive decomposition — a “push toward the positive” term and a “pull toward the model-weighted centroid” — so any bias in the negative distribution directly distorts the centroid and corrupts the update direction.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Write <span class="math inline">\(\ell = -s_{y^+} + \log\sum_k e^{s_k}\)</span>. Differentiating: <span class="math inline">\(\partial\ell/\partial s_j = -\mathbf{1}[j=y^+] + e^{s_j}/\sum_k e^{s_k} = p_j - \mathbf{1}[j=y^+]\)</span>.</p></li>
+<li><p>Chain rule over all <span class="math inline">\(j\)</span>: <span class="math inline">\(\partial\ell/\partial u = \sum_j (p_j - \mathbf{1}[j=y^+])v_j = \mathbb{E}_{j\sim P}[v_j] - v_{y^+}\)</span>. Gradient descent pushes <span class="math inline">\(u\)</span> toward <span class="math inline">\(v_{y^+}\)</span> and away from the model-weighted centroid of all items.</p></li>
+<li><p>MC estimator with <span class="math inline">\(K\)</span> negatives from <span class="math inline">\(q\)</span>: <span class="math inline">\(\hat{\nabla} \approx \frac{1}{K}\sum_k p^B_k v_k - v_{y^+}\)</span>. When <span class="math inline">\(q \propto\)</span> item frequency, popular items appear with high weight in the estimated centroid, biasing <span class="math inline">\(\hat{\nabla}\)</span> to push <span class="math inline">\(u\)</span> away from popular items even when their scores are appropriate.</p></li>
+</ol>
+<hr />
+<h3 id="problem-2-bias-of-the-uncorrected-batch-softmax">Problem 2: Bias of the Uncorrected Batch Softmax</h3>
+<p><strong>Key insight:</strong> The probability of item <span class="math inline">\(j\)</span> entering a batch is proportional to <span class="math inline">\(q_j\)</span>, so the batch denominator is an unbiased estimator of the frequency-weighted partition function <span class="math inline">\(\sum_j q_j e^{s_j}\)</span> — not the uniform-weighted <span class="math inline">\(\sum_j e^{s_j}\)</span> that the full softmax requires.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Each of the <span class="math inline">\(B-1\)</span> negative slots draws from <span class="math inline">\(q\)</span> independently; <span class="math inline">\(\mathbb{P}[y_j = y] \approx (B-1)q_y\)</span> for large <span class="math inline">\(M \gg B\)</span>. Effective negative distribution is <span class="math inline">\(q\)</span>, not Uniform.</p></li>
+<li><p><span class="math inline">\(\mathbb{E}[\sum_{j\neq i} e^{s_{ij}}] = (B-1)\sum_j q_j e^{s_{ij}}\)</span>. Using <span class="math inline">\(\log\mathbb{E}[Z]\approx\mathbb{E}[\log Z]\)</span>: <span class="math inline">\(\mathbb{E}[-\log P_B]\approx -s_{ii}+\log\sum_j q_j e^{s_{ij}} + C\)</span>. The effective partition function is frequency-weighted, not uniform-weighted.</p></li>
+<li><p>For <span class="math inline">\(\alpha=0\)</span>: <span class="math inline">\(q_j = 1/M\)</span>, so <span class="math inline">\(\mathrm{TV}(q,\mathrm{Uniform}) = 0\)</span> and bias = 0. As <span class="math inline">\(\alpha\to\infty\)</span>: all mass concentrates on item 1, so <span class="math inline">\(q_1\to 1\)</span> and <span class="math inline">\(\mathrm{TV}\to 1/2\)</span>. The bias is a monotone increasing function of the power-law concentration <span class="math inline">\(\alpha\)</span>.</p></li>
+</ol>
+<hr />
+<h3 id="problem-3-formal-derivation-of-the-expected-batch-softmax-objective">Problem 3: Formal Derivation of the Expected Batch Softmax Objective</h3>
+<p><strong>Key insight:</strong> Taking expectation over random batch sampling is linear and directly yields <span class="math inline">\(\sum_j q_j e^{s_{ij}}\)</span> as the effective partition function, confirming that batch softmax is consistent to the wrong target — the frequency-reweighted softmax — no matter how large <span class="math inline">\(B\)</span> is.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\mathbb{E}[\hat{Z}_i] = \mathbb{E}[\sum_{j\neq i} e^{s_{ij}}] = (B-1)\sum_j q_j e^{s_{ij}}\)</span>, since each negative slot draws from <span class="math inline">\(q\)</span> independently.</p></li>
+<li><p>Applying <span class="math inline">\(\log\mathbb{E}[Z] \approx \mathbb{E}[\log Z]\)</span>: <span class="math inline">\(\mathbb{E}[-\log P_B(y_i|x_i)] \approx -s_{ii} + \log(B-1) + \log\sum_j q_j e^{s_{ij}}\)</span>. The effective objective is the softmax loss with partition function <span class="math inline">\(\sum_j q_j e^{s_{ij}}\)</span> (not <span class="math inline">\(\sum_j e^{s_{ij}}\)</span>).</p></li>
+<li><p>The ratio <span class="math inline">\(\sum_j q_j e^{s_{ij}}/\sum_j e^{s_{ij}}\)</span> equals 1 when <span class="math inline">\(q\)</span> is uniform (bias = 0) and deviates as <span class="math inline">\(q\)</span> becomes concentrated. The corrected objective replaces <span class="math inline">\(q_j\)</span> with <span class="math inline">\(1/M\)</span> in the partition function, restoring the intended target.</p></li>
+</ol>
+<hr />
+<h3 id="problem-4-logq-correction-as-importance-weighted-estimation">Problem 4: LogQ Correction as Importance-Weighted Estimation</h3>
+<p><strong>Key insight:</strong> Subtracting <span class="math inline">\(\log p_j\)</span> from a logit is algebraically identical to multiplying the exponentiated score by <span class="math inline">\(1/p_j\)</span>, which is the importance weight needed to convert samples from the training distribution into an unbiased estimator of the uniform-negative partition function.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\mathbb{E}[\hat{Z}_\mathrm{IS}] = \mathbb{E}_{j\sim q}[e^{s_j}/p_j] = \sum_j q_j \cdot e^{s_j}/p_j = \sum_j e^{s_j} = Z(x)\)</span>. Log-space: <span class="math inline">\(e^{s_j}/p_j = e^{s_j - \log p_j} = e^{s^c_j}\)</span>.</p></li>
+<li><p>Residual bias from Jensen’s inequality (concave <span class="math inline">\(\log\)</span>): <span class="math inline">\(\mathbb{E}[\log\hat{Z}^c] \leq \log\mathbb{E}[\hat{Z}^c] = \log Z(x) + C\)</span>. The gap is <span class="math inline">\(O(\mathrm{Var}(\hat{Z}^c)/\mathbb{E}[\hat{Z}^c]^2) = O(1/B)\)</span>, vanishing as <span class="math inline">\(B\to\infty\)</span>.</p></li>
+<li><p>If <span class="math inline">\(p_j = B/M\)</span> for all <span class="math inline">\(j\)</span>: <span class="math inline">\(s^c_j = s_j - \log(B/M) = s_j + \log(M/B)\)</span>. Adding a constant to all logits leaves the softmax unchanged. The correction is non-trivial only when <span class="math inline">\(\mathrm{Var}(\log p_j) &gt; 0\)</span>.</p></li>
+<li><p>Taylor: <span class="math inline">\(\log(p_j+\epsilon_j) \approx \log p_j + \epsilon_j/p_j\)</span>, so <span class="math inline">\(\hat{s}^c_j \approx s_j - \log p_j - \epsilon_j/p_j\)</span>. Estimation noise is amplified by <span class="math inline">\(1/p_j\)</span>: a fixed absolute error in <span class="math inline">\(\hat{p}_j\)</span> has <span class="math inline">\(1/p_j^2\)</span> larger variance impact for rare items than for popular items.</p></li>
+</ol>
+<hr />
+<h3 id="problem-5-consistency-of-the-sbc-estimator">Problem 5: Consistency of the SBC Estimator</h3>
+<p><strong>Key insight:</strong> The corrected denominator is a sum of i.i.d. importance weights that are individually unbiased for <span class="math inline">\(Z(x_i)\)</span>, so the law of large numbers gives <span class="math inline">\(\hat{Z}^c/B \to Z(x_i)\)</span> and the continuous mapping theorem extends this to the log-loss.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\mathbb{E}[e^{s_{ij}-\log p_j}] = Z(x_i)\)</span> for each negative slot. By LLN: <span class="math inline">\((B-1)^{-1}\sum_{j\neq i} e^{s^c_{ij}} \xrightarrow{p} Z(x_i)\)</span>. Hence <span class="math inline">\(\hat{Z}^c/B \xrightarrow{p} Z(x_i)\)</span>.</p></li>
+<li><p>By the continuous mapping theorem applied to <span class="math inline">\(\log(\cdot)\)</span>: <span class="math inline">\(-\log P_B^c = -s^c_{ii} + \log\hat{Z}^c \xrightarrow{p} -s^c_{ii} + \log(BZ(x_i)) = -\log P(y_i|x_i) + \log B\)</span>. The <span class="math inline">\(\log B\)</span> additive constant cancels in the gradient.</p></li>
+<li><p>Uncorrected: <span class="math inline">\(\mathbb{E}[\hat{Z}]/B \to \sum_j q_j e^{s_{ij}} \neq Z(x_i)\)</span> (unless <span class="math inline">\(q\)</span> is uniform). The uncorrected estimator converges to the wrong quantity regardless of <span class="math inline">\(B\)</span>.</p></li>
+</ol>
+<hr />
+<h3 id="problem-6-variance-of-the-logq-correction-term">Problem 6: Variance of the LogQ Correction Term</h3>
+<p><strong>Key insight:</strong> The correction term adds variance proportional to <span class="math inline">\(\mathrm{Var}(e^{s_{ij}}/p_j)\)</span> across items — this cost grows with the heterogeneity of <span class="math inline">\(q\)</span> but decreases as <span class="math inline">\(O(1/B)\)</span>, making the correction always worthwhile when bias dominates at realistic batch sizes.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Let <span class="math inline">\(W_j = e^{s_{ij}}/p_j\)</span>; by unbiasedness <span class="math inline">\(\mathbb{E}[W_j] = Z(x_i)\)</span>. <span class="math inline">\(\mathrm{Var}(W_j) = \sum_k q_k e^{2s_{ik}}/p_k^2 - Z(x_i)^2\)</span>, which is larger when <span class="math inline">\(q\)</span> is concentrated (high <span class="math inline">\(q_k\)</span> for a few <span class="math inline">\(k\)</span> with potentially large <span class="math inline">\(e^{s_{ik}}/p_k\)</span>).</p></li>
+<li><p><span class="math inline">\(\mathrm{Var}(\hat{Z}^c) = (B-1)\mathrm{Var}(W_j)\)</span>. Delta method: <span class="math inline">\(\mathrm{Var}(-\log P_B^c) \approx \mathrm{Var}(\hat{Z}^c)/(\mathbb{E}[\hat{Z}^c])^2 = \mathrm{Var}(W_j)/((B-1)Z(x_i)^2)\)</span>.</p></li>
+<li><p>Variance increase from correction <span class="math inline">\(= \mathrm{Var}(W_j) - \mathrm{Var}(e^{s_{ij}})\)</span>, which is non-negative. But bias reduction (targeting correct <span class="math inline">\(Z\)</span>) eliminates <span class="math inline">\(O(1)\)</span> systematic error while variance increase is <span class="math inline">\(O(1/B)\)</span>; for any reasonable <span class="math inline">\(B\)</span>, bias correction dominates for heavily skewed <span class="math inline">\(q\)</span>.</p></li>
+</ol>
+<hr />
+<h3 id="problem-7-streaming-estimator-bias-and-variance">Problem 7: Streaming Estimator Bias and Variance</h3>
+<p><strong>Key insight:</strong> The EMA recurrence is a linear first-order system with fixed point <span class="math inline">\(\delta\)</span>, so its mean and variance both admit closed-form geometric series expressions — bias decays geometrically at rate <span class="math inline">\((1-\alpha)^t\)</span> and variance converges to a floor <span class="math inline">\(\alpha\sigma^2/(2-\alpha)\)</span>.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Induction: base <span class="math inline">\(\delta_1 = (1-\alpha)\delta_0 + \alpha\Delta_1\)</span>. Step: <span class="math inline">\(\delta_t = (1-\alpha)\delta_{t-1}+\alpha\Delta_t\)</span>, substitute inductive hypothesis, collect geometric series. <span class="math inline">\(\mathbb{E}[\delta_t] = (1-\alpha)^t\delta_0 + \delta[1-(1-\alpha)^t]\)</span>; bias <span class="math inline">\(= (1-\alpha)^t(\delta_0-\delta)\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathrm{Var}(\delta_t) = \alpha^2\sigma^2\sum_{k=0}^{t-1}(1-\alpha)^{2k} = \frac{\alpha\sigma^2}{2-\alpha}[1-(1-\alpha)^{2t}]\)</span>; steady state <span class="math inline">\(\sigma_\infty^2 = \alpha\sigma^2/(2-\alpha) \approx \alpha\sigma^2/2\)</span> for small <span class="math inline">\(\alpha\)</span>.</p></li>
+<li><p>Unbiased at every <span class="math inline">\(t\)</span>: need <span class="math inline">\((1-\alpha)^t(\delta_0-\delta) = 0\)</span> for all <span class="math inline">\(t &gt; 0\)</span>, which requires <span class="math inline">\(\delta_0 = \delta\)</span>. The paper’s phrasing <span class="math inline">\(\delta_0 = \delta/(1-\alpha)\)</span> removes the bias under its specific form of equation (7); both are consistent with initialization at the true mean when interpreted correctly.</p></li>
+</ol>
+<hr />
+<h3 id="problem-8-bias-variance-tradeoff-and-optimal-learning-rate">Problem 8: Bias-Variance Tradeoff and Optimal Learning Rate</h3>
+<p><strong>Key insight:</strong> At steady state the bias is zero and MSE equals variance (monotone increasing in <span class="math inline">\(\alpha\)</span>), so absent distribution shift the optimal <span class="math inline">\(\alpha\)</span> is as small as possible — distribution shift introduces a minimum effective <span class="math inline">\(\alpha\)</span> determined by the drift rate.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Steady-state bias <span class="math inline">\(= 0\)</span>; <span class="math inline">\(\mathrm{MSE}_\infty(\alpha) = \alpha\sigma^2/(2-\alpha)\)</span>, monotone increasing in <span class="math inline">\(\alpha\)</span>. Without shift, any smaller <span class="math inline">\(\alpha\)</span> is strictly better.</p></li>
+<li><p>Post-shift transient bias at lag <span class="math inline">\(\tau\)</span>: <span class="math inline">\((1-\alpha)^\tau(\delta-\delta')\)</span>. Total MSE <span class="math inline">\(= (1-\alpha)^{2\tau}(\delta-\delta')^2 + \alpha\sigma^2/(2-\alpha)\)</span>. Minimizing over <span class="math inline">\(\alpha\)</span> at fixed <span class="math inline">\(\tau\)</span> gives a positive interior optimum balancing the two terms.</p></li>
+<li><p>Continuous drift at rate <span class="math inline">\(\beta\)</span> per step: steady-state tracking bias <span class="math inline">\(\approx \beta/\alpha\)</span>, variance <span class="math inline">\(\approx \alpha\sigma^2/2\)</span>. Minimizing <span class="math inline">\((\beta/\alpha)^2 + \alpha\sigma^2/2\)</span> over <span class="math inline">\(\alpha\)</span>: <span class="math inline">\(\alpha^* \propto (\beta^2/\sigma^2)^{1/3}\)</span>. As <span class="math inline">\(\beta\to 0\)</span>: <span class="math inline">\(\alpha^*\to 0\)</span>; as <span class="math inline">\(\sigma^2\to\infty\)</span>: <span class="math inline">\(\alpha^*\to 0\)</span>. The paper’s <span class="math inline">\(\alpha = 0.01\)</span> is conservative, suitable for slow daily drift and moderate noise.</p></li>
+</ol>
+<hr />
+<h3 id="problem-9-tracking-lag-under-distribution-shift">Problem 9: Tracking Lag Under Distribution Shift</h3>
+<p><strong>Key insight:</strong> After a step change the EMA satisfies a first-order exponential relaxation with decay constant <span class="math inline">\((1-\alpha)\)</span> — the half-life is <span class="math inline">\(\log(2)/\alpha\)</span> steps, making large <span class="math inline">\(\alpha\)</span> the only way to achieve rapid adaptation at the cost of higher steady-state variance.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Post-change at lag <span class="math inline">\(\tau\)</span>: <span class="math inline">\(\mathbb{E}[\delta_{t_0+\tau}] = (\delta+\Delta\delta) - (1-\alpha)^\tau\Delta\delta\)</span>. Tracking error <span class="math inline">\(= (1-\alpha)^\tau|\Delta\delta|\)</span>.</p></li>
+<li><p><span class="math inline">\((1-\alpha)^{\tau_{1/2}} = 1/2 \Rightarrow \tau_{1/2} = \log(2)/|\log(1-\alpha)| \approx \log(2)/\alpha\)</span> for small <span class="math inline">\(\alpha\)</span>.</p></li>
+<li><p><span class="math inline">\(\alpha = 0.01\)</span>: <span class="math inline">\(\tau_{1/2} \approx 69\)</span> steps. With millions of steps per day, the EMA adapts within seconds of wall-clock time — well within a single day. With <span class="math inline">\(\alpha = 0.1\)</span>: <span class="math inline">\(\tau_{1/2} \approx 7\)</span> steps (much faster) but steady-state variance is <span class="math inline">\(\approx 5.6\times\)</span> larger (<span class="math inline">\(\sigma_\infty^2 = 0.1\sigma^2/1.9\)</span> vs. <span class="math inline">\(0.01\sigma^2/1.99\)</span>).</p></li>
+</ol>
+<hr />
+<h3 id="problem-10-equivalence-between-sbc-and-importance-sampling-from-uniform">Problem 10: Equivalence Between SBC and Importance Sampling from Uniform</h3>
+<p><strong>Key insight:</strong> The logQ correction converts samples from the training distribution <span class="math inline">\(q\)</span> into an unbiased MC estimator of the uniform-distribution expectation via the classical unnormalized IS identity — the two descriptions are algebraically identical.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>SNIS estimator <span class="math inline">\(\hat{Z}_\mathrm{SNIS} = \sum_j e^{s_j}/q_j / \sum_j 1/q_j\)</span> is biased <span class="math inline">\(O(1/B)\)</span> (from self-normalization). The unnormalized IS estimator <span class="math inline">\(\hat{Z}_\mathrm{IS} = B^{-1}\sum_j e^{s_j}/q_j\)</span> is exactly unbiased but has potentially larger variance.</p></li>
+<li><p>The corrected logit weight <span class="math inline">\(e^{s_{ij}-\log p_j} = e^{s_{ij}}/p_j\)</span> with <span class="math inline">\(p_j = Bq_j\)</span> equals <span class="math inline">\(e^{s_{ij}}/(Bq_j)\)</span>, proportional to the IS weight <span class="math inline">\((1/M)/q_j\)</span> for converting from <span class="math inline">\(q\)</span> to uniform. The SBC correction is IS reweighting in log-space.</p></li>
+<li><p>Items with <span class="math inline">\(q_j\approx 0\)</span> almost never appear in a batch (<span class="math inline">\(\mathbb{P}[\text{item in batch}] = Bq_j\to 0\)</span>). The variance contribution from such items is <span class="math inline">\(Bq_j\cdot(e^{s_j}/q_j - Z)^2 \to 0\)</span>, since the large IS weight <span class="math inline">\(1/q_j\)</span> is offset by the small appearance probability <span class="math inline">\(Bq_j\)</span>. The infinite-variance concern is naturally bounded in the batch setting.</p></li>
+</ol>
+<hr />
+<h3 id="problem-11-effect-of-in-batch-negatives-on-gradient-variance">Problem 11: Effect of In-Batch Negatives on Gradient Variance</h3>
+<p><strong>Key insight:</strong> Gradient variance from batch negatives has two components: a <span class="math inline">\(O(1/B)\)</span> estimation term and a mismatch term that grows when the negative sampling distribution is far from the model distribution — the mismatch dominates early in training under heavy-tailed item frequencies.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>Full gradient: <span class="math inline">\(g = \mathbb{E}_{j\sim P}[v_j] - v_{y^+}\)</span>. Batch MC approximation <span class="math inline">\(\hat{g}\)</span> is unbiased for the full gradient only if the effective batch weights <span class="math inline">\(p_j^B\)</span> equal the model weights <span class="math inline">\(p_j\)</span> in expectation, which requires the negative distribution to equal <span class="math inline">\(P(\cdot|x_i;\theta)\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathrm{Var}(\hat{g}) = O(1/B)\)</span> by i.i.d. summation over <span class="math inline">\(B-1\)</span> negatives. The constant factor involves <span class="math inline">\(\mathrm{Var}(W_j) = \mathrm{Var}(p_j^B)\)</span>, which grows when the batch softmax weights <span class="math inline">\(p_j^B\)</span> are volatile (large score variance across items).</p></li>
+<li><p>Early in training, <span class="math inline">\(P(\cdot|x_i;\theta)\approx\)</span> Uniform. Power-law <span class="math inline">\(q\)</span> concentrates the batch on popular items, making <span class="math inline">\(p_j^B\)</span> highly concentrated on a few items and nearly zero for the rest. This mismatch inflates <span class="math inline">\(\mathrm{Var}(W_j)\)</span> and raises gradient variance well above the uniform-sampling baseline.</p></li>
+</ol>
+<hr />
+<h3 id="problem-12-temperature-and-softmax-entropy">Problem 12: Temperature and Softmax Entropy</h3>
+<p><strong>Key insight:</strong> Temperature controls the entropy of <span class="math inline">\(P_\tau\)</span> monotonically and has no effect on rankings (hence no effect on Recall@K at evaluation), but during training lower <span class="math inline">\(\tau\)</span> concentrates gradient mass on hard negatives, making temperature a training-dynamics knob rather than a model-capacity knob.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(H(P_\tau) = \log Z_\tau - \tau^{-1}\mathbb{E}_{P_\tau}[s]\)</span>. As <span class="math inline">\(\tau\to\infty\)</span>: <span class="math inline">\(P_\tau\to\)</span> Uniform, <span class="math inline">\(H\to\log M\)</span>. As <span class="math inline">\(\tau\to 0^+\)</span>: <span class="math inline">\(P_\tau\to\delta_{j^*}\)</span>, <span class="math inline">\(H\to 0\)</span>. Monotonicity follows from <span class="math inline">\(\partial H/\partial\tau &gt; 0\)</span>.</p></li>
+<li><p><span class="math inline">\(\partial\ell/\partial\tau = s_{y^+}/\tau^2 - \mathbb{E}_{P_\tau}[s]/\tau^2 = (1/\tau^2)(s_{y^+}-\mathbb{E}_{P_\tau}[s])\)</span>. When <span class="math inline">\(s_{y^+} &lt; \mathbb{E}[s]\)</span> (positive below average), decreasing <span class="math inline">\(\tau\)</span> concentrates probability further away from the positive, increasing loss.</p></li>
+<li><p>Rankings depend only on the order of <span class="math inline">\(\{s_j\}\)</span>, preserved under positive rescaling <span class="math inline">\(s_j\mapsto s_j/\tau\)</span>. So Recall@K is <span class="math inline">\(\tau\)</span>-invariant at evaluation. During training, smaller <span class="math inline">\(\tau\)</span> produces larger <span class="math inline">\(p_j/\tau\)</span> for high-scoring negatives, creating sharper learning signal focused on hard negatives near the decision boundary.</p></li>
+<li><p>As <span class="math inline">\(K\to\infty\)</span> uniform: <span class="math inline">\(K^{-1}\sum_j e^{s_j/\tau}\xrightarrow{a.s.} M^{-1}\sum_j e^{s_j/\tau} = Z_\tau/M\)</span>. The InfoNCE denominator <span class="math inline">\(\to e^{s^+/\tau} + K\cdot Z_\tau/M \approx K Z_\tau/M\)</span> for large <span class="math inline">\(K\)</span> and <span class="math inline">\(M\)</span>. So <span class="math inline">\(\mathcal{L}_\mathrm{InfoNCE}\to-\mathbb{E}[\log P_\tau(y^+|x)] + \log(K/M)\)</span>, which matches full softmax cross-entropy up to the constant <span class="math inline">\(\log(K/M)\)</span>.</p></li>
+</ol>
+<hr />
+<h3 id="problem-13-lower-bound-on-recall-at-k-from-bias-magnitude">Problem 13: Lower Bound on Recall at K from Bias Magnitude</h3>
+<p><strong>Key insight:</strong> The optimal biased model converges to a score function that additively subtracts <span class="math inline">\(\log q_y\)</span> from each item’s true score, systematically under-ranking rare positives relative to popular negatives by an amount equal to the log-frequency gap.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>The biased loss <span class="math inline">\(\approx -s(x,y) + \log\sum_j q_j e^{s(x,y_j)}\)</span> is minimized by <span class="math inline">\(P^B(y|x) \propto q_y e^{s^*(x,y)}\)</span>, giving <span class="math inline">\(s^B(x,y) = s^*(x,y) + \log q_y - C(x)\)</span> where <span class="math inline">\(C(x)\)</span> absorbs the query-dependent normalizer.</p></li>
+<li><p>Item <span class="math inline">\(y^-\)</span> overtakes <span class="math inline">\(y^+\)</span> under the biased model when <span class="math inline">\(s^*(x,y^-) - s^*(x,y^+) &gt; \log q_{y^+} - \log q_{y^-}\)</span>. The number of such items equals the rank degradation; the gap <span class="math inline">\(\log q_{y^+} - \log q_{y^-}\)</span> is the bias penalty proportional to the log-frequency advantage of the negative over the positive.</p></li>
+<li><p><span class="math inline">\(\Delta_\mathrm{bias}(y^+) = \mathbb{E}_{y^-\sim q}[\log q_{y^-}] - \log q_{y^+}\)</span>. Recall@1 under the biased model fails when <span class="math inline">\(\Delta_\mathrm{bias}(y^+) &gt; s^*(x,y^+) - \max_{y^-}s^*(x,y^-)\)</span> (the true margin). Rare positives facing popular negatives have the largest <span class="math inline">\(\Delta_\mathrm{bias}\)</span> and suffer the most degradation.</p></li>
+</ol>
+<hr />
+<h3 id="problem-14-inner-product-decomposability-and-mips-indexing">Problem 14: Inner Product Decomposability and MIPS Indexing</h3>
+<p><strong>Key insight:</strong> Decomposability is the property that the scoring function factors into independently computed query and item functions — the inner product satisfies this by definition, enabling offline item indexing; any coupling of query and item features before aggregation breaks decomposability.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\langle u(x), v(y)\rangle\)</span> depends on <span class="math inline">\(x\)</span> only through <span class="math inline">\(u(x)\)</span> and <span class="math inline">\(y\)</span> only through <span class="math inline">\(v(y)\)</span>: fully decomposable. A model with concatenation <span class="math inline">\([u;v]\)</span> inside a nonlinearity couples <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> before the final aggregation and is not decomposable: <span class="math inline">\(v(y)\)</span> cannot be precomputed independently of <span class="math inline">\(u(x)\)</span>.</p></li>
+<li><p>For L2-normalized <span class="math inline">\(u, v\)</span>: <span class="math inline">\(\langle u,v\rangle = \cos\theta\)</span>. Also <span class="math inline">\(\|u-v\|^2 = \|u\|^2 - 2\langle u,v\rangle + \|v\|^2 = 2 - 2\langle u,v\rangle\)</span>, so <span class="math inline">\(\arg\max_j\langle u,v_j\rangle = \arg\min_j\|u-v_j\|^2_2\)</span>. MIPS reduces to exact nearest-neighbor search for L2-normalized embeddings.</p></li>
+<li><p>By Mercer’s theorem, any symmetric PSD kernel <span class="math inline">\(K(u,v) = \langle\phi(u),\phi(v)\rangle_\mathcal{H}\)</span> yields a feature-map decomposition. Any PSD kernel is compatible with precomputed item representations (in the feature space). Non-PSD kernels and asymmetric scoring functions fail the symmetry or positive-definiteness condition and cannot be expressed as inner products.</p></li>
+</ol>
+<hr />
+<h3 id="problem-15-multiple-hashings-vs.-larger-single-array">Problem 15: Multiple Hashings vs. Larger Single Array</h3>
+<p><strong>Key insight:</strong> Collisions bias each EMA bucket downward (mixed inter-arrivals appear shorter), and taking the maximum over <span class="math inline">\(m\)</span> independent hash estimates selects the least-biased estimate — the debiasing from the max operation outweighs the higher per-array collision rate from smaller array sizes.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\mathbb{P}[\text{collision}] = 1-(1-1/H)^{M-1} \approx 1-e^{-M/H}\)</span>. For <span class="math inline">\(M=10^7\)</span>, <span class="math inline">\(H=5000\)</span>: <span class="math inline">\(e^{-2000}\approx 0\)</span>. Every bucket has collisions; essentially all single-hash estimates are biased.</p></li>
+<li><p>Each <span class="math inline">\(B_i[h_i(y)]\)</span> is biased downward (collisions pull the EMA below <span class="math inline">\(\delta_y\)</span>). The true <span class="math inline">\(\delta_y\)</span> upper-bounds each <span class="math inline">\(B_i[h_i(y)]\)</span> in expectation. Taking <span class="math inline">\(\max_i\)</span> selects the estimate with the fewest collisions, stochastically closest to <span class="math inline">\(\delta_y\)</span>.</p></li>
+<li><p>Single array of size <span class="math inline">\(mH\)</span>: collision probability <span class="math inline">\(\approx 1-e^{-M/(mH)}\)</span> (lower per bucket), but the max-over-hashings debiasing trick does not apply. With <span class="math inline">\(m\)</span> arrays of size <span class="math inline">\(H/m\)</span>: per-array collision probability <span class="math inline">\(\approx 1-e^{-Mm/H}\)</span> (higher), but the max over <span class="math inline">\(m\)</span> independent estimates reduces directional bias by <span class="math inline">\(O(m)\)</span>. Empirically the max-hashing strategy dominates for <span class="math inline">\(m\geq 2\)</span> under skewed distributions; the single large array would need <span class="math inline">\(H\gg M\)</span> (storage-prohibitive) to match.</p></li>
+</ol>
+<hr />
+<h3 id="problem-16-reward-weighting-and-the-learned-distribution">Problem 16: Reward Weighting and the Learned Distribution</h3>
+<p><strong>Key insight:</strong> Reward-weighted cross-entropy is exactly cross-entropy against the reward-reweighted data distribution <span class="math inline">\(p_r(x,y) \propto r(x,y)\cdot p_\mathrm{data}(x,y)\)</span>, so the optimal model recovers <span class="math inline">\(p_r(y|x)\)</span>, not <span class="math inline">\(p_\mathrm{data}(y|x)\)</span>.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p><span class="math inline">\(\mathcal{L}(\theta) = -\sum_i r_i\log P(y_i|x_i;\theta) = -\sum_{x,y} n_r(x,y)\log P(y|x;\theta)\)</span> where <span class="math inline">\(n_r(x,y) \propto r(x,y)\cdot p_\mathrm{data}(x,y)\)</span>. Normalizing: <span class="math inline">\(p_r(x,y) = r(x,y)\cdot p_\mathrm{data}(x,y)/\mathbb{E}[r]\)</span>. Minimizing <span class="math inline">\(\mathcal{L}\)</span> is equivalent to minimizing <span class="math inline">\(\mathrm{KL}(p_r\|P_\theta)\)</span>.</p></li>
+<li><p>Optimal model: <span class="math inline">\(P^*(y|x) \propto r(x,y)\cdot p_\mathrm{data}(y|x)\)</span>. This equals <span class="math inline">\(p_\mathrm{data}(y|x)\)</span> when <span class="math inline">\(r(x,y)\)</span> is constant in <span class="math inline">\(y\)</span> for each <span class="math inline">\(x\)</span> (reward independent of item given query).</p></li>
+<li><p>Fully-watched positives (<span class="math inline">\(r=1\)</span>) are retained; abandoned clicks (<span class="math inline">\(r=0\)</span>) are discarded. The model targets <span class="math inline">\(P^*(y|x)\propto p_\mathrm{data}^\mathrm{watched}(y|x)\)</span>: items users watch to completion. Compared to binary-click model: clickbait with low completion rate is down-weighted to zero; long-form content with genuine engagement is up-weighted; content with moderate watch fractions occupies intermediate mass.</p></li>
+</ol>
+<hr />
+<h3 id="problem-17-sequential-training-under-distribution-shift">Problem 17: Sequential Training Under Distribution Shift</h3>
+<p><strong>Key insight:</strong> The EMA’s recency weighting is only coherent when the temporal ordering of training examples is preserved — shuffling destroys the correspondence between global step <span class="math inline">\(t\)</span> and actual arrival time, making the EMA track a stationary mixture rather than the current distribution.</p>
+<p><strong>Sketch:</strong></p>
+<ol type="a">
+<li><p>With shuffled data, global step <span class="math inline">\(t\)</span> no longer corresponds to temporal order. The inter-arrival time <span class="math inline">\(t - A[h(y)]\)</span> measures steps since the last shuffled occurrence of <span class="math inline">\(y\)</span>, which reflects the time-averaged frequency rather than the current frequency. The EMA converges to the stationary average distribution, not the most recent day’s distribution.</p></li>
+<li><p><span class="math inline">\(\|\bar{\mathcal{D}}_W - \mathcal{D}_t\|_1 \leq \frac{1}{W}\sum_{\tau=0}^{W-1}\|\mathcal{D}_t - \mathcal{D}_{t-\tau}\|_1 = \frac{1}{W}\sum_{\tau=0}^{W-1}O(\beta\tau) = O(\beta W)\)</span>. To balance drift bias against statistical variance (<span class="math inline">\(O(1/\sqrt{Wn})\)</span>): <span class="math inline">\(\beta W \sim 1/\sqrt{Wn}\)</span>, giving <span class="math inline">\(W^* \sim (\beta\sqrt{n})^{-2/3}\)</span>.</p></li>
+<li><p>Effective EMA weight given to an observation <span class="math inline">\(\tau\)</span> steps ago is <span class="math inline">\((1-\alpha)^\tau\)</span>; effective window <span class="math inline">\(\approx \sum_\tau\tau(1-\alpha)^\tau\alpha = (1-\alpha)/\alpha \approx 1/\alpha\)</span>. For <span class="math inline">\(\alpha=0.01\)</span>: window <span class="math inline">\(\approx 100\)</span> steps. With millions of steps per day over 15 days, the EMA window is a small fraction of a day — the estimator tracks item frequencies at sub-day resolution, far finer than the day-level distribution shift.</p></li>
+</ol>
+<hr />
+<h2 id="algorithmic-applications">Algorithmic Applications</h2>
+<h3 id="problem-18-corrected-batch-softmax-loss">Problem 18: Corrected Batch Softmax Loss</h3>
+<p><strong>Key insight:</strong> The corrected batch loss is structurally identical to standard batch softmax but with column-wise logit shifts applied before the log-sum-exp — a one-line change to the standard cross-entropy implementation.</p>
+<p><strong>Sketch:</strong></p>
+<pre><code>function corrected_batch_loss(S, log_p_hat, r):
+    # S: [B, B], S[i,j] = score(x_i, y_j)
+    # log_p_hat: [B], log_p_hat[j] = log(p_hat_j)
+    # r: [B], reward weights
+
+    # (b) Column-wise logit correction (item dimension = columns)
+    S_c = S - log_p_hat[newaxis, :]    # broadcast over rows; shape [B, B]
+
+    # (c) Numerically stable row-wise log-softmax
+    m = max(S_c, axis=1, keepdims=True)           # [B, 1]
+    log_Z = m + log(sum(exp(S_c - m), axis=1))    # [B]
+    log_probs = diag(S_c) - log_Z                 # [B] diagonal = positive logits
+
+    # (d) Reward-weighted mean negative log-likelihood
+    loss = -mean(r * log_probs)
+    return loss
+    # Time: O(B^2) dominated by score matrix; correction and loss are O(B)</code></pre>
+<ol start="5" type="a">
+<li>The positive item <span class="math inline">\(i\)</span> appears in both numerator (diagonal of <span class="math inline">\(S^c\)</span>) and denominator (row sum of <span class="math inline">\(S^c\)</span>). This matches the full softmax semantics where the positive is included in the partition function. No diagonal masking is needed — the paper’s Eq. (4) includes the positive in the denominator, and the gradient correctly flows through both terms.</li>
+</ol>
+<hr />
+<h3 id="problem-19-distributed-streaming-frequency-estimation">Problem 19: Distributed Streaming Frequency Estimation</h3>
+<p><strong>Key insight:</strong> The shared-state EMA update tolerates non-atomic read-write races because each conflicting write merely replaces the other’s update rather than corrupting shared structure — at worst, one inter-arrival observation is lost, equivalent to a temporary increase in effective learning-rate variance.</p>
+<p><strong>Sketch:</strong></p>
+<pre><code># Parameter server shared state:
+#   A[0..H-1]: int64, last global step for each bucket
+#   B[0..H-1]: float32, EMA of inter-arrival times
+#   t: global step counter (coordinator-managed)
+
+function worker_update_and_estimate(y, alpha):
+    k = h(y)
+    # (b) Read (may be stale by at most one concurrent worker's write)
+    a_k, b_k = PS.read(A[k]), PS.read(B[k])
+    delta = t - a_k
+    b_new = (1 - alpha) * b_k + alpha * delta
+    # Write back (race: another worker may overwrite; we lose one observation)
+    PS.write(A[k], t)
+    PS.write(B[k], b_new)
+    # (c) Use locally computed value — zero extra round-trip, staleness &lt;= 1 step
+    return 1.0 / b_new</code></pre>
+<ol start="4" type="a">
+<li>Strategy (i): <span class="math inline">\(B[k]=1\)</span> (assumes every item arrives every step). Severe overestimate of frequency; <span class="math inline">\(\hat{p}\)</span> starts much too large, under-correcting rare items. Bias decays in <span class="math inline">\(O(1/\alpha)\)</span> steps. Strategy (ii): <span class="math inline">\(B[k] = M/B\)</span> (uniform prior — each item appears on average every <span class="math inline">\(M/B\)</span> steps). Better-calibrated initial bias for all items; preferred when <span class="math inline">\(M\)</span> is known. Both converge to item-specific values in <span class="math inline">\(O(1/\alpha)\)</span> steps.</li>
+</ol>
+<hr />
+<h3 id="problem-20-multiple-hashing-frequency-estimator">Problem 20: Multiple-Hashing Frequency Estimator</h3>
+<p><strong>Key insight:</strong> Algorithm 3 applies the same directional debiasing as the count-min sketch but in the opposite direction — collisions under-count inter-arrivals (over-estimate frequency), so taking the max of inter-arrival estimates (equivalently, min of frequency estimates) corrects toward the true, less-frequent value.</p>
+<p><strong>Sketch:</strong></p>
+<pre><code># Data structure: m arrays A_i[0..H/m-1], B_i[0..H/m-1], hash functions h_i
+# Total memory: m * 2 * (H/m) = 2H entries, same as single-hash baseline
+
+function multi_hash_update(y, t, alpha):
+    for i in 1..m:                                 # independent updates
+        k = h_i(y)
+        B_i[k] = (1-alpha)*B_i[k] + alpha*(t - A_i[k])
+        A_i[k] = t
+
+function multi_hash_estimate(y):
+    # (c) Max inter-arrival = least-biased estimate (collisions bias B_i downward)
+    delta_hat = max(B_i[h_i(y)] for i in 1..m)
+    return 1.0 / delta_hat
+    # Contrast: count-min sketch uses min(counts) because collisions inflate counts
+    # Here: collisions deflate delta -&gt; max(delta) corrects in opposite direction
+    # Both are the same operation: min(1/B_i) = 1/max(B_i)</code></pre>
+<ol start="4" type="a">
+<li>Update: <span class="math inline">\(O(mB)\)</span> per batch. Inference: <span class="math inline">\(O(m)\)</span> per item. For <span class="math inline">\(m=4\)</span>, <span class="math inline">\(H=5000\)</span>: each array has 1250 buckets. Collision probability per array: <span class="math inline">\(1-e^{-10^7/1250}\approx 1\)</span> (fully saturated). However the probability that all 4 hashes collide in the same direction is lower, so <span class="math inline">\(\max_i B_i[h_i(y)]\)</span> is closer to <span class="math inline">\(\delta_y\)</span> than any single <span class="math inline">\(B_i\)</span>. Empirically this reduces total-variation error by <span class="math inline">\(40\)</span>–<span class="math inline">\(60\%\)</span> relative to <span class="math inline">\(m=1\)</span> at the same memory budget.</li>
+</ol>
+<hr />
+<h3 id="problem-21-recall-at-k-evaluation-against-a-full-corpus">Problem 21: Recall at K Evaluation Against a Full Corpus</h3>
+<p><strong>Key insight:</strong> Exact Recall@K has <span class="math inline">\(O(NMk)\)</span> complexity that is infeasible at YouTube scale — the ANN approximation trades a bounded recall gap (from index error and out-of-index items) for sub-linear query time, and the multi-positive generalization is a straightforward fraction of positives retrieved.</p>
+<p><strong>Sketch:</strong></p>
+<pre><code>function evaluate_recall_at_k(U, V, test_pairs, K):
+    # U: [N, k] query embeddings (computed online)
+    # V: [M, k] item embeddings (precomputed offline, cached)
+    # test_pairs: list of (query_idx, set_of_positive_item_indices)
+
+    hits = []
+    for (i, pos_set) in test_pairs:
+        # (b) Exact: compute all M scores
+        scores = U[i] @ V.T                        # [M]
+        top_k = argsort_descending(scores)[:K]     # O(M log K)
+        # (d) Multi-positive: fraction of positives retrieved
+        n_retrieved = |set(top_k) &amp; pos_set|
+        hits.append(n_retrieved / |pos_set|)
+    return mean(hits)
+    # Time: O(NkM) for matrix multiply + O(NM log K) for sort
+    # Single-positive special case: |pos_set| = 1, metric is 0 or 1</code></pre>
+<ol start="3" type="a">
+<li>ANN pipeline: build index over <span class="math inline">\(\{v_j\}\)</span> offline; retrieve approximate top-<span class="math inline">\(K\)</span> per <span class="math inline">\(u_i\)</span> in sub-linear time. ANN recall gap <span class="math inline">\(= \mathrm{Recall@}K^\mathrm{exact} - \mathrm{Recall@}K^\mathrm{ANN}\)</span> from two sources: (i) index retrieval error — ANN returns approximate top-<span class="math inline">\(K\)</span>, missing the true positive when it lies in an unvisited region of the index; (ii) out-of-index items — videos uploaded after the last index build cannot be retrieved regardless of ANN quality.</li>
+</ol>
+<hr />
+<h3 id="problem-22-sequential-training-with-online-frequency-updates">Problem 22: Sequential Training with Online Frequency Updates</h3>
+<p><strong>Key insight:</strong> Frequency estimator updates must precede the logQ correction within each batch step — the correction uses the newly observed inter-arrival information, so updating first ensures the correction reflects the current batch’s items rather than stale estimates.</p>
+<p><strong>Sketch:</strong></p>
+<pre><code>function sequential_train(days, alpha, lr):
+    for day in chronological_order(days):          # (a) outer loop: day-by-day
+        for batch in day.mini_batches():
+            t += 1
+
+            # (b) Inner loop — ORDER MATTERS: update frequencies first
+            log_p_hat = zeros(B)
+            for j, y_j in enumerate(batch.items):
+                # Step ii: EMA update with new inter-arrival observation
+                k = h(y_j)
+                delta = t - A[k]
+                B[k] = (1-alpha)*B[k] + alpha*delta
+                A[k] = t
+                log_p_hat[j] = -log(B[k])        # step iii: read corrected estimate
+
+            # Steps iv-v: compute corrected loss
+            S = score_matrix(batch)               # [B, B], O(B^2 k)
+            loss = corrected_batch_loss(S, log_p_hat, batch.rewards)
+
+            # Step vi: gradient update
+            theta -= lr * backprop(loss)
+
+    wait_for_next_day()                           # (a) stay live after catch-up</code></pre>
+<ol start="3" type="a">
+<li><p>If frequency update happened after logit correction: items appearing for the first time in this batch would use <span class="math inline">\(B[k]\)</span> from their previous occurrence (potentially many steps ago). The correction <span class="math inline">\(-\log(1/B[k])\)</span> would reflect stale frequency, introducing a systematic error for newly popular items. Updating first ensures the correction uses the most current inter-arrival observation.</p></li>
+<li><p>Per-iteration complexity: <span class="math inline">\(O(B^2 k)\)</span> for score matrix and forward/backward pass (dominant); <span class="math inline">\(O(Bm)\)</span> for frequency updates (hash lookups and EMA, with <span class="math inline">\(m\leq 4\)</span>). The ratio is <span class="math inline">\(B^2 k / Bm = Bk/m \approx 256\cdot 128/4 = 8192\)</span>: frequency estimation overhead is less than 0.01% of the training computation.</p></li>
+</ol>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

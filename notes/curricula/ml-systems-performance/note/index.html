@@ -1,0 +1,1736 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>note - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>note</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-what-is-ml-performance-engineering%7C1.-what-is-ml-performance-engineering/">#1. What is ML Performance Engineering|1. What is ML Performance Engineering</a></li>
+<li><a href="../../../../notes/#2.-core-prerequisites%7C2.-core-prerequisites/">#2. Core Prerequisites|2. Core Prerequisites</a>
+<ul>
+<li><a href="../../../../notes/#2.1-mathematics%7C2.1-mathematics/">#2.1 Mathematics|2.1 Mathematics</a></li>
+<li><a href="../../../../notes/#2.2-systems-programming%7C2.2-systems-programming/">#2.2 Systems Programming|2.2 Systems Programming</a></li>
+<li><a href="../../../../notes/#2.3-ml-foundations%7C2.3-ml-foundations/">#2.3 ML Foundations|2.3 ML Foundations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-gpu-and-hardware-fundamentals%7C3.-gpu-and-hardware-fundamentals/">#3. GPU and Hardware Fundamentals|3. GPU and Hardware Fundamentals</a>
+<ul>
+<li><a href="../../../../notes/#3.1-gpu-architecture%7C3.1-gpu-architecture/">#3.1 GPU Architecture|3.1 GPU Architecture</a></li>
+<li><a href="../../../../notes/#3.2-memory-hierarchy%7C3.2-memory-hierarchy/">#3.2 Memory Hierarchy|3.2 Memory Hierarchy</a></li>
+<li><a href="../../../../notes/#3.3-the-roofline-model%7C3.3-the-roofline-model/">#3.3 The Roofline Model|3.3 The Roofline Model</a></li>
+<li><a href="../../../../notes/#3.4-cuda-programming%7C3.4-cuda-programming/">#3.4 CUDA Programming|3.4 CUDA Programming</a></li>
+<li><a href="../../../../notes/#3.5-triton%7C3.5-triton/">#3.5 Triton|3.5 Triton</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-distributed-training%7C4.-distributed-training/">#4. Distributed Training|4. Distributed Training</a>
+<ul>
+<li><a href="../../../../notes/#4.1-data-parallelism%7C4.1-data-parallelism/">#4.1 Data Parallelism|4.1 Data Parallelism</a></li>
+<li><a href="../../../../notes/#4.2-tensor-parallelism%7C4.2-tensor-parallelism/">#4.2 Tensor Parallelism|4.2 Tensor Parallelism</a></li>
+<li><a href="../../../../notes/#4.3-pipeline-parallelism%7C4.3-pipeline-parallelism/">#4.3 Pipeline Parallelism|4.3 Pipeline Parallelism</a></li>
+<li><a href="../../../../notes/#4.4-zero-and-fsdp%7C4.4-zero-and-fsdp/">#4.4 ZeRO and FSDP|4.4 ZeRO and FSDP</a></li>
+<li><a href="../../../../notes/#4.5-sequence-parallelism-and-expert-parallelism%7C4.5-sequence-parallelism-and-expert-parallelism/">#4.5 Sequence Parallelism and Expert Parallelism|4.5 Sequence Parallelism and Expert Parallelism</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-training-efficiency%7C5.-training-efficiency/">#5. Training Efficiency|5. Training Efficiency</a>
+<ul>
+<li><a href="../../../../notes/#5.1-mixed-precision-training%7C5.1-mixed-precision-training/">#5.1 Mixed Precision Training|5.1 Mixed Precision Training</a></li>
+<li><a href="../../../../notes/#5.2-gradient-checkpointing%7C5.2-gradient-checkpointing/">#5.2 Gradient Checkpointing|5.2 Gradient Checkpointing</a></li>
+<li><a href="../../../../notes/#5.3-compiler-optimizations%7C5.3-compiler-optimizations/">#5.3 Compiler Optimizations|5.3 Compiler Optimizations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-attention-mechanisms-and-efficient-attention%7C6.-attention-mechanisms-and-efficient-attention/">#6. Attention Mechanisms and Efficient Attention|6. Attention Mechanisms and Efficient Attention</a>
+<ul>
+<li><a href="../../../../notes/#6.1-standard-multi-head-attention%7C6.1-standard-multi-head-attention/">#6.1 Standard Multi-Head Attention|6.1 Standard Multi-Head Attention</a></li>
+<li><a href="../../../../notes/#6.2-multi-query-and-grouped-query-attention%7C6.2-multi-query-and-grouped-query-attention/">#6.2 Multi-Query and Grouped-Query Attention|6.2 Multi-Query and Grouped-Query Attention</a></li>
+<li><a href="../../../../notes/#6.3-multi-head-latent-attention%7C6.3-multi-head-latent-attention/">#6.3 Multi-Head Latent Attention|6.3 Multi-Head Latent Attention</a></li>
+<li><a href="../../../../notes/#6.4-flashattention%7C6.4-flashattention/">#6.4 FlashAttention|6.4 FlashAttention</a></li>
+<li><a href="../../../../notes/#6.5-linear-attention%7C6.5-linear-attention/">#6.5 Linear Attention|6.5 Linear Attention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-inference-optimization%7C7.-inference-optimization/">#7. Inference Optimization|7. Inference Optimization</a>
+<ul>
+<li><a href="../../../../notes/#7.1-kv-cache%7C7.1-kv-cache/">#7.1 KV Cache|7.1 KV Cache</a></li>
+<li><a href="../../../../notes/#7.2-quantization%7C7.2-quantization/">#7.2 Quantization|7.2 Quantization</a></li>
+<li><a href="../../../../notes/#7.3-speculative-decoding%7C7.3-speculative-decoding/">#7.3 Speculative Decoding|7.3 Speculative Decoding</a></li>
+<li><a href="../../../../notes/#7.4-continuous-batching-and-pagedattention%7C7.4-continuous-batching-and-pagedattention/">#7.4 Continuous Batching and PagedAttention|7.4 Continuous Batching and PagedAttention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-serving-systems%7C8.-serving-systems/">#8. Serving Systems|8. Serving Systems</a></li>
+<li><a href="../../../../notes/#9.-diffusion-model-efficiency%7C9.-diffusion-model-efficiency/">#9. Diffusion Model Efficiency|9. Diffusion Model Efficiency</a></li>
+<li><a href="../../../../notes/#10.-canonical-papers-by-topic%7C10.-canonical-papers-by-topic/">#10. Canonical Papers by Topic|10. Canonical Papers by Topic</a></li>
+<li><a href="../../../../notes/#11.-textbooks-and-courses%7C11.-textbooks-and-courses/">#11. Textbooks and Courses|11. Textbooks and Courses</a></li>
+<li><a href="../../../../notes/#12.-key-blogs-and-technical-write-ups%7C12.-key-blogs-and-technical-write-ups/">#12. Key Blogs and Technical Write-Ups|12. Key Blogs and Technical Write-Ups</a></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="what-is-ml-performance-engineering">1. What is ML Performance Engineering</h2>
+<p><em>ML performance engineering</em> (also called ML systems engineering or AI infrastructure engineering) is the discipline of making training and inference of large neural models fast, memory-efficient, and cost-effective at scale. It sits at the intersection of numerical computing, computer architecture, distributed systems, and machine learning research. A practitioner must fluently reason about floating-point arithmetic, GPU microarchitecture, communication topology, and model structure simultaneously.</p>
+<p>For <em>generative models</em> specifically — autoregressive LLMs and diffusion models — the constraints are extreme: models with hundreds of billions of parameters, context windows of hundreds of thousands of tokens, and latency requirements measured in milliseconds per token. Every technique in this map is ultimately a response to one of three bottlenecks:</p>
+<ul>
+<li><strong>Compute bound</strong>: the GPU’s arithmetic units are the limiting factor (FLOP/s ceiling).</li>
+<li><strong>Memory-bandwidth bound</strong>: data movement between DRAM and compute units is the limiting factor (HBM bandwidth ceiling).</li>
+<li><strong>Overhead / latency bound</strong>: Python interpreter overhead, kernel launch latency, or communication stalls dominate.</li>
+</ul>
+<hr />
+<h2 id="core-prerequisites">2. Core Prerequisites</h2>
+<h3 id="mathematics">2.1 Mathematics</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Topic</th>
+<th>What to Know</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear algebra</td>
+<td>Matrix multiplication, SVD, low-rank approximations, Kronecker products</td>
+<td>Beginner</td>
+</tr>
+<tr class="even">
+<td>Probability and statistics</td>
+<td>Distributions, KL divergence, score functions, ELBO</td>
+<td>Beginner</td>
+</tr>
+<tr class="odd">
+<td>Numerical analysis</td>
+<td>Floating-point representation (FP32/BF16/FP8), rounding error, numerical stability</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Information theory</td>
+<td>Entropy, cross-entropy, mutual information, rate-distortion</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>Optimization</td>
+<td>SGD, Adam, learning rate schedules, loss landscapes</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Mathematics for Machine Learning</em> (Deisenroth, Faisal, Ong)</td>
+<td>Textbook</td>
+<td>https://mml-book.github.io</td>
+</tr>
+<tr class="even">
+<td><em>Deep Learning</em> (Goodfellow, Bengio, Courville) — Chapters 2–4</td>
+<td>Textbook</td>
+<td>https://www.deeplearningbook.org</td>
+</tr>
+<tr class="odd">
+<td><em>Numerical Methods for Engineers</em> (Chapra &amp; Canale) — floating-point chapter</td>
+<td>Textbook</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="systems-programming">2.2 Systems Programming</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Topic</th>
+<th>What to Know</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C/C++</td>
+<td>Pointers, memory management, templates, RAII</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Python</td>
+<td>CPython internals, GIL, ctypes/cffi, Cython</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>Operating systems</td>
+<td>Processes, threads, memory paging, virtual memory</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Computer architecture</td>
+<td>Cache hierarchy, SIMD, out-of-order execution, branch prediction</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>Profiling tools</td>
+<td><code>perf</code>, <code>Nsight Systems</code>, <code>Nsight Compute</code>, <code>py-spy</code></td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Computer Systems: A Programmer’s Perspective</em> (Bryant &amp; O’Hallaron)</td>
+<td>Textbook</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><em>Computer Organization and Design: ARM Edition</em> (Patterson &amp; Hennessy)</td>
+<td>Textbook</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>NVIDIA Nsight Systems documentation</td>
+<td>Docs</td>
+<td>https://developer.nvidia.com/nsight-systems</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ml-foundations">2.3 ML Foundations</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Topic</th>
+<th>What to Know</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Transformer architecture</td>
+<td>Attention, positional encoding, layer norm, residual connections</td>
+<td>Beginner</td>
+</tr>
+<tr class="even">
+<td>Autoregressive decoding</td>
+<td>Token-by-token generation, greedy vs. sampling, beam search</td>
+<td>Beginner</td>
+</tr>
+<tr class="odd">
+<td>Diffusion models</td>
+<td>DDPM, DDIM, score matching, noise schedules</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Backpropagation</td>
+<td>Computational graph, chain rule, gradient accumulation</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Attention is All You Need</em> (Vaswani et al., 2017)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/1706.03762</td>
+</tr>
+<tr class="even">
+<td>Andrej Karpathy’s <em>Neural Networks: Zero to Hero</em> video series</td>
+<td>Course</td>
+<td>https://karpathy.ai/zero-to-hero.html</td>
+</tr>
+<tr class="odd">
+<td><em>Denoising Diffusion Probabilistic Models</em> (Ho et al., 2020)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2006.11239</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="gpu-and-hardware-fundamentals">3. GPU and Hardware Fundamentals</h2>
+<h3 id="gpu-architecture">3.1 GPU Architecture</h3>
+<p>A modern NVIDIA GPU (e.g. H100 SXM) consists of:</p>
+<ul>
+<li><strong>Streaming Multiprocessors (SMs)</strong>: each SM contains multiple CUDA cores (FP32 units), Tensor Cores (for FP16/BF16/FP8 matrix multiply-accumulate), L1 cache, and shared memory.</li>
+<li><strong>Tensor Cores</strong>: specialized matrix-multiply units that compute a <span class="math inline">\(4 \times 4\)</span> (Hopper: <span class="math inline">\(8 \times 8\)</span>) multiply-accumulate in a single clock cycle, enabling throughput of ~1 PFLOP/s (BF16) per H100.</li>
+<li><strong>Warp</strong>: a group of 32 threads that execute in lockstep (SIMT model). Divergent branches cause serialization.</li>
+<li><strong>Thread hierarchy</strong>: threads → warps → thread blocks → grids. Shared memory is per-block; L2 cache and HBM are shared across SMs.</li>
+</ul>
+<p>Key specs to memorize per-generation:</p>
+<table>
+<thead>
+<tr class="header">
+<th>GPU</th>
+<th>HBM BW</th>
+<th>Peak TFLOP/s (BF16)</th>
+<th>HBM Capacity</th>
+<th>NVLink BW</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A100 80GB SXM</td>
+<td>2 TB/s</td>
+<td>~312 TFLOP/s</td>
+<td>80 GB</td>
+<td>600 GB/s</td>
+</tr>
+<tr class="even">
+<td>H100 SXM</td>
+<td>3.35 TB/s</td>
+<td>~989 TFLOP/s</td>
+<td>80 GB</td>
+<td>900 GB/s</td>
+</tr>
+<tr class="odd">
+<td>H200 SXM</td>
+<td>4.8 TB/s</td>
+<td>~989 TFLOP/s</td>
+<td>141 GB</td>
+<td>900 GB/s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NVIDIA H100 Whitepaper</td>
+<td>Docs</td>
+<td>https://resources.nvidia.com/en-us-tensor-core</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td><em>CUDA C Programming Guide</em> (NVIDIA)</td>
+<td>Docs</td>
+<td>https://docs.nvidia.com/cuda/cuda-c-programming-guide</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>Chip Huyen’s <em>AI Engineering</em> book — hardware chapter</td>
+<td>Textbook</td>
+<td>—</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memory-hierarchy">3.2 Memory Hierarchy</h3>
+<p>Understanding the memory hierarchy is central to all performance work. From fastest to slowest (and smallest to largest):</p>
+<ol type="1">
+<li><strong>Registers</strong> (~100s of KB per SM, sub-cycle latency)</li>
+<li><strong>Shared memory / L1 cache</strong> (~228 KB per SM on H100, ~5 ns latency) — explicitly managed in CUDA</li>
+<li><strong>L2 cache</strong> (~50 MB on H100, ~50 ns latency) — GPU-wide, transparent</li>
+<li><strong>HBM (High Bandwidth Memory)</strong> (80–141 GB, ~300 ns latency, ~3–5 TB/s) — “global memory” in CUDA</li>
+<li><strong>NVLink / PCIe</strong> (~900 GB/s NVLink, ~64 GB/s PCIe) — inter-GPU communication</li>
+<li><strong>CPU DRAM / NFS / storage</strong> (GB/s range) — host memory</li>
+</ol>
+<p><em>The fundamental performance principle</em>: any kernel that reads or writes HBM is memory-bandwidth bound unless it performs enough arithmetic per byte to hide the latency. This ratio is <em>arithmetic intensity</em>, measured in FLOP/byte.</p>
+<h3 id="the-roofline-model">3.3 The Roofline Model</h3>
+<p>The <em>roofline model</em> is a visual framework for determining whether a kernel is compute-bound or memory-bandwidth bound. Define:</p>
+<ul>
+<li><span class="math inline">\(I = \text{FLOP} / \text{Bytes}\)</span> (arithmetic intensity, in FLOP/byte)</li>
+<li><span class="math inline">\(P_{\text{peak}}\)</span> = peak compute throughput (TFLOP/s)</li>
+<li><span class="math inline">\(B_{\text{peak}}\)</span> = peak memory bandwidth (TB/s)</li>
+<li><em>Ridge point</em>: <span class="math inline">\(I^* = P_{\text{peak}} / B_{\text{peak}}\)</span></li>
+</ul>
+<p>The achievable performance is:</p>
+<p><span class="math display">\[\text{Perf} = \min(P_{\text{peak}},\ B_{\text{peak}} \cdot I)\]</span></p>
+<p>For the H100, <span class="math inline">\(I^* \approx 989 / 3.35 \approx 295\)</span> FLOP/byte. A matrix multiply with large matrices has <span class="math inline">\(I \propto N\)</span> and is solidly compute-bound; an elementwise softmax has <span class="math inline">\(I \approx 4\)</span> FLOP/byte and is deeply memory-bandwidth bound.</p>
+<p><strong>Key implication for attention</strong>: naive attention is memory-bandwidth bound because it reads/writes the full <span class="math inline">\(N \times N\)</span> attention matrix from HBM. FlashAttention (Section 6.4) restructures the computation to remain in SRAM, pushing the kernel into the compute-bound regime.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“All About Rooflines” — JAX Scaling Book</td>
+<td>Blog</td>
+<td>https://jax-ml.github.io/scaling-book/roofline/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Modal GPU Glossary: Roofline Model</td>
+<td>Blog</td>
+<td>https://modal.com/gpu-glossary/perf/roofline-model</td>
+<td>Beginner</td>
+</tr>
+<tr class="odd">
+<td>Original roofline paper (Williams et al., 2009)</td>
+<td>Paper</td>
+<td>https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cuda-programming">3.4 CUDA Programming</h3>
+<p>Core concepts in CUDA C/C++:</p>
+<ul>
+<li><strong>Kernel launch</strong>: <code>&lt;&lt;&lt;gridDim, blockDim&gt;&gt;&gt;</code> syntax; each SM runs one or more blocks concurrently.</li>
+<li><strong>Memory management</strong>: <code>cudaMalloc</code>, <code>cudaMemcpy</code>, unified memory (<code>cudaMallocManaged</code>).</li>
+<li><strong>Shared memory</strong>: declared with <code>__shared__</code>; enables tiling — loading a tile of a matrix into shared memory to reuse across threads in the same block.</li>
+<li><strong>Synchronization</strong>: <code>__syncthreads()</code> within a block; <code>cudaDeviceSynchronize()</code> across host/device.</li>
+<li><strong>Warp-level primitives</strong>: <code>__shfl_down_sync</code>, <code>__ballot_sync</code> for fast warp-wide reductions without shared memory.</li>
+<li><strong>CUDA streams</strong>: multiple independent streams can run concurrently on a device, enabling kernel-kernel overlap and compute-copy overlap.</li>
+<li><strong>Occupancy</strong>: the fraction of maximum warps resident on an SM. Low occupancy (due to high register usage or shared memory usage per block) limits latency hiding.</li>
+</ul>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Programming Massively Parallel Processors</em>, 4th ed. (Hwu, Kirk, El Hajj) — “PMPP”</td>
+<td>Textbook</td>
+<td>https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>ECE408/CS483 — Applied Parallel Programming (UIUC)</td>
+<td>Course</td>
+<td>https://developer.nvidia.com/educators/existing-courses</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>NVIDIA CUDA C Programming Guide</td>
+<td>Docs</td>
+<td>https://docs.nvidia.com/cuda/cuda-c-programming-guide</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="triton">3.5 Triton</h3>
+<p><em>Triton</em> is a Python-embedded DSL from OpenAI that compiles to PTX/SASS, allowing researchers to write high-performance GPU kernels without raw CUDA. It abstracts away warp-level management and auto-tunes tile sizes. <code>torch.compile</code> (TorchInductor backend) generates Triton kernels automatically for most ops.</p>
+<p>Key concepts:</p>
+<ul>
+<li><strong>Program (Triton’s abstraction for a thread block)</strong>: each program handles a tile of output.</li>
+<li><strong><code>tl.load</code> / <code>tl.store</code></strong>: masked memory access with automatic vectorization.</li>
+<li><strong><code>tl.dot</code></strong>: Tensor Core matrix multiplication.</li>
+<li><strong>Auto-tuning</strong>: <code>@triton.autotune</code> decorator sweeps tile shape and number of warps.</li>
+</ul>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Triton official tutorials</td>
+<td>Docs</td>
+<td>https://triton-lang.org/main/getting-started/tutorials/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“Unleashing the Power of Triton” (Chaim Rand, TDS)</td>
+<td>Blog</td>
+<td>https://towardsdatascience.com/unleashing-the-power-of-triton-mastering-gpu-kernel-optimization-in-python-160a3f52701e/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>PyTorch docs: Using User-Defined Triton Kernels with torch.compile</td>
+<td>Docs</td>
+<td>https://docs.pytorch.org/tutorials/recipes/torch_compile_user_defined_triton_kernel_tutorial.html</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="distributed-training">4. Distributed Training</h2>
+<h3 id="data-parallelism">4.1 Data Parallelism</h3>
+<p>In <em>data parallelism</em> (DP), each device holds a full copy of the model and processes a different micro-batch. After the backward pass, gradients are all-reduced across devices (ring all-reduce is <span class="math inline">\(O(2(N-1)/N \cdot \text{data})\)</span> communication). DDP (PyTorch DistributedDataParallel) overlaps gradient communication with backward computation by bucketing gradients.</p>
+<ul>
+<li><strong>Gradient accumulation</strong>: run multiple forward/backward passes before the optimizer step to simulate a large effective batch without inter-node communication on every step.</li>
+<li><strong>Limitation</strong>: model must fit on a single device.</li>
+</ul>
+<h3 id="tensor-parallelism">4.2 Tensor Parallelism</h3>
+<p><em>Tensor parallelism</em> (TP), introduced in Megatron-LM, shards individual weight matrices across devices. For a linear layer <span class="math inline">\(Y = XA\)</span> where <span class="math inline">\(A \in \mathbb{R}^{d \times d}\)</span>, column-wise sharding computes <span class="math inline">\(Y_i = X A_i\)</span> on device <span class="math inline">\(i\)</span>; row-wise sharding requires an all-reduce of partial sums. Attention heads are naturally parallelizable across devices.</p>
+<ul>
+<li>Communication: one all-reduce per transformer layer (two for the feedforward sub-layer).</li>
+<li>Requires fast intra-node interconnect (NVLink); typically limited to 8 devices per tensor-parallel group due to communication overhead.</li>
+</ul>
+<h3 id="pipeline-parallelism">4.3 Pipeline Parallelism</h3>
+<p><em>Pipeline parallelism</em> (PP) partitions the model’s layers across devices. GPipe divides a mini-batch into micro-batches and pipelines them — while device <span class="math inline">\(k\)</span> runs the forward pass for micro-batch <span class="math inline">\(m+1\)</span>, device <span class="math inline">\(k+1\)</span> runs it for micro-batch <span class="math inline">\(m\)</span>. The <em>pipeline bubble</em> (idle time at startup and teardown) has relative size <span class="math inline">\(\approx (p-1)/(p + m - 1)\)</span> where <span class="math inline">\(p\)</span> is the number of pipeline stages and <span class="math inline">\(m\)</span> is the number of micro-batches. Interleaved schedules (1F1B) reduce the bubble.</p>
+<h3 id="zero-and-fsdp">4.4 ZeRO and FSDP</h3>
+<p><em>ZeRO</em> (Zero Redundancy Optimizer, DeepSpeed) eliminates the model state redundancy inherent in data parallelism:</p>
+<ul>
+<li><strong>ZeRO-1</strong>: shards optimizer states across DP ranks (<span class="math inline">\(4\times\)</span> memory reduction for Adam, which stores first and second moments).</li>
+<li><strong>ZeRO-2</strong>: shards optimizer states + gradients (<span class="math inline">\(8\times\)</span> reduction).</li>
+<li><strong>ZeRO-3</strong>: shards optimizer states + gradients + parameters (<span class="math inline">\(N\times\)</span> reduction where <span class="math inline">\(N\)</span> is the DP rank count). Parameters are gathered on-demand before each forward/backward computation.</li>
+</ul>
+<p><strong>PyTorch FSDP</strong> (Fully Sharded Data Parallel) implements ZeRO-3 natively in PyTorch. It supports <em>mixed-precision sharding</em> (store in BF16, gather in BF16, compute in BF16) and <em>activation checkpointing</em>. FSDP2 (PyTorch 2.x) adds DTensor-based sharding for simpler composition with TP.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“ZeRO: Memory Optimizations Toward Training Trillion Parameter Models” (Rajbhandari et al., 2020)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/1910.02054</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM” (Narayanan et al., 2021)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2104.04473</td>
+<td>Advanced</td>
+</tr>
+<tr class="odd">
+<td>Sumanth’s “Everything about Distributed Training and Efficient Finetuning”</td>
+<td>Blog</td>
+<td>https://sumanthrh.com/post/distributed-and-efficient-finetuning/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>PyTorch FSDP Blog Post</td>
+<td>Blog</td>
+<td>https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sequence-parallelism-and-expert-parallelism">4.5 Sequence Parallelism and Expert Parallelism</h3>
+<p><em>Sequence parallelism</em> (Megatron-LM) shards along the sequence dimension for the non-attention parts of the transformer (layer norm, dropout) that tensor parallelism cannot parallelize. It requires two additional all-gather and reduce-scatter operations per layer but eliminates the sequence-length bottleneck on single-device memory.</p>
+<p><em>Expert parallelism</em> (used in MoE models like Mixtral, DeepSeek-V3) routes tokens to different experts residing on different devices. Each expert processes only the tokens routed to it; an all-to-all collective moves tokens between devices. The challenge is load imbalance: auxiliary load-balancing losses penalize routing all tokens to a subset of experts.</p>
+<hr />
+<h2 id="training-efficiency">5. Training Efficiency</h2>
+<h3 id="mixed-precision-training">5.1 Mixed Precision Training</h3>
+<p>In <em>mixed precision training</em>, forward and backward passes use FP16 or BF16, while the master copy of weights and optimizer states are kept in FP32. This reduces memory by ~2× and doubles throughput on Tensor Cores.</p>
+<p><strong>BF16 vs FP16</strong>:
+- FP16: 5-bit exponent, 10-bit mantissa. Prone to overflow for large gradients; requires loss scaling.
+- BF16: 8-bit exponent, 7-bit mantissa (same exponent range as FP32). Overflow-safe; preferred for training.</p>
+<p><strong>FP8 (Hopper/Ada)</strong>: 4-bit exponent or 4-bit mantissa variants (E4M3, E5M2). NVIDIA’s Transformer Engine automatically selects FP8 for GEMM operations and handles per-tensor scaling. Can double throughput over BF16 with careful calibration.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NVIDIA mixed precision training guide</td>
+<td>Docs</td>
+<td>https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“Transformer Math 101” (EleutherAI Blog)</td>
+<td>Blog</td>
+<td>https://blog.eleuther.ai/transformer-math/</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gradient-checkpointing">5.2 Gradient Checkpointing</h3>
+<p>Naively, training stores all intermediate activations for the backward pass, requiring <span class="math inline">\(O(n)\)</span> memory for a depth-<span class="math inline">\(n\)</span> network. <em>Gradient checkpointing</em> (activation recomputation) stores only a subset of activations and recomputes the rest during the backward pass. Choosing which layers to checkpoint optimally reduces peak activation memory to <span class="math inline">\(O(\sqrt{n})\)</span> at the cost of one additional forward pass. In practice, most frameworks checkpoint at transformer layer boundaries.</p>
+<p>PyTorch API: <code>torch.utils.checkpoint.checkpoint(fn, *inputs)</code>.</p>
+<h3 id="compiler-optimizations">5.3 Compiler Optimizations</h3>
+<p><strong><code>torch.compile</code></strong> (PyTorch 2.x): uses TorchDynamo (Python bytecode capture) + TorchInductor (code generation backend) to JIT-compile Python/PyTorch graphs into optimized Triton kernels. Key benefits:
+- <em>Kernel fusion</em>: eliminates redundant HBM reads/writes for chains of elementwise ops (e.g., fused LayerNorm, fused attention).
+- <em>Graph-level optimizations</em>: constant folding, dead code elimination, horizontal fusion.
+- Modes: <code>torch.compile(model, mode="reduce-overhead")</code> for latency, <code>mode="max-autotune"</code> for throughput (slower compilation).</p>
+<p><strong>XLA / JAX</strong>: JAX uses XLA (Accelerated Linear Algebra compiler) which performs whole-program optimization via HLO (High Level Operations) IR. Enables aggressive fusion and SPMD-style sharding for TPU and GPU.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PyTorch 2.0 Introduction Blog</td>
+<td>Blog</td>
+<td>https://pytorch.org/blog/pytorch-2.0-release/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td><em>AI Systems Performance Engineering</em> (O’Reilly) — Chapter 14: PyTorch Compiler, Triton, and XLA</td>
+<td>Book</td>
+<td>https://www.oreilly.com/library/view/ai-systems-performance/9798341627772/ch14.html</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="attention-mechanisms-and-efficient-attention">6. Attention Mechanisms and Efficient Attention</h2>
+<h3 id="standard-multi-head-attention">6.1 Standard Multi-Head Attention</h3>
+<p>For query, key, value matrices <span class="math inline">\(Q, K, V \in \mathbb{R}^{N \times d_k}\)</span>, multi-head attention (MHA) computes:</p>
+<p><span class="math display">\[\text{MHA}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O\]</span></p>
+<p>where <span class="math inline">\(\text{head}_i = \text{softmax}\!\left(\frac{Q_i K_i^\top}{\sqrt{d_k}}\right) V_i\)</span>.</p>
+<p>Complexity: <span class="math inline">\(O(N^2 d)\)</span> compute, <span class="math inline">\(O(N^2)\)</span> memory for the attention matrix. The <span class="math inline">\(O(N^2)\)</span> memory is the primary obstacle to long-context modeling.</p>
+<p>During autoregressive inference, each new token attends to all previous tokens. The <em>KV cache</em> stores previous <span class="math inline">\(K\)</span> and <span class="math inline">\(V\)</span> projections to avoid recomputation, at the cost of <span class="math inline">\(O(N \cdot d \cdot \text{num\_layers})\)</span> memory per sequence.</p>
+<h3 id="multi-query-and-grouped-query-attention">6.2 Multi-Query and Grouped-Query Attention</h3>
+<p><strong>Multi-Query Attention (MQA)</strong> (Shazeer 2019): a single set of <span class="math inline">\(K, V\)</span> heads is shared across all query heads. Reduces KV cache size by a factor of <span class="math inline">\(h\)</span> (number of heads) at a small quality cost.</p>
+<p><strong>Grouped-Query Attention (GQA)</strong> (Ainslie et al. 2023): <span class="math inline">\(G\)</span> groups of query heads share one <span class="math inline">\(K, V\)</span> pair per group. GQA with <span class="math inline">\(G = 1\)</span> recovers MQA; <span class="math inline">\(G = h\)</span> recovers MHA. Used in LLaMA 3, Mistral, Gemma. Reduces KV cache by <span class="math inline">\(h/G\)</span> with near-MHA quality.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints” (Ainslie et al., 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2305.13245</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>Fast Self-Attention Mechanisms: MQA, GQA, Flash and Page Attentions (Medium)</td>
+<td>Blog</td>
+<td>https://medium.com/<span class="citation" data-cites="lmpo/the-race-for-faster-transformers-innovations-in-self-attention-e602fb1b5f20">@lmpo/the-race-for-faster-transformers-innovations-in-self-attention-e602fb1b5f20</span></td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<h3 id="multi-head-latent-attention">6.3 Multi-Head Latent Attention</h3>
+<p><em>Multi-Head Latent Attention</em> (MLA), introduced in DeepSeek-V2, further compresses the KV cache by projecting keys and values into a shared low-dimensional <em>latent space</em>. Concretely, rather than caching <span class="math inline">\(K\)</span> and <span class="math inline">\(V\)</span> separately, MLA caches a single compressed representation <span class="math inline">\(c^{KV}_t \in \mathbb{R}^{d_c}\)</span> with <span class="math inline">\(d_c \ll d_h \cdot n_h\)</span>, and recovers full <span class="math inline">\(K, V\)</span> via learned up-projection matrices at inference time.</p>
+<p>The KV cache size per token drops from <span class="math inline">\(2 \cdot d_h \cdot n_h\)</span> (MHA) to <span class="math inline">\(d_c\)</span> (MLA), achieving 5–13× compression with competitive or superior quality. Because MLA’s latent representation is shared across heads, it increases the arithmetic intensity of the attention kernel, making it more compute-bound.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model” (DeepSeek-AI, 2024)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2405.04434</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flashattention">6.4 FlashAttention</h3>
+<p><em>FlashAttention</em> (Dao et al. 2022) is an IO-aware exact attention algorithm. The key insight is that the bottleneck in standard attention is the HBM reads/writes of the <span class="math inline">\(N \times N\)</span> attention matrix, not the FLOPs. FlashAttention tiles the computation into blocks that fit in SRAM, uses the <em>online softmax</em> trick (incrementally updating the running max and normalizer), and never materializes the full attention matrix in HBM.</p>
+<p>Memory: <span class="math inline">\(O(N)\)</span> instead of <span class="math inline">\(O(N^2)\)</span>.
+Speedup: 2–4× wall-clock on A100 for typical sequence lengths.</p>
+<p><strong>FlashAttention-2</strong> (Dao 2023): better parallelism across sequence dimension, fewer non-matmul FLOPs, improved performance on A100/H100.</p>
+<p><strong>FlashAttention-3</strong> (Shah et al. 2024): exploits Hopper-specific features — WGMMA (warpgroup matrix multiply-accumulate) and TMA (tensor memory accelerator) for asynchronous data movement, achieving ~75% of H100 peak FLOP/s.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness” (Dao et al., 2022)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2205.14135</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning” (Dao, 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2307.08691</td>
+<td>Advanced</td>
+</tr>
+<tr class="odd">
+<td>“FlashAttention-3” (Shah et al., 2024)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2407.08608</td>
+<td>Advanced</td>
+</tr>
+<tr class="even">
+<td>FlashInfer: Efficient and Customizable Attention Engine</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2501.01005</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<h3 id="linear-attention">6.5 Linear Attention</h3>
+<p><em>Linear attention</em> approximates the softmax kernel with a feature map <span class="math inline">\(\phi\)</span> such that <span class="math inline">\(\text{softmax}(QK^\top) \approx \phi(Q)\phi(K)^\top\)</span>, enabling the KV interaction to be computed as a running outer product sum <span class="math inline">\(S_t = \sum_{i \leq t} \phi(k_i) v_i^\top\)</span>. This reduces complexity to <span class="math inline">\(O(N d^2)\)</span> (linear in sequence length) but at a non-trivial quality cost for large models.</p>
+<p>Notable variants: RWKV (linear recurrence), Mamba (selective state space), RetNet (retention mechanism). These are increasingly practical for long-context settings where quadratic attention is prohibitive.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Transformers are RNNs” (Katharopoulos et al., 2020)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2006.16236</td>
+<td>Advanced</td>
+</tr>
+<tr class="even">
+<td>“Mamba: Linear-Time Sequence Modeling with Selective State Spaces” (Gu &amp; Dao, 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2312.00752</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="inference-optimization">7. Inference Optimization</h2>
+<h3 id="kv-cache">7.1 KV Cache</h3>
+<p>During autoregressive generation, the key and value projections of all previous tokens are cached to avoid recomputation. For a model with <span class="math inline">\(L\)</span> layers, <span class="math inline">\(h\)</span> heads, head dimension <span class="math inline">\(d_h\)</span>, precision <span class="math inline">\(b\)</span> bytes per element, and sequence length <span class="math inline">\(N\)</span>:</p>
+<p><span class="math display">\[\text{KV cache size} = 2 \cdot L \cdot h \cdot d_h \cdot N \cdot b \text{ bytes}\]</span></p>
+<p>For a 70B LLaMA model in BF16 with <span class="math inline">\(L=80\)</span>, <span class="math inline">\(h=64\)</span>, <span class="math inline">\(d_h=128\)</span>, <span class="math inline">\(N=8192\)</span>: <span class="math inline">\(\approx 160\)</span> GB. This is the primary memory bottleneck for inference.</p>
+<p>Techniques to reduce KV cache:
+- GQA/MQA (architectural reduction by <span class="math inline">\(h/G\)</span>)
+- MLA (architectural latent compression)
+- KV cache quantization (e.g., FP8 or INT4 KV)
+- Eviction-based compression (H2O, StreamingLLM)</p>
+<h3 id="quantization">7.2 Quantization</h3>
+<p><em>Post-training quantization</em> (PTQ) reduces weight or activation precision without retraining. Key schemes:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Target</th>
+<th>Precision</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LLM.int8() (Dettmers et al., 2022)</td>
+<td>Weights + activations</td>
+<td>INT8</td>
+<td>Mixed-precision: FP16 for outliers, INT8 for rest</td>
+</tr>
+<tr class="even">
+<td>GPTQ (Frantar et al., 2022)</td>
+<td>Weights</td>
+<td>INT4 / INT3</td>
+<td>Second-order Hessian-based post-training quantization</td>
+</tr>
+<tr class="odd">
+<td>AWQ (Lin et al., 2023)</td>
+<td>Weights</td>
+<td>INT4</td>
+<td>Activation-aware; skips salient weights</td>
+</tr>
+<tr class="even">
+<td>SmoothQuant (Xiao et al., 2022)</td>
+<td>Weights + activations</td>
+<td>INT8</td>
+<td>Migrates quantization difficulty from activations to weights</td>
+</tr>
+<tr class="odd">
+<td>GGUF / llama.cpp</td>
+<td>Weights</td>
+<td>2–8 bit</td>
+<td>CPU-friendly quantization, multiple schemes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“LLM.int8()” (Dettmers et al., 2022)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2208.07339</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers” (Frantar et al., 2022)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2210.17323</td>
+<td>Advanced</td>
+</tr>
+<tr class="odd">
+<td>“AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration” (Lin et al., 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2306.00978</td>
+<td>Advanced</td>
+</tr>
+<tr class="even">
+<td>Hugging Face Quantization docs</td>
+<td>Docs</td>
+<td>https://huggingface.co/docs/transformers/en/main_classes/quantization</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<h3 id="speculative-decoding">7.3 Speculative Decoding</h3>
+<p><em>Speculative decoding</em> (Leviathan et al. 2023; Chen et al. 2023) decouples the draft and verification phases. A small, fast <em>draft model</em> proposes <span class="math inline">\(k\)</span> tokens autoregressively; the large <em>target model</em> verifies all <span class="math inline">\(k\)</span> tokens in a single forward pass (using parallel scoring). Accepted tokens are kept via a modified rejection sampling scheme that preserves the exact target distribution. Typical speedups: 2–3× for <span class="math inline">\(k = 4\)</span>–8.</p>
+<p>Variants:
+- <em>Self-speculative decoding</em>: the target model itself generates drafts (e.g., using early exit or a subset of layers).
+- <em>Medusa</em>: trains multiple draft heads on top of the target model’s hidden states.
+- <em>EAGLE</em>: draft model conditions on target model’s features, achieving better acceptance rate.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Fast Inference from Transformers via Speculative Decoding” (Leviathan et al., 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2211.17192</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“Accelerating Large Language Model Decoding with Speculative Sampling” (Chen et al., 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2302.01318</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="continuous-batching-and-pagedattention">7.4 Continuous Batching and PagedAttention</h3>
+<p><strong>Continuous batching</strong> (Orca, 2022; vLLM, 2023): traditional static batching waits for all sequences in a batch to finish before starting new ones. Continuous batching replaces completed sequences with new ones at each <em>iteration</em> (each decode step), dramatically improving GPU utilization when request lengths are heterogeneous. Throughput gains of 10–23× over static batching in production settings.</p>
+<p><strong>PagedAttention</strong> (Kwon et al., 2023 — vLLM): KV cache memory is allocated in fixed-size <em>pages</em> (analogous to OS virtual memory pages) rather than contiguous buffers. A <em>block table</em> maps logical KV positions to physical pages, enabling:
+- Near-zero memory waste (only the last page of each sequence is partially filled).
+- Cross-request KV sharing (prompt caching, parallel sampling sharing prefill pages).
+- Memory fragmentation <span class="math inline">\(&lt; 4\%\)</span>.</p>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Efficient Memory Management for Large Language Model Serving with PagedAttention” (Kwon et al., 2023)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2309.06180</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>vLLM blog: “Easy, Fast, and Cheap LLM Serving with PagedAttention”</td>
+<td>Blog</td>
+<td>https://blog.vllm.ai/2023/06/20/vllm.html</td>
+<td>Beginner</td>
+</tr>
+<tr class="odd">
+<td>Anyscale: “Achieve 23x LLM Inference Throughput with Continuous Batching”</td>
+<td>Blog</td>
+<td>https://www.anyscale.com/blog/continuous-batching-llm-inference</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="serving-systems">8. Serving Systems</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Organization</th>
+<th>Key Features</th>
+<th>Best For</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>vLLM</strong></td>
+<td>UC Berkeley / vLLM team</td>
+<td>PagedAttention, continuous batching, chunked prefill, multi-LoRA, OpenAI-compatible API</td>
+<td>General production serving</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td><strong>SGLang</strong></td>
+<td>Stanford / LMSys</td>
+<td>RadixAttention (KV prefix sharing), structured generation, low-latency multi-turn</td>
+<td>Agentic workloads, heavy KV reuse</td>
+<td>Advanced</td>
+</tr>
+<tr class="odd">
+<td><strong>TensorRT-LLM</strong></td>
+<td>NVIDIA</td>
+<td>Fused CUDA kernels, CUDA graphs, INT8/FP8, best on NVIDIA hardware</td>
+<td>Maximum throughput on NVIDIA GPUs</td>
+<td>Advanced</td>
+</tr>
+<tr class="even">
+<td><strong>TGI (Text Generation Inference)</strong></td>
+<td>Hugging Face</td>
+<td>Production-ready, OpenTelemetry, sharded serving, LoRA</td>
+<td>Rapid deployment of HF models</td>
+<td>Beginner</td>
+</tr>
+<tr class="odd">
+<td><strong>llama.cpp</strong></td>
+<td>Georgi Gerganov</td>
+<td>CPU inference, GGUF quantization, cross-platform</td>
+<td>Edge/on-device, CPU-only</td>
+<td>Beginner</td>
+</tr>
+<tr class="even">
+<td><strong>Ollama</strong></td>
+<td>Ollama</td>
+<td>Developer-friendly wrapper over llama.cpp, local serving</td>
+<td>Local development, MacOS</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Selection heuristics:</strong></p>
+<ul>
+<li>For maximum raw throughput on NVIDIA hardware: <strong>TensorRT-LLM</strong>.</li>
+<li>For a flexible, well-maintained open-source server: <strong>vLLM</strong>.</li>
+<li>For agentic / RAG pipelines with heavy prompt reuse: <strong>SGLang</strong> (RadixAttention reuses shared prefix pages).</li>
+<li>For CPU / edge: <strong>llama.cpp</strong> / <strong>Ollama</strong>.</li>
+</ul>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>vLLM documentation</td>
+<td>Docs</td>
+<td>https://docs.vllm.ai/en/latest/</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>SGLang paper</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2312.07104</td>
+<td>Advanced</td>
+</tr>
+<tr class="odd">
+<td>“Comparing the Top 6 Inference Runtimes for LLM Serving in 2025” (MarkTechPost)</td>
+<td>Blog</td>
+<td>https://www.marktechpost.com/2025/11/07/comparing-the-top-6-inference-runtimes-for-llm-serving-in-2025/</td>
+<td>Beginner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="diffusion-model-efficiency">9. Diffusion Model Efficiency</h2>
+<p>Diffusion models (DDPM, DDIM, Stable Diffusion, FLUX, Sora) present different performance challenges from LLMs:</p>
+<ul>
+<li><strong>Iterative denoising</strong>: inference requires <span class="math inline">\(T\)</span> forward passes (50–1000 for DDPM, 4–50 for DDIM), making inference <span class="math inline">\(T\)</span>x more expensive than a single-step model.</li>
+<li><strong>Model architecture</strong>: U-Net (older, SD 1.x/2.x) or Diffusion Transformer / DiT (newer, SD3, FLUX, Sora). DiTs scale more predictably with compute.</li>
+<li><strong>Parallelism</strong>: DistriFusion (CVPR 2024) and PipeFusion parallelize the denoising U-Net / DiT across GPUs using asynchronous activation reuse.</li>
+</ul>
+<p>Key optimization techniques:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Technique</th>
+<th>Description</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DDIM / DPM-Solver</td>
+<td>Fewer denoising steps via ODE solvers</td>
+<td>10–50× over DDPM</td>
+</tr>
+<tr class="even">
+<td>Consistency Models</td>
+<td>One or few-step generation via distillation</td>
+<td>Up to 50×</td>
+</tr>
+<tr class="odd">
+<td>DeepCache</td>
+<td>Cache and reuse high-level U-Net features across timesteps</td>
+<td>2–5×</td>
+</tr>
+<tr class="even">
+<td>Quantization (PTQD, Q-Diffusion)</td>
+<td>INT8/INT4 weights and activations</td>
+<td>2–4×</td>
+</tr>
+<tr class="odd">
+<td>Flash Attention in DiT</td>
+<td>Replaces naive attention in transformer blocks</td>
+<td>2–3×</td>
+</tr>
+<tr class="even">
+<td>Distillation (ADD, LCM)</td>
+<td>Student learns from teacher in fewer steps</td>
+<td>4–50×</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resources:</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>URL</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Efficient Diffusion Models: A Survey” (TMLR 2025)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2502.06805</td>
+<td>Intermediate</td>
+</tr>
+<tr class="even">
+<td>“DeepCache: Accelerating Diffusion Models for Free” (CVPR 2024)</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2312.00858</td>
+<td>Intermediate</td>
+</tr>
+<tr class="odd">
+<td>“Scalable Diffusion Models with Transformers” (Peebles &amp; Xie, 2023) — DiT</td>
+<td>Paper</td>
+<td>https://arxiv.org/abs/2212.09748</td>
+<td>Intermediate</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="canonical-papers-by-topic">10. Canonical Papers by Topic</h2>
+<h3 id="gpu-architecture-and-roofline">GPU Architecture and Roofline</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Year</th>
+<th>Key Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Roofline: An Insightful Visual Performance Model” (Williams et al.)</td>
+<td>2009</td>
+<td>Foundational roofline framework</td>
+</tr>
+<tr class="even">
+<td>NVIDIA H100 Tensor Core GPU Architecture Whitepaper</td>
+<td>2022</td>
+<td>Hopper architecture: Tensor Memory Accelerator, FP8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="efficient-attention">Efficient Attention</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Year</th>
+<th>Key Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Attention is All You Need” (Vaswani et al.)</td>
+<td>2017</td>
+<td>Original Transformer</td>
+</tr>
+<tr class="even">
+<td>“Fast Transformer Decoding: One Write-Head is All You Need” (Shazeer)</td>
+<td>2019</td>
+<td>Multi-Query Attention</td>
+</tr>
+<tr class="odd">
+<td>“FlashAttention” (Dao et al.)</td>
+<td>2022</td>
+<td>IO-aware tiled attention</td>
+</tr>
+<tr class="even">
+<td>“GQA: Training Generalized Multi-Query Transformer Models” (Ainslie et al.)</td>
+<td>2023</td>
+<td>Grouped-Query Attention</td>
+</tr>
+<tr class="odd">
+<td>“FlashAttention-2” (Dao)</td>
+<td>2023</td>
+<td>Improved parallelism and FLOPs</td>
+</tr>
+<tr class="even">
+<td>“DeepSeek-V2” (DeepSeek-AI)</td>
+<td>2024</td>
+<td>Multi-Head Latent Attention</td>
+</tr>
+<tr class="odd">
+<td>“FlashAttention-3” (Shah et al.)</td>
+<td>2024</td>
+<td>Hopper-specific async attention</td>
+</tr>
+</tbody>
+</table>
+<h3 id="distributed-training-1">Distributed Training</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Year</th>
+<th>Key Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Megatron-LM: Training Multi-Billion Parameter Language Models” (Shoeybi et al.)</td>
+<td>2019</td>
+<td>Tensor parallelism for transformers</td>
+</tr>
+<tr class="even">
+<td>“ZeRO: Memory Optimizations Toward Training Trillion Parameter Models” (Rajbhandari et al.)</td>
+<td>2020</td>
+<td>Sharded optimizer states, gradients, params</td>
+</tr>
+<tr class="odd">
+<td>“Efficient Large-Scale LM Training Using Megatron-LM” (Narayanan et al.)</td>
+<td>2021</td>
+<td>3D parallelism (TP + PP + DP)</td>
+</tr>
+<tr class="even">
+<td>“Reducing Activation Recomputation in Large Transformer Models” (Korthikanti et al.)</td>
+<td>2022</td>
+<td>Sequence parallelism</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inference-optimization-1">Inference Optimization</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Year</th>
+<th>Key Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale” (Dettmers et al.)</td>
+<td>2022</td>
+<td>First INT8 inference at scale</td>
+</tr>
+<tr class="even">
+<td>“GPTQ: Accurate Post-Training Quantization for GPTs” (Frantar et al.)</td>
+<td>2022</td>
+<td>4-bit PTQ via second-order Hessian</td>
+</tr>
+<tr class="odd">
+<td>“Efficient Memory Management for LLM Serving with PagedAttention” (Kwon et al.)</td>
+<td>2023</td>
+<td>Virtual-memory-style KV cache paging</td>
+</tr>
+<tr class="even">
+<td>“Fast Inference from Transformers via Speculative Decoding” (Leviathan et al.)</td>
+<td>2023</td>
+<td>Draft-then-verify decoding</td>
+</tr>
+<tr class="odd">
+<td>“AWQ: Activation-aware Weight Quantization” (Lin et al.)</td>
+<td>2023</td>
+<td>Weight-only INT4 with activation scaling</td>
+</tr>
+<tr class="even">
+<td>“Sarathi-Serve: Taming Throughput-Latency Tradeoff” (Agrawal et al.)</td>
+<td>2024</td>
+<td>Chunked prefill for mixed SLOs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="textbooks-and-courses">11. Textbooks and Courses</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Type</th>
+<th>Topic</th>
+<th>Difficulty</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Programming Massively Parallel Processors</em>, 4th ed. (Hwu, Kirk, El Hajj)</td>
+<td>Textbook</td>
+<td>CUDA, GPU architecture, parallel patterns</td>
+<td>Intermediate</td>
+<td>https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/</td>
+</tr>
+<tr class="even">
+<td><em>Computer Systems: A Programmer’s Perspective</em> (Bryant &amp; O’Hallaron)</td>
+<td>Textbook</td>
+<td>Systems programming, memory hierarchy, caching</td>
+<td>Beginner</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td><em>Deep Learning</em> (Goodfellow, Bengio, Courville)</td>
+<td>Textbook</td>
+<td>ML theory, optimization, regularization</td>
+<td>Beginner</td>
+<td>https://www.deeplearningbook.org</td>
+</tr>
+<tr class="even">
+<td>ECE408 / CS483 Applied Parallel Programming (UIUC)</td>
+<td>Course</td>
+<td>CUDA, parallel algorithms</td>
+<td>Intermediate</td>
+<td>https://developer.nvidia.com/educators/existing-courses</td>
+</tr>
+<tr class="odd">
+<td>Columbia COMSE6998-013 High-Performance Machine Learning (Fall 2024)</td>
+<td>Course</td>
+<td>PyTorch profiling, CUDA, quantization</td>
+<td>Intermediate</td>
+<td>https://www.cs.columbia.edu/~aa4870/high-performance-machine-learning/</td>
+</tr>
+<tr class="even">
+<td><em>AI Systems Performance Engineering</em> (O’Reilly)</td>
+<td>Textbook</td>
+<td>torch.compile, Triton, XLA</td>
+<td>Advanced</td>
+<td>https://www.oreilly.com/library/view/ai-systems-performance/9798341627772/</td>
+</tr>
+<tr class="odd">
+<td>Andrej Karpathy’s <em>Neural Networks: Zero to Hero</em></td>
+<td>Course</td>
+<td>Transformer implementation from scratch</td>
+<td>Beginner</td>
+<td>https://karpathy.ai/zero-to-hero.html</td>
+</tr>
+<tr class="even">
+<td>JAX Scaling Book</td>
+<td>Online book</td>
+<td>Distributed training, roofline, sharding</td>
+<td>Intermediate</td>
+<td>https://jax-ml.github.io/scaling-book/</td>
+</tr>
+<tr class="odd">
+<td>fast.ai <em>Practical Deep Learning for Coders</em> (Part 2)</td>
+<td>Course</td>
+<td>PyTorch internals, custom CUDA</td>
+<td>Intermediate</td>
+<td>https://course.fast.ai</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-blogs-and-technical-write-ups">12. Key Blogs and Technical Write-Ups</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Title</th>
+<th>Author / Org</th>
+<th>Topic</th>
+<th>Difficulty</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Making Deep Learning Go Brrrr From First Principles”</td>
+<td>Horace He</td>
+<td>Memory-bandwidth vs compute-bound, overhead</td>
+<td>Beginner</td>
+<td>https://horace.io/brrr_intro.html</td>
+</tr>
+<tr class="even">
+<td>“Transformer Math 101”</td>
+<td>EleutherAI</td>
+<td>Parameter count, memory arithmetic, FLOP budgets</td>
+<td>Beginner</td>
+<td>https://blog.eleuther.ai/transformer-math/</td>
+</tr>
+<tr class="odd">
+<td>Lil’Log — “Attention? Attention!”</td>
+<td>Lilian Weng</td>
+<td>Attention mechanism history and variants</td>
+<td>Beginner</td>
+<td>https://lilianweng.github.io/posts/2018-06-24-attention/</td>
+</tr>
+<tr class="even">
+<td>“The Illustrated Transformer”</td>
+<td>Jay Alammar</td>
+<td>Visual walkthrough of attention</td>
+<td>Beginner</td>
+<td>https://jalammar.github.io/illustrated-transformer/</td>
+</tr>
+<tr class="odd">
+<td>“Efficient Training on Multiple GPUs”</td>
+<td>Hugging Face</td>
+<td>DP, TP, PP, ZeRO practical guide</td>
+<td>Intermediate</td>
+<td>https://huggingface.co/docs/transformers/perf_train_gpu_many</td>
+</tr>
+<tr class="even">
+<td>“vLLM: Easy, Fast, and Cheap LLM Serving with PagedAttention”</td>
+<td>vLLM Blog</td>
+<td>PagedAttention, continuous batching</td>
+<td>Intermediate</td>
+<td>https://blog.vllm.ai/2023/06/20/vllm.html</td>
+</tr>
+<tr class="odd">
+<td>“Achieve 23x LLM Inference Throughput with Continuous Batching”</td>
+<td>Anyscale</td>
+<td>Continuous batching mechanics</td>
+<td>Intermediate</td>
+<td>https://www.anyscale.com/blog/continuous-batching-llm-inference</td>
+</tr>
+<tr class="even">
+<td>“GPUs Go Brrr”</td>
+<td>Hazy Research (Stanford)</td>
+<td>ThunderKittens / custom kernel design</td>
+<td>Advanced</td>
+<td>https://hazyresearch.stanford.edu/blog/2024-05-12-tk</td>
+</tr>
+<tr class="odd">
+<td>“Everything about Distributed Training and Efficient Finetuning”</td>
+<td>Sumanth Rao</td>
+<td>ZeRO, FSDP, practical recipes</td>
+<td>Intermediate</td>
+<td>https://sumanthrh.com/post/distributed-and-efficient-finetuning/</td>
+</tr>
+<tr class="even">
+<td>“A Gentle Introduction to 8-bit Matrix Multiplication”</td>
+<td>Hugging Face</td>
+<td>bitsandbytes integration, LLM.int8()</td>
+<td>Beginner</td>
+<td>https://huggingface.co/blog/hf-bitsandbytes-integration</td>
+</tr>
+<tr class="odd">
+<td>“Inside vLLM: Anatomy of a High-Throughput LLM Inference System”</td>
+<td>vLLM Blog</td>
+<td>vLLM internals, scheduler, engine</td>
+<td>Advanced</td>
+<td>https://blog.vllm.ai/2025/09/05/anatomy-of-vllm.html</td>
+</tr>
+<tr class="even">
+<td>Awesome-LLM-Inference (GitHub)</td>
+<td>xlite-dev</td>
+<td>Curated list of inference papers and code</td>
+<td>Reference</td>
+<td>https://github.com/xlite-dev/Awesome-LLM-Inference</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Attention is All You Need” (Vaswani et al., 2017)</td>
+<td>Original Transformer paper</td>
+<td>https://arxiv.org/abs/1706.03762</td>
+</tr>
+<tr class="even">
+<td>“FlashAttention” (Dao et al., 2022)</td>
+<td>IO-aware, memory-efficient exact attention</td>
+<td>https://arxiv.org/abs/2205.14135</td>
+</tr>
+<tr class="odd">
+<td>“FlashAttention-2” (Dao, 2023)</td>
+<td>Improved parallelism, better FLOPs efficiency</td>
+<td>https://arxiv.org/abs/2307.08691</td>
+</tr>
+<tr class="even">
+<td>“FlashAttention-3” (Shah et al., 2024)</td>
+<td>Hopper-native asynchronous attention</td>
+<td>https://arxiv.org/abs/2407.08608</td>
+</tr>
+<tr class="odd">
+<td>“GQA” (Ainslie et al., 2023)</td>
+<td>Grouped-query attention for KV cache reduction</td>
+<td>https://arxiv.org/abs/2305.13245</td>
+</tr>
+<tr class="even">
+<td>“DeepSeek-V2” (DeepSeek-AI, 2024)</td>
+<td>Multi-Head Latent Attention, MoE architecture</td>
+<td>https://arxiv.org/abs/2405.04434</td>
+</tr>
+<tr class="odd">
+<td>“ZeRO” (Rajbhandari et al., 2020)</td>
+<td>Sharded optimizer for large model training</td>
+<td>https://arxiv.org/abs/1910.02054</td>
+</tr>
+<tr class="even">
+<td>“Megatron-LM” (Narayanan et al., 2021)</td>
+<td>3D parallelism: TP + PP + DP</td>
+<td>https://arxiv.org/abs/2104.04473</td>
+</tr>
+<tr class="odd">
+<td>“PagedAttention / vLLM” (Kwon et al., 2023)</td>
+<td>Virtual-memory KV cache paging for serving</td>
+<td>https://arxiv.org/abs/2309.06180</td>
+</tr>
+<tr class="even">
+<td>“Speculative Decoding” (Leviathan et al., 2023)</td>
+<td>Draft-then-verify for 2–3× decode speedup</td>
+<td>https://arxiv.org/abs/2211.17192</td>
+</tr>
+<tr class="odd">
+<td>“Accelerating LLM Decoding” (Chen et al., 2023)</td>
+<td>Speculative sampling with Chinchilla</td>
+<td>https://arxiv.org/abs/2302.01318</td>
+</tr>
+<tr class="even">
+<td>“LLM.int8()” (Dettmers et al., 2022)</td>
+<td>INT8 quantization with mixed-precision outlier handling</td>
+<td>https://arxiv.org/abs/2208.07339</td>
+</tr>
+<tr class="odd">
+<td>“GPTQ” (Frantar et al., 2022)</td>
+<td>One-shot 4-bit weight quantization</td>
+<td>https://arxiv.org/abs/2210.17323</td>
+</tr>
+<tr class="even">
+<td>“AWQ” (Lin et al., 2023)</td>
+<td>Activation-aware 4-bit weight quantization</td>
+<td>https://arxiv.org/abs/2306.00978</td>
+</tr>
+<tr class="odd">
+<td>“Roofline model” (Williams et al., 2009)</td>
+<td>Visual performance model for memory-bound vs compute-bound</td>
+<td>https://people.eecs.berkeley.edu/~kubitron/cs252/handouts/papers/RooflineVyNoYellow.pdf</td>
+</tr>
+<tr class="even">
+<td>“Efficient Diffusion Models: A Survey” (TMLR 2025)</td>
+<td>Taxonomy of diffusion model acceleration techniques</td>
+<td>https://arxiv.org/abs/2502.06805</td>
+</tr>
+<tr class="odd">
+<td>“DiT” (Peebles &amp; Xie, 2023)</td>
+<td>Diffusion Transformer replacing U-Net backbone</td>
+<td>https://arxiv.org/abs/2212.09748</td>
+</tr>
+<tr class="even">
+<td>“Mamba” (Gu &amp; Dao, 2023)</td>
+<td>Selective state space model as linear attention alternative</td>
+<td>https://arxiv.org/abs/2312.00752</td>
+</tr>
+<tr class="odd">
+<td>“Transformers are RNNs” (Katharopoulos et al., 2020)</td>
+<td>Linear attention via kernel feature map</td>
+<td>https://arxiv.org/abs/2006.16236</td>
+</tr>
+<tr class="even">
+<td>Transformer Math 101 (EleutherAI Blog)</td>
+<td>Memory, FLOP, and throughput arithmetic for transformers</td>
+<td>https://blog.eleuther.ai/transformer-math/</td>
+</tr>
+<tr class="odd">
+<td>“Making Deep Learning Go Brrrr” (Horace He)</td>
+<td>First-principles GPU performance bottleneck analysis</td>
+<td>https://horace.io/brrr_intro.html</td>
+</tr>
+<tr class="even">
+<td>FlashInfer (Ye et al., 2025)</td>
+<td>Customizable attention engine for diverse serving scenarios</td>
+<td>https://arxiv.org/abs/2501.01005</td>
+</tr>
+<tr class="odd">
+<td>SGLang paper (Zheng et al., 2023)</td>
+<td>RadixAttention and structured generation serving system</td>
+<td>https://arxiv.org/abs/2312.07104</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

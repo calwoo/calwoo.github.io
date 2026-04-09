@@ -1,0 +1,1411 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>curriculum - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>curriculum</h1>
+            <article>
+    <section>
+        <p><em>52 weeks · ~10 hrs/wk · ~520 hrs total</em>
+<em>Profile: Python/PyTorch practitioner, GPU beginner, full-stack goal (inference + training + kernels)</em></p>
+<hr />
+<h2 id="year-overview">Year Overview</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>Weeks</th>
+<th>Theme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>I</td>
+<td>1–12</td>
+<td>Foundations</td>
+</tr>
+<tr class="even">
+<td>II</td>
+<td>13–20</td>
+<td>Hardware Mastery</td>
+</tr>
+<tr class="odd">
+<td>III</td>
+<td>21–29</td>
+<td>Training at Scale</td>
+</tr>
+<tr class="even">
+<td>IV</td>
+<td>30–37</td>
+<td>Advanced Inference</td>
+</tr>
+<tr class="odd">
+<td>V</td>
+<td>38–46</td>
+<td>Emerging Architectures</td>
+</tr>
+<tr class="even">
+<td>VI</td>
+<td>47–52</td>
+<td>Compilers &amp; Infrastructure</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="dependency-map">Dependency Map</h2>
+<pre class="mermaid"><code>flowchart TD
+    subgraph P1[&quot;① Foundations · Wks 1–12&quot;]
+        roofline[&quot;Roofline &amp; GPU Architecture&quot;]
+        txArith[&quot;Transformer Systems Arithmetic&quot;]
+        effAttn[&quot;Efficient Attention (Flash, GQA, MLA)&quot;]
+        inference[&quot;Quantization &amp; Serving&quot;]
+        dist[&quot;Distributed Training (DP / TP / PP / ZeRO)&quot;]
+        kernels[&quot;Triton Kernels &amp; torch.compile&quot;]
+    end
+
+    subgraph P2[&quot;② Hardware Mastery · Wks 13–20&quot;]
+        advCuda[&quot;Advanced CUDA (Warps, Tensor Cores, cp.async)&quot;]
+        cutlass[&quot;CUTLASS / CuTe&quot;]
+        hopper[&quot;Hopper ISA (TMA, WGMMA, Ping-Pong)&quot;]
+        profiling[&quot;Nsight Profiling (Compute + Systems)&quot;]
+        interconnects[&quot;Interconnects &amp; NCCL Basics&quot;]
+    end
+
+    subgraph P3[&quot;③ Training at Scale · Wks 21–29&quot;]
+        seqPar[&quot;Sequence &amp; Context Parallelism&quot;]
+        moeTraining[&quot;MoE Training (Expert Parallelism)&quot;]
+        dataPipe[&quot;Data Pipelines &amp; Pretraining Infra&quot;]
+        peft[&quot;LoRA / QLoRA / PEFT&quot;]
+        rlhf[&quot;RLHF Systems (PPO, DPO, GRPO)&quot;]
+    end
+
+    subgraph P4[&quot;④ Advanced Inference · Wks 30–37&quot;]
+        longCtx[&quot;Long-Context (YaRN, KV Eviction)&quot;]
+        advQuant[&quot;FP8 &amp; Extreme Quantization&quot;]
+        advSpec[&quot;Advanced Spec Decoding (EAGLE, Medusa)&quot;]
+        disagg[&quot;Disaggregated Inference (DistServe)&quot;]
+        prodServing[&quot;Production Serving &amp; SLO Scheduling&quot;]
+    end
+
+    subgraph P5[&quot;⑤ Emerging Architectures · Wks 36–46&quot;]
+        mamba[&quot;Mamba / SSMs &amp; Parallel Scan&quot;]
+        moeInf[&quot;MoE Inference &amp; Expert Offload&quot;]
+        linAttn[&quot;Linear Attention &amp; Hybrid Models&quot;]
+        diffusion[&quot;Diffusion Systems (DiT, Flow Matching)&quot;]
+    end
+
+    subgraph P6[&quot;⑥ Compilers &amp; Infra · Wks 43–52&quot;]
+        mlir[&quot;MLIR &amp; Compiler IR Theory&quot;]
+        tvm[&quot;TVM / XLA / Autotuning&quot;]
+        adSys[&quot;Automatic Differentiation Systems&quot;]
+        memMgmt[&quot;CUDA Memory Management&quot;]
+        ncclDeep[&quot;NCCL Deep Dive &amp; Collectives&quot;]
+    end
+
+    %% Part I internal
+    roofline --&gt; txArith
+    roofline --&gt; kernels
+    txArith --&gt; effAttn
+    effAttn --&gt; inference
+    effAttn --&gt; dist
+
+    %% P1 → P2
+    roofline --&gt; advCuda
+    kernels --&gt; cutlass
+    advCuda --&gt; cutlass
+    cutlass --&gt; hopper
+    hopper --&gt; profiling
+    dist --&gt; interconnects
+
+    %% P1 → P3
+    dist --&gt; seqPar
+    dist --&gt; moeTraining
+    txArith --&gt; dataPipe
+    inference --&gt; peft
+    peft --&gt; rlhf
+    seqPar --&gt; rlhf
+
+    %% P1 → P4
+    effAttn --&gt; longCtx
+    inference --&gt; advQuant
+    inference --&gt; advSpec
+    inference --&gt; disagg
+    inference --&gt; prodServing
+
+    %% P2 → P4
+    hopper --&gt; advQuant
+
+    %% P2 → P5
+    hopper --&gt; mamba
+    kernels --&gt; mamba
+
+    %% P1 → P5
+    effAttn --&gt; linAttn
+    txArith --&gt; diffusion
+
+    %% P3 → P5
+    moeTraining --&gt; moeInf
+
+    %% P4 → P5
+    disagg --&gt; moeInf
+
+    %% P2 → P6
+    hopper --&gt; mlir
+    kernels --&gt; mlir
+    mlir --&gt; tvm
+    advCuda --&gt; memMgmt
+    interconnects --&gt; ncclDeep
+    kernels --&gt; adSys</code></pre>
+<hr />
+<h2 id="part-i-foundations">Part I — Foundations</h2>
+<blockquote>
+<p><strong>Goal:</strong> Build the hardware intuition, transformer arithmetic, attention theory, inference fundamentals, distributed training basics, and kernel writing skills that underpin everything else.</p>
+</blockquote>
+<h3 id="week-1-the-roofline-model">Week 1 — The Roofline Model</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Arithmetic intensity: what it is and how to compute it for an op
+- [ ] The roofline model: compute ceiling vs memory bandwidth ceiling
+- [ ] Ridge point: the arithmetic intensity that separates memory-bound from compute-bound
+- [ ] HBM vs SRAM: capacity, bandwidth, and latency tradeoffs
+- [ ] GPU SM, warp, and thread hierarchy at a high level
+- [ ] How to read a PyTorch profiler trace</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://horace.io/brrr_intro.html"><em>Making Deep Learning Go Brrrr</em></a> — Horace He <em>(1.5 hrs)</em>
+- [ ] <a href="https://jax-ml.github.io/scaling-book/roofline/"><em>All About Rooflines</em></a> — JAX Scaling Book <em>(2 hrs)</em>
+- [ ] <a href="https://blog.eleuther.ai/transformer-math/"><em>Transformer Math 101</em></a> — EleutherAI <em>(1.5 hrs)</em>
+- [ ] <a href="https://resources.nvidia.com/en-us-tensor-core/nvidia-hopper-architecture-whitepaper">NVIDIA Hopper Architecture Whitepaper</a> §1–3 <em>(1.5 hrs)</em>
+- [ ] <a href="https://pytorch.org/tutorials/recipes/recipes/profiling_recipe.html">PyTorch Profiler Tutorial</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Run PyTorch profiler on a forward pass of <code>GPT2LMHeadModel</code>. Identify the top 3 ops by CUDA time and classify each as compute- or memory-bound. <em>(1.5 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone:</strong> Given <code>matmul(A, B)</code> with A=(4096,4096), B=(4096,4096) in fp16 on an A100 (312 TFLOP/s, 2 TB/s), compute arithmetic intensity and determine its roofline regime.</p>
+</blockquote>
+<hr />
+<h3 id="week-2-cuda-mental-model-memory-hierarchy">Week 2 — CUDA Mental Model &amp; Memory Hierarchy</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Thread/block/grid hierarchy and how it maps to GPU hardware
+- [ ] Shared memory (SMEM): capacity per SM, latency vs global memory
+- [ ] Global memory coalescing: why access pattern matters for bandwidth
+- [ ] Occupancy: how register and SMEM usage limits active warps per SM
+- [ ] Bank conflicts in shared memory
+- [ ] L1/L2 cache behavior</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/"><em>Programming Massively Parallel Processors</em></a> Ch. 1–5 — Hwu &amp; Kirk <em>(4 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/gpu-teaching-kit">ECE408/CS483 Lecture Videos Weeks 1–3</a> — UIUC via NVIDIA <em>(3 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/"><em>An Even Easier Introduction to CUDA</em></a> — NVIDIA Blog <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Write a naive CUDA vector-add kernel (in C or via Numba). Measure achieved bandwidth vs theoretical peak. <em>(2 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone:</strong> Explain why a naively written matrix transpose kernel is memory-bandwidth-bound despite O(N²) reads and writes — and describe the shared memory tiling fix.</p>
+</blockquote>
+<hr />
+<h3 id="week-3-transformer-systems-arithmetic">Week 3 — Transformer Systems Arithmetic</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Parameter count formula for a transformer (embedding, attn projections, MLP, LM head)
+- [ ] FLOPs ≈ 6ND for training, ≈ 2ND for inference — where this comes from
+- [ ] KV cache memory: <code>2 · n_layers · n_heads · d_head · seqlen · batch · dtype_bytes</code>
+- [ ] Model FLOPs utilization (MFU): definition and how to measure it
+- [ ] Scaling laws: compute-optimal training (Chinchilla)
+- [ ] Why seqlen causes quadratic FLOPs but linear KV cache growth</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://blog.eleuther.ai/transformer-math/"><em>Transformer Math 101</em></a> — EleutherAI <em>(re-read carefully, 1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2005.14165"><em>Language Models are Few-Shot Learners</em></a> §2 — GPT-3 <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/2001.08361"><em>Scaling Laws for Neural Language Models</em></a> — Kaplan et al. <em>(2 hrs)</em>
+- [ ] <a href="https://jax-ml.github.io/scaling-book/">JAX Scaling Book Ch. 2–3</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] For a 7B-parameter LLaMA-2 in bf16, derive: (a) weight memory, (b) KV cache at batch=32 seqlen=2048, (c) FLOPs per forward pass. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone:</strong> Why does doubling sequence length quadratically increase attention FLOPs but only linearly increase KV cache memory? Write out the derivation.</p>
+</blockquote>
+<hr />
+<h3 id="week-4-efficient-attention">Week 4 — Efficient Attention</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] IO complexity of standard attention: why materializing (seqlen × seqlen) is the bottleneck
+- [ ] FlashAttention tiling: splitting Q/K/V into blocks to avoid writing the full attention matrix
+- [ ] Online softmax: computing softmax incrementally across tiles
+- [ ] GQA/MQA: sharing K/V heads across query heads and the memory savings
+- [ ] MLA: low-rank KV compression in DeepSeek-V2 and the 64× cache reduction
+- [ ] FlashAttention-2 improvements over v1</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2205.14135"><em>FlashAttention</em></a> — Dao et al. 2022 <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2307.08691"><em>FlashAttention-2</em></a> — Dao 2023 <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2305.13245"><em>GQA: Training Generalized Multi-Query Transformer Models</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2405.04434"><em>DeepSeek-V2</em></a> §3 — MLA <em>(1 hr)</em>
+- [ ] <a href="https://tridao.me/blog/2024/flash3/">FlashAttention-3 blog</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement FlashAttention forward tiling logic in pure NumPy. Verify against <code>torch.nn.functional.scaled_dot_product_attention</code>. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone:</strong> For a 70B model, 64 heads, d_head=128, seqlen=8192, batch=1 in fp16 — compute the memory footprint of the full attention matrix under standard MHA. Then state FlashAttention’s peak SMEM usage and explain why.</p>
+</blockquote>
+<hr />
+<h3 id="week-5-quantization-speculative-decoding">Week 5 — Quantization &amp; Speculative Decoding</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Post-training quantization (PTQ) vs quantization-aware training (QAT)
+- [ ] Why outlier activations break naive int8 quantization (LLM.int8() mixed-precision)
+- [ ] Weight-only quantization (GPTQ, AWQ) vs weight+activation quantization
+- [ ] AWQ: activation-aware scaling to protect salient weights
+- [ ] Speculative decoding: draft model generates K tokens, target verifies in parallel
+- [ ] Token acceptance rate and when speculative decoding wins/loses</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2208.07339"><em>LLM.int8()</em></a> — Dettmers et al. <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2210.17323"><em>GPTQ</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2306.00978"><em>AWQ: Activation-aware Weight Quantization</em></a> <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/2211.17192"><em>Fast Inference via Speculative Decoding</em></a> — Leviathan et al. <em>(1.5 hrs)</em>
+- [ ] <a href="https://huggingface.co/docs/transformers/quantization">Hugging Face quantization guide</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Load LLaMA-3-8B in fp16, int8 (bitsandbytes), and GPTQ 4-bit. Measure decode latency, throughput, and perplexity for each. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-6-serving-systems">Week 6 — Serving Systems</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Prefill vs decode phases: why prefill is compute-bound and decode is memory-bandwidth-bound
+- [ ] TTFT (time-to-first-token) vs TPOT (time-per-output-token)
+- [ ] Continuous batching (iteration-level scheduling)
+- [ ] PagedAttention: virtual memory for KV cache, block table indirection
+- [ ] KV cache fragmentation and how paging limits it to &lt;4%
+- [ ] SGLang vs vLLM tradeoffs</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2309.06180"><em>Efficient Memory Management for LLM Serving with PagedAttention</em></a> — Kwon et al. <em>(2 hrs)</em>
+- [ ] <a href="https://www.usenix.org/conference/osdi22/presentation/yu"><em>Orca: A Distributed Serving System for Transformer-Based LLMs</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://www.anyscale.com/blog/continuous-batching-llm-inference">Continuous Batching — 23× LLM Throughput</a> — Anyscale <em>(0.5 hrs)</em>
+- [ ] <a href="https://docs.vllm.ai">vLLM docs — quickstart + architecture</a> <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/2312.07104"><em>SGLang</em></a> <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Serve LLaMA-3-8B with vLLM. Sweep batch size 1→64. Record throughput and TTFT. At what batch size does the system transition from memory-bound to compute-bound? <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 5–6):</strong> For a 7B model on one A100 (80GB), walk through: (1) VRAM available for KV cache after loading int4 weights, (2) concurrent sequences that fit, (3) why continuous batching improves utilization over static batching.</p>
+</blockquote>
+<hr />
+<h3 id="week-7-data-parallelism-tensor-parallelism-pipeline-parallelism">Week 7 — Data Parallelism, Tensor Parallelism, Pipeline Parallelism</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Data parallelism (DDP): gradient all-reduce, overlap with backward pass
+- [ ] Tensor parallelism: column-parallel and row-parallel linear layers
+- [ ] Pipeline parallelism: stage assignment, pipeline bubbles, 1F1B schedule
+- [ ] Micro-batching to fill the pipeline
+- [ ] 3D parallelism: how TP + PP + DP compose
+- [ ] Communication primitives: all-reduce, all-gather, reduce-scatter</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/1909.08053"><em>Megatron-LM</em></a> — Shoeybi et al. <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2104.04473"><em>Efficient Large-Scale Language Model Training on GPU Clusters</em></a> — Narayanan et al. <em>(2.5 hrs)</em>
+- [ ] <a href="https://sumanthrh.com/post/distributed-and-efficient-finetuning/"><em>Everything About Distributed Training and Efficient Finetuning</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://jax-ml.github.io/scaling-book/">JAX Scaling Book Ch. 4–5</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Using <code>torch.distributed</code>, run DDP on 2 GPUs. Profile all-reduce communication time vs. total step time at varying batch sizes. <em>(2 hrs)</em></p>
+<hr />
+<h3 id="week-8-zero-fsdp-mixed-precision-gradient-checkpointing">Week 8 — ZeRO, FSDP, Mixed Precision, Gradient Checkpointing</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] ZeRO stages 1/2/3: what each stage shards
+- [ ] ZeRO-3 / FSDP communication: all-gather before forward, reduce-scatter after backward
+- [ ] Mixed precision: fp16/bf16 forward + fp32 master weights, loss scaling
+- [ ] Why bf16 is preferred over fp16 for training
+- [ ] Gradient checkpointing: recomputing activations vs storing them</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/1910.02054"><em>ZeRO: Memory Optimizations Toward Training Trillion Parameter Models</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://pytorch.org/blog/pytorch-native-architecture-optimization/">PyTorch FSDP2 blog</a> <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/1710.03740"><em>Mixed Precision Training</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/">NVIDIA Mixed Precision Training Guide</a> <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/2205.05198"><em>Reducing Activation Recomputation in Large Transformer Models</em></a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Train a 1B-parameter toy transformer on 2 GPUs. Record peak memory under: (a) DDP fp32, (b) DDP bf16, (c) FSDP ZeRO-3 bf16. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 7–8):</strong> For a 13B model on 8 GPUs with ZeRO-3: calculate per-GPU memory for parameters, gradients, and optimizer states. Estimate the all-gather + reduce-scatter communication volume per step vs. DDP baseline.</p>
+</blockquote>
+<hr />
+<h3 id="week-9-triton-foundations">Week 9 — Triton Foundations</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] What Triton is: a Python DSL compiling to PTX, sitting between CUDA C and PyTorch ops
+- [ ] <code>tl.program_id</code>, <code>tl.load</code>, <code>tl.store</code>: the core primitives
+- [ ] Block tiling in Triton: how BLOCK_SIZE maps to SMEM usage and occupancy
+- [ ] Masking: handling tensor edges when shape isn’t a multiple of BLOCK_SIZE
+- [ ] <code>tl.dot</code>: Triton’s matmul primitive
+- [ ] Autotuning: <code>@triton.autotune</code> decorator and config search
+- [ ] Fusion: why fusing elementwise ops into a matmul saves memory bandwidth</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf"><em>Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://triton-lang.org/main/getting-started/tutorials/">Official Triton tutorials: vector add → fused softmax → matmul</a> <em>(4 hrs)</em>
+- [ ] <a href="https://towardsdatascience.com/unleashing-the-power-of-triton-mastering-gpu-kernel-optimization-in-python-160a3f52701e/"><em>Unleashing the Power of Triton</em></a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement fused SiLU (<code>x * sigmoid(x)</code>) as a Triton kernel. Benchmark against PyTorch built-in and two-op naive version. Report bandwidth utilization. <em>(3.5 hrs)</em></p>
+<hr />
+<h3 id="week-10-torch.compile-inductor">Week 10 — torch.compile &amp; Inductor</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] <code>torch.compile</code> pipeline: Dynamo → Inductor → Triton kernels
+- [ ] Graph capture modes: <code>reduce-overhead</code> vs <code>max-autotune</code>
+- [ ] Fusion in Inductor: which op patterns get fused automatically
+- [ ] Graph breaks: what causes them and how to diagnose with <code>TORCH_COMPILE_DEBUG=1</code>
+- [ ] When <code>torch.compile</code> is and isn’t worth it (dynamic shapes, small models)
+- [ ] How FlashAttention-3 uses Triton + Hopper TMA/WGMMA for ~75% peak FLOP/s</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2304.07640"><em>PyTorch 2</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://pytorch.org/tutorials/intermediate/torch_compile_tutorial.html">torch.compile tutorial</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://tridao.me/blog/2024/flash3/">FlashAttention-3 blog</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html">Triton blocked matmul tutorial</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Apply <code>torch.compile</code> to a full transformer forward pass. Use <code>TORCH_COMPILE_DEBUG=1</code> to inspect emitted Triton kernels. Identify which ops fused and which caused graph breaks. <em>(3.5 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 9–10):</strong> Write a fused layernorm kernel in Triton that computes mean, variance, and normalization in a single pass. Compare throughput and bandwidth to <code>torch.nn.LayerNorm</code>. Explain why a single-pass implementation is faster.</p>
+</blockquote>
+<hr />
+<h3 id="week-11-vision-language-model-serving">Week 11 — Vision-Language Model Serving</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] VLM anatomy: vision encoder (ViT) + projector + LLM backbone
+- [ ] How image tokens are injected as “virtual” prefill tokens
+- [ ] Resolution scaling: how image size determines token count
+- [ ] Two serving regimes: encoder-heavy vs. LLM-decode-heavy
+- [ ] Cross-attention injection (Flamingo) vs. token merge/concatenation (LLaVA)
+- [ ] KV cache implications: image tokens inflate effective context length</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2103.00020"><em>CLIP</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2304.08485"><em>LLaVA: Visual Instruction Tuning</em></a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2310.03744"><em>LLaVA-1.5</em></a> <em>(1 hr)</em>
+- [ ] <a href="https://arxiv.org/abs/2204.14198"><em>Flamingo</em></a> §3 <em>(1 hr)</em>
+- [ ] <a href="https://docs.vllm.ai/en/latest/models/vlm.html">vLLM multimodal docs</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Serve LLaVA-1.5-7B with vLLM. Measure: (a) vision encoder latency vs. LLM prefill latency, (b) how doubling image resolution changes latency and KV cache size. <em>(4 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone:</strong> A 336×336 image produces 576 image tokens. For LLaVA-1.5-7B serving 16 concurrent users (one image + 64-token question each), compute effective prefill token count and compare KV cache memory to a text-only baseline.</p>
+</blockquote>
+<hr />
+<h3 id="week-12-part-i-capstone">Week 12 — Part I Capstone</h3>
+<p><strong>Choose one track:</strong>
+- [ ] <strong>Track A — LLM serving optimization:</strong> Serve a 7B model on one GPU. Apply quantization, continuous batching, and speculative decoding sequentially. Document measured impact of each.
+- [ ] <strong>Track B — Custom attention kernel:</strong> Implement simplified FlashAttention forward in Triton. Benchmark vs. PyTorch SDPA across seqlen 512→8192. Produce a roofline plot.
+- [ ] <strong>Track C — Distributed training audit:</strong> Train a 1B model on 4 GPUs. Compare DDP, FSDP ZeRO-2, FSDP ZeRO-3. Identify the dominant communication bottleneck.</p>
+<p><strong>Deliverable checklist:</strong>
+- [ ] Baseline profile (PyTorch profiler or Nsight output)
+- [ ] Each optimization applied with before/after measurements
+- [ ] Written explanation of <em>why</em> each change helped (roofline reasoning)
+- [ ] One thing you’d do next with more time or hardware</p>
+<hr />
+<h2 id="part-ii-hardware-mastery">Part II — Hardware Mastery</h2>
+<blockquote>
+<p><strong>Goal:</strong> Go from Triton user to someone who can reason about hardware ISA-level behavior, write CUTLASS kernels, profile with Nsight Compute, and understand the full interconnect stack.</p>
+</blockquote>
+<h3 id="week-13-advanced-cuda-warp-primitives-tensor-cores">Week 13 — Advanced CUDA: Warp Primitives &amp; Tensor Cores</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Warp shuffle functions: <code>__shfl_sync</code>, <code>__shfl_down_sync</code>, <code>__shfl_xor_sync</code> — register-to-register exchange within a warp without SMEM
+- [ ] Warp vote functions: <code>__ballot_sync</code>, <code>__all_sync</code>, <code>__any_sync</code>
+- [ ] Warp-level reduce patterns using shuffles
+- [ ] Tensor Cores via WMMA API: <code>nvcuda::wmma</code> — fragment types, <code>load_matrix_sync</code>, <code>mma_sync</code>, <code>store_matrix_sync</code>
+- [ ] Supported WMMA shapes (16×16×16, 8×32×16) and data types (FP16, BF16, TF32, INT8, FP8)
+- [ ] PTX <code>mma.sync</code> for finer control below the WMMA abstraction</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://leimao.github.io/blog/NVIDIA-Tensor-Core-Programming/">NVIDIA Tensor Core Programming — Lei Mao’s Log Book</a> <em>(3 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/programming-tensor-cores-cuda-9/">Programming Tensor Cores in CUDA 9</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://tschmidt23.github.io/cse599i/CSE%20599%20I%20Accelerated%20Computing%20-%20Programming%20GPUs%20Lecture%2018.pdf">Warp Shuffle and Warp Vote Instructions — CSE 599I Slides</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://github.com/gpu-mode/lectures">GPU MODE Lectures 14–20</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement a fused LayerNorm kernel using warp shuffles for the reduction. Benchmark bandwidth against the naive two-pass version. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-14-cuda-concurrency-streams-graphs-async-copy">Week 14 — CUDA Concurrency: Streams, Graphs, Async Copy</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] <code>cp.async</code> (Ampere+): asynchronous SMEM copy from global memory; commit/wait groups; double-buffering pattern to overlap copy and compute
+- [ ] CUDA streams: stream semantics, default vs. non-default streams, <code>cudaEventRecord</code>/<code>cudaEventSynchronize</code>
+- [ ] Overlapping H2D copy, kernel, and D2H copy across streams
+- [ ] CUDA Graphs: graph capture, instantiation, launch; constant-time ~2.5µs launch overhead; when graphs pay off (many small kernels, inference serving)
+- [ ] Cooperative Groups: thread-block groups, multi-block cooperative kernels, grid-wide synchronization</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://developer.nvidia.com/blog/controlling-data-movement-to-boost-performance-on-ampere-architecture/">Controlling Data Movement on Ampere (cp.async)</a> <em>(2 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/cuda-graphs/">Getting Started with CUDA Graphs</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/cooperative-groups/">Cooperative Groups</a> <em>(2 hrs)</em>
+- [ ] <a href="https://medium.com/@dmitrijtichonov/cuda-series-streams-and-synchronization-873a3d6c22f4">CUDA Streams and Synchronization</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Add <code>cp.async</code> double-buffering to your LayerNorm kernel from Week 13. Measure the memory bandwidth improvement vs. the synchronous version. <em>(3.5 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 13–14):</strong> Implement a fused LayerNorm with warp-shuffle reduction and double-buffered <code>cp.async</code> pipelining. Profile in Nsight Compute and identify: (a) achieved bandwidth as % of theoretical, (b) dominant stall reason.</p>
+</blockquote>
+<hr />
+<h3 id="week-15-cutlass-cute">Week 15 — CUTLASS &amp; CuTe</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] What CUTLASS is: composable CUDA templates for GEMM and convolution; CUTLASS 2.x vs. 3.x (CuTe-based)
+- [ ] CuTe layout algebra: <code>Layout = Shape × Stride</code>; composable tiling; how CuTe eliminates hand-coded index arithmetic
+- [ ] CUTLASS 3.x GEMM pipeline: <code>CollectiveMma</code>, <code>CollectiveEpilogue</code>, <code>GemmUniversal</code>
+- [ ] Warp specialization: producer warps (TMA-issued loads) vs. consumer warpgroups (WGMMA); <code>PipelineAsync</code> barriers; Ping-Pong scheduling
+- [ ] CUTLASS vs. Triton: when to use each; most production kernels in vLLM/FlashAttention-3 are CUTLASS-based</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda/">CUTLASS: Fast Linear Algebra in CUDA C++</a> <em>(2 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/cutlass-principled-abstractions-for-handling-multidimensional-data-through-tensors-and-spatial-microkernels">CUTLASS: Principled Abstractions (CuTe overview)</a> <em>(2 hrs)</em>
+- [ ] <a href="https://pytorch.org/blog/cutlass-ping-pong-gemm-kernel/">Deep Dive on CUTLASS Ping-Pong GEMM</a> <em>(3 hrs)</em>
+- [ ] <a href="https://github.com/MekkCyber/CutlassAcademy">CutlassAcademy — curated tutorials</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Write a CUTLASS 3.x GEMM using <code>GemmUniversal</code> with a custom epilogue (fused bias + ReLU). Profile against cuBLAS and a hand-rolled Triton kernel. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-16-hopper-architecture-tma-wgmma">Week 16 — Hopper Architecture: TMA &amp; WGMMA</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Tensor Memory Accelerator (TMA): hardware DMA engine that accepts 5-D tensor descriptors; single-thread issue in producer warp; eliminates per-thread address calculation
+- [ ] <code>wgmma.mma_async</code>: asynchronous warpgroup-level (128-thread) MMA; operand B must be in SMEM; requires <code>wgmma.fence</code> / <code>wgmma.commit_group</code>
+- [ ] Thread-block clusters: groups of up to 16 CTAs on adjacent SMs sharing Distributed Shared Memory (DSMEM)
+- [ ] Persistent kernel patterns: one CTA per SM, producer warpgroup feeds TMA, consumer warpgroup executes WGMMA
+- [ ] Ping-pong warp specialization: alternating consumer warpgroups on back-to-back tiles to hide softmax latency</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/pdf/2402.13499">Benchmarking and Dissecting the NVIDIA Hopper GPU Architecture</a> <em>(4 hrs)</em>
+- [ ] <a href="https://arxiv.org/html/2501.12084v2">Dissecting Hopper via Microbenchmarking</a> <em>(3 hrs)</em>
+- [ ] <a href="https://research.colfax-intl.com/cutlass-tutorial-wgmma-hopper/">CUTLASS Tutorial: WGMMA on Hopper — Colfax Research</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement a double-buffered GEMM on H100 using TMA + WGMMA (without CUTLASS). Read the generated PTX/SASS in Nsight Compute and verify <code>cp.async.bulk</code> and <code>wgmma.mma_async</code> appear in the hot loop. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-17-flashattention-3-as-hopper-case-study">Week 17 — FlashAttention-3 as Hopper Case Study</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] How FA3 combines: TMA-pipelined Q/K/V loads, ping-pong WGMMA between consumer warpgroups, and FP8 block quantization
+- [ ] Why FA3 achieves ~740 TFLOPS/s (~75% SOL) on H100 while FA2 achieves ~35%
+- [ ] Inside NVIDIA GPUs: anatomy of a high-performance matmul kernel
+- [ ] Blackwell (B200) preview: UMMA, FP4 Tensor Cores, 5th-gen NVLink (1.8 TB/s/GPU)</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2407.08608"><em>FlashAttention-3</em></a> <em>(4 hrs)</em>
+- [ ] <a href="https://www.aleksagordic.com/blog/matmul">Anatomy of High-Performance Matmul Kernels — Aleksa Gordić</a> <em>(4 hrs)</em>
+- [ ] <a href="https://research.colfax-intl.com/wp-content/uploads/2023/12/colfax-gemm-kernels-hopper.pdf">Developing CUDA Kernels for Hopper — Colfax PDF</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Read the FlashAttention-3 Triton reference implementation. Annotate each section: which Hopper feature is it using, and what is the expected performance impact? <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 15–17):</strong> Write a fused FP8 attention kernel in CUTLASS 3.x with TMA + WGMMA + Ping-Pong scheduling. Profile vs. a Triton FlashAttention-2 implementation. Explain the performance delta using roofline analysis.</p>
+</blockquote>
+<hr />
+<h3 id="week-18-profiling-methodology-nsight-compute-nsight-systems">Week 18 — Profiling Methodology: Nsight Compute &amp; Nsight Systems</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Nsight Compute workflow: capturing a kernel profile with <code>ncu --set full</code>
+- [ ] Speed-of-Light (SOL): reading SM throughput vs. memory throughput as % of theoretical peak
+- [ ] Memory Workload Analysis: L1/L2 hit rates, global load efficiency, bank conflicts
+- [ ] Warp State Statistics: stall reasons (long scoreboard, memory dependency, no instruction, MIO throttle)
+- [ ] Scheduler Statistics: issued IPC vs. theoretical IPC; interpreting occupancy
+- [ ] Nsight Systems timeline: CPU-GPU synchronization bubbles, kernel gaps, multi-stream overlap
+- [ ] Bottleneck taxonomy: memory-bound (bandwidth wall), compute-bound (FLOP wall), latency-bound (small tiles), launch-overhead-bound</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html">Nsight Compute Profiling Guide</a> <em>(5 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/accelerating-hpc-applications-with-nsight-compute-roofline-analysis/">Accelerating HPC with Nsight Compute Roofline Analysis</a> <em>(2 hrs)</em>
+- [ ] <a href="https://docs.nvidia.com/nsight-systems/UserGuide/index.html">Nsight Systems User Guide</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Take your WGMMA GEMM from Week 16. Do a full Nsight Compute profile: find the dominant stall reason, interpret the roofline position, implement one optimization, re-profile to verify improvement. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-19-alternative-accelerators">Week 19 — Alternative Accelerators</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] TPU architecture: systolic array, HBM bandwidth, inter-chip interconnect (ICI) mesh
+- [ ] XLA compilation: HLO IR, fusion passes, layout assignment, SPMD partitioning
+- [ ] PyTorch/XLA: lazy tensor execution, <code>mark_step()</code>, SPMD mesh partitioning
+- [ ] AMD ROCm/HIP: near-identical to CUDA; wavefront size = 64 on CDNA; <code>hipify</code> for porting
+- [ ] CDNA (MI300X): 192 GB unified HBM3, no separate VRAM boundary
+- [ ] Groq LPU, Cerebras WSE-3, Gaudi: architectural tradeoffs at a conceptual level</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://henryhmko.github.io/posts/tpu/tpu.html">TPU Deep Dive — Henry Hmko</a> <em>(2 hrs)</em>
+- [ ] <a href="https://docs.pytorch.org/xla/master/learn/xla-overview.html">PyTorch/XLA Overview</a> <em>(2 hrs)</em>
+- [ ] <a href="https://rocm.docs.amd.com/projects/HIP/en/latest/understand/programming_model.html">HIP Programming Model — AMD ROCm Docs</a> <em>(2 hrs)</em>
+- [ ] <a href="https://introl.com/blog/ai-accelerators-beyond-gpus-tpu-trainium-gaudi-cerebras">AI Accelerators Beyond GPUs</a> <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Port a Triton <code>matmul</code> kernel to HIP using <code>hipify</code>. Run on ROCm (cloud MI300X instance or ROCm Docker). Document any wavefront-size or memory-layout differences. <em>(2.5 hrs)</em></p>
+<hr />
+<h3 id="week-20-interconnects-nccl-part-ii-capstone">Week 20 — Interconnects, NCCL, &amp; Part II Capstone</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] NVLink generations: NVLink 4.0 (H100, 900 GB/s bidirectional), NVSwitch fabric (all-to-all within DGX)
+- [ ] InfiniBand: NDR/XDR generations, fat-tree and dragonfly topologies, IBTA architecture
+- [ ] RDMA basics: memory registration, QP model, one-sided vs. two-sided operations
+- [ ] GPUDirect RDMA: NIC reads/writes GPU HBM directly over PCIe — eliminates one bounce copy
+- [ ] NCCL ring-AllReduce algorithm and bandwidth-latency tradeoff
+- [ ] Tree-AllReduce for small messages; hierarchical collectives (intra-node NVLink + inter-node IB)
+- [ ] NVSHMEM: device-initiated one-sided PUT/GET from within CUDA kernels</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://developer.nvidia.com/blog/scaling-deep-learning-training-nccl/">Scaling Deep Learning Training with NCCL</a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/html/2507.04786v1">Demystifying NCCL</a> <em>(3 hrs)</em>
+- [ ] <a href="https://www.juniper.net/content/dam/www/assets/white-papers/us/en/2024/juniper-artificial-intelligence-data-center-comparison-of-infiniband-and-rdma-over-converged-ethernet.pdf">InfiniBand vs. RoCE — Juniper White Paper</a> <em>(2 hrs)</em>
+- [ ] <a href="https://www.together.ai/blog/multi-node-gpu-training">Inside Multi-Node Training — Together.ai</a> <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Write a custom AllReduce using NCCL primitives (ReduceScatter + AllGather). Benchmark against <code>dist.all_reduce</code> at varying message sizes. Plot effective bus bandwidth vs. message size. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Part II):</strong> End-to-end kernel engineering capstone. Choose one: (a) fused FP8 attention with TMA + WGMMA, (b) INT8/FP8 GEMM with per-block dequantization epilogue vs. cuBLAS, or (c) roofline-guided optimization of an underperforming open-source kernel with 3 distinct improvements verified in Nsight Compute.</p>
+</blockquote>
+<hr />
+<h2 id="part-iii-training-at-scale">Part III — Training at Scale</h2>
+<blockquote>
+<p><strong>Goal:</strong> Extend beyond the ZeRO/Megatron basics to cover sequence parallelism, MoE training, data infrastructure, fault tolerance, efficient finetuning, and RLHF systems.</p>
+</blockquote>
+<h3 id="week-21-sequence-parallelism-context-parallelism">Week 21 — Sequence Parallelism &amp; Context Parallelism</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Why standard tensor parallelism doesn’t help with O(N²) attention memory at long contexts
+- [ ] Megatron-LM sequence parallelism: sharding LayerNorm/Dropout along the sequence dimension, using reduce-scatter/all-gather pairs instead of all-reduce
+- [ ] Ring Attention: blockwise attention with KV blocks passed ring-wise; communication overlaps with local attention computation
+- [ ] DeepSpeed Ulysses: all-to-all before QKV projection so each device attends to full sequence but a subset of heads; communication stays constant as sequence length and device count scale proportionally
+- [ ] Combining sequence parallelism with TP+PP (4D parallelism)
+- [ ] Context parallelism in Megatron-Core and TorchTitan</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2310.01889"><em>Ring Attention with Blockwise Transformers</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2309.14509"><em>DeepSpeed Ulysses</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://github.com/pytorch/torchtitan">TorchTitan</a> — docs + architecture <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement Ring Attention for a toy transformer using <code>torch.distributed</code>. Measure effective sequence length per GPU vs. standard DP at equal memory budget. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-22-moe-training-architecture-routing">Week 22 — MoE Training: Architecture &amp; Routing</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Sparse vs. dense compute: MoE activates K of N experts per token — decouples parameter count from FLOPs
+- [ ] Top-K routing, gating network, load balancing auxiliary loss
+- [ ] Switch Transformer: top-1 routing, capacity factor, token dropping under overflow
+- [ ] GShard: expert parallelism via XLA annotations across 2048 TPUs
+- [ ] Expert Choice routing: experts select tokens (inverted routing)
+- [ ] Token dropping vs. capacity buffer padding tradeoffs
+- [ ] MoE compute efficiency: 4× more compute-efficient than dense at low training budgets</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2101.03961"><em>Switch Transformers</em></a> <em>(4 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2006.16668"><em>GShard</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2401.04088"><em>Mixtral of Experts</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://cameronrwolfe.substack.com/p/moe-llms">Cameron Wolfe: MoE LLMs</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement a sparse MoE FFN layer in PyTorch with top-2 routing and load balancing loss. Train on a toy task and measure expert utilization over time. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-23-moe-training-systems-communication">Week 23 — MoE Training: Systems &amp; Communication</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Expert parallelism: sharding experts across devices, all-to-all communication for token dispatch and gather
+- [ ] Why all-to-all is latency-sensitive at small batch sizes — the key serving challenge
+- [ ] DeepSeek-MoE: fine-grained expert decomposition (mN sub-experts, mK active); shared expert mechanism
+- [ ] Megablocks: block-sparse matrix formulation eliminating token dropping; 40% faster than Tutel
+- [ ] Interaction between expert parallelism and TP/PP
+- [ ] Expert collapse: diagnosing and preventing degenerate routing</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2211.15841"><em>MegaBlocks: Efficient Sparse Training with MoE</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2401.06066"><em>DeepSeekMoE</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2412.14219">Survey on MoE Inference Optimization</a> — training sections <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Replace naïve token-padded expert dispatch in your MoE from Week 22 with a block-sparse implementation. Measure GPU utilization improvement. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 22–23):</strong> For a 47B MoE model (Mixtral-style, 8 experts, top-2), compute: (a) active parameters per token, (b) VRAM per GPU with EP=8, (c) all-to-all communication volume per forward pass. Compare to a 13B dense model with equivalent per-token FLOPs.</p>
+</blockquote>
+<hr />
+<h3 id="week-24-data-pipelines-for-pretraining">Week 24 — Data Pipelines for Pretraining</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] The data loading bottleneck: CPU throughput vs. GPU compute; profiling with DataLoader workers and async prefetch
+- [ ] WebDataset: tar-based sharded format, sequential streaming without random access
+- [ ] MosaicML StreamingDataset (MDS): deterministic ordering regardless of GPU count, mid-epoch resumption, multi-cloud support
+- [ ] NVIDIA DALI: GPU-accelerated preprocessing pipeline; eliminates CPU bottleneck for image/video/audio
+- [ ] Tokenization at scale: pre-tokenizing and caching, memory-mapped numpy arrays for zero-copy loading
+- [ ] Dataset mixing and weighting: sampling proportions, upsampling high-quality data
+- [ ] Data quality filtering: MinHash LSH deduplication, perplexity filtering, rule-based heuristics, toxic content filtering</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://github.com/mosaicml/streaming">MosaicML StreamingDataset</a> — docs <em>(3 hrs)</em>
+- [ ] <a href="https://docs.nvidia.com/deeplearning/dali/user-guide/docs/">NVIDIA DALI Documentation</a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2203.15556"><em>Training Compute-Optimal Large Language Models</em> (Chinchilla)</a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2302.13971"><em>LLaMA</em></a> — data pipeline section <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Build a streaming data pipeline using MosaicML StreamingDataset. Profile data loading throughput (samples/sec) and measure how many DataLoader workers are needed to saturate a single GPU. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-25-fault-tolerance-large-scale-reliability">Week 25 — Fault Tolerance &amp; Large-Scale Reliability</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] The scale problem: at 1000 GPUs, MTBF is hours not days
+- [ ] Full checkpointing vs. sharded checkpointing (PyTorch DCP): save/load cost comparison
+- [ ] Async checkpointing: save to host CPU memory in background while training continues
+- [ ] NCCL error handling: <code>NCCL_ASYNC_ERROR_HANDLING</code>, timeout detection, error propagation to Python
+- [ ] Elastic training: <code>torch.distributed.elastic</code> (<code>torchrun</code>), job preemption and resumption
+- [ ] SLURM integration: <code>--signal</code> flag, <code>SIGUSR1</code> for preemption-aware checkpointing
+- [ ] Monitoring: per-GPU throughput tracking, NaN/inf gradient detection, loss anomaly detection</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://huggingface.co/blog/bloom-megatron-deepspeed">BLOOM Training Chronicle</a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2205.01068">OPT-175B Training Logbook</a> <em>(3 hrs)</em>
+- [ ] <a href="https://pytorch.org/docs/stable/distributed.elastic.html">TorchElastic / <code>torchrun</code> documentation</a> <em>(2 hrs)</em>
+- [ ] <a href="https://pytorch.org/docs/stable/distributed.checkpoint.html">PyTorch Distributed Checkpoint (DCP) documentation</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement async sharded checkpointing for a distributed training job. Simulate a mid-training failure. Measure recovery time vs. full checkpoint. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-26-efficient-finetuning-lora-qlora-peft">Week 26 — Efficient Finetuning: LoRA, QLoRA, PEFT</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Full finetuning memory breakdown: 16 bytes/param total (weights + gradients + Adam states)
+- [ ] LoRA: injecting trainable W = BA into each attention projection; rank-r reduces trainable params by up to 10,000×; weights merge at inference — no latency cost
+- [ ] QLoRA: NF4 quantization of frozen base + double quantization + paged optimizers; enables 65B finetuning on a single 48GB GPU
+- [ ] PEFT library internals: <code>get_peft_model()</code>, <code>merge_and_unload()</code>, distributed training with FSDP + PEFT
+- [ ] IA3: learns three scaling vectors rather than low-rank matrices — even fewer trainable params than LoRA</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2106.09685"><em>LoRA: Low-Rank Adaptation of Large Language Models</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2305.14314"><em>QLoRA: Efficient Finetuning of Quantized LLMs</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://huggingface.co/docs/peft">Hugging Face PEFT Library</a> <em>(3 hrs)</em>
+- [ ] <a href="https://github.com/huggingface/smol-course">TRL smol-course</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Finetune LLaMA-3-8B using: (a) full finetuning with FSDP, (b) LoRA rank-8, (c) QLoRA 4-bit. Record peak memory, training throughput, and eval accuracy for each. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 24–26):</strong> Build a complete finetuning pipeline: streaming data loading → QLoRA training with async checkpointing → PEFT weight merge → evaluation. Document the memory and throughput profile at each stage.</p>
+</blockquote>
+<hr />
+<h3 id="week-27-rlhf-systems-sft-reward-models-ppo">Week 27 — RLHF Systems: SFT, Reward Models &amp; PPO</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Why RLHF changes the training topology: four model instances coexist (Actor, Critic, Reward Model, Reference Model)
+- [ ] Reference model and KL penalty: frozen initial policy produces per-token log-probs used in KL term <code>r_θ - λ * KL(π || π_ref)</code>
+- [ ] The rollout bottleneck: generating on-policy samples is ~80% of wall-clock time in PPO
+- [ ] OpenRLHF architecture: Ray orchestrates model groups; vLLM handles generation; DeepSpeed ZeRO-3 handles training
+- [ ] SFT infrastructure: sequence packing, efficient attention masking for packed sequences
+- [ ] Reward model training: Bradley-Terry preference model, ranking loss, process reward models (PRMs)</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://huggingface.co/blog/rlhf">Illustrating RLHF</a> — Hugging Face <em>(1.5 hrs)</em>
+- [ ] <a href="https://github.com/OpenRLHF/OpenRLHF">OpenRLHF</a> — docs + architecture <em>(5 hrs)</em>
+- [ ] <a href="https://huggingface.co/docs/trl">TRL Documentation</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Run a full PPO training loop on a 7B model using OpenRLHF. Profile wall-clock time split between rollout generation and model updates. Measure how vLLM integration affects total throughput. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-28-rlhf-algorithm-variants-dpo-grpo-beyond">Week 28 — RLHF Algorithm Variants: DPO, GRPO &amp; Beyond</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] DPO: reformulates RLHF as a classification loss; no reward model or RL loop at training time; implicit reward is <code>log(π_θ(y_w|x)/π_ref(y_w|x)) - log(π_θ(y_l|x)/π_ref(y_l|x))</code>
+- [ ] GRPO: eliminates critic network; normalizes rewards within a group of sampled outputs; reduces memory by removing the value network
+- [ ] RLOO: leave-one-out baseline within a group of K samples; simpler than GRPO
+- [ ] KTO: aligns using binary feedback (thumbs up/down); avoids need for paired data
+- [ ] ORPO: combines SFT + preference loss in a single stage; no reference model needed
+- [ ] Online vs. offline: DPO/KTO are offline; PPO/GRPO/RLOO are online (generate on-policy rollouts every step)</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2305.18290"><em>Direct Preference Optimization</em></a> — Rafailov et al. <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2402.03300"><em>DeepSeekMath</em> — GRPO derivation</a> <em>(3 hrs)</em>
+- [ ] <a href="https://huggingface.co/blog/putting-rl-back-in-rlhf">Putting RL back in RLHF</a> — Hugging Face <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Train LLaMA-3-8B with DPO on a preference dataset. Compare reward margin and eval performance against the PPO run from Week 27. Measure training memory and time per step. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Part III):</strong> Full RLHF pipeline: streaming data loading → QLoRA SFT → DPO training with async checkpointing → evaluation. Document GPU memory, throughput, and reward statistics at each stage.</p>
+</blockquote>
+<hr />
+<h2 id="part-iv-advanced-inference">Part IV — Advanced Inference</h2>
+<blockquote>
+<p><strong>Goal:</strong> Go deep on long-context serving, next-generation quantization, model compression, advanced speculative decoding, disaggregated inference, and production-grade serving infrastructure.</p>
+</blockquote>
+<h3 id="week-29-long-context-inference-position-encodings">Week 29 — Long-Context Inference: Position Encodings</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] RoPE mechanics: encoding relative position as a rotation in the complex plane via <code>e^(imθ)</code>
+- [ ] Why naive RoPE extrapolation fails beyond training sequence length
+- [ ] Position interpolation (PI): linearly scaling position indices to fit within training range
+- [ ] NTK-aware interpolation: applying PI non-uniformly across frequency components
+- [ ] YaRN: ramp function + temperature correction for improved long-context performance
+- [ ] LongRoPE: frequency-domain analysis of dimension-wise scaling</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2309.00071"><em>YaRN: Efficient Context Window Extension of Large Language Models</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://blog.eleuther.ai/yarn/">EleutherAI blog: Extending the RoPE</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2310.01889">Ring Attention for inference</a> — inference section <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Extend LLaMA-3-8B to 32K context using YaRN. Measure perplexity at 4K, 8K, 16K, 32K and compare to a model without YaRN. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-30-long-context-inference-kv-cache-management">Week 30 — Long-Context Inference: KV Cache Management</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Chunked prefill: splitting long-prompt prefill into chunks to reduce head-of-line blocking
+- [ ] Prefix caching: radix-tree KV reuse across requests sharing common prefixes
+- [ ] H2O (Heavy-Hitter Oracle): evicting KV entries based on attention mass
+- [ ] SnapKV: query-guided one-shot per-layer token selection before generation
+- [ ] StreamingLLM: attention sinks + recency window for infinite-length generation with fixed VRAM
+- [ ] SAGE-KV: one-shot token/head-level top-k eviction</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/28ab418242603e0f7323e54185d19bde-Paper-Conference.pdf"><em>SnapKV</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://blog.vllm.ai/2025/09/05/anatomy-of-vllm.html">vLLM blog: Anatomy of a High-Throughput LLM Inference System</a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2309.17453"><em>StreamingLLM</em></a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement H2O KV eviction on top of a vLLM-served model. Measure perplexity degradation vs. memory savings at 50% cache budget. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 29–30):</strong> For a LLaMA-3-70B model on 4×A100 with tensor parallelism, compute: (a) baseline KV cache size at seqlen=32K, batch=8, (b) memory savings under 50% H2O eviction, (c) latency impact of chunked prefill at different chunk sizes.</p>
+</blockquote>
+<hr />
+<h3 id="week-31-advanced-quantization-fp8-gguf-and-extreme-low-bit">Week 31 — Advanced Quantization: FP8, GGUF, and Extreme Low-Bit</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] FP8 floating-point formats: E4M3 (range-optimized) vs. E5M2 (precision-optimized), scaling and saturation behavior
+- [ ] FP8 inference on Hopper/Ada: NVIDIA TransformerEngine <code>fp8_autocast</code> API
+- [ ] SmoothQuant: migrating quantization difficulty from activations to weights via per-channel scaling; joint W8A8
+- [ ] GGUF format: K-quant families (Q2_K through Q6_K), block-scale encoding, CPU/GPU hybrid execution
+- [ ] QuIP#: Hadamard incoherence processing + E8 lattice codebooks for 2-bit weights
+- [ ] AQLM: additive quantization with learned codebooks; training cost vs. inference speed
+- [ ] Mixed-precision quantization: per-layer bit selection via sensitivity analysis
+- [ ] Calibration dataset design: representativeness, domain shift effects</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/examples/fp8_primer.html">NVIDIA TransformerEngine FP8 Primer</a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2402.04396"><em>QuIP#</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2401.06118"><em>AQLM</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/pdf/2601.14277">Which Quantization Should I Use? (systematic comparison)</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Benchmark LLaMA-3-8B in fp16, int8 (SmoothQuant), int4 (GPTQ), FP8 (TE), and GGUF Q4_K_M. Record throughput (tokens/sec), TTFT, and perplexity. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-32-model-compression-pruning-distillation">Week 32 — Model Compression: Pruning &amp; Distillation</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Unstructured pruning: magnitude pruning, SparseGPT (Hessian-based layer-wise), Wanda (weight × activation magnitude criterion)
+- [ ] Structured pruning: head pruning, layer pruning, width pruning; hardware-efficiency tradeoffs
+- [ ] 2:4 structured sparsity: what NVIDIA sparse tensor cores require
+- [ ] Knowledge distillation at scale: sequence-level vs. token-level losses, forward KL vs. reverse KL (MiniLLM)
+- [ ] NVIDIA Minitron: structured pruning + short distillation fine-tune as production recipe
+- [ ] Combined pipelines: prune → distill → quantize stacking</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2306.11695"><em>Wanda: A Simple and Effective Pruning Method</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2306.08543"><em>MiniLLM: Knowledge Distillation of Large Language Models</em></a> <em>(2.5 hrs)</em>
+- [ ] <a href="https://dl.acm.org/doi/10.1145/3728636">ACM Efficient Compressing and Tuning Methods for LLMs</a> — survey <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Apply Wanda unstructured pruning to LLaMA-3-8B at 50% sparsity. Measure throughput change (hint: unstructured sparsity doesn’t help on dense hardware) then apply 2:4 structural pattern and remeasure. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-33-advanced-speculative-decoding">Week 33 — Advanced Speculative Decoding</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Review: draft-model speculative decoding, acceptance rate, expected speedup derivation
+- [ ] Medusa: multiple decoding heads on frozen backbone; Medusa-1 (frozen LM) vs. Medusa-2 (joint fine-tune); predicts positions +1…+5
+- [ ] Tree-structured candidate verification: constructing a candidate tree, batching the verify forward pass, token acceptance mask
+- [ ] EAGLE-1: draft at the feature level (not token level) using a shallow auto-regressive head on frozen LM embeddings
+- [ ] EAGLE-2: context-aware dynamic draft tree; confidence-score-based acceptance rate; 20–40% faster than EAGLE-1
+- [ ] Self-speculative decoding (layer skipping): same model with skipped layers as draft — no auxiliary model needed</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2401.10774"><em>Medusa</em></a> <em>(2.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2401.15077"><em>EAGLE</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2406.16858"><em>EAGLE-2</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://blog.vllm.ai/2024/10/17/spec-decode.html">vLLM blog: Speculative Decoding up to 2.8×</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Enable Medusa and EAGLE-2 in vLLM for LLaMA-3-8B. Measure speedup at greedy and temperature=1 decoding. Compare acceptance rates. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 31–33):</strong> Given a 70B model with 50% Wanda pruning + AQLM 2-bit quantization + EAGLE-2 speculative decoding: estimate theoretical tokens/sec vs. the uncompressed baseline. Identify which technique gives the highest throughput-per-quality-point tradeoff.</p>
+</blockquote>
+<hr />
+<h3 id="week-34-disaggregated-distributed-inference">Week 34 — Disaggregated &amp; Distributed Inference</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Why prefill and decode have fundamentally different compute/memory profiles (roofline)
+- [ ] Splitwise: phase splitting onto heterogeneous hardware (H100 prefill / A100 decode), KV migration protocol
+- [ ] DistServe: goodput-optimized disaggregation, independent parallelism strategies per phase
+- [ ] Tensor parallelism for inference: column/row partition, all-reduce cost
+- [ ] Multi-GPU vLLM: <code>--tensor-parallel-size</code>, worker topology, NVLink vs. PCIe bandwidth sensitivity
+- [ ] 2025 landscape: disaggregation as the default (NVIDIA Dynamo, SGLang, LMCache)</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2401.09670"><em>DistServe</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://haoailab.com/blogs/distserve-retro/">Hao AI Lab: Disaggregated Inference 18 Months Later</a> <em>(1 hr)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/introducing-nvidia-dynamo-a-low-latency-distributed-inference-framework-for-scaling-reasoning-ai-models/">NVIDIA Dynamo announcement</a> <em>(1 hr)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Deploy LLaMA-3-70B with tensor parallelism across 2 GPUs using vLLM. Measure TTFT and throughput vs. single-GPU with 4-bit quantization. Identify which strategy gives better throughput/VRAM tradeoff. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-35-production-serving-infrastructure">Week 35 — Production Serving Infrastructure</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] SLO taxonomy: TTFT, TBT (time-between-tokens), P50/P99 targets
+- [ ] SLO-aware scheduling: global queue management, preemption, priority classes
+- [ ] Load balancing across replicas: session affinity for prefix cache hits, least-outstanding-requests
+- [ ] Autoscaling: request-rate-based vs. queue-depth-based triggers, custom Prometheus metrics, K8s HPA
+- [ ] Triton Inference Server: model repository, backend API, dynamic batching, ensemble models
+- [ ] TensorRT-LLM: plugin system, inflight batching, paged KV cache, quantized kernel dispatch
+- [ ] Cost modeling: $/token, GPU utilization targets, spot instance fault tolerance</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/html/2504.14966v2">SLO-Aware Scheduling for LLM Inferences</a> <em>(2.5 hrs)</em>
+- [ ] <a href="https://aws.amazon.com/blogs/hpc/scaling-your-llm-inference-workloads-multi-node-deployment-with-tensorrt-llm-and-triton-on-amazon-eks/">AWS: Multi-node TensorRT-LLM + Triton on EKS</a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2505.01658">A Survey on Inference Engines for LLMs</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Deploy LLaMA-3-8B with TensorRT-LLM + Triton Inference Server. Set TTFT P99 &lt; 500ms as an SLO. Measure max throughput (tokens/sec) while holding the SLO. <em>(4 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Part IV):</strong> End-to-end serving system: FP8-quantized 70B model on disaggregated prefill/decode infrastructure, with SLO-aware scheduling, autoscaling, and cost monitoring. Document latency, throughput, GPU utilization, and $/token achieved.</p>
+</blockquote>
+<hr />
+<h2 id="part-v-emerging-architectures">Part V — Emerging Architectures</h2>
+<blockquote>
+<p><strong>Goal:</strong> Understand Mamba/SSMs, MoE inference, linear attention variants, diffusion systems, and advanced multimodal architectures — always through the systems lens of compute, memory, and parallelism.</p>
+</blockquote>
+<h3 id="week-36-state-space-models-mamba">Week 36 — State Space Models: Mamba</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Selective SSM recurrence: input-dependent (A, B, C) parameters break time-invariance — preventing FFT shortcut
+- [ ] Parallel associative scan: the core primitive — associativity of state-update operator, tree reduction, work vs. depth analysis
+- [ ] Mamba’s kernel fusion: why the naïve sequential scan is memory-bandwidth-bound; how kernel fusion eliminates HBM materialization (analogous to FlashAttention tiling)
+- [ ] Inference memory profile: O(1) KV-cache equivalent — fixed-size recurrent state regardless of sequence length
+- [ ] Mamba-2 / SSD (Structured State Space Duality): reformulating selective SSM as semiseparable matrix multiplication; enables tensor-core utilization; 2–8× speedup over Mamba-1</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2312.00752"><em>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</em></a> <em>(4 hrs)</em>
+- [ ] <a href="https://tridao.me/blog/2024/mamba2-part1-model/">Tri Dao: SSD Blog series (Parts I–III)</a> <em>(3 hrs)</em>
+- [ ] <a href="https://pli.princeton.edu/blog/2024/mamba-2-algorithms-and-systems">Princeton PLI: Mamba-2 Algorithms and Systems</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement the Mamba selective scan in pure PyTorch. Verify output matches the reference implementation. Profile memory usage at seqlen 4K, 16K, 64K — compare to FlashAttention-2. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-37-mamba-2-triton-scan-kernels-hybrid-architectures">Week 37 — Mamba-2, Triton Scan Kernels &amp; Hybrid Architectures</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Mamba-2/SSD: block-decomposable structure enabling sequence parallelism across devices
+- [ ] Implementing efficient parallel scan in Triton: tile sizes, recomputation vs. checkpointing of states, variable-length batches
+- [ ] Hybrid architectures (Jamba, Zamba): the 1:7 attention-to-Mamba ratio; interleaved MoE layers; systems implications for serving
+- [ ] flash-linear-attention library: unified Triton kernels for GLA/Mamba/RWKV</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2405.21060"><em>Mamba-2 / SSD</em></a> <em>(5 hrs)</em>
+- [ ] <a href="https://srush.github.io/annotated-mamba/hard.html">Mamba: The Hard Way — Sasha Rush (annotated Triton)</a> <em>(6 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2403.19887"><em>Jamba: Hybrid Transformer-Mamba Language Model</em></a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement a simplified parallel selective scan in Triton. Benchmark against the sequential Mamba reference at seqlen 1K→64K. Measure FLOP/s and memory bandwidth utilization. <em>(4 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 36–37):</strong> Build a Mamba-2 inference server. Measure: (a) per-token VRAM at seqlen 1K vs. 64K vs. 256K (should be constant), (b) throughput vs. an equivalent-parameter transformer at each seqlen, (c) the crossover point where Mamba becomes faster.</p>
+</blockquote>
+<hr />
+<h3 id="week-38-moe-architecture-inference-serving">Week 38 — MoE Architecture &amp; Inference Serving</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Sparse MoE inference: expert weight storage, all-to-all routing, GPU utilization at small batch sizes
+- [ ] Expert offloading: streaming expert weights from CPU DRAM; expert prediction/caching to reduce transfer cost
+- [ ] Serving Mixtral 8×7B and DeepSeek-MoE: how vLLM/SGLang handle expert-parallel routing at batching time
+- [ ] MoE vs. dense at inference: same FLOPs per token, 4× more parameters — memory bandwidth bottleneck is worse</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2112.10684"><em>Efficient Large Scale Language Modeling with MoE</em></a> — empirical efficiency study <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2412.14219">Survey on MoE Inference Optimization</a> — inference sections <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2401.06066">DeepSeekMoE</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Serve Mixtral-8×7B with vLLM. Profile GPU memory and expert routing distribution. Measure how batch size affects expert utilization and throughput. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-39-linear-attention-hybrid-architectures">Week 39 — Linear Attention &amp; Hybrid Architectures</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Kernel-trick reformulation of softmax attention: replacing <code>exp(qᵀk)</code> with <code>φ(q)ᵀφ(k)</code> — the root of O(1)-memory inference
+- [ ] Why pure linear attention underperforms: missing normalizer term, forgetting over long sequences
+- [ ] GLA (Gated Linear Attention): chunked-form training kernel in Triton; faster than FlashAttention-2 at 1K seqlen
+- [ ] RWKV dual-mode: parallel training (WKV operator along sequence) vs. pure RNN inference (O(1) per-token, fixed VRAM)
+- [ ] RetNet: decay matrix as structured (diagonal + low-rank) operator enabling efficient chunkwise computation
+- [ ] flash-linear-attention: how subquadratic kernels share the same tiling and recomputation strategy as FlashAttention</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2312.06635"><em>GLA: Gated Linear Attention Transformers with Hardware-Efficient Training</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2305.13048"><em>RWKV: Reinventing RNNs for the Transformer Era</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://github.com/fla-org/flash-linear-attention">flash-linear-attention</a> — code + docs <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Benchmark GLA vs. FlashAttention-2 vs. Mamba at seqlen 512, 1K, 2K, 4K, 8K. Plot throughput (tokens/sec) and memory per token. Identify the regime where each is fastest. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-40-diffusion-model-systems-samplers-architectures">Week 40 — Diffusion Model Systems: Samplers &amp; Architectures</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] DDPM reverse process: N forward passes per image — O(N × model_FLOPs) inference cost
+- [ ] DDIM and DPM-Solver: deterministic ODE-based samplers reducing steps from ~1000 to 10–20 without retraining
+- [ ] Flow matching: velocity field over straight ODE trajectories — fewer NFEs at inference; numerically better-conditioned
+- [ ] Consistency models: self-consistency along ODE trajectory → single-step inference
+- [ ] DiT (Diffusion Transformer) vs. U-Net: patching the latent space with a ViT backbone; uniform FLOP distribution per layer; simpler tensor parallelism</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2212.09748"><em>DiT: Scalable Diffusion Models with Transformers</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2206.00927"><em>DPM-Solver</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2210.02747"><em>Flow Matching for Generative Modeling</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://github.com/AIoT-MLSys-Lab/Efficient-Diffusion-Model-Survey">Efficient Diffusion Models Survey</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Profile DiT-XL/2 inference. Measure latency at 50 steps (DDPM) vs. 10 steps (DPM-Solver) vs. 1 step (consistency). Plot quality (FID) vs. latency tradeoff. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-41-diffusion-serving-distributed-execution">Week 41 — Diffusion Serving &amp; Distributed Execution</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Batching strategies for diffusion: requests are embarrassingly parallel within a batch; variable CFG guidance scale complicates batching
+- [ ] DistriFusion: asynchronous parallel denoising over devices — exploiting temporal redundancy across steps
+- [ ] PipeFusion: pipeline parallelism across transformer layers for DiT
+- [ ] Long-context sparse attention patterns: BigBird’s random + local + global, Longformer sliding-window + global
+- [ ] ALiBi: per-head linear bias on attention logits proportional to distance — no positional embedding parameters; generalizes to unseen lengths</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2007.14062"><em>BigBird: Transformers for Longer Sequences</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2302.10866"><em>Hyena Hierarchy</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2507.19595">Efficient Attention Mechanisms for LLMs Survey</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement DistriFusion for DiT-XL/2 inference across 2 GPUs. Compare latency to single-GPU at the same step count. Measure communication overhead. <em>(3 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Weeks 40–41):</strong> For a DiT-XL/2 model serving at 256 requests/sec, design an architecture: (a) step count vs. quality tradeoff using DPM-Solver, (b) batching strategy with variable CFG, (c) multi-GPU with DistriFusion — estimate total GPU count needed to hit 100ms TTFT P99.</p>
+</blockquote>
+<hr />
+<h3 id="week-42-advanced-multimodal-video-audio">Week 42 — Advanced Multimodal: Video &amp; Audio</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] ViT FLOP profile: patch count <code>n = (H × W) / p²</code> grows quadratically with resolution — direct analogy to seqlen scaling
+- [ ] Image tokenization tradeoffs: continuous patch embeddings vs. discrete VQ-VAE tokens; 32-token tokenization (NeurIPS 2024)
+- [ ] Video model systems: naive 3D attention is O((T·H·W)²); space-time factored attention; sliding-window temporal attention; memory management for long video sequences
+- [ ] Frame batching strategies: independent frames (cheap, no temporal coherence) vs. tubelet embeddings (3D patch tokens)
+- [ ] Audio models (Whisper, EnCodec): spectrogram-to-patch tokenization, streaming inference, causal attention latency constraints
+- [ ] Cross-modal fusion: Q-Former / cross-attention layers (BLIP-2, Flamingo) vs. simple projection (LLaVA)</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://arxiv.org/abs/2010.11929"><em>An Image is Worth 16×16 Words: ViT</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/e91bf7dfba0477554994c6d64833e9d8-Paper-Conference.pdf"><em>An Image is Worth 32 Tokens for Reconstruction and Generation</em></a> <em>(2 hrs)</em>
+- [ ] <a href="https://openreview.net/pdf?id=yGnsH3gQ6U">Image and Video Tokenization (ICLR 2025)</a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2503.02891">Vision Transformers on the Edge: Model Compression Survey</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Serve a video-language model (e.g., LLaVA-Video or VideoLLaMA). Profile: (a) video tokenization latency vs. LLM prefill vs. decode, (b) how video length and resolution affect KV cache size and TTFT. <em>(4 hrs)</em></p>
+<blockquote>
+<p><strong>Milestone (Part V):</strong> Implement a Mamba-2 parallel scan kernel and benchmark it end-to-end: compare throughput, memory, and quality against FlashAttention-2 at seqlens from 2K to 256K. Write a one-page analysis of which architecture you’d choose for which use case.</p>
+</blockquote>
+<hr />
+<h2 id="part-vi-compilers-infrastructure">Part VI — Compilers &amp; Infrastructure</h2>
+<blockquote>
+<p><strong>Goal:</strong> Understand the full compiler stack from MLIR down to PTX, the internals of automatic differentiation, memory allocation, and production MLOps infrastructure.</p>
+</blockquote>
+<h3 id="week-43-compiler-ir-theory-mlir">Week 43 — Compiler IR Theory &amp; MLIR</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] SSA (Static Single Assignment): basic blocks, CFGs, dominance frontiers, liveness analysis, φ-functions
+- [ ] MLIR architecture: op, attribute, type, region, block; built-in dialects (<code>func</code>, <code>arith</code>, <code>affine</code>, <code>linalg</code>, <code>memref</code>, <code>scf</code>)
+- [ ] Dialect conversion framework and the Transform dialect for compiler-controlled transformations
+- [ ] Lowering chains: MLIR → LLVM dialect → LLVM IR → PTX
+- [ ] torch.compile internals: Dynamo bytecode interception (PEP 523), FX graph, guard mechanism, graph breaks</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://pfalcon.github.io/ssabook/latest/book-full.pdf">SSA-Based Compiler Design (free PDF)</a> — selective chapters <em>(5 hrs)</em>
+- [ ] <a href="https://mlir.llvm.org/docs/Tutorials/Toy/">MLIR Toy Tutorial Chapters 1–6</a> <em>(8 hrs)</em>
+- [ ] <a href="https://depyf.readthedocs.io/en/latest/walk_through.html">depyf: decompiles torch.compile bytecode</a> <em>(3 hrs)</em>
+- [ ] <a href="https://docs.pytorch.org/docs/stable/user_guide/torch_compiler/torch.compiler_dynamo_deepdive.html">PyTorch Dynamo Deep-Dive</a> <em>(4 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Complete all 6 chapters of the MLIR Toy tutorial. Then use <code>depyf</code> to inspect the Dynamo FX graph of a transformer forward pass. Identify 3 graph breaks and explain what causes them. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-44-tvm-xla-autotuning">Week 44 — TVM, XLA &amp; Autotuning</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] TVM / TensorIR: first-class schedulable IR; MetaSchedule stochastic search space (block tiling, loop reordering, vectorization); how tuning records are stored
+- [ ] Ansor: program search space for high-performance tensor programs; cost-model-driven auto-scheduling
+- [ ] XLA HLO instruction set: algebraic simplification, fusion, layout assignment, buffer assignment
+- [ ] XLA SPMD partitioner: sharding annotations, per-op partitioning semantics, automatic collective insertion
+- [ ] GSPMD: generalizing SPMD to arbitrary parallelism strategies</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://mlc.ai/courses.html">Machine Learning Compilation (MLC) course</a> — TensorIR + MetaSchedule chapters <em>(8 hrs)</em>
+- [ ] <a href="https://openxla.org/xla/gpu_architecture">OpenXLA GPU Architecture Overview</a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/pdf/2105.04663"><em>GSPMD</em></a> <em>(3 hrs)</em>
+- [ ] <a href="https://arxiv.org/pdf/2006.06762"><em>Ansor</em></a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Autotune a matrix multiplication using TVM MetaSchedule. Compare achieved FLOP/s to: (a) a naive implementation, (b) cuBLAS, (c) your hand-written Triton kernel. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-45-automatic-differentiation-systems">Week 45 — Automatic Differentiation Systems</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] JVP (forward-mode AD) as Jacobian–vector product; VJP (reverse-mode) as vector–Jacobian product
+- [ ] Why reverse mode dominates for ML: O(m) VJPs vs. O(n) JVPs for n-input, m-output functions
+- [ ] JAX transformation model: <code>jax.jvp</code>, <code>jax.vjp</code>, <code>jax.grad</code>; Jaxpr as the internal lambda calculus IR
+- [ ] <code>vmap</code> as a batch-dimension lifting transformation; how <code>jit</code> + <code>vmap</code> + <code>grad</code> compose
+- [ ] Custom derivatives in JAX: <code>custom_jvp</code> and <code>custom_vjp</code> for non-differentiable ops and numerical stability fixes
+- [ ] PyTorch autograd internals: dynamic computation graph, <code>Function.forward</code>/<code>backward</code>, <code>AccumulateGrad</code> nodes, C++ engine thread pool
+- [ ] AOTAutograd: ahead-of-time joint forward+backward graph capture; why graph breaks hurt backward compilation</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://docs.jax.dev/en/latest/notebooks/autodiff_cookbook.html">JAX Autodiff Cookbook</a> <em>(4 hrs)</em>
+- [ ] <a href="https://docs.jax.dev/en/latest/jacobian-vector-products.html">JAX JVP/VJP documentation</a> <em>(2 hrs)</em>
+- [ ] <a href="https://docs.jax.dev/en/latest/notebooks/Custom_derivative_rules_for_Python_code.html">JAX Custom derivative rules</a> <em>(2 hrs)</em>
+- [ ] <a href="https://pytorch.org/blog/computational-graphs-constructed-in-pytorch/">How Computational Graphs are Constructed in PyTorch</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Implement a custom <code>vjp</code> in JAX for numerically stable log-softmax. Verify the gradient matches <code>jax.grad</code> on stable inputs but doesn’t NaN on extreme inputs. Then implement the same in PyTorch with <code>torch.autograd.Function</code>. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-46-memory-management-allocators">Week 46 — Memory Management &amp; Allocators</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] PyTorch CUDA caching allocator: block splitting and reuse, per-stream caching, rounding policy, when <code>cudaMalloc</code>/<code>cudaFree</code> are actually called
+- [ ] Memory fragmentation: external fragmentation from variable-size tensors across streams; <code>max_split_size_mb</code>; <code>PYTORCH_CUDA_ALLOC_CONF</code> knobs
+- [ ] <code>cudaMallocAsync</code> backend: CUDA 11.4+ virtual memory pools, stream-ordered allocation semantics; when it beats the native allocator
+- [ ] Memory snapshot tooling: <code>torch.cuda.memory._record_memory_history()</code> + <code>_dump_snapshot()</code> + pytorch.org/memory_viz
+- [ ] Gradient checkpointing + activation CPU offload: separate CUDA streams for overlap; FSDP + offload combinations</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://zdevito.github.io/2022/08/04/cuda-caching-allocator.html">A Guide to PyTorch’s CUDA Caching Allocator — Zach DeVito</a> <em>(2.5 hrs)</em>
+- [ ] <a href="https://pytorch.org/blog/understanding-gpu-memory-1/">Understanding GPU Memory 1: Visualizing All Allocations over Time</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://docs.pytorch.org/docs/stable/notes/cuda.html">PyTorch CUDA semantics — <code>PYTORCH_CUDA_ALLOC_CONF</code> reference</a> <em>(1 hr)</em>
+- [ ] <a href="https://docs.pytorch.org/torchtune/0.5/tutorials/memory_optimizations.html">torchtune: Memory Optimization Overview</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Capture a memory snapshot for a distributed training run with FSDP ZeRO-3. Use pytorch.org/memory_viz to identify the peak allocation event. Reduce peak memory by 20% through allocator tuning and partial activation offload. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-47-nccl-deep-dive">Week 47 — NCCL Deep Dive</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] NCCL ring-AllReduce: bandwidth-optimal for large messages; latency formula <code>O(2(n-1)/n × α + 2(n-1)/n × β × M)</code>
+- [ ] Double binary tree: logarithmic latency with full bandwidth; when to prefer tree over ring
+- [ ] NCCL protocols: <code>Simple</code> (bandwidth-optimal), <code>LL</code> (latency-optimal 8-byte writes), <code>LL128</code> (balanced); dynamic selection based on message size
+- [ ] NCCL tuning: <code>NCCL_ALGO</code>, <code>NCCL_PROTO</code>, channel count, thread count; benchmarking with <code>nccl-tests</code>
+- [ ] Compute-communication overlap: async collectives on separate CUDA streams; NCCL 2.28 copy-engine collectives
+- [ ] SHARP: in-network reduction on InfiniBand switches — eliminating the final merge step</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://developer.nvidia.com/blog/understanding-nccl-tuning-to-accelerate-gpu-to-gpu-communication/">Understanding NCCL Tuning</a> <em>(2 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/fast-multi-gpu-collectives-nccl/">Fast Multi-GPU Collectives with NCCL</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://developer.nvidia.com/blog/fusing-communication-and-compute-with-new-device-api-and-copy-engine-collectives-in-nvidia-nccl-2-28/">NCCL 2.28 Copy Engine Collectives</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://arxiv.org/html/2507.04786v1">Demystifying NCCL</a> <em>(3 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Use <code>nccl-tests</code> to benchmark AllReduce across 2 and 8 GPUs at message sizes 1KB to 1GB. Plot bus bandwidth vs. message size. Identify the crossover between latency-dominated and bandwidth-dominated regimes. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-48-deployment-production-infrastructure">Week 48 — Deployment &amp; Production Infrastructure</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Experiment tracking: MLflow (runs, artifacts, model registry) vs. W&amp;B (sweeps, artifact versioning, comparison); when to use which
+- [ ] ONNX export pipeline: <code>torch.onnx.export</code> dynamo-based path; opset versioning; ONNX Runtime graph optimization levels (basic, extended, all); execution provider selection (CUDA EP, TensorRT EP)
+- [ ] Kubernetes for ML: resource requests/limits for GPU pods (<code>nvidia.com/gpu</code>), Kubeflow Pipelines, KubeRay, autoscaling GPU node pools
+- [ ] Cost optimization: spot/preemptible instances, bin-packing, inference-time quantization, request batching</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://onnxruntime.ai/docs/performance/model-optimizations/graph-optimizations.html">ONNX Runtime — Graph Optimizations</a> <em>(2 hrs)</em>
+- [ ] <a href="https://onnxruntime.ai/docs/execution-providers/">ONNX Runtime — Execution Providers</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://docs.ray.io/en/latest/ray-air/getting-started.html">Ray for ML Infrastructure</a> <em>(4 hrs)</em>
+- [ ] <a href="https://fullstackdeeplearning.com/spring2021/lecture-6/">Full Stack Deep Learning Lecture 6: MLOps</a> <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Export LLaMA-3-8B to ONNX. Deploy with ONNX Runtime using the TensorRT EP. Compare latency to vLLM serving. Identify which graph optimizations ONNX Runtime applies automatically. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-49-advanced-profiling-distributed-debugging">Week 49 — Advanced Profiling &amp; Distributed Debugging</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Nsight Compute kernel analysis: SOL section, Memory Workload Analysis chart, Warp State Statistics stall taxonomy, Scheduler Statistics, Source/SASS views for line-level attribution
+- [ ] Nsight Systems: NVTX range annotations, correlating host-side Python/C++ with device execution, multi-node traces for straggler identification
+- [ ] Distributed training debugging: <code>NCCL_DEBUG=INFO</code>, rank asymmetry (one rank hangs while others wait), common NCCL error classes (mismatched tensor shapes/dtypes, communicator reuse bugs)
+- [ ] PyTorch memory profiler: <code>profile_memory=True</code>, memory snapshot workflow, <code>memory_stats</code> counters</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://developer.nvidia.com/blog/using-nsight-compute-to-inspect-your-kernels/">Using Nsight Compute to Inspect Your Kernels</a> <em>(2.5 hrs)</em>
+- [ ] <a href="https://medium.com/@devaru.ai/debugging-nccl-errors-in-distributed-training-a-comprehensive-guide-28df87512a34">Debugging NCCL Errors in Distributed Training</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://zdevito.github.io/2022/08/16/memory-snapshots.html">Debugging PyTorch Memory Use with Snapshots — Zach DeVito</a> <em>(1.5 hrs)</em>
+- [ ] <a href="https://docs.pytorch.org/tutorials/beginner/mosaic_memory_profiling_tutorial.html">PyTorch Mosaic Memory Profiling Tutorial</a> <em>(1.5 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Run a multi-GPU training job where one rank is intentionally slower (add a sleep). Use Nsight Systems + <code>NCCL_DEBUG=INFO</code> to identify the straggler. Then fix the bottleneck and verify the speedup. <em>(3 hrs)</em></p>
+<hr />
+<h3 id="week-50-integrating-the-compiler-stack">Week 50 — Integrating the Compiler Stack</h3>
+<p><strong>Concepts to understand:</strong>
+- [ ] Full stack: Python → Dynamo FX graph → AOTAutograd joint graph → Inductor loop IR → Triton / CUTLASS → PTX → SASS
+- [ ] How each layer in the stack creates or destroys optimization opportunities
+- [ ] TorchInductor design: define-by-run IR, symbolic shapes, persistent reduction fusions
+- [ ] When to bypass each layer: hand-written Triton for custom ops, CUTLASS for peak GEMM performance, XLA for TPU/multi-host SPMD</p>
+<p><strong>Reading:</strong>
+- [ ] <a href="https://dev-discuss.pytorch.org/t/torchinductor-a-pytorch-native-compiler-with-define-by-run-ir-and-symbolic-shapes/747">TorchInductor design doc</a> <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/abs/2304.07640">PyTorch 2 paper</a> — re-read for architecture <em>(2 hrs)</em>
+- [ ] <a href="https://arxiv.org/pdf/2105.04663">GSPMD paper</a> — re-read for the SPMD big picture <em>(2 hrs)</em></p>
+<p><strong>Hands-on:</strong>
+- [ ] Write a custom PyTorch operator that falls through the entire stack: implement the forward in Triton, register a custom <code>torch.autograd.Function</code> with a <code>custom_vjp</code>, and verify <code>torch.compile</code> can capture and fuse it. <em>(4 hrs)</em></p>
+<hr />
+<h3 id="week-51-reading-week-integration">Week 51 — Reading Week &amp; Integration</h3>
+<p>A structured review week with no new material. Revisit the notes, exercises, and milestone answers from the hardest weeks.</p>
+<p><strong>Suggested review targets:</strong>
+- [ ] Re-read FlashAttention-3, Mamba-2, and DistServe papers with fresh eyes
+- [ ] Re-derive: ZeRO-3 communication volume, arithmetic intensity for every major op type, speculative decoding speedup formula
+- [ ] Review your Nsight Compute profiles from Weeks 18 and 49 — do you understand every row now?
+- [ ] Read <a href="https://arxiv.org/html/2504.19720v1">Taming the Titans: A Survey of Efficient LLM Inference Serving</a> as a capstone survey <em>(4 hrs)</em>
+- [ ] Read <a href="https://arxiv.org/abs/2404.14294">A Survey on Efficient Inference for Large Language Models</a> <em>(5 hrs)</em></p>
+<hr />
+<h3 id="week-52-year-end-capstone">Week 52 — Year-End Capstone</h3>
+<blockquote>
+<p><strong>Goal:</strong> Ship something production-quality that integrates at least 3 domains from the curriculum. The deliverable should be something you’d be comfortable presenting as a portfolio piece.</p>
+</blockquote>
+<p><strong>Choose one track:</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox" /><strong>Track A — Full-Stack LLM Serving System:</strong> Design and deploy a serving system for a 70B model: disaggregated prefill/decode, FP8 quantization, EAGLE-2 speculative decoding, SLO-aware scheduling, autoscaling on K8s. Document latency, throughput, cost, and the roofline analysis behind each design decision.</label></li>
+<li><label><input type="checkbox" /><strong>Track B — Custom Kernel + Compiler Integration:</strong> Write a Mamba-2 parallel scan kernel in CUTLASS using TMA + WGMMA. Register it as a custom PyTorch op, verify torch.compile can capture it, profile end-to-end in Nsight Compute. Compare to the Triton reference implementation and cuBLAS-equivalent GEMM.</label></li>
+<li><label><input type="checkbox" /><strong>Track C — RLHF System Optimization:</strong> Implement a complete RLHF training pipeline (SFT → reward model → GRPO) for a 13B model. Optimize rollout generation with vLLM, training with FSDP + QLoRA, and checkpointing with async DCP. Achieve ≥80% GPU utilization throughout the training loop.</label></li>
+<li><label><input type="checkbox" /><strong>Track D — Diffusion Systems:</strong> Build a production DiT serving stack: DPM-Solver with 10 steps, FP8 inference, DistriFusion across 4 GPUs, TensorRT-LLM backend. Measure samples/sec at various quality levels and plot the quality–latency Pareto frontier.</label></li>
+</ul>
+<p><strong>Deliverable checklist:</strong>
+- [ ] Architecture diagram showing which curriculum concepts were applied and why
+- [ ] Baseline measurement (before optimizations)
+- [ ] Each optimization applied with before/after numbers
+- [ ] Roofline analysis at the bottleneck point
+- [ ] What you’d do next if you had more hardware or time</p>
+<hr />
+<h2 id="reference-lists">Reference Lists</h2>
+<h3 id="canonical-papers-by-week">Canonical Papers by Week</h3>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Topic</th>
+<th>Week</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1706.03762"><em>Attention Is All You Need</em></a></td>
+<td>Transformer</td>
+<td>prerequisite</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2001.08361"><em>Scaling Laws for Neural Language Models</em></a></td>
+<td>Scaling</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2205.14135"><em>FlashAttention</em></a></td>
+<td>Efficient attention</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2307.08691"><em>FlashAttention-2</em></a></td>
+<td>Efficient attention</td>
+<td>4</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2305.13245"><em>GQA</em></a></td>
+<td>KV compression</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2405.04434"><em>DeepSeek-V2</em> §3 MLA</a></td>
+<td>KV compression</td>
+<td>4</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2208.07339"><em>LLM.int8()</em></a></td>
+<td>Quantization</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2210.17323"><em>GPTQ</em></a></td>
+<td>Quantization</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2306.00978"><em>AWQ</em></a></td>
+<td>Quantization</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2211.17192"><em>Speculative Decoding</em></a></td>
+<td>Inference</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2309.06180"><em>PagedAttention / vLLM</em></a></td>
+<td>Serving</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.usenix.org/conference/osdi22/presentation/yu"><em>Orca</em></a></td>
+<td>Serving</td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2312.07104"><em>SGLang</em></a></td>
+<td>Serving</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1909.08053"><em>Megatron-LM</em></a></td>
+<td>Distributed</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2104.04473"><em>Megatron 3D</em></a></td>
+<td>Distributed</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1910.02054"><em>ZeRO</em></a></td>
+<td>Distributed</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1710.03740"><em>Mixed Precision Training</em></a></td>
+<td>Training</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2205.05198"><em>Activation Recomputation</em></a></td>
+<td>Training</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.eecs.harvard.edu/~htk/publication/2019-mapl-tillet-kung-cox.pdf"><em>Triton</em></a></td>
+<td>Kernels</td>
+<td>9</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2304.07640"><em>PyTorch 2</em></a></td>
+<td>Compilation</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2103.00020"><em>CLIP</em></a></td>
+<td>Multimodal</td>
+<td>11</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2304.08485"><em>LLaVA</em></a></td>
+<td>Multimodal</td>
+<td>11</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2407.08608"><em>FlashAttention-3</em></a></td>
+<td>Hardware</td>
+<td>17</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2310.01889"><em>Ring Attention</em></a></td>
+<td>Seq parallelism</td>
+<td>21</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2309.14509"><em>DeepSpeed Ulysses</em></a></td>
+<td>Seq parallelism</td>
+<td>21</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2101.03961"><em>Switch Transformers</em></a></td>
+<td>MoE</td>
+<td>22</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2006.16668"><em>GShard</em></a></td>
+<td>MoE</td>
+<td>22</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2211.15841"><em>MegaBlocks</em></a></td>
+<td>MoE</td>
+<td>23</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2203.15556"><em>Chinchilla</em></a></td>
+<td>Scaling</td>
+<td>24</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2106.09685"><em>LoRA</em></a></td>
+<td>Finetuning</td>
+<td>26</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2305.14314"><em>QLoRA</em></a></td>
+<td>Finetuning</td>
+<td>26</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2305.18290"><em>DPO</em></a></td>
+<td>RLHF</td>
+<td>28</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2402.03300"><em>DeepSeekMath</em> (GRPO)</a></td>
+<td>RLHF</td>
+<td>28</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2309.00071"><em>YaRN</em></a></td>
+<td>Long context</td>
+<td>29</td>
+</tr>
+<tr class="odd">
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/28ab418242603e0f7323e54185d19bde-Paper-Conference.pdf"><em>SnapKV</em></a></td>
+<td>KV eviction</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2402.04396"><em>QuIP#</em></a></td>
+<td>Quantization</td>
+<td>31</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2401.06118"><em>AQLM</em></a></td>
+<td>Quantization</td>
+<td>31</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2306.11695"><em>Wanda</em></a></td>
+<td>Pruning</td>
+<td>32</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2401.15077"><em>EAGLE</em></a></td>
+<td>Spec decode</td>
+<td>33</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2406.16858"><em>EAGLE-2</em></a></td>
+<td>Spec decode</td>
+<td>33</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2401.09670"><em>DistServe</em></a></td>
+<td>Disaggregated</td>
+<td>34</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2312.00752"><em>Mamba</em></a></td>
+<td>SSMs</td>
+<td>36</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2405.21060"><em>Mamba-2 / SSD</em></a></td>
+<td>SSMs</td>
+<td>37</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2312.06635"><em>GLA</em></a></td>
+<td>Linear attn</td>
+<td>39</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2305.13048"><em>RWKV</em></a></td>
+<td>Linear attn</td>
+<td>39</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2212.09748"><em>DiT</em></a></td>
+<td>Diffusion</td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2206.00927"><em>DPM-Solver</em></a></td>
+<td>Diffusion</td>
+<td>40</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2210.02747"><em>Flow Matching</em></a></td>
+<td>Diffusion</td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/pdf/2105.04663"><em>GSPMD</em></a></td>
+<td>Compilers</td>
+<td>44</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2507.04786v1"><em>Demystifying NCCL</em></a></td>
+<td>Networking</td>
+<td>47</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-blogs-references">Key Blogs &amp; References</h3>
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 54%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>What It’s Good For</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Making Deep Learning Go Brrrr</em></td>
+<td>Compute/memory bottleneck taxonomy</td>
+<td>https://horace.io/brrr_intro.html</td>
+</tr>
+<tr class="even">
+<td><em>Transformer Math 101</em> (EleutherAI)</td>
+<td>FLOP/memory arithmetic reference</td>
+<td>https://blog.eleuther.ai/transformer-math/</td>
+</tr>
+<tr class="odd">
+<td>JAX Scaling Book</td>
+<td>Roofline, sharding, distributed training</td>
+<td>https://jax-ml.github.io/scaling-book/</td>
+</tr>
+<tr class="even">
+<td>Stas Bekman’s ML Engineering</td>
+<td>Practical distributed training cookbook</td>
+<td>https://github.com/stas00/ml-engineering</td>
+</tr>
+<tr class="odd">
+<td>GPU MODE Lectures</td>
+<td>Advanced CUDA, CUTLASS, Triton</td>
+<td>https://github.com/gpu-mode/lectures</td>
+</tr>
+<tr class="even">
+<td>Lilian Weng’s blog</td>
+<td>Broad ML coverage, well-cited</td>
+<td>https://lilianweng.github.io</td>
+</tr>
+<tr class="odd">
+<td>Sebastian Raschka’s newsletter</td>
+<td>LLM research summaries</td>
+<td>https://magazine.sebastianraschka.com</td>
+</tr>
+<tr class="even">
+<td>CutlassAcademy</td>
+<td>CUTLASS 3.x tutorials</td>
+<td>https://github.com/MekkCyber/CutlassAcademy</td>
+</tr>
+<tr class="odd">
+<td>flash-linear-attention</td>
+<td>Triton kernels for SSMs/linear attn</td>
+<td>https://github.com/fla-org/flash-linear-attention</td>
+</tr>
+<tr class="even">
+<td>LLM Inference Optimization Papers</td>
+<td>Curated inference paper list</td>
+<td>https://github.com/chenhongyu2048/LLM-inference-optimization-paper</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last updated: 2026-03-15. Revisit pacing at Part boundaries.</em></p>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

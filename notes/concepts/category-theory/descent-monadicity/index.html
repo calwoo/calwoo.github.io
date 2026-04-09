@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>descent-monadicity - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>descent-monadicity</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation:-the-descent-problem%7C1.-motivation:-the-descent-problem/">#1. Motivation: the Descent Problem|1. Motivation: the Descent Problem</a>
+<ul>
+<li><a href="../../../../notes/#1.1-gluing-in-topology%7C1.1-gluing-in-topology/">#1.1 Gluing in Topology|1.1 Gluing in Topology</a></li>
+<li><a href="../../../../notes/#1.2-vector-bundles-and-the-gluing-condition%7C1.2-vector-bundles-and-the-gluing-condition/">#1.2 Vector Bundles and the Gluing Condition|1.2 Vector Bundles and the Gluing Condition</a></li>
+<li><a href="../../../../notes/#1.3-sheaves-as-the-prototypical-descent%7C1.3-sheaves-as-the-prototypical-descent/">#1.3 Sheaves as the Prototypical Descent|1.3 Sheaves as the Prototypical Descent</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-grothendieck-descent%7C2.-grothendieck-descent/">#2. Grothendieck Descent|2. Grothendieck Descent</a>
+<ul>
+<li><a href="../../../../notes/#2.1-fibered-categories%7C2.1-fibered-categories/">#2.1 Fibered Categories|2.1 Fibered Categories</a></li>
+<li><a href="../../../../notes/#2.2-descent-data-and-the-cocycle-condition%7C2.2-descent-data-and-the-cocycle-condition/">#2.2 Descent Data and the Cocycle Condition|2.2 Descent Data and the Cocycle Condition</a></li>
+<li><a href="../../../../notes/#2.3-the-descent-category%7C2.3-the-descent-category/">#2.3 The Descent Category|2.3 The Descent Category</a></li>
+<li><a href="../../../../notes/#2.4-effective-descent-morphisms%7C2.4-effective-descent-morphisms/">#2.4 Effective Descent Morphisms|2.4 Effective Descent Morphisms</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-the-monad-connection%7C3.-the-monad-connection/">#3. The Monad Connection|3. The Monad Connection</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-descent-monad-of-a-morphism%7C3.1-the-descent-monad-of-a-morphism/">#3.1 The Descent Monad of a Morphism|3.1 The Descent Monad of a Morphism</a></li>
+<li><a href="../../../../notes/#3.2-eilenberg-moore-algebras-as-descent-data%7C3.2-eilenberg-moore-algebras-as-descent-data/">#3.2 Eilenberg-Moore Algebras as Descent Data|3.2 Eilenberg-Moore Algebras as Descent Data</a></li>
+<li><a href="../../../../notes/#3.3-beck's-monadicity-theorem%7C3.3-beck's-monadicity-theorem/">#3.3 Beck’s Monadicity Theorem|3.3 Beck’s Monadicity Theorem</a></li>
+<li><a href="../../../../notes/#3.4-the-benabou-roubaud-theorem%7C3.4-the-benabou-roubaud-theorem/">#3.4 The Benabou-Roubaud Theorem|3.4 The Benabou-Roubaud Theorem</a></li>
+<li><a href="../../../../notes/#3.5-faithfully-flat-descent-as-a-special-case%7C3.5-faithfully-flat-descent-as-a-special-case/">#3.5 Faithfully Flat Descent as a Special Case|3.5 Faithfully Flat Descent as a Special Case</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-the-beck-chevalley-condition%7C4.-the-beck-chevalley-condition/">#4. The Beck-Chevalley Condition|4. The Beck-Chevalley Condition</a>
+<ul>
+<li><a href="../../../../notes/#4.1-base-change-and-mates%7C4.1-base-change-and-mates/">#4.1 Base Change and Mates|4.1 Base Change and Mates</a></li>
+<li><a href="../../../../notes/#4.2-the-condition-and-its-significance%7C4.2-the-condition-and-its-significance/">#4.2 The Condition and its Significance|4.2 The Condition and its Significance</a></li>
+<li><a href="../../../../notes/#4.3-the-six-functor-formalism%7C4.3-the-six-functor-formalism/">#4.3 The Six-Functor Formalism|4.3 The Six-Functor Formalism</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-cohomological-descent%7C5.-cohomological-descent/">#5. Cohomological Descent|5. Cohomological Descent</a>
+<ul>
+<li><a href="../../../../notes/#5.1-the-cech-nerve-of-a-cover%7C5.1-the-cech-nerve-of-a-cover/">#5.1 The Cech Nerve of a Cover|5.1 The Cech Nerve of a Cover</a></li>
+<li><a href="../../../../notes/#5.2-hypercoverings%7C5.2-hypercoverings/">#5.2 Hypercoverings|5.2 Hypercoverings</a></li>
+<li><a href="../../../../notes/#5.3-cohomological-descent%7C5.3-cohomological-descent/">#5.3 Cohomological Descent|5.3 Cohomological Descent</a></li>
+<li><a href="../../../../notes/#5.4-the-bar-construction-for-monads%7C5.4-the-bar-construction-for-monads/">#5.4 The Bar Construction for Monads|5.4 The Bar Construction for Monads</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-galois-theory-as-descent%7C6.-galois-theory-as-descent/">#6. Galois Theory as Descent|6. Galois Theory as Descent</a>
+<ul>
+<li><a href="../../../../notes/#6.1-galois-descent-for-vector-spaces%7C6.1-galois-descent-for-vector-spaces/">#6.1 Galois Descent for Vector Spaces|6.1 Galois Descent for Vector Spaces</a></li>
+<li><a href="../../../../notes/#6.2-the-fundamental-theorem-via-descent%7C6.2-the-fundamental-theorem-via-descent/">#6.2 The Fundamental Theorem via Descent|6.2 The Fundamental Theorem via Descent</a></li>
+<li><a href="../../../../notes/#6.3-tannakian-formalism%7C6.3-tannakian-formalism/">#6.3 Tannakian Formalism|6.3 Tannakian Formalism</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-the-higher-categorical-perspective%7C7.-the-higher-categorical-perspective/">#7. The Higher-Categorical Perspective|7. The Higher-Categorical Perspective</a>
+<ul>
+<li><a href="../../../../notes/#7.1-infinity-categorical-descent%7C7.1-infinity-categorical-descent/">#7.1 Infinity-Categorical Descent|7.1 Infinity-Categorical Descent</a></li>
+<li><a href="../../../../notes/#7.2-the-barr-beck-lurie-theorem%7C7.2-the-barr-beck-lurie-theorem/">#7.2 The Barr-Beck-Lurie Theorem|7.2 The Barr-Beck-Lurie Theorem</a></li>
+<li><a href="../../../../notes/#7.3-infinity-stacks-and-sheaves%7C7.3-infinity-stacks-and-sheaves/">#7.3 Infinity-Stacks and Sheaves|7.3 Infinity-Stacks and Sheaves</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-the-descent-problem">1. Motivation: the Descent Problem 🔭</h2>
+<p>The word <em>descent</em> in mathematics refers to a family of techniques for reconstructing a global object from local data that is already known to cohere. The paradigm is as follows: given a space <span class="math inline">\(X\)</span> and a cover <span class="math inline">\(\{U_i \to X\}\)</span>, suppose we know the object we want on each <span class="math inline">\(U_i\)</span>. When can we <em>descend</em> this data to a single object on <span class="math inline">\(X\)</span>?</p>
+<h3 id="gluing-in-topology">1.1 Gluing in Topology</h3>
+<p>The simplest instance is gluing continuous functions. Suppose <span class="math inline">\(X = U_1 \cup U_2\)</span> is a topological space covered by two open sets, and we have continuous functions <span class="math inline">\(f_i : U_i \to Y\)</span>. We can glue them into a single <span class="math inline">\(f : X \to Y\)</span> if and only if <span class="math inline">\(f_1|_{U_1 \cap U_2} = f_2|_{U_1 \cap U_2}\)</span>.</p>
+<p>This is a <em>descent</em> statement: a function on the cover descends to the base if and only if it satisfies a compatibility condition on overlaps. The key data is:
+1. Objects <span class="math inline">\(f_i\)</span> over each piece <span class="math inline">\(U_i\)</span>.
+2. An <em>isomorphism datum</em> (here, equality) over each double overlap <span class="math inline">\(U_i \cap U_j\)</span>.
+3. A <em>cocycle condition</em> over triple overlaps <span class="math inline">\(U_i \cap U_j \cap U_k\)</span> ensuring consistency.</p>
+<h3 id="vector-bundles-and-the-gluing-condition">1.2 Vector Bundles and the Gluing Condition</h3>
+<p>The classical geometric case is <em>vector bundles</em>. Let <span class="math inline">\(X\)</span> be a topological space with open cover <span class="math inline">\(\{U_i\}\)</span>, and let <span class="math inline">\(V_i\)</span> be a vector bundle on each <span class="math inline">\(U_i\)</span>. A <em>gluing datum</em> consists of bundle isomorphisms</p>
+<p><span class="math display">\[\varphi_{ij} : V_i|_{U_i \cap U_j} \xrightarrow{\sim} V_j|_{U_i \cap U_j}\]</span></p>
+<p>satisfying:
+- <strong>Unit condition:</strong> <span class="math inline">\(\varphi_{ii} = \mathrm{id}_{V_i}\)</span>.
+- <strong>Cocycle condition:</strong> <span class="math inline">\(\varphi_{jk} \circ \varphi_{ij} = \varphi_{ik}\)</span> on <span class="math inline">\(U_i \cap U_j \cap U_k\)</span>.</p>
+<p>A standard theorem in topology asserts that vector bundles on <span class="math inline">\(X\)</span> are in bijection (up to isomorphism) with such gluing data.</p>
+<div class="callout callout-info">
+<p> Historical Context
+Grothendieck systematized this in the 1950s–1960s, generalizing from topological covers to <em>Grothendieck topologies</em>, where “covers” can be morphisms of schemes rather than inclusions of open sets. His TDTE seminars (1959) and SGA1 laid the foundations of descent theory in algebraic geometry. The categorical formalization via monads was completed by Bénabou and Roubaud in 1970.</p>
+</div>
+<h3 id="sheaves-as-the-prototypical-descent">1.3 Sheaves as the Prototypical Descent</h3>
+<p>A <em>sheaf</em> on a topological space <span class="math inline">\(X\)</span> is the cleanest formalization of the descent idea. Recall:</p>
+<p><strong>Definition (Sheaf).</strong> A presheaf <span class="math inline">\(\mathcal{F} : \mathrm{Open}(X)^{\mathrm{op}} \to \mathbf{Set}\)</span> is a <em>sheaf</em> if for every open cover <span class="math inline">\(U = \bigcup_i U_i\)</span>, the diagram</p>
+<p><span class="math display">\[\mathcal{F}(U) \xrightarrow{\ \prod \rho_i\ } \prod_i \mathcal{F}(U_i) \underset{p_2^*}{\overset{p_1^*}{\rightrightarrows}} \prod_{i,j} \mathcal{F}(U_i \cap U_j)\]</span></p>
+<p>is an equalizer, where <span class="math inline">\(p_1^*, p_2^*\)</span> are restriction to the two factors.</p>
+<p>This says: sections over <span class="math inline">\(U\)</span> are precisely the <em>compatible families</em> of sections over the <span class="math inline">\(U_i\)</span>. The right-hand equalizer is the beginning of a simplicial diagram — the <em>Cech nerve</em> — which will reappear in Section 5.</p>
+<hr />
+<h2 id="grothendieck-descent">2. Grothendieck Descent 🏗️</h2>
+<p>We now develop the abstract framework for descent along an arbitrary morphism <span class="math inline">\(f : Y \to X\)</span> in a category <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<h3 id="fibered-categories">2.1 Fibered Categories</h3>
+<p><strong>Definition (Fibered Category).</strong> Let <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> be a functor. A morphism <span class="math inline">\(\varphi : e' \to e\)</span> in <span class="math inline">\(\mathcal{E}\)</span> is <em>cartesian</em> (over <span class="math inline">\(u : b' \to b = p(e') \to p(e)\)</span>) if for every <span class="math inline">\(e'' \in \mathcal{E}\)</span> and every morphism <span class="math inline">\(\psi : e'' \to e\)</span> with <span class="math inline">\(p(\psi) = u \circ v\)</span> for some <span class="math inline">\(v : p(e'') \to b'\)</span>, there exists a unique <span class="math inline">\(\chi : e'' \to e'\)</span> with <span class="math inline">\(p(\chi) = v\)</span> and <span class="math inline">\(\varphi \circ \chi = \psi\)</span>.</p>
+<p>In the notation of a diagram, <span class="math inline">\(\varphi\)</span> is cartesian if the following square is a pullback in <span class="math inline">\(\mathcal{E}\)</span> “over” the given square in <span class="math inline">\(\mathcal{B}\)</span>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>e'' <span class="fu">\arrow</span>[r, dashed, &quot;<span class="fu">\chi</span>&quot;] <span class="fu">\arrow</span>[rr, bend left, &quot;<span class="fu">\psi</span>&quot;] &amp; e' <span class="fu">\arrow</span>[r, &quot;<span class="fu">\varphi</span>&quot;] &amp; e <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p(e'') <span class="fu">\arrow</span>[r, &quot;v&quot;] &amp; b' <span class="fu">\arrow</span>[r, &quot;u&quot;] &amp; b</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Definition (Fibration).</strong> A functor <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> is a <em>Grothendieck fibration</em> (or <em>fibered category</em>) if for every morphism <span class="math inline">\(u : b' \to b\)</span> in <span class="math inline">\(\mathcal{B}\)</span> and every <span class="math inline">\(e \in \mathcal{E}\)</span> with <span class="math inline">\(p(e) = b\)</span>, there exists a cartesian morphism <span class="math inline">\(\varphi : e' \to e\)</span> with <span class="math inline">\(p(\varphi) = u\)</span>.</p>
+<p>For each <span class="math inline">\(b \in \mathcal{B}\)</span>, the <em>fiber</em> is <span class="math inline">\(\mathcal{E}_b = p^{-1}(b)\)</span>. Given <span class="math inline">\(u : b' \to b\)</span>, the cartesian lifting gives a <em>base-change functor</em> <span class="math inline">\(u^* : \mathcal{E}_b \to \mathcal{E}_{b'}\)</span>, well-defined up to unique isomorphism.</p>
+<div class="callout callout-example">
+<p> The Prototypical Fibration
+Let <span class="math inline">\(\mathcal{B} = \mathbf{Top}\)</span> and <span class="math inline">\(\mathcal{E}\)</span> the category of pairs <span class="math inline">\((X, V)\)</span> where <span class="math inline">\(V \to X\)</span> is a vector bundle. The projection <span class="math inline">\(p(X,V) = X\)</span> is a Grothendieck fibration: the fiber over <span class="math inline">\(X\)</span> is the category of vector bundles on <span class="math inline">\(X\)</span>, and a map <span class="math inline">\(f : X' \to X\)</span> gives the pullback functor <span class="math inline">\(f^* : \mathrm{Vect}(X) \to \mathrm{Vect}(X')\)</span>.</p>
+</div>
+<p>The category of <em>pseudofunctors</em> <span class="math inline">\(\mathcal{B}^{\mathrm{op}} \to \mathbf{Cat}\)</span> is equivalent to the category of fibrations over <span class="math inline">\(\mathcal{B}\)</span> (the Grothendieck construction). Thus, a fibration encodes a “family of categories parameterized by <span class="math inline">\(\mathcal{B}\)</span>.”</p>
+<div class="callout callout-note">
+<p> From Single Morphisms to Stacks
+Descent can be studied <em>along one fixed morphism</em> <span class="math inline">\(f : Y \to X\)</span>, or <em>for all morphisms in a topology simultaneously</em>. A fibered category <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> is a <strong>stack</strong> in a Grothendieck topology <span class="math inline">\(\tau\)</span> on <span class="math inline">\(\mathcal{B}\)</span> if for <em>every</em> covering morphism <span class="math inline">\(f : Y \to X\)</span> in <span class="math inline">\(\tau\)</span>, the comparison functor <span class="math inline">\(\Phi_f : \mathcal{E}_X \to \mathrm{Des}(f)\)</span> is an equivalence. In other words, the stack condition is precisely the condition that every cover is an effective descent morphism for the given fibration. This is why “descent theory” and “the theory of stacks” are essentially the same subject viewed from different angles: one morphism at a time vs. all morphisms in a topology.</p>
+</div>
+<h3 id="descent-data-and-the-cocycle-condition">2.2 Descent Data and the Cocycle Condition</h3>
+<p>Fix a fibration <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> and a morphism <span class="math inline">\(f : Y \to X\)</span> in <span class="math inline">\(\mathcal{B}\)</span>. The fiber products <span class="math inline">\(Y \times_X Y\)</span> and <span class="math inline">\(Y \times_X Y \times_X Y\)</span> (assumed to exist) give the <em>Cech nerve</em> diagram:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Y <span class="fu">\times</span>_X Y <span class="fu">\times</span>_X Y <span class="fu">\arrow</span>[r, shift left=2, &quot;p_{12}&quot;] <span class="fu">\arrow</span>[r, &quot;p_{23}&quot;] <span class="fu">\arrow</span>[r, shift right=2, &quot;p_{13}&quot;'] &amp; Y <span class="fu">\times</span>_X Y <span class="fu">\arrow</span>[r, shift left, &quot;<span class="fu">\pi</span>_1&quot;] <span class="fu">\arrow</span>[r, shift right, &quot;<span class="fu">\pi</span>_2&quot;'] &amp; Y <span class="fu">\arrow</span>[r, &quot;f&quot;] &amp; X</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Definition (Descent Datum).</strong> A <em>descent datum</em> for <span class="math inline">\(f : Y \to X\)</span> in the fibration <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> is a pair <span class="math inline">\((E, \varphi)\)</span> where:
+- <span class="math inline">\(E \in \mathcal{E}_Y\)</span> is an object over <span class="math inline">\(Y\)</span>.
+- <span class="math inline">\(\varphi : \pi_1^* E \xrightarrow{\sim} \pi_2^* E\)</span> is an isomorphism in <span class="math inline">\(\mathcal{E}_{Y \times_X Y}\)</span>, called the <em>descent isomorphism</em>.
+- The <em>cocycle condition</em> holds: <span class="math inline">\(p_{23}^*\varphi \circ p_{12}^*\varphi = p_{13}^*\varphi\)</span> as isomorphisms in <span class="math inline">\(\mathcal{E}_{Y \times_X Y \times_X Y}\)</span>.</p>
+<p>The cocycle condition can be drawn:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>p_{12}^*<span class="fu">\pi</span>_1^* E <span class="fu">\arrow</span>[rr, &quot;p_{12}^*<span class="fu">\varphi</span>&quot;] <span class="fu">\arrow</span>[dr, &quot;p_{13}^*<span class="fu">\varphi</span>&quot;'] &amp; &amp; p_{12}^*<span class="fu">\pi</span>_2^* E <span class="fu">\arrow</span>[dl, &quot;p_{23}^*<span class="fu">\varphi</span>&quot;] <span class="fu">\\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>&amp; p_{13}^*<span class="fu">\pi</span>_2^* E &amp;</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<div class="callout callout-note">
+<p> Cocycle vs. 2-Cocycle
+The cocycle condition <span class="math inline">\(p_{23}^*\varphi \circ p_{12}^*\varphi = p_{13}^*\varphi\)</span> is a categorical analog of the Cech 1-cocycle condition <span class="math inline">\(g_{jk} \cdot g_{ij} = g_{ik}\)</span> for transition functions. When <span class="math inline">\(\mathcal{E}\)</span> is a sheaf of groups rather than categories, descent data reduce precisely to Cech 1-cocycles, and isomorphism classes of descent data form the Cech cohomology group <span class="math inline">\(\check{H}^1(Y/X, \mathcal{G})\)</span>.</p>
+</div>
+<p>A morphism of descent data <span class="math inline">\((E, \varphi) \to (E', \varphi')\)</span> is a morphism <span class="math inline">\(h : E \to E'\)</span> in <span class="math inline">\(\mathcal{E}_Y\)</span> such that <span class="math inline">\(\varphi' \circ \pi_1^* h = \pi_2^* h \circ \varphi\)</span>.</p>
+<h3 id="the-descent-category">2.3 The Descent Category</h3>
+<p><strong>Definition (Descent Category).</strong> The <em>descent category</em> <span class="math inline">\(\mathrm{Des}(f)\)</span> (or <span class="math inline">\(\mathrm{Des}(p, f)\)</span> when the fibration must be specified) is the category whose objects are descent data <span class="math inline">\((E, \varphi)\)</span> and whose morphisms are morphisms of descent data.</p>
+<p>There is a canonical functor — the <em>comparison functor</em> — from the fiber over <span class="math inline">\(X\)</span> to the descent category:</p>
+<p><span class="math display">\[\Phi_f : \mathcal{E}_X \to \mathrm{Des}(f), \qquad F \mapsto (f^* F, \, \mathrm{can})\]</span></p>
+<p>where <span class="math inline">\(\mathrm{can} : \pi_1^* f^* F \xrightarrow{\sim} \pi_2^* f^* F\)</span> is the canonical isomorphism <span class="math inline">\((\pi_1 \circ f)^* F \cong (\pi_2 \circ f)^* F\)</span> coming from <span class="math inline">\(f \circ \pi_1 = f \circ \pi_2\)</span> (both projections to <span class="math inline">\(X\)</span> are equal to <span class="math inline">\(f \circ \pi_i\)</span>).</p>
+<div class="callout callout-note">
+<p> Fully Faithful Descent
+The functor <span class="math inline">\(\Phi_f\)</span> is always faithful when <span class="math inline">\(f\)</span> is an epimorphism in a suitable sense. It is <em>fully faithful</em> under mild conditions on the fibration and the morphism <span class="math inline">\(f\)</span>. The interesting and more subtle question is whether <span class="math inline">\(\Phi_f\)</span> is an equivalence.</p>
+</div>
+<h3 id="effective-descent-morphisms">2.4 Effective Descent Morphisms</h3>
+<p><strong>Definition (Effective Descent Morphism).</strong> A morphism <span class="math inline">\(f : Y \to X\)</span> is an <em>effective descent morphism</em> for the fibration <span class="math inline">\(p\)</span> if the comparison functor <span class="math inline">\(\Phi_f : \mathcal{E}_X \to \mathrm{Des}(f)\)</span> is an equivalence of categories.</p>
+<p>Intuitively: <span class="math inline">\(f\)</span> is an effective descent morphism if every descent datum along <span class="math inline">\(f\)</span> actually comes from an object on <span class="math inline">\(X\)</span>. The data “glues.”</p>
+<div class="callout callout-info">
+<p> The Two Fundamental Questions of Descent
+Descent theory is organized around two problems, both asking about the fibers of <span class="math inline">\(f^* : C_X \to C_Y\)</span>:</p>
+<ol type="1">
+<li><strong>Image problem.</strong> When is an object <span class="math inline">\(G \in C_Y\)</span> isomorphic to <span class="math inline">\(f^*(E)\)</span> for some <span class="math inline">\(E \in C_X\)</span>? That is, when does <span class="math inline">\(G\)</span> <em>come from</em> the base?</li>
+<li><strong>Forms problem.</strong> Given <span class="math inline">\(G \in C_Y\)</span> that is in the image, classify all <span class="math inline">\(E \in C_X\)</span> with <span class="math inline">\(f^*(E) \cong G\)</span>. These are called the <em><span class="math inline">\(f\)</span>-forms</em> of <span class="math inline">\(G\)</span>.</li>
+</ol>
+<p>Effective descent answers question 1 completely: if <span class="math inline">\(f\)</span> is of effective descent, every <span class="math inline">\(G\)</span> <em>equipped with a descent datum</em> comes from <span class="math inline">\(X\)</span>. The forms problem is answered by <span class="math inline">\(H^1\)</span>: the set of isomorphism classes of <span class="math inline">\(X\)</span>-objects descending to <span class="math inline">\(G\)</span> is a torsor under <span class="math inline">\(\mathrm{Aut}(G)\)</span>-cohomology. This two-question framing, due to Grothendieck, is the engine behind Galois cohomology and the theory of algebraic forms.</p>
+</div>
+<div class="callout callout-example">
+<p> Effective Descent in Algebraic Geometry
+In the fibration of quasi-coherent sheaves over <span class="math inline">\(\mathbf{Sch}\)</span>, a key theorem (Grothendieck, SGA 1) states:
+- Any <em>faithfully flat quasi-compact</em> (fpqc) morphism <span class="math inline">\(f : Y \to X\)</span> is an effective descent morphism.
+- In particular, Zariski open covers, etale covers, and flat covers with finiteness conditions all yield effective descent.</p>
+<p>This generalizes the patching of modules from commutative algebra: if <span class="math inline">\(A \to B\)</span> is faithfully flat, then <span class="math inline">\(A\)</span>-modules can be reconstructed from <span class="math inline">\(B\)</span>-modules equipped with descent data.</p>
+</div>
+<div class="callout callout-note">
+<p> Pure Morphisms: Sharp Characterization
+Grothendieck’s theorem identifies <em>faithfully flat</em> maps as effective descent morphisms, but this is not optimal. A deeper result in commutative algebra (Joyal–Tierney, Mesablishvili) shows:</p>
+<p><strong>Effective descent morphisms for modules are precisely the <em>pure</em> ring maps</strong> <span class="math inline">\(A \to B\)</span> — those for which <span class="math inline">\(M \to M \otimes_A B\)</span> is injective for every <span class="math inline">\(A\)</span>-module <span class="math inline">\(M\)</span>.</p>
+<p>Every faithfully flat map is pure, but pure maps need not be flat (e.g., <span class="math inline">\(\mathbb{Z} \to \prod_p \mathbb{Z}/p\mathbb{Z}\)</span> is pure but not flat). The pure morphism characterization is the “right” answer to the question: which ring maps permit reconstructing <span class="math inline">\(A\)</span>-modules from their base changes?</p>
+</div>
+<hr />
+<h2 id="the-monad-connection">3. The Monad Connection 🔗</h2>
+<p>The profound insight, due to Beck (unpublished, 1960s) and formalized by Bénabou–Roubaud (1970), is that descent theory is secretly monadic. Every morphism gives rise to a monad, and descent data are precisely algebras over this monad.</p>
+<div class="callout callout-info">
+<p> Genealogy: From Beck to Lurie
+The monadic viewpoint on descent has a rich intellectual lineage. The key contributors and their roles:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Contributor</th>
+<th>Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Beck (1960s, unpublished)</td>
+<td>Monadicity theorem; comonadicity = descent</td>
+</tr>
+<tr class="even">
+<td>Bénabou–Roubaud (1970)</td>
+<td>Formalized Des<span class="math inline">\((f) \cong\)</span> Alg<span class="math inline">\((\mathbb{T}_f)\)</span> under Beck-Chevalley</td>
+</tr>
+<tr class="odd">
+<td>Giraud (1971)</td>
+<td>Non-abelian <span class="math inline">\(H^2\)</span>, gerbes, stacks</td>
+</tr>
+<tr class="even">
+<td>Breen (1980s–90s)</td>
+<td>Non-abelian cohomology, higher gerbes</td>
+</tr>
+<tr class="odd">
+<td>Street (1980s)</td>
+<td>Formal theory of monads in 2-categories; descent in bicategories</td>
+</tr>
+<tr class="even">
+<td>K. Brown, Joyal, Jardine (1980s–90s)</td>
+<td>Homotopy-theoretic descent, simplicial presheaves</td>
+</tr>
+<tr class="odd">
+<td>Simpson, Mauri–Tierney (1990s)</td>
+<td>Higher stacks and <span class="math inline">\(n\)</span>-stacks</td>
+</tr>
+<tr class="even">
+<td>Kontsevich–Rosenberg (2004)</td>
+<td>Descent for <span class="math inline">\(A_\infty\)</span>-categories and Karoubian triangulated categories</td>
+</tr>
+<tr class="odd">
+<td>Lurie (2006–)</td>
+<td><span class="math inline">\((\infty,1)\)</span>-Beck theorem; descent in <span class="math inline">\(\infty\)</span>-topoi (HTT, HA)</td>
+</tr>
+</tbody>
+</table>
+<p>The common thread: each generalization replaces strict equalities in the cocycle condition with coherent homotopies, requiring progressively richer algebraic structures (monads → <span class="math inline">\(A_\infty\)</span>-monads → <span class="math inline">\(\infty\)</span>-monads) to encode the data.</p>
+</div>
+<h3 id="the-descent-monad-of-a-morphism">3.1 The Descent Monad of a Morphism</h3>
+<p>Fix a category <span class="math inline">\(\mathcal{C}\)</span> with pullbacks and a morphism <span class="math inline">\(f : Y \to X\)</span>. The <em>pullback functor</em></p>
+<p><span class="math display">\[f^* : \mathcal{C}/X \to \mathcal{C}/Y\]</span></p>
+<p>(sending <span class="math inline">\([E \to X]\)</span> to <span class="math inline">\([E \times_X Y \to Y]\)</span>) has a right adjoint given by composition with <span class="math inline">\(f\)</span>:</p>
+<p><span class="math display">\[f_* : \mathcal{C}/Y \to \mathcal{C}/X, \qquad [V \to Y] \mapsto [V \xrightarrow{} Y \xrightarrow{f} X].\]</span></p>
+<p>This gives an adjunction <span class="math inline">\(f^* \dashv f_*\)</span> between slice categories:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">\mathcal</span>{C}/X <span class="fu">\arrow</span>[r, bend left, &quot;f^*&quot;] <span class="fu">\arrow</span>[r, phantom, &quot;<span class="fu">\perp</span>&quot;] &amp; <span class="fu">\mathcal</span>{C}/Y <span class="fu">\arrow</span>[l, bend left, &quot;f_*&quot;]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Definition (Descent Monad).</strong> The <em>descent monad</em> <span class="math inline">\(\mathbb{T}_f = (T_f, \eta, \mu)\)</span> on <span class="math inline">\(\mathcal{C}/X\)</span> is the monad induced by the adjunction <span class="math inline">\(f^* \dashv f_*\)</span>:</p>
+<p><span class="math display">\[T_f = f_* \circ f^*, \qquad \eta : \mathrm{Id} \Rightarrow T_f, \qquad \mu : T_f^2 \Rightarrow T_f.\]</span></p>
+<p>Explicitly, for <span class="math inline">\([E \to X] \in \mathcal{C}/X\)</span>:</p>
+<p><span class="math display">\[T_f(E) = E \times_X Y \xrightarrow{f \circ \pi_Y} X\]</span></p>
+<p>(the <em>Weil restriction</em> of the base change). The unit <span class="math inline">\(\eta_E : E \to T_f(E)\)</span> comes from the universal property of the pullback, and the multiplication <span class="math inline">\(\mu_E : T_f^2(E) \to T_f(E)\)</span> encodes the composition of the two pullbacks.</p>
+<div class="callout callout-info">
+<p> The Comonad Perspective
+The same adjunction also gives a <em>comonad</em> <span class="math inline">\(\mathbb{G}_f = (G_f, \varepsilon, \delta)\)</span> on <span class="math inline">\(\mathcal{C}/Y\)</span>:
+<span class="math display">\[G_f = f^* \circ f_*, \qquad \varepsilon : G_f \Rightarrow \mathrm{Id}, \qquad \delta : G_f \Rightarrow G_f^2.\]</span>
+For <span class="math inline">\([V \to Y]\)</span>, <span class="math inline">\(G_f(V) = V \times_Y (Y \times_X Y)\)</span>, which is the fiber product implementing the double cover. The comonad perspective is often more natural for descent: <span class="math inline">\(G_f\)</span>-coalgebras will turn out to be exactly descent data.</p>
+</div>
+<h3 id="eilenberg-moore-algebras-as-descent-data">3.2 Eilenberg-Moore Algebras as Descent Data</h3>
+<p>Let us unpack what a <span class="math inline">\(T_f\)</span>-algebra is. See <a href="../../../../notes/concepts/category-theory/foundations/04-adjoint-functor-theorems-monads%7Cmonads/">concepts/category-theory/foundations/04-adjoint-functor-theorems-monads|Monads</a> for the general theory.</p>
+<p><strong>Claim.</strong> The category <span class="math inline">\(\mathrm{Alg}(T_f)\)</span> of Eilenberg–Moore algebras for <span class="math inline">\(\mathbb{T}_f\)</span> is equivalent to the descent category <span class="math inline">\(\mathrm{Des}(f)\)</span>.</p>
+<p><em>Proof sketch.</em> An Eilenberg–Moore algebra is a pair <span class="math inline">\((E \to X, \, \alpha : T_f(E) \to E)\)</span> satisfying unit and associativity axioms. Unwrapping:</p>
+<p><span class="math display">\[T_f(E) = f_*(f^*(E)) = [E \times_X Y \xrightarrow{f \circ \pi_Y} X].\]</span></p>
+<p>The structure map <span class="math inline">\(\alpha\)</span> is a morphism over <span class="math inline">\(X\)</span>, i.e., a map <span class="math inline">\(E \times_X Y \to E\)</span> over <span class="math inline">\(X\)</span>. By adjunction <span class="math inline">\((f^* \dashv f_*)\)</span>, giving such a map is equivalent to giving a map <span class="math inline">\(f^*(E) \to f^*(E)\)</span> over <span class="math inline">\(Y\)</span>, i.e., an automorphism <span class="math inline">\(\varphi : \pi_1^* E \cong f^* E \to f^* E \cong \pi_2^* E\)</span> over <span class="math inline">\(Y \times_X Y\)</span> (where the identification uses <span class="math inline">\(\pi_i^* \cong f^*\)</span> after unfolding pullbacks). The unit and associativity axioms for <span class="math inline">\(\alpha\)</span> translate precisely to:
+- <span class="math inline">\(\varphi|_{\Delta} = \mathrm{id}\)</span> (unit, where <span class="math inline">\(\Delta : Y \to Y \times_X Y\)</span> is the diagonal).
+- <span class="math inline">\(p_{23}^* \varphi \circ p_{12}^* \varphi = p_{13}^* \varphi\)</span> (cocycle condition).</p>
+<p>These are exactly the axioms for a descent datum <span class="math inline">\((f^* E, \varphi) \in \mathrm{Des}(f)\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Variance
+The monad <span class="math inline">\(\mathbb{T}_f\)</span> lives on <span class="math inline">\(\mathcal{C}/X\)</span>, not on a single fiber. The “fiber” version — working with the single fiber <span class="math inline">\(\mathcal{E}_X\)</span> in a fibration — requires the Beck-Chevalley condition discussed in Section 4 to make the base-change functors cohere into a genuine monad on the fiber.</p>
+</div>
+<h3 id="becks-monadicity-theorem">3.3 Beck’s Monadicity Theorem</h3>
+<p>The comparison functor <span class="math inline">\(K : \mathcal{C}/X \to \mathrm{Alg}(T_f)\)</span>, given by <span class="math inline">\(K(E) = (E, \eta_{T_f(E)} \circ \alpha_E)\)</span>… wait, more precisely, the canonical comparison functor is</p>
+<p><span class="math display">\[K : \mathcal{C}/Y \to \mathrm{Coalg}(G_f), \qquad V \mapsto (V, \delta_V : V \to G_f(V))\]</span></p>
+<p>using the counit of the adjunction. The question of when <span class="math inline">\(K\)</span> is an equivalence is answered by Beck’s theorem.</p>
+<p><strong>Theorem (Beck’s Monadicity Theorem).</strong> Let <span class="math inline">\(U : \mathcal{D} \to \mathcal{C}\)</span> be a functor with a left adjoint <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span>. Then <span class="math inline">\(U\)</span> is <em>monadic</em> — i.e., the comparison functor <span class="math inline">\(K : \mathcal{D} \to \mathrm{Alg}(U F)\)</span> is an equivalence — if and only if:
+1. <span class="math inline">\(U\)</span> reflects isomorphisms: if <span class="math inline">\(U(h)\)</span> is an isomorphism then so is <span class="math inline">\(h\)</span>.
+2. <span class="math inline">\(\mathcal{D}\)</span> has coequalizers of <span class="math inline">\(U\)</span>-split pairs, and <span class="math inline">\(U\)</span> preserves them.</p>
+<p>A parallel <span class="math inline">\(f \underset{g}{\overset{h}{\rightrightarrows}} e\)</span> in <span class="math inline">\(\mathcal{D}\)</span> is <em><span class="math inline">\(U\)</span>-split</em> if <span class="math inline">\(U(f), U(g)\)</span> have a split coequalizer in <span class="math inline">\(\mathcal{C}\)</span>, i.e., there exist <span class="math inline">\(t : Ue \to Uf\)</span> and <span class="math inline">\(s : \mathrm{coeq}(Uf, Ug) \to Ue\)</span> splitting the coequalizer.</p>
+<p><strong>Corollary (Descent via Monadicity).</strong> The morphism <span class="math inline">\(f : Y \to X\)</span> is an effective descent morphism for the fibration of objects in <span class="math inline">\(\mathcal{C}\)</span> if and only if the pullback functor <span class="math inline">\(f^* : \mathcal{C}/X \to \mathcal{C}/Y\)</span> is comonadic (equivalently, <span class="math inline">\(f_* : \mathcal{C}/Y \to \mathcal{C}/X\)</span> is monadic). <strong>This is the fundamental equivalence: descent = monadicity of <span class="math inline">\(f^*\)</span>.</strong></p>
+<div class="callout callout-note">
+<p> Crude vs. Precise Monadicity
+There is also a <em>crude</em> monadicity theorem: <span class="math inline">\(U\)</span> is monadic if it reflects isomorphisms, and <span class="math inline">\(\mathcal{D}\)</span> has and <span class="math inline">\(U\)</span> preserves coequalizers of <em>reflexive pairs</em> (pairs with a common right inverse). For descent applications, the crude theorem often suffices because the relevant coequalizers are reflexive — the diagonal <span class="math inline">\(\Delta : Y \to Y \times_X Y\)</span> provides a common section.</p>
+</div>
+<h3 id="the-benabou-roubaud-theorem">3.4 The Benabou-Roubaud Theorem</h3>
+<p>The Bénabou–Roubaud theorem (1970) makes the relationship between fibered descent and monadic descent precise in the setting of bifibrations.</p>
+<p><strong>Definition (Bifibration).</strong> A functor <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> is a <em>bifibration</em> if it is both a Grothendieck fibration and a Grothendieck opfibration. That is, every morphism in <span class="math inline">\(\mathcal{B}\)</span> has both a <em>cartesian</em> lifting (giving the base-change functor <span class="math inline">\(u^*\)</span>) and a <em>opcartesian</em> lifting (giving the pushforward functor <span class="math inline">\(u_*\)</span>), yielding adjunctions <span class="math inline">\(u_! \dashv u^* \dashv u_*\)</span> on each fiber.</p>
+<p><strong>Theorem (Bénabou–Roubaud).</strong> Let <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> be a bifibration satisfying the <em>Beck-Chevalley condition</em> (Section 4) for a morphism <span class="math inline">\(a : A_1 \to A_0\)</span> in <span class="math inline">\(\mathcal{B}\)</span>. Then there is an isomorphism of categories</p>
+<p><span class="math display">\[\mathrm{Alg}(\mathbb{T}^a) \cong \mathrm{Des}(p, a)\]</span></p>
+<p>where <span class="math inline">\(\mathbb{T}^a = a^* a_*\)</span> is the monad on <span class="math inline">\(\mathcal{E}_{A_0}\)</span> induced by the adjunction <span class="math inline">\(a_! \dashv a^*\)</span> (or <span class="math inline">\(a^* \dashv a_*\)</span>), and <span class="math inline">\(\mathrm{Des}(p, a)\)</span> is the descent category of <span class="math inline">\(a\)</span> in the fibration <span class="math inline">\(p\)</span>.</p>
+<p>Combining this with Beck’s monadicity theorem:</p>
+<p><strong>Corollary.</strong> Under the hypotheses of the Bénabou–Roubaud theorem, <span class="math inline">\(a : A_1 \to A_0\)</span> is an effective descent morphism if and only if the base-change functor <span class="math inline">\(a^* : \mathcal{E}_{A_0} \to \mathcal{E}_{A_1}\)</span> is monadic.</p>
+<div class="callout callout-info">
+<p> The Original Paper
+The original 1970 note by Bénabou and Roubaud appeared without proofs; it established the equivalence in the presence of a Beck-Chevalley condition. The result was subsequently generalized by various authors (Janelidze, Tholen, Lack–Paré) to settings where the Beck-Chevalley condition holds only weakly or up to a natural transformation that is epic rather than an isomorphism.</p>
+</div>
+<h3 id="faithfully-flat-descent-as-a-special-case">3.5 Faithfully Flat Descent as a Special Case</h3>
+<p>The most important application in algebraic geometry is <em>faithfully flat</em> (or fpqc) descent.</p>
+<p><strong>Setup.</strong> Let <span class="math inline">\(A \to B\)</span> be a <em>faithfully flat</em> ring homomorphism (flat plus <span class="math inline">\(\mathrm{Spec}(B) \to \mathrm{Spec}(A)\)</span> surjective). Consider the fibration <span class="math inline">\(p : \mathrm{QCoh} \to \mathbf{Sch}^{\mathrm{op}}\)</span> assigning to a scheme its category of quasi-coherent sheaves.</p>
+<p>The monad <span class="math inline">\(\mathbb{T}_{f}\)</span> on <span class="math inline">\(A\text{-}\mathbf{Mod}\)</span> induced by <span class="math inline">\(f^*(M) = M \otimes_A B\)</span> is <span class="math inline">\(T_f(M) = M \otimes_A B\)</span>, and a <span class="math inline">\(T_f\)</span>-algebra structure on <span class="math inline">\(M \otimes_A B\)</span> is a <span class="math inline">\(B \otimes_A B\)</span>-module isomorphism</p>
+<p><span class="math display">\[\varphi : M \otimes_A B \otimes_{B} (B \otimes_A B) \xrightarrow{\sim} (B \otimes_A B) \otimes_B M \otimes_A B,\]</span></p>
+<p>which, after simplification, is a <span class="math inline">\(B \otimes_A B\)</span>-module isomorphism <span class="math inline">\(\varphi : M \otimes_A B \otimes_A B \xrightarrow{\sim} B \otimes_A M \otimes_A B\)</span> satisfying the cocycle condition over <span class="math inline">\(B \otimes_A B \otimes_A B\)</span>. This is precisely the classical descent datum for modules.</p>
+<p><strong>Theorem (Grothendieck Faithfully Flat Descent).</strong> For a faithfully flat ring map <span class="math inline">\(A \to B\)</span>, the functor</p>
+<p><span class="math display">\[A\text{-}\mathbf{Mod} \to \mathrm{Des}(A \to B)\]</span></p>
+<p>is an equivalence. <strong>An <span class="math inline">\(A\)</span>-module <span class="math inline">\(M\)</span> is completely determined by its base change <span class="math inline">\(M \otimes_A B\)</span> together with descent data.</strong></p>
+<p><em>Why does monadicity apply?</em> Since <span class="math inline">\(A \to B\)</span> is faithfully flat:
+1. <span class="math inline">\(f^*(M) = - \otimes_A B\)</span> is <em>conservative</em> (reflects isomorphisms): if <span class="math inline">\(M \otimes_A B \cong N \otimes_A B\)</span> as <span class="math inline">\(B\)</span>-modules with compatible descent data, then <span class="math inline">\(M \cong N\)</span>.
+2. Coequalizers of <span class="math inline">\(f^*\)</span>-split pairs exist and are preserved, because <span class="math inline">\(- \otimes_A B\)</span> is exact (flat) and reflects exactness (faithfully flat). <span class="math inline">\(\square\)</span></p>
+<hr />
+<h2 id="the-beck-chevalley-condition">4. The Beck-Chevalley Condition 🔀</h2>
+<h3 id="base-change-and-mates">4.1 Base Change and Mates</h3>
+<p>In a 2-category (or the 2-category <span class="math inline">\(\mathbf{Cat}\)</span> of categories), given a commutative square of functors and a pair of adjunctions, one can form a <em>mate</em> — a canonical natural transformation going in the opposite direction.</p>
+<p><strong>Definition (Mate).</strong> Suppose <span class="math inline">\(f \dashv f^*\)</span> and <span class="math inline">\(g \dashv g^*\)</span> are adjunctions (with <span class="math inline">\(f, g\)</span> the left adjoints). Given a natural transformation <span class="math inline">\(\alpha : g^* \circ h \Rightarrow k \circ f^*\)</span>, the <em>mate</em> of <span class="math inline">\(\alpha\)</span> is the natural transformation</p>
+<p><span class="math display">\[\bar{\alpha} : h \circ f \Rightarrow g \circ k\]</span></p>
+<p>constructed as <span class="math inline">\(\bar{\alpha} = (g \circ \varepsilon_k) \circ (g \circ k \circ \alpha \circ f) \circ (\eta_h \circ f)\)</span> (using the units and counits of the adjunctions).</p>
+<p>In the context of a fibration, given a commutative square in the base:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>B' <span class="fu">\arrow</span>[r, &quot;h&quot;] <span class="fu">\arrow</span>[d, &quot;k&quot;'] &amp; A' <span class="fu">\arrow</span>[d, &quot;f&quot;] <span class="fu">\\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>B <span class="fu">\arrow</span>[r, &quot;g&quot;] &amp; A</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>the commutativity <span class="math inline">\(f \circ h = g \circ k\)</span> induces, via the pullback functors, a canonical <em>base-change natural transformation</em></p>
+<p><span class="math display">\[\chi : k^* g^* \Rightarrow h^* f^*.\]</span></p>
+<p>(Since <span class="math inline">\(g \circ k = f \circ h\)</span> and pullback is functorial, both sides pull the same composite back to <span class="math inline">\(B'\)</span>, and there is a canonical comparison.)</p>
+<h3 id="the-condition-and-its-significance">4.2 The Condition and its Significance</h3>
+<p><strong>Definition (Beck-Chevalley Condition).</strong> A commutative square in the base (as above) satisfies the <em>Beck-Chevalley condition</em> if the canonical natural transformation <span class="math inline">\(\chi : k^* g^* \Rightarrow h^* f^*\)</span> is an isomorphism (equivalently, its mate <span class="math inline">\(\bar{\chi} : h_! k^* \Rightarrow f^* g_!\)</span> is an isomorphism, where <span class="math inline">\(h_!, g_!\)</span> are left adjoints to <span class="math inline">\(h^*, g^*\)</span> if they exist).</p>
+<p>The condition is crucial for two reasons:</p>
+<ol type="1">
+<li><p><strong>Monad coherence.</strong> It ensures that the “fiber-wise” monads <span class="math inline">\(\mathbb{T}^f_b = b^* b_*\)</span> on fibers <span class="math inline">\(\mathcal{E}_b\)</span> assemble into a coherent pseudofunctor. Without Beck-Chevalley, the composition <span class="math inline">\(b^* \circ b_*\)</span> does not commute with base change in the way needed for the Bénabou–Roubaud theorem.</p></li>
+<li><p><strong>Functoriality of indexed adjoints.</strong> If <span class="math inline">\(p : \mathcal{E} \to \mathcal{B}\)</span> is a fibration and every <span class="math inline">\(f : b' \to b\)</span> admits both <span class="math inline">\(f_!\)</span> and <span class="math inline">\(f_*\)</span>, then the families <span class="math inline">\((f_!)_{f \in \mathcal{B}}\)</span> and <span class="math inline">\((f_*)_{f \in \mathcal{B}}\)</span> assemble into indexed functors if and only if the Beck-Chevalley condition holds for all pullback squares.</p></li>
+</ol>
+<div class="callout callout-example">
+<p> Beck-Chevalley in Logic
+In dependent type theory and categorical logic, the Beck-Chevalley condition is exactly the condition that <em>substitution commutes with quantification</em>. If <span class="math inline">\(f : \Gamma' \to \Gamma\)</span> is a context morphism, the condition says <span class="math inline">\(f^*(\exists_g \phi) \cong \exists_h (k^* \phi)\)</span> for a pullback square — i.e., substituting before or after existential quantification gives the same result. This is a fundamental <em>coherence</em> condition for first-order logic in categories.</p>
+</div>
+<h3 id="the-six-functor-formalism">4.3 The Six-Functor Formalism</h3>
+<p>When a morphism <span class="math inline">\(f : Y \to X\)</span> admits all three adjoints — <span class="math inline">\(f_! \dashv f^* \dashv f_*\)</span> — one is in the realm of the <em>six-functor formalism</em> (Grothendieck, later formalized by Scholze):</p>
+<p><span class="math display">\[f_!, \, f^*, \, f_*, \, f^!, \, \otimes, \, \mathcal{H}om.\]</span></p>
+<p>The Beck-Chevalley condition then becomes a key compatibility: for a Cartesian square</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Y' <span class="fu">\arrow</span>[r, &quot;h&quot;] <span class="fu">\arrow</span>[d, &quot;k&quot;'] &amp; Y <span class="fu">\arrow</span>[d, &quot;f&quot;] <span class="fu">\\</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>X' <span class="fu">\arrow</span>[r, &quot;g&quot;] &amp; X</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>the <em>proper base change theorem</em> states <span class="math inline">\(g^* f_! \cong k_! h^*\)</span>, and the <em>smooth base change theorem</em> states <span class="math inline">\(g^* f_* \cong k_* h^*\)</span> (under appropriate hypotheses). These are the Beck-Chevalley conditions for <span class="math inline">\(f_!\)</span> and <span class="math inline">\(f_*\)</span> respectively.</p>
+<div class="callout callout-info">
+<p> Descent and the Six Functors
+In the six-functor framework, descent for <span class="math inline">\(f^*\)</span> is equivalent to saying that the adjunction <span class="math inline">\(f_! \dashv f^*\)</span> is comonadic, while descent for <span class="math inline">\(f^*\)</span> with respect to <span class="math inline">\(f_*\)</span> is monadic descent. The Beck-Chevalley conditions then ensure these descent statements are compatible with further base change.</p>
+</div>
+<hr />
+<h2 id="cohomological-descent">5. Cohomological Descent 🌐</h2>
+<h3 id="the-cech-nerve-of-a-cover">5.1 The Cech Nerve of a Cover</h3>
+<p>Given a morphism <span class="math inline">\(f : Y \to X\)</span>, its <em>Cech nerve</em> <span class="math inline">\(\check{C}(f)_\bullet\)</span> is the simplicial object (see <a href="../../../../notes/concepts/category-theory/foundations/03-limits-colimits%7Climits-and-colimits/">concepts/category-theory/foundations/03-limits-colimits|Limits and Colimits</a> for simplicial machinery):</p>
+<p><strong>Definition (Cech Nerve).</strong> The <em>Cech nerve</em> <span class="math inline">\(\check{C}(f)_\bullet\)</span> is the simplicial object in <span class="math inline">\(\mathcal{C}\)</span> with</p>
+<p><span class="math display">\[\check{C}(f)_n = Y \times_X Y \times_X \cdots \times_X Y \quad (n+1 \text{ factors})\]</span></p>
+<p>with face maps <span class="math inline">\(d_i : \check{C}(f)_n \to \check{C}(f)_{n-1}\)</span> given by omitting the <span class="math inline">\(i\)</span>-th factor (via the projection), and degeneracy maps <span class="math inline">\(s_i : \check{C}(f)_n \to \check{C}(f)_{n+1}\)</span> given by repeating the <span class="math inline">\(i\)</span>-th factor (via the diagonal).</p>
+<p>Explicitly: <span class="math inline">\(\check{C}(f)_0 = Y\)</span>, <span class="math inline">\(\check{C}(f)_1 = Y \times_X Y\)</span>, <span class="math inline">\(\check{C}(f)_2 = Y \times_X Y \times_X Y\)</span>, and so on. The augmented Cech nerve includes the map <span class="math inline">\(f : Y \to X\)</span> as an augmentation <span class="math inline">\(\check{C}(f)_\bullet \to X\)</span>.</p>
+<div class="callout callout-note">
+<p> Cech Nerve and the Two-Sided Bar Construction
+The Cech nerve <span class="math inline">\(\check{C}(f)_\bullet\)</span> is a special case of the two-sided bar construction. If <span class="math inline">\(\mathbf{B}(f)\)</span> denotes the bar construction for the comonad <span class="math inline">\(G_f = f^* f_*\)</span> on <span class="math inline">\(\mathcal{C}/Y\)</span>, then the simplicial object <span class="math inline">\(\mathbf{B}(G_f, V)_n = G_f^{n+1}(V)\)</span> corresponds under the equivalence <span class="math inline">\(\mathrm{Coalg}(G_f) \cong \mathrm{Des}(f)\)</span> to the Cech nerve construction. This is the categorical bridge between the monad-theoretic and geometric viewpoints.</p>
+</div>
+<h3 id="hypercoverings">5.2 Hypercoverings</h3>
+<p>The Cech nerve handles “one-level” covers, but for cohomology one sometimes needs <em>hypercoverings</em>, which are more flexible.</p>
+<p><strong>Definition (Hypercovering).</strong> Let <span class="math inline">\((\mathcal{C}, \tau)\)</span> be a site (a category with a Grothendieck topology). A <em>hypercovering</em> of <span class="math inline">\(X \in \mathcal{C}\)</span> is an augmented simplicial object <span class="math inline">\(U_\bullet \to X\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that for each <span class="math inline">\(n \geq 0\)</span>, the canonical map</p>
+<p><span class="math display">\[U_n \to (\mathrm{cosk}_{n-1} U_\bullet)_n\]</span></p>
+<p>is a covering morphism (in the topology <span class="math inline">\(\tau\)</span>), where <span class="math inline">\(\mathrm{cosk}_{n-1}\)</span> denotes the <span class="math inline">\((n-1)\)</span>-coskeleton.</p>
+<p>Every Cech nerve of a cover is a hypercovering, but hypercoverings are strictly more general: they allow the <span class="math inline">\(n\)</span>-th level to be a cover of the matching object (the coskeleton) rather than the naive iterated fiber product. Hypercoverings arise naturally when the topology is not generated by single covers (e.g., the etale topology in characteristic <span class="math inline">\(p\)</span>).</p>
+<h3 id="cohomological-descent-1">5.3 Cohomological Descent</h3>
+<p>Now suppose we are in an abelian situation: <span class="math inline">\(\mathcal{F}\)</span> is a sheaf of abelian groups (or a complex of sheaves) on a site <span class="math inline">\((\mathcal{C}, \tau)\)</span>.</p>
+<p><strong>Definition (Cohomological Descent).</strong> A morphism <span class="math inline">\(f : Y \to X\)</span> (or an augmented simplicial object <span class="math inline">\(U_\bullet \to X\)</span>) is <em>of cohomological descent</em> for a sheaf <span class="math inline">\(\mathcal{F}\)</span> if the canonical map</p>
+<p><span class="math display">\[R\Gamma(X, \mathcal{F}) \xrightarrow{\sim} R\Gamma(\check{C}(f)_\bullet, f^*\mathcal{F}) := R\Gamma(Y, f^*\mathcal{F}) \times^h R\Gamma(Y \times_X Y, \pi^* f^*\mathcal{F}) \times^h \cdots\]</span></p>
+<p>is a quasi-isomorphism. More precisely, there is a <em>descent spectral sequence</em>:</p>
+<p><span class="math display">\[E_1^{p,q} = H^q(\check{C}(f)_p, f^*\mathcal{F}) \Rightarrow H^{p+q}(X, \mathcal{F}).\]</span></p>
+<p>For a hypercovering <span class="math inline">\(U_\bullet \to X\)</span>, the correct statement uses the <em>totalization</em> of the cosimplicial cochain complex <span class="math inline">\(R\Gamma(U_\bullet, \mathcal{F}|_{U_\bullet})\)</span>:</p>
+<p><span class="math display">\[R\Gamma(X, \mathcal{F}) \xrightarrow{\sim} R\lim_{\Delta} R\Gamma(U_n, \mathcal{F}|_{U_n}).\]</span></p>
+<p><strong>Theorem (Cohomological Descent via Hypercovering).</strong> If <span class="math inline">\(U_\bullet \to X\)</span> is a hypercovering in a site where <span class="math inline">\(\mathcal{F}\)</span> is a sheaf, then the natural map</p>
+<p><span class="math display">\[R\Gamma(X, \mathcal{F}) \xrightarrow{\sim} \mathrm{Tot}\big(R\Gamma(U_\bullet, \mathcal{F}|_{U_\bullet})\big)\]</span></p>
+<p>is a quasi-isomorphism (Conrad, SGA 4).</p>
+<div class="callout callout-warning">
+<p> Cohomological vs. Categorical Descent
+Cohomological descent is <em>weaker</em> than categorical descent. Categorical (or “effective”) descent says the comparison functor on sheaves is an equivalence; cohomological descent says only that cohomology is preserved. A morphism can be of cohomological descent without being an effective descent morphism for the fibration of all sheaves (though for many naturally occurring topologies and sheaves, both hold simultaneously).</p>
+</div>
+<div class="callout callout-info">
+<p> Cohomological Descent as the Unit of a Derived Monad
+There is a clean monad-theoretic interpretation of cohomological descent. Consider the adjunction <span class="math inline">\((f^{-1} \dashv Rf_*)\)</span> on derived categories of sheaves. This adjunction induces a monad <span class="math inline">\(\mathbb{T} = Rf_* \circ f^{-1}\)</span> on <span class="math inline">\(D(X)\)</span>. The unit of this monad is the canonical map</p>
+<p><span class="math display">\[\eta : \mathrm{Id} \to Rf_* \circ f^{-1}.\]</span></p>
+<p>Cohomological descent for <span class="math inline">\(f\)</span> is exactly the statement that <span class="math inline">\(\eta_\mathcal{F} : \mathcal{F} \xrightarrow{\sim} Rf_*(f^{-1}\mathcal{F})\)</span> is an isomorphism (in <span class="math inline">\(D(X)\)</span>). In other words, <em>cohomological descent = the unit of the derived monad is an isomorphism</em>. The full <span class="math inline">\(\infty\)</span>-categorical version — where the unit of the associated <span class="math inline">\((\infty,1)\)</span>-monad is an equivalence — recovers both sheaf-theoretic and homotopy-theoretic descent simultaneously (Lurie, “Noncommutative Algebra”; Kontsevich–Rosenberg for <span class="math inline">\(A_\infty\)</span>-categories and Karoubian triangulated categories).</p>
+</div>
+<h3 id="the-bar-construction-for-monads">5.4 The Bar Construction for Monads</h3>
+<p>The bar construction for the monad <span class="math inline">\(\mathbb{T}_f\)</span> on <span class="math inline">\(\mathcal{C}/X\)</span> is the simplicial object</p>
+<p><span class="math display">\[B(\mathbb{T}_f, E)_\bullet : \quad \cdots \underset{}{\overset{}{\overset{}{\underset{}{\rightrightarrows\atop\leftarrow}}}} T_f^2(E) \underset{}{\overset{}{\rightarrow\atop\leftarrow}} T_f(E) \to E\]</span></p>
+<p>with face maps <span class="math inline">\(d_i = T_f^{n-i} \mu T_f^{i-1}\)</span> (applying <span class="math inline">\(\mu\)</span> in the <span class="math inline">\(i\)</span>-th position) and degeneracy maps <span class="math inline">\(s_j = T_f^{n-j} \eta T_f^j\)</span> (applying <span class="math inline">\(\eta\)</span>).</p>
+<p>The <em>normalized bar complex</em> computes the derived functor of the coinvariants:</p>
+<p><strong>Claim.</strong> The bar construction <span class="math inline">\(B(\mathbb{T}_f, \mathbb{T}_f, E)_\bullet\)</span> (the two-sided bar construction) is contractible in <span class="math inline">\(\mathcal{C}/X\)</span> (it has a contracting homotopy given by the extra degeneracy <span class="math inline">\(T_f(E) \to T_f^2(E)\)</span> from the unit <span class="math inline">\(\eta\)</span>). This contractibility is the categorical content of the statement that <span class="math inline">\(T_f\)</span>-algebras form a “resolution” of objects in <span class="math inline">\(\mathcal{C}/X\)</span>.</p>
+<p>Under the identification <span class="math inline">\(T_f(E) = E \times_X Y\)</span>, we have <span class="math inline">\(T_f^n(E) = E \times_X Y^{\times_X n}\)</span>, and the bar complex becomes the Cech nerve augmented over <span class="math inline">\(E\)</span>. <strong>The bar construction for the monad <span class="math inline">\(\mathbb{T}_f\)</span> is exactly the Cech nerve of <span class="math inline">\(f\)</span>, and its contractibility is the content of cohomological descent.</strong> This is the deepest link between the monad-theoretic and sheaf-theoretic perspectives.</p>
+<hr />
+<h2 id="galois-theory-as-descent">6. Galois Theory as Descent 🔑</h2>
+<h3 id="galois-descent-for-vector-spaces">6.1 Galois Descent for Vector Spaces</h3>
+<p>The paradigm example of descent in algebra is <em>Galois descent</em>. Let <span class="math inline">\(K/k\)</span> be a finite Galois extension with Galois group <span class="math inline">\(G = \mathrm{Gal}(K/k)\)</span>.</p>
+<p><strong>Definition (Semilinear Action).</strong> A <em>semilinear <span class="math inline">\(G\)</span>-action</em> on a <span class="math inline">\(K\)</span>-vector space <span class="math inline">\(V\)</span> is a group action of <span class="math inline">\(G\)</span> on the underlying set of <span class="math inline">\(V\)</span> such that for all <span class="math inline">\(\sigma \in G\)</span>, <span class="math inline">\(v \in V\)</span>, <span class="math inline">\(\lambda \in K\)</span>:</p>
+<p><span class="math display">\[\sigma(\lambda \cdot v) = \sigma(\lambda) \cdot \sigma(v),\]</span></p>
+<p>where <span class="math inline">\(G\)</span> acts on <span class="math inline">\(K\)</span> via the Galois action.</p>
+<p><strong>Definition (Galois Descent Datum).</strong> A <em>descent datum</em> for a <span class="math inline">\(K\)</span>-vector space <span class="math inline">\(V\)</span> relative to <span class="math inline">\(K/k\)</span> is a collection of semilinear isomorphisms <span class="math inline">\(\varphi_\sigma : V \to V\)</span> (one for each <span class="math inline">\(\sigma \in G\)</span>) satisfying the cocycle condition <span class="math inline">\(\varphi_{\sigma\tau} = \varphi_\sigma \circ \sigma_*(\varphi_\tau)\)</span>, where <span class="math inline">\(\sigma_*(\varphi_\tau)\)</span> denotes <span class="math inline">\(\varphi_\tau\)</span> twisted by <span class="math inline">\(\sigma\)</span>.</p>
+<p>Equivalently, writing <span class="math inline">\(\varphi_\sigma(v) = \sigma \cdot v\)</span>, a descent datum is a semilinear <span class="math inline">\(G\)</span>-action on <span class="math inline">\(V\)</span>.</p>
+<p><strong>Theorem (Galois Descent).</strong> The functor</p>
+<p><span class="math display">\[k\text{-}\mathbf{Vect} \to \{K\text{-}\mathbf{Vect} \text{ with semilinear } G\text{-action}\}, \qquad W \mapsto (W \otimes_k K, \text{ natural action})\]</span></p>
+<p>is an equivalence of categories. The inverse is <span class="math inline">\(V \mapsto V^G = \{v \in V : \sigma(v) = v \, \forall \sigma \in G\}\)</span>.</p>
+<p><em>Proof sketch.</em> This is a special case of faithfully flat descent. The extension <span class="math inline">\(k \hookrightarrow K\)</span> is faithfully flat (it is a finite separable extension). A <span class="math inline">\(K\)</span>-module with <span class="math inline">\(B \otimes_A B\)</span>-descent data, where <span class="math inline">\(B = K\)</span> and <span class="math inline">\(A = k\)</span>, amounts to: for each <span class="math inline">\(\sigma \in G\)</span>, an isomorphism <span class="math inline">\(\varphi_\sigma : V \otimes_{k,\sigma} K \to V\)</span> satisfying the cocycle condition. Since <span class="math inline">\(K \otimes_k K \cong \prod_{\sigma \in G} K\)</span> (by the Chinese Remainder Theorem, as <span class="math inline">\(K/k\)</span> is Galois), descent data decompose into a semilinear <span class="math inline">\(G\)</span>-action. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> A Concrete Instance
+Let <span class="math inline">\(K = \mathbb{C}\)</span>, <span class="math inline">\(k = \mathbb{R}\)</span>, <span class="math inline">\(G = \{1, c\}\)</span> where <span class="math inline">\(c\)</span> is complex conjugation. A <span class="math inline">\(\mathbb{C}\)</span>-vector space <span class="math inline">\(V\)</span> with semilinear <span class="math inline">\(G\)</span>-action descends to a <span class="math inline">\(\mathbb{R}\)</span>-vector space: the underlying real vector space is <span class="math inline">\(V^G = \{v \in V : c(v) = v\}\)</span>. For <span class="math inline">\(V = \mathbb{C}^n\)</span> with the standard action <span class="math inline">\(c(z_1, \ldots, z_n) = (\bar{z}_1, \ldots, \bar{z}_n)\)</span>, we recover <span class="math inline">\(\mathbb{R}^n \subseteq \mathbb{C}^n\)</span>.</p>
+</div>
+<h3 id="the-fundamental-theorem-via-descent">6.2 The Fundamental Theorem via Descent</h3>
+<p>Grothendieck’s formulation of Galois theory reinterprets the fundamental theorem as a descent statement.</p>
+<p><strong>Setup.</strong> Let <span class="math inline">\(X = \mathrm{Spec}(k)\)</span> for a field <span class="math inline">\(k\)</span> with separable closure <span class="math inline">\(k^s\)</span> and absolute Galois group <span class="math inline">\(\pi_1(X) = \mathrm{Gal}(k^s/k)\)</span>. Consider the fibration <span class="math inline">\(\mathbf{FEt} \to \mathbf{Sch}\)</span> assigning to a scheme its category of finite etale covers.</p>
+<p><strong>Theorem (Grothendieck Galois Theory).</strong> There is an equivalence of categories</p>
+<p><span class="math display">\[\mathbf{FEt}(X) \xrightarrow{\sim} \pi_1(X, \bar{x})\text{-}\mathbf{FinSets}\]</span></p>
+<p>between finite etale covers of <span class="math inline">\(X = \mathrm{Spec}(k)\)</span> and finite sets with continuous <span class="math inline">\(\mathrm{Gal}(k^s/k)\)</span>-action (permutation representations).</p>
+<p>The comparison functor sends <span class="math inline">\(Y \to X\)</span> to the fiber <span class="math inline">\(Y_{\bar{x}} = Y \times_X \mathrm{Spec}(k^s)\)</span>. This fiber functor <span class="math inline">\(\omega : \mathbf{FEt}(X) \to \mathbf{FinSets}\)</span> is a <em>fiber functor</em> in the sense of Tannakian formalism, and the Galois group is recovered as <span class="math inline">\(\mathrm{Aut}(\omega)\)</span> — the automorphism group of <span class="math inline">\(\omega\)</span> as a functor.</p>
+<p>The descent perspective: a finite etale <span class="math inline">\(X\)</span>-scheme <span class="math inline">\(Y\)</span> descends from <span class="math inline">\(\mathrm{Spec}(k^s)\)</span> back to <span class="math inline">\(\mathrm{Spec}(k)\)</span> precisely when the corresponding finite set is equipped with a continuous <span class="math inline">\(\mathrm{Gal}(k^s/k)\)</span>-action satisfying the Galois descent condition.</p>
+<div class="callout callout-info">
+<p> Descent and Galois Cohomology
+The <em>failure</em> of descent — the obstruction to descending a <span class="math inline">\(k^s\)</span>-object to a <span class="math inline">\(k\)</span>-object — is measured by Galois cohomology. Specifically, the set of isomorphism classes of <span class="math inline">\(k\)</span>-forms of a given <span class="math inline">\(k^s\)</span>-object <span class="math inline">\(X_0\)</span> is in bijection with the pointed set <span class="math inline">\(H^1(\mathrm{Gal}(k^s/k), \mathrm{Aut}(X_0))\)</span>. This is the beginning of non-abelian cohomology and the theory of torsors.</p>
+</div>
+<div class="callout callout-example">
+<p> Non-Abelian <span class="math inline">\(H^1\)</span> and Twisted Forms
+The forms problem is where descent meets non-abelian cohomology concretely. Over <span class="math inline">\(k = \mathbb{R}\)</span>, <span class="math inline">\(G = \mathbb{Z}/2\)</span> acting via complex conjugation:</p>
+<ul>
+<li>The <span class="math inline">\(\mathbb{R}\)</span>-forms of the <span class="math inline">\(\mathbb{C}\)</span>-algebra <span class="math inline">\(M_n(\mathbb{C})\)</span> are classified by <span class="math inline">\(H^1(\mathbb{Z}/2, \mathrm{PGL}_n(\mathbb{C}))\)</span>. For <span class="math inline">\(n = 2\)</span>, this gives two forms: <span class="math inline">\(M_2(\mathbb{R})\)</span> itself and the <em>Hamilton quaternions</em> <span class="math inline">\(\mathbb{H}\)</span>. Both become isomorphic to <span class="math inline">\(M_2(\mathbb{C})\)</span> after base change to <span class="math inline">\(\mathbb{C}\)</span>.</li>
+<li>The <span class="math inline">\(\mathbb{R}\)</span>-forms of the quadratic space <span class="math inline">\((\mathbb{C}^n, \text{standard form})\)</span> are classified by <span class="math inline">\(H^1(\mathbb{Z}/2, O_n(\mathbb{C}))\)</span>, recovering the real quadratic forms of signature <span class="math inline">\((p,q)\)</span> with <span class="math inline">\(p + q = n\)</span>.</li>
+</ul>
+<p>The Cech 1-cocycle <span class="math inline">\(\sigma \mapsto \varphi_\sigma \in \mathrm{Aut}(X_0)(k^s)\)</span> (satisfying <span class="math inline">\(\varphi_{\sigma\tau} = \varphi_\sigma \cdot \sigma(\varphi_\tau)\)</span>) is precisely a descent datum, confirming that the descent category for Galois covers is <span class="math inline">\(H^1\)</span> in the non-abelian sense. When <span class="math inline">\(\mathrm{Aut}(X_0)\)</span> is abelian, the pointed set <span class="math inline">\(H^1\)</span> is a group and coincides with the usual Galois cohomology group.</p>
+</div>
+<h3 id="tannakian-formalism">6.3 Tannakian Formalism</h3>
+<p>Tannakian formalism is a vast generalization of Galois descent, where instead of <em>sets with group action</em> one considers <em>linear representations</em>, and the Galois group is replaced by an algebraic group (or group scheme).</p>
+<p><strong>Definition (Tannakian Category).</strong> A <em>Tannakian category</em> over a field <span class="math inline">\(k\)</span> is a <span class="math inline">\(k\)</span>-linear abelian rigid symmetric monoidal category <span class="math inline">\((\mathcal{T}, \otimes, \mathbf{1})\)</span> such that <span class="math inline">\(\mathrm{End}(\mathbf{1}) \cong k\)</span>, together with an <em>exact faithful tensor functor</em> (a <em>fiber functor</em>) <span class="math inline">\(\omega : \mathcal{T} \to k\text{-}\mathbf{Vect}\)</span>.</p>
+<p><strong>Theorem (Tannaka Reconstruction).</strong> Let <span class="math inline">\((\mathcal{T}, \omega)\)</span> be a neutral Tannakian category over <span class="math inline">\(k\)</span>. Define</p>
+<p><span class="math display">\[G = \underline{\mathrm{Aut}}^\otimes(\omega) : \mathbf{Alg}_k \to \mathbf{Grp}, \qquad R \mapsto \mathrm{Aut}^\otimes(\omega_R)\]</span></p>
+<p>where <span class="math inline">\(\omega_R = \omega \otimes_k R\)</span>. Then <span class="math inline">\(G\)</span> is an affine group scheme over <span class="math inline">\(k\)</span>, and there is an equivalence of tensor categories</p>
+<p><span class="math display">\[\mathcal{T} \xrightarrow{\sim} \mathrm{Rep}_k(G).\]</span></p>
+<p><em>Descent perspective.</em> The category <span class="math inline">\(\mathrm{Rep}_k(G)\)</span> is the descent of the trivial representation over <span class="math inline">\(k^s\)</span> (where the representation theory is trivial — every representation is a free module) back to <span class="math inline">\(k\)</span>. The fiber functor <span class="math inline">\(\omega\)</span> plays the role of the “base change to <span class="math inline">\(k^s\)</span>,” and the Galois action is replaced by the <span class="math inline">\(G\)</span>-action. <strong>Tannakian reconstruction is Galois descent for tensor categories.</strong></p>
+<div class="callout callout-example">
+<p> Motivic Galois Group
+In Grothendieck’s vision of motives, the category of pure motives over <span class="math inline">\(\mathbb{Q}\)</span> should be a Tannakian category. The reconstructed group scheme <span class="math inline">\(G = \mathrm{Gal}^{\mathrm{mot}}(\bar{\mathbb{Q}}/\mathbb{Q})\)</span>, the <em>motivic Galois group</em>, should encode all motivic cohomology. This program remains incomplete but guides much of modern arithmetic algebraic geometry.</p>
+</div>
+<hr />
+<h2 id="the-higher-categorical-perspective">7. The Higher-Categorical Perspective 🔬</h2>
+<h3 id="infinity-categorical-descent">7.1 Infinity-Categorical Descent</h3>
+<p>In Lurie’s <span class="math inline">\(\infty\)</span>-categorical framework (Higher Topos Theory, HTT), descent is recast in terms of <span class="math inline">\(\infty\)</span>-sheaves on <span class="math inline">\(\infty\)</span>-sites.</p>
+<p><strong>Definition (Descent in an Infinity-Category).</strong> Let <span class="math inline">\(\mathcal{X}\)</span> be an <span class="math inline">\(\infty\)</span>-category and <span class="math inline">\(U_\bullet \to X\)</span> an augmented simplicial object (thought of as a “cover”). Then descent holds for an object <span class="math inline">\(\mathcal{F} \in \mathcal{X}\)</span> along this cover if the canonical map</p>
+<p><span class="math display">\[\mathcal{F}(X) \to \lim_{\Delta} \mathcal{F}(U_\bullet)\]</span></p>
+<p>is an equivalence in <span class="math inline">\(\mathcal{X}\)</span> (where the limit is the <span class="math inline">\(\infty\)</span>-categorical limit over the simplex category <span class="math inline">\(\Delta^{\mathrm{op}}\)</span>).</p>
+<p><strong>Definition (Infinity-Sheaf / Infinity-Stack).</strong> An <span class="math inline">\(\infty\)</span>-presheaf <span class="math inline">\(\mathcal{F} : \mathcal{C}^{\mathrm{op}} \to \mathcal{S}\)</span> (where <span class="math inline">\(\mathcal{S}\)</span> is the <span class="math inline">\(\infty\)</span>-category of spaces) is an <em><span class="math inline">\(\infty\)</span>-sheaf</em> on a site <span class="math inline">\((\mathcal{C}, \tau)\)</span> if for every cover <span class="math inline">\(U_\bullet \to X\)</span>, the descent condition holds.</p>
+<p>The <span class="math inline">\(\infty\)</span>-categorical formulation is strictly stronger than the classical one: it requires descent for <em>all</em> homotopy limits, not just the <span class="math inline">\(\pi_0\)</span> truncation. This is why the <span class="math inline">\(\infty\)</span>-categorical theory handles stacks, higher stacks, and derived stacks uniformly.</p>
+<div class="callout callout-note">
+<p> Why Infinity-Categories?
+In the classical 1-categorical setting, the cocycle condition for descent data is a strict equality. In derived algebraic geometry, one works with complexes or <span class="math inline">\(\infty\)</span>-groupoids, and the cocycle condition should hold only <em>up to coherent homotopy</em>. The <span class="math inline">\(\infty\)</span>-categorical framework handles this automatically: the limit <span class="math inline">\(\lim_\Delta \mathcal{F}(U_\bullet)\)</span> automatically incorporates all higher coherences.</p>
+</div>
+<h3 id="the-barr-beck-lurie-theorem">7.2 The Barr-Beck-Lurie Theorem</h3>
+<p>The <span class="math inline">\(\infty\)</span>-categorical generalization of Beck’s monadicity theorem is due to Lurie (HTT, §4.7 and HA, §4.7).</p>
+<p><strong>Definition (Monadic Functor, Infinity-Categorical).</strong> A functor <span class="math inline">\(G : \mathcal{D} \to \mathcal{C}\)</span> between <span class="math inline">\(\infty\)</span>-categories is <em>monadic</em> if:
+1. <span class="math inline">\(G\)</span> has a left adjoint <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> (with respect to <a href="../../../../notes/concepts/category-theory/foundations/02-adjoints-representables%7Cadjoints/">concepts/category-theory/foundations/02-adjoints-representables|Adjoints</a> in the <span class="math inline">\(\infty\)</span>-categorical sense).
+2. The comparison functor <span class="math inline">\(K : \mathcal{D} \to \mathrm{Alg}_{\mathbb{T}}(\mathcal{C})\)</span> to the <span class="math inline">\(\infty\)</span>-category of algebras over the induced monad <span class="math inline">\(\mathbb{T} = G \circ F\)</span> is an equivalence.</p>
+<p><strong>Theorem (Barr-Beck-Lurie).</strong> Let <span class="math inline">\(G : \mathcal{D} \to \mathcal{C}\)</span> be a functor of <span class="math inline">\(\infty\)</span>-categories admitting a left adjoint <span class="math inline">\(F\)</span>. Then <span class="math inline">\(G\)</span> is monadic if and only if:
+1. <span class="math inline">\(G\)</span> is <em>conservative</em>: <span class="math inline">\(G(f)\)</span> is an equivalence implies <span class="math inline">\(f\)</span> is an equivalence.
+2. <span class="math inline">\(\mathcal{D}\)</span> admits geometric realizations (i.e., <span class="math inline">\(|\Delta^{\mathrm{op}}|\)</span>-shaped colimits) of <span class="math inline">\(G\)</span>-split simplicial objects, and <span class="math inline">\(G\)</span> preserves these geometric realizations.</p>
+<p>Condition (2) is the <span class="math inline">\(\infty\)</span>-categorical replacement of “has and preserves coequalizers of <span class="math inline">\(U\)</span>-split pairs” — in the <span class="math inline">\(\infty\)</span>-world, coequalizers are replaced by geometric realizations (colimits of simplicial diagrams), because the higher coherences built into an <span class="math inline">\(\infty\)</span>-algebra are precisely captured by a resolution by a simplicial object.</p>
+<div class="callout callout-info">
+<p> Why Geometric Realizations?
+In an ordinary category, an Eilenberg–Moore algebra is specified by a map <span class="math inline">\(TA \to A\)</span> satisfying unit and associativity as <em>equalities</em>. In an <span class="math inline">\(\infty\)</span>-category, an <span class="math inline">\(\infty\)</span>-algebra over a monad is a map <span class="math inline">\(TA \to A\)</span> satisfying these axioms up to coherent homotopy — i.e., it is the data of a whole simplicial object in <span class="math inline">\(\mathcal{D}\)</span> (the bar resolution), whose geometric realization recovers <span class="math inline">\(A\)</span>. The Barr-Beck-Lurie theorem says: <span class="math inline">\(G\)</span> is monadic iff this bar-resolution process is well-behaved.</p>
+</div>
+<p><strong>Corollary (Infinity-Categorical Descent).</strong> For a map <span class="math inline">\(f : Y \to X\)</span> in an <span class="math inline">\(\infty\)</span>-topos <span class="math inline">\(\mathcal{X}\)</span>, the pullback functor <span class="math inline">\(f^* : \mathcal{X}_{/X} \to \mathcal{X}_{/Y}\)</span> is comonadic if and only if <span class="math inline">\(f\)</span> is an effective descent morphism in the <span class="math inline">\(\infty\)</span>-categorical sense.</p>
+<h3 id="infinity-stacks-and-sheaves">7.3 Infinity-Stacks and Sheaves</h3>
+<p>An <em><span class="math inline">\(\infty\)</span>-topos</em> (Lurie, HTT Chapter 6) is an <span class="math inline">\(\infty\)</span>-category <span class="math inline">\(\mathcal{X}\)</span> satisfying:
+1. <span class="math inline">\(\mathcal{X}\)</span> has all small colimits and small limits.
+2. Colimits are <em>universal</em> (stable under base change).
+3. <em>Descent:</em> for every simplicial object <span class="math inline">\(U_\bullet\)</span> in <span class="math inline">\(\mathcal{X}\)</span> with colimit <span class="math inline">\(|U_\bullet| = X\)</span>, the canonical functor <span class="math inline">\(\mathcal{X}_{/X} \to \lim_\Delta \mathcal{X}_{/U_\bullet}\)</span> is an equivalence.</p>
+<p>Condition (3) is literally the <span class="math inline">\(\infty\)</span>-categorical descent condition built into the axioms of an <span class="math inline">\(\infty\)</span>-topos. The descent axiom ensures that <span class="math inline">\(\mathcal{X}\)</span> “looks like” the <span class="math inline">\(\infty\)</span>-category of <span class="math inline">\(\infty\)</span>-sheaves on some <span class="math inline">\(\infty\)</span>-site.</p>
+<p><strong>Theorem (Lurie, HTT 6.1.3).</strong> An <span class="math inline">\(\infty\)</span>-category <span class="math inline">\(\mathcal{X}\)</span> is an <span class="math inline">\(\infty\)</span>-topos if and only if it is equivalent to the <span class="math inline">\(\infty\)</span>-category of <span class="math inline">\(\infty\)</span>-sheaves <span class="math inline">\(\mathrm{Sh}_\infty(\mathcal{C}, \tau)\)</span> on some <span class="math inline">\(\infty\)</span>-site <span class="math inline">\((\mathcal{C}, \tau)\)</span>.</p>
+<div class="callout callout-tip">
+<p> Summary: The Central Equivalence
+The core result threading through this note is:</p>
+<p><strong>For a morphism <span class="math inline">\(f : Y \to X\)</span> in a suitable categorical context:</strong>
+<span class="math display">\[f \text{ is an effective descent morphism} \iff f^* : \mathcal{C}_X \to \mathcal{C}_Y \text{ is (co)monadic.}\]</span></p>
+<p>The proof pathway: Bénabou–Roubaud identifies <span class="math inline">\(\mathrm{Des}(f) \cong \mathrm{Alg}(\mathbb{T}_f)\)</span>, and Beck’s theorem (or Barr-Beck-Lurie in the <span class="math inline">\(\infty\)</span>-case) then gives an explicit criterion — conservativity plus preservation of certain colimits — for when the comparison functor <span class="math inline">\(\mathcal{C}_X \to \mathrm{Alg}(\mathbb{T}_f)\)</span> is an equivalence.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/math/0412512">Vistoli, “Notes on Grothendieck Topologies, Fibered Categories and Descent Theory” (2004)</a></td>
+<td>Comprehensive foundational treatment: fibered categories, Grothendieck topologies, descent data, stacks</td>
+<td><a href="https://arxiv.org/abs/math/0412512">arXiv:math/0412512</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://hal.science/hal-01254637">Bénabou &amp; Roubaud, “Monades et Descente” (1970)</a></td>
+<td>Original paper identifying descent data with monad algebras under Beck-Chevalley</td>
+<td><a href="https://hal.science/hal-01254637">hal-01254637</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://link.springer.com/chapter/10.1007/BFb0083084">Beck, “Distributive Laws” (1969)</a></td>
+<td>Beck’s original unpublished monadicity theorem; first connecting descent to comonadicity</td>
+<td><a href="https://link.springer.com/chapter/10.1007/BFb0083084">Springer link</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.math.ias.edu/~lurie/papers/HTT.pdf">Lurie, “Higher Topos Theory” (2009)</a></td>
+<td>Definitive reference for <span class="math inline">\(\infty\)</span>-categories, <span class="math inline">\(\infty\)</span>-topoi, <span class="math inline">\(\infty\)</span>-descent, and the Barr-Beck-Lurie theorem</td>
+<td><a href="https://www.math.ias.edu/~lurie/papers/HTT.pdf">IAS PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/html/2404.00868v1">Obradović, “The Bénabou-Roubaud Monadic Descent Theorem via String Diagrams” (2024)</a></td>
+<td>Modern treatment of Bénabou–Roubaud with weakened hypotheses and string-diagram proofs</td>
+<td><a href="https://arxiv.org/abs/2404.00868">arXiv:2404.00868</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://math.stanford.edu/~conrad/papers/hypercover.pdf">Conrad, “Cohomological Descent” (2003)</a></td>
+<td>Detailed treatment of cohomological descent via hypercoverings following SGA 4</td>
+<td><a href="https://math.stanford.edu/~conrad/papers/hypercover.pdf">Stanford PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://users.math.msu.edu/users/ruiterj2/math/Documents/Notes%20and%20talks/Galois%20descent.pdf">Ruiter, “Galois Descent” (2020)</a></td>
+<td>Accessible notes on Galois descent for vector spaces with explicit computations</td>
+<td><a href="https://users.math.msu.edu/users/ruiterj2/math/Documents/Notes%20and%20talks/Galois%20descent.pdf">MSU PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.jmilne.org/math/CourseNotes/AG16.pdf">Milne, “Algebraic Geometry, Chapter 16: Descent Theory”</a></td>
+<td>Algebraic geometry perspective on descent, including effective descent morphisms</td>
+<td><a href="https://www.jmilne.org/math/CourseNotes/AG16.pdf">jmilne.org</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://ncatlab.org/nlab/show/monadic+descent">nLab, “Monadic Descent”</a></td>
+<td>Wiki-style reference with definitions, theorems, and connections to the broader categorical literature</td>
+<td><a href="https://ncatlab.org/nlab/show/monadic+descent">nLab</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://ncatlab.org/nlab/show/monadicity+theorem">nLab, “Beck’s Monadicity Theorem”</a></td>
+<td>Precise statement of Beck’s theorem with proof sketch and variants (crude, strict)</td>
+<td><a href="https://ncatlab.org/nlab/show/monadicity+theorem">nLab</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://en.wikipedia.org/wiki/Faithfully_flat_descent">Wikipedia, “Faithfully Flat Descent”</a></td>
+<td>Overview of faithfully flat descent for modules, connection to Beck’s theorem</td>
+<td><a href="https://en.wikipedia.org/wiki/Faithfully_flat_descent">Wikipedia</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://people.maths.ox.ac.uk/brantner/L5.pdf">Brantner, “Lecture 5: The Barr-Beck-Lurie Theorem”</a></td>
+<td>Lecture notes on the <span class="math inline">\(\infty\)</span>-categorical Barr-Beck theorem and its applications</td>
+<td><a href="https://people.maths.ox.ac.uk/brantner/L5.pdf">Oxford PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.hedonisticlearning.com/posts/beck-chevalley.html">Hedonistic Learning, “Beck-Chevalley”</a></td>
+<td>Expository post on the Beck-Chevalley condition, mates, and indexed adjoints</td>
+<td><a href="https://www.hedonisticlearning.com/posts/beck-chevalley.html">blog post</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://golem.ph.utexas.edu/category/2007/05/on_the_bar_construction.html">Golem Café, “On the Bar Construction” (2007)</a></td>
+<td>n-Category Café post on the bar construction, its universal property, and monad connections</td>
+<td><a href="https://golem.ph.utexas.edu/category/2007/05/on_the_bar_construction.html">n-Cat Café</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.jmilne.org/math/xnotes/tc2022.pdf">Deligne &amp; Milne, “Tannakian Categories” (2022)</a></td>
+<td>Definitive reference for Tannakian formalism, fiber functors, and reconstruction theorems</td>
+<td><a href="https://www.jmilne.org/math/xnotes/tc2022.pdf">jmilne.org</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/math/0412512">Fantechi et al., “Fundamental Algebraic Geometry: Grothendieck’s FGA Explained” (2005)</a></td>
+<td>Self-contained introductory treatment of Grothendieck topologies, fibered categories, descent, and stacks; recommended entry point for algebraic geometry</td>
+<td><a href="https://arxiv.org/abs/math/0412512">arXiv:math/0412512</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://link.springer.com/book/10.1007/978-3-642-51438-8">Bosch, Lütkebohmert &amp; Raynaud, “Néron Models” Chapter 6 (1990)</a></td>
+<td>Chapter 6 (§6.1–6.2) contains a detailed and highly concrete treatment of descent theory with worked examples linking Galois descent to the general formalism</td>
+<td><a href="https://link.springer.com/book/10.1007/978-3-642-51438-8">Springer</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

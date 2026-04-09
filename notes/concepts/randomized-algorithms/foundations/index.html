@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>foundations - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>foundations</h1>
+            <article>
+    <section>
+        <p><em>CS 265/CME309: Randomized Algorithms — Lecture 1</em>
+<em>Gregory Valiant, updated by Mary Wootters (Stanford, Fall 2020)</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-introduction-and-motivation%7C1.-introduction-and-motivation/">#1. Introduction and Motivation|1. Introduction and Motivation</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-core-problem%7C1.1-the-core-problem/">#1.1 The Core Problem|1.1 The Core Problem</a></li>
+<li><a href="../../../../notes/#1.2-why-naive-expansion-is-expensive%7C1.2-why-naive-expansion-is-expensive/">#1.2 Why Naive Expansion is Expensive|1.2 Why Naive Expansion is Expensive</a></li>
+<li><a href="../../../../notes/#1.3-applications%7C1.3-applications/">#1.3 Applications|1.3 Applications</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-computational-model-for-randomized-algorithms%7C2.-computational-model-for-randomized-algorithms/">#2. Computational Model for Randomized Algorithms|2. Computational Model for Randomized Algorithms</a>
+<ul>
+<li><a href="../../../../notes/#2.1-binary-tree-view-of-computation%7C2.1-binary-tree-view-of-computation/">#2.1 Binary-Tree View of Computation|2.1 Binary-Tree View of Computation</a></li>
+<li><a href="../../../../notes/#2.2-las-vegas-vs-monte-carlo-algorithms%7C2.2-las-vegas-vs-monte-carlo-algorithms/">#2.2 Las Vegas vs Monte Carlo Algorithms|2.2 Las Vegas vs Monte Carlo Algorithms</a></li>
+<li><a href="../../../../notes/#2.3-error-amplification%7C2.3-error-amplification/">#2.3 Error Amplification|2.3 Error Amplification</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-the-schwartz-zippel-polynomial-identity-test%7C3.-the-schwartz-zippel-polynomial-identity-test/">#3. The Schwartz-Zippel Polynomial Identity Test|3. The Schwartz-Zippel Polynomial Identity Test</a>
+<ul>
+<li><a href="../../../../notes/#3.1-algorithm%7C3.1-algorithm/">#3.1 Algorithm|3.1 Algorithm</a></li>
+<li><a href="../../../../notes/#3.2-schwartz-zippel-theorem%7C3.2-schwartz-zippel-theorem/">#3.2 Schwartz-Zippel Theorem|3.2 Schwartz-Zippel Theorem</a></li>
+<li><a href="../../../../notes/#3.3-proof%7C3.3-proof/">#3.3 Proof|3.3 Proof</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-discussion-and-open-problems%7C4.-discussion-and-open-problems/">#4. Discussion and Open Problems|4. Discussion and Open Problems</a></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="introduction-and-motivation">1. Introduction and Motivation</h2>
+<h3 id="the-core-problem">1.1 The Core Problem</h3>
+<p><strong>Definition (Polynomial Identity Testing).</strong> Given a multivariate polynomial <span class="math inline">\(P(x_1, x_2, \ldots, x_n)\)</span> presented in some <em>implicit</em> form (e.g., as a product of factors, or as the determinant of a matrix whose entries are polynomials), determine whether <span class="math inline">\(P\)</span> is the <em>zero polynomial</em>, i.e., whether all its coefficients are zero.</p>
+<div class="callout callout-note">
+<p> Identically zero vs. has a root
+“<span class="math inline">\(P = 0\)</span>” (as a polynomial) is a much stronger statement than “<span class="math inline">\(P(\mathbf{a}) = 0\)</span> for some <span class="math inline">\(\mathbf{a}\)</span>”. The former means every evaluation is zero; the latter just means <span class="math inline">\(\mathbf{a}\)</span> is a root. Schwartz-Zippel tests the former.</p>
+</div>
+<p>A concrete example of a polynomial that <em>is</em> identically zero despite looking complicated:</p>
+<p><span class="math display">\[P(x_1, x_2, x_3) = -x_3^2(x_1+x_2)(x_1-x_2) + (x_1^2 + (1+x_2)(1-x_2))x_3^2 - x_3^2 - x_3^2(x_1+x_2)(x_1-x_2).\]</span></p>
+<p>Expanding this fully would reveal all terms cancel — but doing so naively is very expensive.</p>
+<hr />
+<div class="callout callout-example">
+<p> Warm-up: Which is identically zero?
+Consider the two degree-4 polynomials:
+<span class="math display">\[f(x) = (x+1)^2(x-2)^2 + x^2(3+2x-x^2) - 4(x+1)\]</span>
+<span class="math display">\[g(x) = (2x+1)^2(x-3)^2 - x^2(1+x+2x^2) - (5x+9)\]</span>
+Which is identically zero? Try plugging in <span class="math inline">\(x = 0\)</span> and <span class="math inline">\(x = 1\)</span> before expanding.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution
+<strong>Plug in <span class="math inline">\(x = 0\)</span>:</strong> <span class="math inline">\(f(0) = (1)(4) + 0 - 4 = 0\)</span>. <span class="math inline">\(g(0) = (1)(9) - 0 - 9 = 0\)</span>. Both vanish — not conclusive.</p>
+<p><strong>Plug in <span class="math inline">\(x = 1\)</span>:</strong> <span class="math inline">\(f(1) = (4)(1) + 1(4) - 8 = 0\)</span>. <span class="math inline">\(g(1) = (9)(4) - 1(4) - 14 = 36 - 4 - 14 = 18 \neq 0\)</span>.</p>
+<p>Since <span class="math inline">\(g(1) \neq 0\)</span>, <span class="math inline">\(g\)</span> is <strong>not</strong> identically zero. By elimination (and verification), <span class="math inline">\(f\)</span> <strong>is</strong> identically zero. Expanding <span class="math inline">\(f\)</span> fully confirms all coefficients are 0.</p>
+</blockquote>
+<hr />
+<h3 id="why-naive-expansion-is-expensive">1.2 Why Naive Expansion is Expensive</h3>
+<p>📐 The naive approach — expand every monomial and collect like terms — has exponential worst-case cost for multivariate polynomials.</p>
+<p><strong>Claim.</strong> A degree-<span class="math inline">\(d\)</span> polynomial in <span class="math inline">\(n\)</span> variables can have up to <span class="math inline">\(\binom{n+d}{d} \approx n^d\)</span> monomials (for fixed <span class="math inline">\(d\)</span>).</p>
+<p>More dramatically, for the product form <span class="math inline">\(f(x) = \prod_{i=1}^{n}(x + a_i)\)</span>, computing the coefficient of <span class="math inline">\(x^{n/2}\)</span> requires summing over all <span class="math inline">\(\binom{n}{n/2}\)</span> subsets of size <span class="math inline">\(n/2\)</span>:</p>
+<p><span class="math display">\[[x^{n/2}]f = \sum_{S \subseteq [n],\, |S|=n/2} \prod_{i \in S} a_i.\]</span></p>
+<p>Since <span class="math inline">\(\binom{n}{n/2} \geq 2^{\Omega(n)}\)</span>, the naive algorithm takes time <span class="math inline">\(2^{\Omega(n)}\)</span> in the worst case.</p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 1
+<em>This problem establishes that naive expansion of a product of linear factors is superpolynomially expensive.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.2-why-naive-expansion-is-expensive/">#1.2 Why Naive Expansion is Expensive</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(f(x) = \prod_{i=1}^{n}(x + i)\)</span>. You want to compute <span class="math inline">\(f\)</span>’s coefficient on <span class="math inline">\(x^{n/2}\)</span> by first expanding the product and collecting like terms.</p>
+<ol type="a">
+<li><p>Write an exact formula for this coefficient as a sum over subsets.</p></li>
+<li><p>Show the number of terms in this sum is at least <span class="math inline">\(2^{n/4}\)</span> for all large <span class="math inline">\(n\)</span>.</p></li>
+<li><p>Argue why this implies no algorithm that uses only ring operations and works by explicit monomial expansion can do better than <span class="math inline">\(2^{\Omega(n)}\)</span> work in the worst case for this family.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 1
+<strong>(a)</strong> By the Vieta / elementary symmetric polynomial formula:
+<span class="math display">\[[x^{n/2}]f = e_{n/2}(1, 2, \ldots, n) = \sum_{S \subseteq [n],\, |S|=n/2} \prod_{i \in S} i.\]</span></p>
+<p><strong>(b)</strong> The number of terms is <span class="math inline">\(\binom{n}{n/2}\)</span>. By Stirling, <span class="math inline">\(\binom{n}{n/2} \sim \frac{2^n}{\sqrt{\pi n/2}} \geq 2^{n/4}\)</span> for all large <span class="math inline">\(n\)</span> (much stronger than asked).</p>
+<p><strong>(c)</strong> Any algorithm computing this sum by iterating over contributing subsets must visit at least <span class="math inline">\(\binom{n}{n/2}\)</span> distinct subsets. Since each visit requires <span class="math inline">\(\Omega(1)\)</span> work, the total is <span class="math inline">\(2^{\Omega(n)}\)</span>. This lower bound applies to the “explicit expansion” approach — other algorithms (FFT-based, DFT over rings) can do better for <em>specific</em> structures, but for the general multivariate case the problem remains hard.</p>
+</blockquote>
+<hr />
+<h3 id="applications">1.3 Applications</h3>
+<p>💡 PIT is a useful primitive precisely because polynomials appear throughout combinatorics and number theory.</p>
+<p><strong>Perfect Matching in Graphs.</strong> Given a bipartite graph <span class="math inline">\(G = (U \cup V, E)\)</span> with <span class="math inline">\(|U| = |V| = n\)</span>, construct the <em>Schwartz matrix</em> <span class="math inline">\(M\)</span> where <span class="math inline">\(M_{ij} = x_{ij}\)</span> if <span class="math inline">\((i,j) \in E\)</span>, else <span class="math inline">\(0\)</span>. Then <span class="math inline">\(\det(M)\)</span> is a polynomial in the <span class="math inline">\(x_{ij}\)</span> variables, and:
+<span class="math display">\[G \text{ has a perfect matching} \iff \det(M) \not\equiv 0.\]</span>
+Testing <span class="math inline">\(\det(M) \not\equiv 0\)</span> reduces to PIT on the polynomial <span class="math inline">\(\det(M)\)</span>.</p>
+<p><strong>Primality Testing.</strong> The polynomial <span class="math inline">\(P(z) := (1+z)^n - 1 - z^n \pmod{n}\)</span> satisfies:
+<span class="math display">\[P(z) \equiv 0 \pmod{n} \iff n \text{ is prime.}\]</span>
+Testing <span class="math inline">\(P \equiv 0\)</span> is again a PIT instance (mod <span class="math inline">\(n\)</span>).</p>
+<hr />
+<h2 id="computational-model-for-randomized-algorithms">2. Computational Model for Randomized Algorithms</h2>
+<p><strong>Definition (Randomized Algorithm).</strong> A <em>randomized algorithm</em> is an algorithm computed by a Turing machine (or RAM) with access to an infinite string of uniformly random bits, equivalently one that can execute a special <code>flip-coin</code> instruction returning an independent fair coin flip.</p>
+<p>The key consequence: the output and runtime of a randomized algorithm are <strong>random variables</strong>. We typically analyze correctness and runtime for a <em>fixed input</em>, averaging only over the algorithm’s internal coin flips.</p>
+<h3 id="binary-tree-view-of-computation">2.1 Binary-Tree View of Computation</h3>
+<p>Every randomized algorithm with at most <span class="math inline">\(k\)</span> coin flips traces a path through a complete binary tree of depth <span class="math inline">\(k\)</span>. Leaves are labeled with outputs. This immediately gives:</p>
+<div class="callout callout-warning">
+<p> Probability constraint
+If the algorithm terminates after at most <span class="math inline">\(k\)</span> coin flips, then every output probability is an <strong>integer multiple of <span class="math inline">\(1/2^k\)</span></strong>. In particular, you cannot achieve probability exactly <span class="math inline">\(1/3\)</span> with a fixed number of flips — but you <em>can</em> simulate a <span class="math inline">\(1/3\)</span>-biased coin using a <em>geometrically distributed</em> number of fair flips.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 2
+<em>This problem establishes that a <span class="math inline">\(p\)</span>-biased coin for irrational <span class="math inline">\(p\)</span> cannot be simulated with a fixed number of fair coin flips, but can be simulated in expected finite time.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.1-binary-tree-view-of-computation/">#2.1 Binary-Tree View of Computation</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Prove that no algorithm using exactly <span class="math inline">\(k\)</span> fair coin flips can output <code>Heads</code> with probability <span class="math inline">\(1/3\)</span>.</p></li>
+<li><p>Describe an algorithm that outputs <code>Heads</code> with probability exactly <span class="math inline">\(1/3\)</span> using a <em>geometrically distributed</em> (unbounded) number of fair coin flips. What is the expected number of flips?</p></li>
+<li><p>Generalize: for any rational <span class="math inline">\(p = a/b\)</span> with <span class="math inline">\(b = 2^m\)</span> for some <span class="math inline">\(m\)</span>, give a fixed-<span class="math inline">\(m\)</span>-flip procedure. What if <span class="math inline">\(b\)</span> is odd?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 2
+<strong>(a)</strong> With exactly <span class="math inline">\(k\)</span> flips, each leaf has probability <span class="math inline">\(1/2^k\)</span>. Any output event is a union of leaves, so its probability is <span class="math inline">\(j/2^k\)</span> for some non-negative integer <span class="math inline">\(j\)</span>. Since <span class="math inline">\(1/3\)</span> is not of this form for any <span class="math inline">\(k\)</span> (as <span class="math inline">\(2^k\)</span> is never divisible by <span class="math inline">\(3\)</span>), no such algorithm exists.</p>
+<p><strong>(b)</strong> Interpret two fair flips as a digit in <span class="math inline">\(\{00, 01, 10, 11\}\)</span>, each with probability <span class="math inline">\(1/4\)</span>. Map: <span class="math inline">\(00 \mapsto\)</span> Heads, <span class="math inline">\(01 \mapsto\)</span> Tails, <span class="math inline">\(10\)</span> or <span class="math inline">\(11 \mapsto\)</span> retry. This outputs Heads with probability <span class="math inline">\(\frac{1/4}{1/4 + 1/4} = 1/2\)</span>. For <span class="math inline">\(1/3\)</span>: use the von Neumann trick over blocks of flips. More directly, flip coins in sequence; on seeing <code>HT</code> output H, on <code>TH</code> output T, on <code>HH</code> or <code>TT</code> retry. This gives probability <span class="math inline">\(1/2\)</span>, not <span class="math inline">\(1/3\)</span>. A correct <span class="math inline">\(1/3\)</span> simulation: interpret three-flip blocks <span class="math inline">\(\{H, T\}^3\)</span> as 8 outcomes, each probability <span class="math inline">\(1/8\)</span>. Assign <code>HHH</code> <span class="math inline">\(\to\)</span> category A (prob <span class="math inline">\(1/8\)</span>), <code>HHT</code>, <code>HTH</code>, <code>THH</code> <span class="math inline">\(\to\)</span> category B (prob <span class="math inline">\(3/8\)</span>). <em>Actually</em> the cleanest approach: generate a uniform integer in <span class="math inline">\(\{1, 2, 3\}\)</span> by rejection sampling from <span class="math inline">\(\{1, \ldots, 4\}\)</span> (reject on <span class="math inline">\(4\)</span>). Each successful trial uses 2 flips; expected total flips = <span class="math inline">\(2 \cdot 4/3 = 8/3\)</span>.</p>
+<p><strong>(c)</strong> If <span class="math inline">\(b = 2^m\)</span>, flip <span class="math inline">\(m\)</span> coins, interpret as a binary integer <span class="math inline">\(r \in \{0, \ldots, 2^m - 1\}\)</span>; output Heads iff <span class="math inline">\(r &lt; a\)</span>. If <span class="math inline">\(b\)</span> is odd, use rejection sampling from the smallest <span class="math inline">\(2^m \geq b\)</span>, rejecting values <span class="math inline">\(\geq b\)</span>.</p>
+</blockquote>
+<hr />
+<h3 id="las-vegas-vs-monte-carlo-algorithms">2.2 Las Vegas vs Monte Carlo Algorithms</h3>
+<p>The two major classes of randomized algorithms trade correctness against runtime:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Property</th>
+<th>Las Vegas</th>
+<th>Monte Carlo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Correctness</td>
+<td>Always correct</td>
+<td>May err</td>
+</tr>
+<tr class="even">
+<td>Runtime</td>
+<td>Random (finite expectation)</td>
+<td>Deterministically bounded</td>
+</tr>
+<tr class="odd">
+<td>Complexity class (poly-time)</td>
+<td>ZPP</td>
+<td>RP (1-sided), BPP (2-sided)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Monte Carlo subtypes for decision problems (yes/no):</strong></p>
+<ul>
+<li><p><strong>1-Sided Error:</strong> If the true answer is “Yes,” the algorithm always outputs “Yes.” If the true answer is “No,” it outputs “No” with probability <span class="math inline">\(\geq p &gt; 0\)</span>. <em>(Equivalently with Yes/No swapped.)</em> The error only occurs on one side.</p></li>
+<li><p><strong>2-Sided Error:</strong> The algorithm is correct with probability <span class="math inline">\(\geq 1/2 + \epsilon\)</span> for some <span class="math inline">\(\epsilon &gt; 0\)</span>.</p></li>
+</ul>
+<div class="callout callout-info">
+<p> Complexity classes
+<em>RP</em> = problems with poly-time 1-sided error Monte Carlo algorithms. <em>BPP</em> = problems with poly-time 2-sided error Monte Carlo algorithms. <em>ZPP</em> = <span class="math inline">\(\text{RP} \cap \text{co-RP}\)</span> = Las Vegas poly-time. It is known that <span class="math inline">\(\text{P} \subseteq \text{ZPP} \subseteq \text{RP} \subseteq \text{BPP}\)</span>, but whether any of these containments is strict is open.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 3
+<em>This problem establishes the relationship between Las Vegas and Monte Carlo algorithms.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.2-las-vegas-vs-monte-carlo-algorithms/">#2.2 Las Vegas vs Monte Carlo Algorithms</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Show that every Las Vegas algorithm (with polynomial expected runtime) can be converted into a 1-sided error Monte Carlo algorithm with polynomial <em>worst-case</em> runtime.</p></li>
+<li><p>Show that a 1-sided error Monte Carlo algorithm can be converted into a Las Vegas algorithm with polynomial <em>expected</em> runtime (assuming the problem is a decision problem and you can verify a “Yes” certificate).</p></li>
+<li><p>Conclude: for decision problems with efficiently verifiable certificates, <span class="math inline">\(\text{ZPP} = \text{RP}\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 3
+<strong>(a)</strong> Let <span class="math inline">\(A\)</span> be Las Vegas with expected runtime <span class="math inline">\(T(n)\)</span>. By Markov’s inequality, <span class="math inline">\(\Pr[\text{runtime} &gt; 2T(n)] \leq 1/2\)</span>. So: run <span class="math inline">\(A\)</span> for at most <span class="math inline">\(2T(n)\)</span> steps; if it terminates, output its answer; if it times out, output “No” (or some fixed default). The resulting algorithm has worst-case runtime <span class="math inline">\(2T(n) = O(T(n))\)</span>. It errs only if it times out <em>and</em> the correct answer was “Yes”, which happens with probability <span class="math inline">\(\leq 1/2\)</span>. This gives 1-sided error (it never wrongly says “Yes”).</p>
+<p><strong>(b)</strong> Run the Monte Carlo algorithm; if it says “Yes,” verify the certificate. If certificate is valid, output “Yes” (correct). If it says “No” or certificate is invalid, repeat. This terminates in expected <span class="math inline">\(O(1/p)\)</span> repetitions where <span class="math inline">\(p &gt; 0\)</span> is the probability of a correct “No” answer. Expected runtime = <span class="math inline">\(O(T(n)/p)\)</span>, polynomial if <span class="math inline">\(p\)</span> is polynomially bounded below.</p>
+<p><strong>(c)</strong> Part (a) shows <span class="math inline">\(\text{ZPP} \subseteq \text{RP}\)</span>; part (b) gives <span class="math inline">\(\text{RP} \subseteq \text{ZPP}\)</span> for problems with efficiently verifiable certificates. For general RP problems the converse requires more care, but the containment <span class="math inline">\(\text{ZPP} = \text{RP} \cap \text{co-RP}\)</span> is standard.</p>
+</blockquote>
+<hr />
+<h3 id="error-amplification">2.3 Error Amplification</h3>
+<p>Running a randomized algorithm multiple times reduces the error probability exponentially.</p>
+<p><strong>1-Sided Error Amplification.</strong> Run the algorithm <span class="math inline">\(t\)</span> times independently. If it ever outputs “No,” output “No”; otherwise output “Yes.” Since a false “Yes” requires all <span class="math inline">\(t\)</span> runs to output “Yes,” the error probability is at most <span class="math inline">\((1-p)^t\)</span>.</p>
+<p><strong>2-Sided Error Amplification.</strong> Run the algorithm <span class="math inline">\(t\)</span> times and take the majority vote.</p>
+<p><strong>Lemma (Majority Vote).</strong> <em>If an algorithm is correct with probability <span class="math inline">\(1/2 + \epsilon\)</span>, and we run it <span class="math inline">\(t\)</span> times and take the majority, the probability of error is at most <span class="math inline">\(e^{-2\epsilon^2 t}\)</span>.</em></p>
+<p><em>Proof.</em> Let <span class="math inline">\(X_i = \mathbf{1}[\text{run } i \text{ is wrong}]\)</span>, so <span class="math inline">\(\Pr[X_i = 1] \leq 1/2 - \epsilon\)</span>. The majority is wrong iff <span class="math inline">\(\sum_i X_i \geq t/2\)</span>. We bound:</p>
+<p><span class="math display">\[\Pr\!\left[\text{majority wrong}\right] \leq \sum_{i=0}^{\lfloor t/2 \rfloor} \binom{t}{i}\!\left(\tfrac{1}{2}+\epsilon\right)^i\!\left(\tfrac{1}{2}-\epsilon\right)^{t-i}.\]</span></p>
+<p>Each term is at most <span class="math inline">\(\binom{t}{i}(1/4 - \epsilon^2)^{t/2}\)</span>, and summing over <span class="math inline">\(i \leq t/2\)</span> gives at most <span class="math inline">\(2^t \cdot (1-4\epsilon^2)^{t/2}\)</span>. Using <span class="math inline">\(1-x \leq e^{-x}\)</span>:</p>
+<p><span class="math display">\[\Pr[\text{error}] \leq 2^t \cdot e^{-2\epsilon^2 t} \cdot 2^{-t} = e^{-2\epsilon^2 t}. \qquad \square\]</span></p>
+<p><strong>Key conclusion:</strong> <span class="math inline">\(O\!\left(\frac{\log(1/\delta)}{\epsilon^2}\right)\)</span> repetitions suffice to drive error below <span class="math inline">\(\delta\)</span>.</p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 4
+<em>This problem sharpens the error amplification analysis using Chernoff bounds.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.3-error-amplification/">#2.3 Error Amplification</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(X = \sum_{i=1}^t X_i\)</span> where each <span class="math inline">\(X_i \in \{0,1\}\)</span> independently with <span class="math inline">\(\Pr[X_i = 1] = 1/2 - \epsilon\)</span>.</p>
+<ol type="a">
+<li><p>Compute <span class="math inline">\(\mathbb{E}[X]\)</span> and show that majority-wrong requires <span class="math inline">\(X \geq t/2 = \mathbb{E}[X] + \epsilon t\)</span>.</p></li>
+<li><p>Apply the Chernoff bound <span class="math inline">\(\Pr[X \geq \mu + \delta] \leq e^{-2\delta^2/t}\)</span> (Hoeffding’s inequality for bounded variables) to re-derive the <span class="math inline">\(e^{-2\epsilon^2 t}\)</span> bound cleanly.</p></li>
+<li><p>How many repetitions are needed to achieve error probability <span class="math inline">\(\leq 10^{-6}\)</span> for <span class="math inline">\(\epsilon = 0.01\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 4
+<strong>(a)</strong> <span class="math inline">\(\mathbb{E}[X] = t(1/2 - \epsilon)\)</span>. Majority is wrong iff <span class="math inline">\(X \geq t/2\)</span>, i.e., <span class="math inline">\(X \geq \mathbb{E}[X] + \epsilon t\)</span>.</p>
+<p><strong>(b)</strong> By Hoeffding with <span class="math inline">\(\delta = \epsilon t\)</span>:
+<span class="math display">\[\Pr[X \geq \mathbb{E}[X] + \epsilon t] \leq e^{-2(\epsilon t)^2/t} = e^{-2\epsilon^2 t}.\]</span></p>
+<p><strong>(c)</strong> Set <span class="math inline">\(e^{-2\epsilon^2 t} \leq 10^{-6}\)</span>, so <span class="math inline">\(t \geq \frac{6\ln 10}{2\epsilon^2} = \frac{6 \times 2.303}{2 \times 0.0001} \approx 69{,}100\)</span> repetitions. In practice the constant <span class="math inline">\(\epsilon = 0.01\)</span> (barely above <span class="math inline">\(1/2\)</span> success probability) is very small; a more typical <span class="math inline">\(\epsilon = 0.1\)</span> requires only <span class="math inline">\(\approx 691\)</span> repetitions.</p>
+</blockquote>
+<hr />
+<h2 id="the-schwartz-zippel-polynomial-identity-test">3. The Schwartz-Zippel Polynomial Identity Test</h2>
+<h3 id="algorithm">3.1 Algorithm</h3>
+<p>The algorithm is almost absurdly simple:</p>
+<p><strong>Algorithm (Schwartz-Zippel PIT).</strong>
+Given <span class="math inline">\(P(x_1, \ldots, x_n)\)</span> of total degree <span class="math inline">\(\leq d\)</span>:
+1. Fix a finite set <span class="math inline">\(S \subseteq \mathbb{F}\)</span> (or <span class="math inline">\(\mathbb{Z}\)</span>).
+2. Sample <span class="math inline">\(r_1, \ldots, r_n \overset{\text{i.i.d.}}{\sim} \mathrm{Uniform}(S)\)</span>.
+3. Evaluate <span class="math inline">\(P(r_1, \ldots, r_n)\)</span>.
+- If <span class="math inline">\(P(r_1, \ldots, r_n) = 0\)</span>: output “<span class="math inline">\(P = 0\)</span>.”
+- Else: output “<span class="math inline">\(P \neq 0\)</span>.”</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> schwartz_zippel(P_eval, n, d, S):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    P_eval: callable (r_1, ..., r_n) -&gt; field element</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    n: number of variables</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    d: degree bound</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    S: finite set to sample from (list)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns: &quot;zero&quot; or &quot;nonzero&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> [random.choice(S) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n)]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> P_eval(<span class="op">*</span>r)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;zero&quot;</span> <span class="cf">if</span> val <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">&quot;nonzero&quot;</span></span></code></pre></div>
+<div class="callout callout-note">
+<p> One-sided error
+The algorithm has <strong>1-sided error</strong>: if <span class="math inline">\(P = 0\)</span>, it always correctly outputs “<span class="math inline">\(P = 0\)</span>” (since <span class="math inline">\(P(\mathbf{r}) = 0\)</span> for all <span class="math inline">\(\mathbf{r}\)</span>). It can only err when <span class="math inline">\(P \neq 0\)</span> — outputting “<span class="math inline">\(P = 0\)</span>” when <span class="math inline">\(P(\mathbf{r}) = 0\)</span> by coincidence. This places PIT in <strong>RP</strong>.</p>
+</div>
+<hr />
+<h3 id="schwartz-zippel-theorem">3.2 Schwartz-Zippel Theorem</h3>
+<p><strong>Theorem (Schwartz-Zippel, 1979; DeMillo-Lipton, 1978).</strong> <em>Let <span class="math inline">\(P(x_1, \ldots, x_n)\)</span> be a nonzero polynomial of total degree <span class="math inline">\(d\)</span> over an integral domain <span class="math inline">\(\mathbb{F}\)</span>. Let <span class="math inline">\(S \subseteq \mathbb{F}\)</span> be a finite set and <span class="math inline">\(r_1, \ldots, r_n \overset{\text{i.i.d.}}{\sim} \mathrm{Uniform}(S)\)</span>. Then:</em></p>
+<p><span class="math display">\[\boxed{\Pr[P(r_1, \ldots, r_n) = 0] \leq \frac{d}{|S|}.}\]</span></p>
+<p><em>Consequently, the Schwartz-Zippel algorithm is correct with probability at least <span class="math inline">\(1 - d/|S|\)</span> on nonzero inputs. Taking <span class="math inline">\(|S| = 2d\)</span> gives error probability <span class="math inline">\(\leq 1/2\)</span>.</em></p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 5
+<em>This exercise develops intuition for the bound before the formal proof.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.2-schwartz-zippel-theorem/">#3.2 Schwartz-Zippel Theorem</a></p>
+</blockquote>
+<ol type="a">
+<li><p>Verify the bound in the univariate case (<span class="math inline">\(n=1\)</span>) directly using the fundamental theorem of algebra.</p></li>
+<li><p>Show the bound is <strong>tight</strong>: for any <span class="math inline">\(d\)</span> and <span class="math inline">\(|S| = d+1\)</span>, construct a polynomial <span class="math inline">\(P(x_1)\)</span> of degree <span class="math inline">\(d\)</span> such that <span class="math inline">\(\Pr[P(r_1) = 0] = d/(d+1) = d/|S|\)</span>.</p></li>
+<li><p>The bound <span class="math inline">\(d/|S|\)</span> depends only on the <em>degree</em>, not on <span class="math inline">\(n\)</span>. Does this seem surprising? Explain intuitively why the number of variables doesn’t appear.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 5
+<strong>(a)</strong> A nonzero degree-<span class="math inline">\(d\)</span> univariate polynomial has at most <span class="math inline">\(d\)</span> roots (fundamental theorem of algebra). Exactly <span class="math inline">\(d\)</span> of the <span class="math inline">\(|S|\)</span> elements can be roots, so <span class="math inline">\(\Pr[P(r_1)=0] \leq d/|S|\)</span>.</p>
+<p><strong>(b)</strong> Let <span class="math inline">\(S = \{a_1, \ldots, a_{d+1}\}\)</span> and <span class="math inline">\(P(x_1) = \prod_{i=1}^{d}(x_1 - a_i)\)</span>. This is degree <span class="math inline">\(d\)</span>, nonzero, and has exactly <span class="math inline">\(d\)</span> roots in <span class="math inline">\(S\)</span>, so <span class="math inline">\(\Pr[P(r_1) = 0] = d/(d+1)\)</span>.</p>
+<p><strong>(c)</strong> <em>Surprisingly</em>, more variables don’t worsen the bound. The intuition: adding variables only “spreads out” the zero set across a higher-dimensional space — but the <em>fraction</em> of the evaluation space that is zero is still controlled by the degree, because at each induction step we fix all but one variable and reduce to the univariate case. The polynomial can’t “use” extra variables to create more zeros per random sample without also increasing its degree.</p>
+</blockquote>
+<hr />
+<h3 id="proof">3.3 Proof</h3>
+<p>The proof is by <strong>induction on <span class="math inline">\(n\)</span></strong>, the number of variables, reducing each step to the univariate case.</p>
+<p><strong>Fact (used in base case).</strong> A nonzero degree-<span class="math inline">\(d\)</span> univariate polynomial has at most <span class="math inline">\(d\)</span> roots.</p>
+<hr />
+<p><strong>Base case (<span class="math inline">\(n = 1\)</span>).</strong> <span class="math inline">\(P(x_1)\)</span> is a nonzero univariate polynomial of degree <span class="math inline">\(d\)</span>. At most <span class="math inline">\(d\)</span> elements of <span class="math inline">\(S\)</span> are roots, so:
+<span class="math display">\[\Pr[P(r_1) = 0] \leq \frac{d}{|S|}.\]</span></p>
+<hr />
+<p><strong>Inductive step.</strong> Assume the theorem holds for all nonzero polynomials in <span class="math inline">\(\leq n-1\)</span> variables. Let <span class="math inline">\(P(x_1, \ldots, x_n)\)</span> be nonzero of degree <span class="math inline">\(d\)</span>.</p>
+<p>Since <span class="math inline">\(P \neq 0\)</span>, at least one variable actually appears; WLOG let <span class="math inline">\(x_1\)</span> appear. Write <span class="math inline">\(P\)</span> by grouping terms according to the power of <span class="math inline">\(x_1\)</span>. Let <span class="math inline">\(k\)</span> be the highest power of <span class="math inline">\(x_1\)</span> that appears:</p>
+<p><span class="math display">\[P(x_1, \ldots, x_n) = x_1^k \cdot Q(x_2, \ldots, x_n) + T(x_1, \ldots, x_n),\]</span></p>
+<p>where:
+- <span class="math inline">\(Q(x_2, \ldots, x_n)\)</span> collects all coefficients of <span class="math inline">\(x_1^k\)</span> — a nonzero polynomial in <span class="math inline">\(n-1\)</span> variables of degree <span class="math inline">\(\leq d - k\)</span>.
+- <span class="math inline">\(T(x_1, \ldots, x_n)\)</span> contains all terms with <span class="math inline">\(x_1\)</span>-degree <span class="math inline">\(&lt; k\)</span>.</p>
+<p>Now condition on the event “<span class="math inline">\(Q(r_2, \ldots, r_n) = 0\)</span>”:</p>
+<p><span class="math display">\[\Pr[P(\mathbf{r}) = 0] = \Pr[P(\mathbf{r}) = 0 \mid Q(\mathbf{r}_{-1}) = 0]\,\Pr[Q(\mathbf{r}_{-1}) = 0] + \Pr[P(\mathbf{r}) = 0 \mid Q(\mathbf{r}_{-1}) \neq 0]\,\Pr[Q(\mathbf{r}_{-1}) \neq 0].\]</span></p>
+<p>🔑 Bounding each piece:</p>
+<ol type="1">
+<li><p><strong><span class="math inline">\(\Pr[Q(r_2,\ldots,r_n) = 0]\)</span>:</strong> By the inductive hypothesis applied to the nonzero polynomial <span class="math inline">\(Q\)</span> of degree <span class="math inline">\(\leq d-k\)</span> in <span class="math inline">\(n-1\)</span> variables:
+<span class="math display">\[\Pr[Q(r_2, \ldots, r_n) = 0] \leq \frac{d-k}{|S|}.\]</span></p></li>
+<li><p><strong><span class="math inline">\(\Pr[P(r_1, \ldots, r_n) = 0 \mid Q(r_2,\ldots,r_n) \neq 0]\)</span>:</strong> Condition on fixed values <span class="math inline">\(r_2, \ldots, r_n\)</span> with <span class="math inline">\(Q(r_2, \ldots, r_n) \neq 0\)</span>. Then <span class="math inline">\(P(x_1, r_2, \ldots, r_n)\)</span> is a nonzero univariate polynomial of degree exactly <span class="math inline">\(k\)</span> in <span class="math inline">\(x_1\)</span> (the leading coefficient <span class="math inline">\(Q(r_2, \ldots, r_n)\)</span> is nonzero). By the base case:
+<span class="math display">\[\Pr[P(r_1, r_2, \ldots, r_n) = 0 \mid Q(r_2,\ldots,r_n) \neq 0] \leq \frac{k}{|S|}.\]</span></p></li>
+</ol>
+<p>Combining via the union bound (or total probability, noting the conditional on the second event and using <span class="math inline">\(\Pr[A] \leq 1\)</span>):</p>
+<p><span class="math display">\[\Pr[P(\mathbf{r}) = 0] \leq \frac{d-k}{|S|} \cdot 1 + \frac{k}{|S|} \cdot 1 = \frac{d}{|S|}. \qquad \square\]</span></p>
+<div class="callout callout-note">
+<p> Why the union bound suffices
+More carefully: <span class="math inline">\(\Pr[P(\mathbf{r}) = 0] \leq \Pr[Q(\mathbf{r}_{-1}) = 0] + \Pr[P(\mathbf{r}) = 0 \mid Q(\mathbf{r}_{-1}) \neq 0]\)</span>. The first term is <span class="math inline">\(\leq (d-k)/|S|\)</span>; the second is <span class="math inline">\(\leq k/|S|\)</span>.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 6
+<em>This problem reconstructs the key inductive step with explicit algebraic detail.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.3-proof/">#3.3 Proof</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(P(x_1, x_2) = x_1^2 x_2 + x_1 x_2^2 - x_1 x_2\)</span> and <span class="math inline">\(S = \{0, 1, 2, 3, 4\}\)</span>.</p>
+<ol type="a">
+<li><p>Identify <span class="math inline">\(k\)</span>, <span class="math inline">\(Q(x_2)\)</span>, and <span class="math inline">\(T(x_1, x_2)\)</span> in the decomposition <span class="math inline">\(P = x_1^k Q + T\)</span>.</p></li>
+<li><p>Compute the upper bound on <span class="math inline">\(\Pr[P(r_1, r_2) = 0]\)</span> given by Schwartz-Zippel.</p></li>
+<li><p>Numerically verify the bound by computing <span class="math inline">\(|\{(r_1, r_2) \in S^2 : P(r_1, r_2) = 0\}| / |S|^2\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 6
+<strong>(a)</strong> The highest power of <span class="math inline">\(x_1\)</span> is <span class="math inline">\(k = 2\)</span>, appearing in <span class="math inline">\(x_1^2 x_2\)</span>. So <span class="math inline">\(Q(x_2) = x_2\)</span> and <span class="math inline">\(T(x_1, x_2) = x_1 x_2^2 - x_1 x_2 = x_1 x_2(x_2 - 1)\)</span>.</p>
+<p><strong>(b)</strong> <span class="math inline">\(P\)</span> has degree <span class="math inline">\(d = 3\)</span> (total degree of <span class="math inline">\(x_1^2 x_2\)</span> or <span class="math inline">\(x_1 x_2^2\)</span> is <span class="math inline">\(3\)</span>). <span class="math inline">\(|S| = 5\)</span>. Schwartz-Zippel gives <span class="math inline">\(\Pr[P(r_1,r_2) = 0] \leq 3/5 = 0.6\)</span>.</p>
+<p><strong>(c)</strong> <span class="math inline">\(P(r_1, r_2) = r_1 r_2(r_1 + r_2 - 1)\)</span>. This is zero iff <span class="math inline">\(r_1 = 0\)</span>, <span class="math inline">\(r_2 = 0\)</span>, or <span class="math inline">\(r_1 + r_2 = 1\)</span>.
+- <span class="math inline">\(r_1 = 0\)</span>: 5 pairs <span class="math inline">\((0, 0), (0,1), \ldots, (0,4)\)</span>.
+- <span class="math inline">\(r_2 = 0\)</span> (and <span class="math inline">\(r_1 \neq 0\)</span>): 4 additional pairs.
+- <span class="math inline">\(r_1 + r_2 = 1\)</span> (and <span class="math inline">\(r_1, r_2 \neq 0\)</span>): only <span class="math inline">\((1,0)\)</span> already counted; no new ones in <span class="math inline">\(S\)</span> since we need <span class="math inline">\(r_1, r_2 \in \{1,\ldots,4\}\)</span> with <span class="math inline">\(r_1 + r_2 = 1\)</span>, impossible.</p>
+<p>Total zeros: <span class="math inline">\(5 + 4 = 9\)</span> out of <span class="math inline">\(25\)</span>. Fraction <span class="math inline">\(= 9/25 = 0.36 \leq 0.6\)</span>. Bound holds. ✓</p>
+</blockquote>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 7
+<em>This problem extends the proof technique to a field of characteristic <span class="math inline">\(p\)</span>.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.3-proof/">#3.3 Proof</a></p>
+</blockquote>
+<p>The Schwartz-Zippel proof uses the fact that a nonzero degree-<span class="math inline">\(d\)</span> univariate polynomial has at most <span class="math inline">\(d\)</span> roots. This holds over any <em>integral domain</em> (a commutative ring with no zero divisors).</p>
+<ol type="a">
+<li><p>Is <span class="math inline">\(\mathbb{Z}/p\mathbb{Z}\)</span> for prime <span class="math inline">\(p\)</span> an integral domain? What about <span class="math inline">\(\mathbb{Z}/6\mathbb{Z}\)</span>?</p></li>
+<li><p>Does Schwartz-Zippel apply to polynomials over <span class="math inline">\(\mathbb{Z}/6\mathbb{Z}\)</span>? Exhibit a nonzero polynomial <span class="math inline">\(P(x) \in (\mathbb{Z}/6\mathbb{Z})[x]\)</span> of degree 1 with more than 1 root.</p></li>
+<li><p>Conclude: over what algebraic structures does Schwartz-Zippel hold, and what is the appropriate version of the bound when working modulo a prime <span class="math inline">\(p\)</span> (and <span class="math inline">\(S = \mathbb{Z}/p\mathbb{Z}\)</span>)?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 7
+<strong>(a)</strong> <span class="math inline">\(\mathbb{Z}/p\mathbb{Z}\)</span> is a field (hence an integral domain) for prime <span class="math inline">\(p\)</span>: if <span class="math inline">\(ab \equiv 0 \pmod{p}\)</span> then <span class="math inline">\(p \mid ab\)</span>, so <span class="math inline">\(p \mid a\)</span> or <span class="math inline">\(p \mid b\)</span>, i.e., <span class="math inline">\(a = 0\)</span> or <span class="math inline">\(b = 0\)</span> in <span class="math inline">\(\mathbb{Z}/p\mathbb{Z}\)</span>.
+<span class="math inline">\(\mathbb{Z}/6\mathbb{Z}\)</span> is <strong>not</strong> an integral domain: <span class="math inline">\(2 \cdot 3 = 6 \equiv 0\)</span> but <span class="math inline">\(2 \neq 0\)</span> and <span class="math inline">\(3 \neq 0\)</span>.</p>
+<p><strong>(b)</strong> <span class="math inline">\(P(x) = 2x \in (\mathbb{Z}/6\mathbb{Z})[x]\)</span> is degree 1 and nonzero (the coefficient 2 is nonzero mod 6). Its roots: <span class="math inline">\(2x \equiv 0 \pmod{6}\)</span> iff <span class="math inline">\(6 \mid 2x\)</span> iff <span class="math inline">\(3 \mid x\)</span>, so <span class="math inline">\(x \in \{0, 3\}\)</span> — two roots for a degree-1 polynomial. Schwartz-Zippel fails.</p>
+<p><strong>(c)</strong> Schwartz-Zippel holds over any integral domain (in particular any field). Over <span class="math inline">\(\mathbb{Z}/p\mathbb{Z}\)</span> with <span class="math inline">\(S = \mathbb{Z}/p\mathbb{Z}\)</span>, the bound gives <span class="math inline">\(\Pr[P(\mathbf{r}) = 0] \leq d/p\)</span>. For the primality application, <span class="math inline">\(S = \mathbb{Z}/p\mathbb{Z}\)</span> and the polynomial has degree <span class="math inline">\(\leq n\)</span>, giving error <span class="math inline">\(\leq n/p\)</span>.</p>
+</blockquote>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 8
+<em>This problem applies Schwartz-Zippel to perfect matching detection.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.3-applications/">#1.3 Applications</a>, <a href="../../../../notes/#3.2-schwartz-zippel-theorem/">#3.2 Schwartz-Zippel Theorem</a></p>
+</blockquote>
+<p>Let <span class="math inline">\(G = (U \cup V, E)\)</span> be a bipartite graph with <span class="math inline">\(|U| = |V| = n\)</span>. Define the <em>Schwartz matrix</em> <span class="math inline">\(M\)</span> by <span class="math inline">\(M_{ij} = x_{ij}\)</span> if <span class="math inline">\((i,j) \in E\)</span>, else <span class="math inline">\(M_{ij} = 0\)</span>. Let <span class="math inline">\(P = \det(M)\)</span>.</p>
+<ol type="a">
+<li><p>Show <span class="math inline">\(P\)</span> has total degree <span class="math inline">\(\leq n\)</span>.</p></li>
+<li><p>Show <span class="math inline">\(P \not\equiv 0\)</span> iff <span class="math inline">\(G\)</span> has a perfect matching. (<em>Hint</em>: expand the determinant as a sum over permutations.)</p></li>
+<li><p>Give a randomized algorithm to test for a perfect matching with error probability <span class="math inline">\(\leq 1/2\)</span>, and state its runtime. What is the error probability after <span class="math inline">\(k\)</span> independent repetitions?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<strong>(a)</strong> By Leibniz formula, <span class="math inline">\(\det(M) = \sum_{\sigma \in S_n} \text{sgn}(\sigma)\prod_{i=1}^n M_{i,\sigma(i)}\)</span>. Each term <span class="math inline">\(\prod_i M_{i,\sigma(i)}\)</span> is a product of at most <span class="math inline">\(n\)</span> distinct variables, so has degree <span class="math inline">\(\leq n\)</span>. Hence <span class="math inline">\(\deg(P) \leq n\)</span>.</p>
+<p><strong>(b)</strong> If <span class="math inline">\(G\)</span> has a perfect matching <span class="math inline">\(\sigma^*\)</span>, then the term <span class="math inline">\(\text{sgn}(\sigma^*)\prod_i x_{i,\sigma^*(i)}\)</span> is a nonzero monomial in <span class="math inline">\(P\)</span> (all variables distinct, coefficient <span class="math inline">\(\pm 1\)</span>). No other term can cancel it (they use different sets of variables). So <span class="math inline">\(P \not\equiv 0\)</span>. Conversely, if <span class="math inline">\(G\)</span> has no perfect matching, every permutation <span class="math inline">\(\sigma\)</span> has at least one edge <span class="math inline">\((i, \sigma(i)) \notin E\)</span>, so <span class="math inline">\(M_{i,\sigma(i)} = 0\)</span> and every term in the Leibniz expansion is zero; thus <span class="math inline">\(P \equiv 0\)</span>.</p>
+<p><strong>(c)</strong> Choose <span class="math inline">\(S = \{1, \ldots, 2n\}\)</span> (<span class="math inline">\(|S| = 2n\)</span>). Sample <span class="math inline">\(r_{ij} \sim \text{Uniform}(S)\)</span> for each <span class="math inline">\((i,j) \in E\)</span>, evaluate <span class="math inline">\(\det(M(r))\)</span> in <span class="math inline">\(O(n^3)\)</span> time (Gaussian elimination). By Schwartz-Zippel with <span class="math inline">\(d = n\)</span>, <span class="math inline">\(|S| = 2n\)</span>: error probability <span class="math inline">\(\leq n/(2n) = 1/2\)</span>. After <span class="math inline">\(k\)</span> repetitions, error <span class="math inline">\(\leq (1/2)^k\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="discussion-and-open-problems">4. Discussion and Open Problems</h2>
+<p>💡 The Schwartz-Zippel algorithm is essentially the simplest possible randomized algorithm: pick a random point, evaluate, check. Yet no efficient deterministic algorithm is known.</p>
+<p><strong>State of deterministic PIT:</strong> No sub-exponential time deterministic algorithm for general PIT is known. For special <em>structured</em> polynomial families (e.g., noncommutative polynomials computed by bounded-width algebraic branching programs), deterministic algorithms exist — see Raz-Shpilka [2].</p>
+<p><strong>The Kabanets-Impagliazzo connection.</strong> A breakthrough result by Kabanets and Impagliazzo [1] shows:</p>
+<div class="callout callout-warning">
+<p> Derandomization is hard
+<strong>If</strong> a deterministic polynomial-time PIT algorithm exists, <strong>then</strong> either <span class="math inline">\(\text{NEXP} \not\subset \text{poly-circuits}\)</span> or the permanent does not have polynomial-size arithmetic circuits. Both conclusions are major open problems in complexity theory.</p>
+</div>
+<p>In other words: <em>derandomizing PIT would imply</em> that we can prove hard circuit lower bounds — something we currently cannot do. This suggests that either PIT is genuinely hard to derandomize, or proving it isn’t requires fundamentally new techniques.</p>
+<p><strong>Connection to <span class="math inline">\(P\)</span> vs <span class="math inline">\(BPP\)</span>.</strong> More broadly, the question of whether randomness is essential for efficiency — whether <span class="math inline">\(P = BPP\)</span> — remains open. PIT is one of the flagship examples where:
+1. A clean, efficient randomized algorithm exists.
+2. We believe an efficient deterministic algorithm exists.
+3. We cannot prove (2) unconditionally.</p>
+<div class="callout callout-question">
+<p> Open problem
+Does PIT have a deterministic polynomial-time algorithm? The current best result is a <em>quasi-polynomial</em> time algorithm for restricted circuit classes (due to a series of works culminating in recent breakthroughs around 2020-2023). The general case remains open.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 9
+<em>This problem explores why derandomization of PIT is connected to lower bounds.</em></p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.-discussion-and-open-problems/">#4. Discussion and Open Problems</a></p>
+</blockquote>
+<p>A polynomial <span class="math inline">\(P\)</span> is <em>hard</em> if the smallest arithmetic circuit computing it has size <span class="math inline">\(\geq 2^{n^\epsilon}\)</span> for some <span class="math inline">\(\epsilon &gt; 0\)</span>.</p>
+<ol type="a">
+<li><p>Explain informally why an efficient PIT algorithm would let us “find” hard polynomials.</p></li>
+<li><p>The Kabanets-Impagliazzo result says: a poly-time deterministic PIT algorithm implies <span class="math inline">\(\text{NEXP} \not\subset P/\text{poly}\)</span>. This implication goes via the “hardness vs randomness” paradigm. State (without proof) the key idea: what does a hard function give you that helps derandomize?</p></li>
+<li><p>Why is the existence of a hard polynomial <em>not</em> obvious, even though most polynomials are hard by a counting argument?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 9
+<strong>(a)</strong> A deterministic PIT algorithm can test whether a given arithmetic circuit computes the zero polynomial. By searching over circuits of increasing size, one could find the minimal circuit for any polynomial — if no small circuit works, we’ve proven hardness. So a fast PIT algorithm gives a fast method to certify circuit lower bounds.</p>
+<p><strong>(b)</strong> The hardness-vs-randomness paradigm: a function <span class="math inline">\(f\)</span> that is hard for small circuits can be used to build a <em>pseudorandom generator</em> (PRG) — a deterministic function that stretches a short seed into a long string that “looks random” to any efficient algorithm. If a PRG exists that fools all poly-time algorithms, then <span class="math inline">\(BPP = P\)</span>, because we can replace random coins with the PRG output and enumerate all seeds deterministically. The key insight: a PRG requires a hard function to “mix” the seed, and circuit lower bounds provide that hardness.</p>
+<p><strong>(c)</strong> A counting argument shows that <em>almost all</em> polynomials of degree <span class="math inline">\(d\)</span> in <span class="math inline">\(n\)</span> variables require large circuits — there are vastly more polynomials than circuits. But “most” doesn’t give an <em>explicit</em> construction: we need to write down a <em>specific</em> polynomial and prove it’s hard. Proving lower bounds for explicit functions is the central challenge of complexity theory, and we currently have only weak (e.g., <span class="math inline">\(\Omega(n\log n)\)</span>) lower bounds for explicit functions in the arithmetic circuit model.</p>
+</blockquote>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CS 265 Lecture 1 (Valiant/Wootters)</td>
+<td>Primary source: computational model, Schwartz-Zippel theorem and proof</td>
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture1/l1.pdf">PDF</a></td>
+</tr>
+<tr class="even">
+<td>CS 265 Class 1 Solutions</td>
+<td>In-class exercises and solutions on PIT</td>
+<td><a href="https://web.stanford.edu/class/archive/cs/cs265/cs265.1212/Lectures/Lecture1/class1-sols.pdf">PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://link.springer.com/article/10.1007/s00037-004-0182-6">Kabanets &amp; Impagliazzo (2004)</a></td>
+<td>Derandomizing PIT implies circuit lower bounds (NEXP ⊄ poly-circuits)</td>
+<td>Computational Complexity 13(1-2):1–46</td>
+</tr>
+<tr class="even">
+<td><a href="https://link.springer.com/article/10.1007/s00037-005-0188-8">Raz &amp; Shpilka (2005)</a></td>
+<td>Deterministic PIT for noncommutative algebraic branching programs</td>
+<td>Computational Complexity 14(1):1–19</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

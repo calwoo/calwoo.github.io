@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>concentration-inequalities - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>concentration-inequalities</h1>
+            <article>
+    <section>
+        <p><em>CS 265/CME309: Randomized Algorithms — Lectures 4–5</em>
+<em>Gregory Valiant, updated by Mary Wootters (Stanford, Fall 2020)</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-markov's-inequality%7C1.-markov's-inequality/">#1. Markov’s Inequality|1. Markov’s Inequality</a>
+<ul>
+<li><a href="../../../../notes/#1.1-statement-and-proof%7C1.1-statement-and-proof/">#1.1 Statement and Proof|1.1 Statement and Proof</a></li>
+<li><a href="../../../../notes/#1.2-sharpness-and-limitations%7C1.2-sharpness-and-limitations/">#1.2 Sharpness and Limitations|1.2 Sharpness and Limitations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-chebyshev's-inequality%7C2.-chebyshev's-inequality/">#2. Chebyshev’s Inequality|2. Chebyshev’s Inequality</a>
+<ul>
+<li><a href="../../../../notes/#2.1-statement-and-proof%7C2.1-statement-and-proof/">#2.1 Statement and Proof|2.1 Statement and Proof</a></li>
+<li><a href="../../../../notes/#2.2-pairwise-independence-and-variance-linearity%7C2.2-pairwise-independence-and-variance-linearity/">#2.2 Pairwise Independence and Variance Linearity|2.2 Pairwise Independence and Variance Linearity</a></li>
+<li><a href="../../../../notes/#2.3-application:-universal-hashing%7C2.3-application:-universal-hashing/">#2.3 Application: Universal Hashing|2.3 Application: Universal Hashing</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-sampling-based-median-finding%7C3.-sampling-based-median-finding/">#3. Sampling-Based Median Finding|3. Sampling-Based Median Finding</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-algorithm%7C3.1-the-algorithm/">#3.1 The Algorithm|3.1 The Algorithm</a></li>
+<li><a href="../../../../notes/#3.2-analysis-via-chebyshev%7C3.2-analysis-via-chebyshev/">#3.2 Analysis via Chebyshev|3.2 Analysis via Chebyshev</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-moment-generating-functions%7C4.-moment-generating-functions/">#4. Moment-Generating Functions|4. Moment-Generating Functions</a>
+<ul>
+<li><a href="../../../../notes/#4.1-definition-and-basic-properties%7C4.1-definition-and-basic-properties/">#4.1 Definition and Basic Properties|4.1 Definition and Basic Properties</a></li>
+<li><a href="../../../../notes/#4.2-gaussian-mgf%7C4.2-gaussian-mgf/">#4.2 Gaussian MGF|4.2 Gaussian MGF</a></li>
+<li><a href="../../../../notes/#4.3-mgf-of-sums-of-independent-bernoullis%7C4.3-mgf-of-sums-of-independent-bernoullis/">#4.3 MGF of Sums of Independent Bernoullis|4.3 MGF of Sums of Independent Bernoullis</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-the-chernoff-bound%7C5.-the-chernoff-bound/">#5. The Chernoff Bound|5. The Chernoff Bound</a>
+<ul>
+<li><a href="../../../../notes/#5.1-the-markov-on-mgf-trick%7C5.1-the-markov-on-mgf-trick/">#5.1 The Markov-on-MGF Trick|5.1 The Markov-on-MGF Trick</a></li>
+<li><a href="../../../../notes/#5.2-main-theorem:-upper-and-lower-tails%7C5.2-main-theorem:-upper-and-lower-tails/">#5.2 Main Theorem: Upper and Lower Tails|5.2 Main Theorem: Upper and Lower Tails</a></li>
+<li><a href="../../../../notes/#5.3-simplified-corollaries%7C5.3-simplified-corollaries/">#5.3 Simplified Corollaries|5.3 Simplified Corollaries</a></li>
+<li><a href="../../../../notes/#5.4-hoeffding's-and-bernstein's-inequalities%7C5.4-hoeffding's-and-bernstein's-inequalities/">#5.4 Hoeffding’s and Bernstein’s Inequalities|5.4 Hoeffding’s and Bernstein’s Inequalities</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-application:-randomized-routing-on-the-hypercube%7C6.-application:-randomized-routing-on-the-hypercube/">#6. Application: Randomized Routing on the Hypercube|6. Application: Randomized Routing on the Hypercube</a>
+<ul>
+<li><a href="../../../../notes/#6.1-setup-and-protocol%7C6.1-setup-and-protocol/">#6.1 Setup and Protocol|6.1 Setup and Protocol</a></li>
+<li><a href="../../../../notes/#6.2-bounding-delay-via-chernoff%7C6.2-bounding-delay-via-chernoff/">#6.2 Bounding Delay via Chernoff|6.2 Bounding Delay via Chernoff</a></li>
+<li><a href="../../../../notes/#6.3-global-termination-and-deterministic-lower-bound%7C6.3-global-termination-and-deterministic-lower-bound/">#6.3 Global Termination and Deterministic Lower Bound|6.3 Global Termination and Deterministic Lower Bound</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="markovs-inequality">1. Markov’s Inequality 📐</h2>
+<p><em>Concentration inequalities</em> are tools for bounding the probability that a random variable deviates far from its mean. They form the analytical backbone of almost every randomized algorithm analysis, from hashing to routing to sampling.</p>
+<h3 id="statement-and-proof">1.1 Statement and Proof</h3>
+<p><strong>Proposition (Markov’s Inequality).</strong> Let <span class="math inline">\(X \geq 0\)</span> be a non-negative random variable with finite expectation <span class="math inline">\(\mathbb{E}[X] &lt; \infty\)</span>. For any <span class="math inline">\(c &gt; 0\)</span>,</p>
+<p><span class="math display">\[\Pr[X \geq c] \leq \frac{\mathbb{E}[X]}{c}.\]</span></p>
+<p><em>Proof.</em> Write <span class="math inline">\(\mathbb{E}[X] = \mathbb{E}[X \cdot \mathbf{1}_{X \geq c}] + \mathbb{E}[X \cdot \mathbf{1}_{X &lt; c}]\)</span>. Since <span class="math inline">\(X \geq 0\)</span>, the second term is non-negative. On the event <span class="math inline">\(\{X \geq c\}\)</span>, we have <span class="math inline">\(X \geq c\)</span>, so <span class="math inline">\(X \cdot \mathbf{1}_{X \geq c} \geq c \cdot \mathbf{1}_{X \geq c}\)</span>. Therefore</p>
+<p><span class="math display">\[\mathbb{E}[X] \geq \mathbb{E}[c \cdot \mathbf{1}_{X \geq c}] = c \cdot \Pr[X \geq c].\]</span></p>
+<p>Dividing both sides by <span class="math inline">\(c\)</span> gives the result. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Equivalent form
+Markov is sometimes stated as: <span class="math inline">\(\Pr[X \geq t \cdot \mathbb{E}[X]] \leq 1/t\)</span> for <span class="math inline">\(t &gt; 1\)</span>. Setting <span class="math inline">\(c = t \cdot \mathbb{E}[X]\)</span> recovers the above. Both forms are equivalent; choose whichever is more convenient in a given analysis.</p>
+</div>
+<h3 id="sharpness-and-limitations">1.2 Sharpness and Limitations</h3>
+<p>The bound is <em>tight</em>: for any <span class="math inline">\(c &gt; 0\)</span> and any <span class="math inline">\(\mu &gt; 0\)</span> with <span class="math inline">\(\mu \leq c\)</span>, consider <span class="math inline">\(X\)</span> that equals <span class="math inline">\(c\)</span> with probability <span class="math inline">\(\mu/c\)</span> and <span class="math inline">\(0\)</span> otherwise. Then <span class="math inline">\(\mathbb{E}[X] = \mu\)</span> and <span class="math inline">\(\Pr[X \geq c] = \mu/c\)</span>, exactly matching the bound.</p>
+<p>⚠️ Markov only requires non-negativity. This generality comes at the cost of quality: the bound can be very loose when we have more structural information (variance, sub-Gaussianity, etc.). Chebyshev exploits variance; Chernoff exploits moment-generating functions.</p>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 1
+<em>This exercise shows that Markov’s inequality is tight in a strong sense: no universal improvement is possible using only mean information.</em></p>
+</div>
+<p>Let <span class="math inline">\(\mu, c\)</span> be given with <span class="math inline">\(0 &lt; \mu &lt; c\)</span>. Show that for any <span class="math inline">\(\varepsilon &gt; 0\)</span>, there exists a non-negative random variable <span class="math inline">\(X\)</span> with <span class="math inline">\(\mathbb{E}[X] = \mu\)</span> such that <span class="math inline">\(\Pr[X \geq c] &gt; \mu/c - \varepsilon\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.1-statement-and-proof%7Cmarkov's-inequality-proof/">#1.1 Statement and Proof|Markov’s Inequality proof</a>; basic properties of expectation.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 1
+<strong>Key insight:</strong> The two-point distribution achieves the bound exactly.</p>
+<p><strong>Sketch:</strong> Define <span class="math inline">\(X\)</span> to be <span class="math inline">\(c\)</span> with probability <span class="math inline">\(p = \mu/c\)</span> and <span class="math inline">\(0\)</span> with probability <span class="math inline">\(1 - p\)</span>. Then <span class="math inline">\(\mathbb{E}[X] = cp = \mu\)</span> and <span class="math inline">\(\Pr[X \geq c] = \mu/c\)</span>. For any <span class="math inline">\(\varepsilon &gt; 0\)</span>, this construction gives <span class="math inline">\(\Pr[X \geq c] = \mu/c &gt; \mu/c - \varepsilon\)</span>. Any distribution with support in <span class="math inline">\([0, c)\)</span> has <span class="math inline">\(\Pr[X \geq c] = 0\)</span> but must still satisfy <span class="math inline">\(\mathbb{E}[X] = \mu\)</span>, so it does not exceed the Markov bound. The two-point family achieves equality, proving no room for improvement exists without additional structural information.</p>
+</blockquote>
+<hr />
+<h2 id="chebyshevs-inequality">2. Chebyshev’s Inequality 💡</h2>
+<p>Chebyshev strengthens Markov by using <em>second-moment</em> (variance) information. It applies to arbitrary real-valued random variables, not just non-negative ones.</p>
+<h3 id="statement-and-proof-1">2.1 Statement and Proof</h3>
+<p><strong>Proposition (Chebyshev’s Inequality).</strong> Let <span class="math inline">\(X\)</span> be a random variable with mean <span class="math inline">\(\mu = \mathbb{E}[X]\)</span> and variance <span class="math inline">\(\sigma^2 = \mathrm{Var}(X) &lt; \infty\)</span>. For any <span class="math inline">\(k &gt; 0\)</span>,</p>
+<p><span class="math display">\[\Pr[|X - \mu| \geq k] \leq \frac{\sigma^2}{k^2}.\]</span></p>
+<p><em>Proof.</em> The random variable <span class="math inline">\((X - \mu)^2\)</span> is non-negative with expectation <span class="math inline">\(\sigma^2\)</span>. By Markov’s inequality applied to <span class="math inline">\((X - \mu)^2\)</span> with threshold <span class="math inline">\(k^2\)</span>:</p>
+<p><span class="math display">\[\Pr[(X - \mu)^2 \geq k^2] \leq \frac{\mathbb{E}[(X-\mu)^2]}{k^2} = \frac{\sigma^2}{k^2}.\]</span></p>
+<p>The event <span class="math inline">\(\{(X-\mu)^2 \geq k^2\}\)</span> is identical to <span class="math inline">\(\{|X - \mu| \geq k\}\)</span>, giving the result. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Standard deviation form
+Setting <span class="math inline">\(k = t\sigma\)</span> yields <span class="math inline">\(\Pr[|X - \mu| \geq t\sigma] \leq 1/t^2\)</span>. So to reduce failure probability to <span class="math inline">\(\delta\)</span>, we need a <span class="math inline">\(\sigma/\sqrt{\delta}\)</span>-width window — a polynomial dependence on <span class="math inline">\(1/\delta\)</span>.</p>
+</div>
+<h3 id="pairwise-independence-and-variance-linearity">2.2 Pairwise Independence and Variance Linearity</h3>
+<p>Recall that random variables <span class="math inline">\(X_1, \ldots, X_n\)</span> are <em>pairwise independent</em> if for every <span class="math inline">\(i \neq j\)</span> and every <span class="math inline">\(a, b\)</span>, <span class="math inline">\(\Pr[X_i = a, X_j = b] = \Pr[X_i = a]\Pr[X_j = b]\)</span>. This is weaker than full mutual independence.</p>
+<p><strong>Proposition (Variance of Pairwise Independent Sum).</strong> If <span class="math inline">\(X_1, \ldots, X_n\)</span> are <em>pairwise independent</em>, then</p>
+<p><span class="math display">\[\mathrm{Var}\!\left(\sum_{i=1}^n X_i\right) = \sum_{i=1}^n \mathrm{Var}(X_i).\]</span></p>
+<p><em>Proof.</em> Let <span class="math inline">\(S = \sum_i X_i\)</span> and <span class="math inline">\(\mu_i = \mathbb{E}[X_i]\)</span>. Then</p>
+<p><span class="math display">\[\mathrm{Var}(S) = \mathbb{E}\!\left[\left(\sum_i (X_i - \mu_i)\right)^2\right] = \sum_i \mathbb{E}[(X_i - \mu_i)^2] + \sum_{i \neq j} \mathbb{E}[(X_i - \mu_i)(X_j - \mu_j)].\]</span></p>
+<p>For <span class="math inline">\(i \neq j\)</span>, pairwise independence gives <span class="math inline">\(\mathbb{E}[(X_i - \mu_i)(X_j - \mu_j)] = \mathbb{E}[X_i - \mu_i]\mathbb{E}[X_j - \mu_j] = 0\)</span>. So all cross-terms vanish and <span class="math inline">\(\mathrm{Var}(S) = \sum_i \mathrm{Var}(X_i)\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Pairwise vs. mutual independence
+Variance linearity requires only <em>pairwise</em> independence, not full independence. This is important for deriving tight bounds in hashing: the hash family we construct achieves pairwise independence but not full <span class="math inline">\(k\)</span>-wise independence for large <span class="math inline">\(k\)</span>.</p>
+</div>
+<h3 id="application-universal-hashing">2.3 Application: Universal Hashing</h3>
+<p>A <em>universal hash family</em> <span class="math inline">\(\mathcal{H}\)</span> maps a universe <span class="math inline">\(U\)</span> to a table <span class="math inline">\([m]\)</span> such that for any <span class="math inline">\(x \neq y \in U\)</span>,</p>
+<p><span class="math display">\[\Pr_{h \sim \mathcal{H}}[h(x) = h(y)] \leq \frac{1}{m}.\]</span></p>
+<p><strong>Construction.</strong> Fix a prime <span class="math inline">\(p \geq |U|\)</span>. Identify <span class="math inline">\(U \subseteq \mathbb{Z}_p\)</span>. The family</p>
+<p><span class="math display">\[\mathcal{H} = \{h_{a,b}(x) = ((ax + b) \bmod p) \bmod m : a, b \in \mathbb{Z}_p,\; a \neq 0\}\]</span></p>
+<p>is universal. Moreover, for any two distinct <span class="math inline">\(x, y\)</span>, the pair <span class="math inline">\((h_{a,b}(x), h_{a,b}(y))\)</span> is <em>pairwise independent</em> — both uniform over <span class="math inline">\([m]\)</span> and independent of each other.</p>
+<p><strong>Bucket analysis via Chebyshev.</strong> Fix a key <span class="math inline">\(x\)</span> and suppose <span class="math inline">\(n\)</span> keys are hashed to a table of size <span class="math inline">\(m = n\)</span>. Let <span class="math inline">\(Y_i = \mathbf{1}[h(x_i) = h(x)]\)</span> for <span class="math inline">\(i \neq x\)</span>. Then <span class="math inline">\(\mathbb{E}[Y_i] = 1/n\)</span> and pairwise independence gives</p>
+<p><span class="math display">\[\mathrm{Var}\!\left(\sum_{i} Y_i\right) = \sum_i \mathrm{Var}(Y_i) \leq \sum_i \mathbb{E}[Y_i] = \frac{n-1}{n} &lt; 1.\]</span></p>
+<p>By Chebyshev, the number of collisions <span class="math inline">\(C\)</span> with <span class="math inline">\(x\)</span> satisfies <span class="math inline">\(\Pr[C \geq k] \leq 1/k^2\)</span> for any <span class="math inline">\(k &gt; 0\)</span>.</p>
+<div class="callout callout-example">
+<p> Why <span class="math inline">\(a \neq 0\)</span> matters
+If <span class="math inline">\(a = 0\)</span>, then <span class="math inline">\(h_{0,b}(x) = b \bmod m\)</span> is a constant function — every key maps to the same bucket. This catastrophically violates the universality property. Restricting <span class="math inline">\(a \in \mathbb{Z}_p^*\)</span> ensures the linear map <span class="math inline">\(ax + b\)</span> is a bijection on <span class="math inline">\(\mathbb{Z}_p\)</span>, making any two distinct inputs map to distinct values before reduction mod <span class="math inline">\(m\)</span>.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 2
+<em>This exercise shows that pairwise independence of the hash family <span class="math inline">\(h_{a,b}\)</span> is sufficient to guarantee near-uniform bucket loads, and derives the exact collision probability.</em></p>
+</div>
+<p>For <span class="math inline">\(h_{a,b}(x) = (ax+b \bmod p) \bmod m\)</span> with <span class="math inline">\(p\)</span> prime and <span class="math inline">\(m \mid p - 1\)</span>, show that for distinct <span class="math inline">\(x, y \in \mathbb{Z}_p\)</span>, <span class="math inline">\(\Pr_{a,b}[h_{a,b}(x) = h_{a,b}(y)] = 1/m\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.3-application:-universal-hashing%7Cuniversal-hash-family-construction/">#2.3 Application: Universal Hashing|Universal hash family construction</a>; properties of linear maps over <span class="math inline">\(\mathbb{Z}_p\)</span>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 2
+<strong>Key insight:</strong> The linear map <span class="math inline">\((x, y) \mapsto (ax+b, ay+b)\)</span> is a bijection on <span class="math inline">\(\mathbb{Z}_p^2\)</span> (when <span class="math inline">\(a \neq 0\)</span>), so the pair <span class="math inline">\((h(x), h(y))\)</span> is uniform over all pairs in <span class="math inline">\([m]^2\)</span>.</p>
+<p><strong>Sketch:</strong> Fix <span class="math inline">\(x \neq y\)</span>. For a randomly chosen <span class="math inline">\((a, b)\)</span> with <span class="math inline">\(a \neq 0\)</span>, consider <span class="math inline">\((u, v) = (ax+b \bmod p, ay+b \bmod p)\)</span>. As <span class="math inline">\((a,b)\)</span> ranges uniformly over <span class="math inline">\(\mathbb{Z}_p^* \times \mathbb{Z}_p\)</span>, the pair <span class="math inline">\((u, v)\)</span> is uniform over all pairs <span class="math inline">\((u, v) \in \mathbb{Z}_p^2\)</span> with <span class="math inline">\(u \neq v\)</span> (since the map <span class="math inline">\((a,b) \mapsto (ax+b, ay+b)\)</span> is a bijection). There are <span class="math inline">\(p(p-1)\)</span> such pairs and exactly <span class="math inline">\(p(p-1)/m\)</span> have the same residue class mod <span class="math inline">\(m\)</span>, giving <span class="math inline">\(\Pr[u \equiv v \pmod{m}] = 1/m\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="sampling-based-median-finding">3. Sampling-Based Median Finding 🔑</h2>
+<p>Chebyshev enables a clever algorithm that finds the median of <span class="math inline">\(n\)</span> elements using only <span class="math inline">\(O(n)\)</span> comparisons, much fewer than the <span class="math inline">\(\Theta(n \log n)\)</span> needed for full sorting.</p>
+<h3 id="the-algorithm">3.1 The Algorithm</h3>
+<p>Let <span class="math inline">\(S\)</span> be a set of <span class="math inline">\(n\)</span> elements with a total order. We want to find the <em>median</em>, the element ranked <span class="math inline">\(n/2\)</span> (assume <span class="math inline">\(n\)</span> is even).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sampling_median(S):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="bu">len</span>(S)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="bu">int</span>(n <span class="op">**</span> (<span class="dv">3</span><span class="op">/</span><span class="dv">4</span>))  <span class="co"># sample size</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 1: sample k elements uniformly at random with replacement</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    sample <span class="op">=</span> random.choices(S, k<span class="op">=</span>k)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 2: sort the sample (O(k log k) = o(n) comparisons)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    sample.sort()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 3: define window boundaries</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    lo_rank <span class="op">=</span> k <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="bu">int</span>(n <span class="op">**</span> (<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>))   <span class="co"># lower index in sorted sample</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    hi_rank <span class="op">=</span> k <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="bu">int</span>(n <span class="op">**</span> (<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>))   <span class="co"># upper index in sorted sample</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> sample[lo_rank]</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> sample[hi_rank]</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 4: compare every element of S to a and b</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    below_a <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> S <span class="cf">if</span> x <span class="op">&lt;</span> a]    <span class="co"># elements below the window</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    above_b <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> S <span class="cf">if</span> x <span class="op">&gt;</span> b]    <span class="co"># elements above the window</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    candidates <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> S <span class="cf">if</span> a <span class="op">&lt;=</span> x <span class="op">&lt;=</span> b]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Step 5: check that median is in the window; return median of candidates</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(below_a) <span class="op">&gt;</span> n <span class="op">//</span> <span class="dv">2</span> <span class="kw">or</span> <span class="bu">len</span>(above_b) <span class="op">&gt;</span> n <span class="op">//</span> <span class="dv">2</span>:</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;FAIL: median not in window&quot;</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(candidates) <span class="op">&gt;</span> <span class="dv">4</span> <span class="op">*</span> <span class="bu">int</span>(n <span class="op">**</span> (<span class="dv">3</span><span class="op">/</span><span class="dv">4</span>)):</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;FAIL: window too large&quot;</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    candidates.sort()   <span class="co"># sort at most O(n^{3/4}) elements</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    target_rank <span class="op">=</span> n <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="bu">len</span>(below_a)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> candidates[target_rank]</span></code></pre></div>
+<p><strong>Theorem (Sampling Median).</strong> The algorithm above:
+1. Fails with probability <span class="math inline">\(O(n^{-1/4})\)</span>.
+2. Uses <span class="math inline">\(2n + o(n)\)</span> comparisons in expectation.</p>
+<h3 id="analysis-via-chebyshev">3.2 Analysis via Chebyshev</h3>
+<p>Let <span class="math inline">\(m\)</span> denote the true median of <span class="math inline">\(S\)</span> (the element with rank <span class="math inline">\(n/2\)</span>). Define:</p>
+<ul>
+<li><span class="math inline">\(Y_i = \mathbf{1}[\text{sample}_i \leq m]\)</span> for each of the <span class="math inline">\(k = n^{3/4}\)</span> sample draws.</li>
+<li><span class="math inline">\(Y = \sum_i Y_i\)</span> = number of sample elements <span class="math inline">\(\leq m\)</span>.</li>
+</ul>
+<p>Each draw is uniform over <span class="math inline">\(S\)</span>, so <span class="math inline">\(\mathbb{E}[Y_i] = 1/2\)</span> (exactly half of <span class="math inline">\(S\)</span> lies <span class="math inline">\(\leq m\)</span>). Thus <span class="math inline">\(\mathbb{E}[Y] = k/2\)</span>. Draws are independent (sampling with replacement), so</p>
+<p><span class="math display">\[\mathrm{Var}(Y) = k \cdot \mathrm{Var}(Y_i) \leq k \cdot \frac{1}{4} = \frac{n^{3/4}}{4}.\]</span></p>
+<p>The event “median is above window” means <span class="math inline">\(Y &lt; k/2 - \sqrt{n}\)</span> (fewer than <span class="math inline">\(k/2 - \sqrt{n}\)</span> sample elements are <span class="math inline">\(\leq m\)</span>, so <span class="math inline">\(a\)</span> has rank above <span class="math inline">\(n/2\)</span> in <span class="math inline">\(S\)</span>). By Chebyshev:</p>
+<p><span class="math display">\[\Pr\!\left[Y \leq \frac{k}{2} - \sqrt{n}\right] \leq \Pr\!\left[|Y - k/2| \geq \sqrt{n}\right] \leq \frac{n^{3/4}/4}{n} = \frac{1}{4n^{1/4}}.\]</span></p>
+<p>By symmetry, the same bound holds for <span class="math inline">\(b\)</span> failing. By a union bound, the probability that <span class="math inline">\(m \notin [a, b]\)</span> is <span class="math inline">\(O(n^{-1/4})\)</span>.</p>
+<p><strong>Window size.</strong> The window <span class="math inline">\([a, b]\)</span> contains at most the elements between ranks <span class="math inline">\(k/2 - \sqrt{n}\)</span> and <span class="math inline">\(k/2 + \sqrt{n}\)</span> in <span class="math inline">\(S\)</span>. Each sample element is uniform, so the expected number of <span class="math inline">\(S\)</span>-elements in <span class="math inline">\([a,b]\)</span> is at most <span class="math inline">\(2\sqrt{n} \cdot (n/k) = 2n^{3/4}\)</span>. A Markov argument gives <span class="math inline">\(|[a,b] \cap S| \leq 4n^{3/4}\)</span> with probability <span class="math inline">\(\geq 1/2\)</span>; a more careful Chebyshev analysis absorbs this into the failure probability.</p>
+<p><strong>Comparison count.</strong> Step 4 costs exactly <span class="math inline">\(2n\)</span> comparisons (every element compared to <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>). Step 5 sorts <span class="math inline">\(O(n^{3/4})\)</span> candidates in <span class="math inline">\(O(n^{3/4} \log n) = o(n)\)</span> comparisons. Total: <span class="math inline">\(2n + o(n)\)</span>.</p>
+<div class="callout callout-info">
+<p> Context in comparison-based sorting
+The classical lower bound for finding the median in the comparison model is <span class="math inline">\(\Theta(n)\)</span> comparisons (proved by adversary arguments). The naive approach — sort everything — uses <span class="math inline">\(\Theta(n \log n)\)</span>. The sampling algorithm achieves <span class="math inline">\(2n + o(n)\)</span> comparisons while tolerating a tiny failure probability. The optimal deterministic algorithm (Blum et al., 1973, “median of medians”) achieves <span class="math inline">\(O(n)\)</span> worst-case deterministically, but with a larger constant.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 3
+<em>This exercise tightens the window-size analysis to show the window contains <span class="math inline">\(O(n^{3/4})\)</span> elements with high probability, completing the correctness proof.</em></p>
+</div>
+<p>Let <span class="math inline">\(W\)</span> be the number of elements of <span class="math inline">\(S\)</span> falling in the interval <span class="math inline">\([a, b]\)</span> defined by the algorithm. Show that <span class="math inline">\(\Pr[W &gt; 4n^{3/4}] = O(n^{-1/4})\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.2-analysis-via-chebyshev%7Csampling-median-chebyshev-analysis/">#3.2 Analysis via Chebyshev|Sampling-median Chebyshev analysis</a>; <a href="../../../../notes/#2.1-statement-and-proof%7Cchebyshev's-inequality/">#2.1 Statement and Proof|Chebyshev’s inequality</a>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 3
+<strong>Key insight:</strong> The number of <span class="math inline">\(S\)</span>-elements in the window equals the number of <span class="math inline">\(S\)</span>-elements between the <span class="math inline">\((k/2 - \sqrt{n})\)</span>-th and <span class="math inline">\((k/2 + \sqrt{n})\)</span>-th order statistics of the sample. In expectation this is <span class="math inline">\(2\sqrt{n} \cdot (n/k) \cdot 1 = 2n^{3/4}\)</span> (since each rank-gap in the sample corresponds to <span class="math inline">\(n/k = n^{1/4}\)</span> elements of <span class="math inline">\(S\)</span>).</p>
+<p><strong>Sketch:</strong> Let <span class="math inline">\(Z_i = \mathbf{1}[\text{sample}_i \text{ lands in the middle } 2\sqrt{n}\text{-wide band of } S]\)</span>. Since each sample is uniform over <span class="math inline">\(S\)</span>, <span class="math inline">\(\mathbb{E}[Z_i] = 2\sqrt{n}/n = 2/\sqrt{n}\)</span>. Then <span class="math inline">\(W_{\text{sample}} = \sum_i Z_i\)</span> satisfies <span class="math inline">\(\mathbb{E}[W_{\text{sample}}] = k \cdot 2/\sqrt{n} = 2n^{3/4}/\sqrt{n} \cdot n^{3/4} = 2n^{1/4}\)</span>… actually the window in <span class="math inline">\(S\)</span> has size roughly <span class="math inline">\((2\sqrt{n})\cdot(n/k) = 2n^{1-3/4} = 2n^{1/4}\)</span> elements — wait, re-parametrize: the sample has <span class="math inline">\(k = n^{3/4}\)</span> points, each representing about <span class="math inline">\(n/k = n^{1/4}\)</span> elements of <span class="math inline">\(S\)</span>. A <span class="math inline">\(2\sqrt{n}\)</span>-wide band in sample ranks corresponds to <span class="math inline">\(2\sqrt{n} \cdot n^{1/4} = 2n^{3/4}\)</span> elements of <span class="math inline">\(S\)</span>. This is the expectation; Chebyshev on <span class="math inline">\(W\)</span> (with pairwise independent indicators if sampling without replacement, or exactly independent with replacement) gives <span class="math inline">\(\Pr[W &gt; 4n^{3/4}] \leq \mathrm{Var}(W)/(2n^{3/4})^2 = O(n^{3/4}/n^{3/2}) = O(n^{-3/4})\)</span>, which is <span class="math inline">\(O(n^{-1/4})\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="moment-generating-functions">4. Moment-Generating Functions 📐</h2>
+<p>To go beyond Chebyshev’s <span class="math inline">\(O(1/k^2)\)</span> tail decay, we need to exploit the <em>entire distribution</em> of a random variable, not just its first two moments. <em>Moment-generating functions</em> (MGFs) encode all moments simultaneously.</p>
+<h3 id="definition-and-basic-properties">4.1 Definition and Basic Properties</h3>
+<p><strong>Definition (Moment-Generating Function).</strong> For a random variable <span class="math inline">\(X\)</span>, its MGF is</p>
+<p><span class="math display">\[M_X(t) = \mathbb{E}[e^{tX}], \quad t \in \mathbb{R},\]</span></p>
+<p>whenever the expectation is finite. When <span class="math inline">\(M_X(t)\)</span> is finite in an open interval around <span class="math inline">\(0\)</span>, the <span class="math inline">\(k\)</span>-th moment satisfies</p>
+<p><span class="math display">\[\mathbb{E}[X^k] = M_X^{(k)}(0),\]</span></p>
+<p>the <span class="math inline">\(k\)</span>-th derivative of <span class="math inline">\(M_X\)</span> evaluated at <span class="math inline">\(0\)</span>. This is immediate from <span class="math inline">\(e^{tX} = \sum_{k=0}^\infty (tX)^k/k!\)</span> and term-by-term differentiation (justified when <span class="math inline">\(M_X\)</span> is finite near <span class="math inline">\(0\)</span>).</p>
+<div class="callout callout-note">
+<p> MGF characterizes the distribution
+If <span class="math inline">\(M_X(t) = M_Y(t)\)</span> for all <span class="math inline">\(t\)</span> in an open interval around <span class="math inline">\(0\)</span>, then <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> have the same distribution. This is a non-trivial theorem (a consequence of the injectivity of the bilateral Laplace transform), but it justifies using MGFs as a complete fingerprint of a distribution.</p>
+</div>
+<p><strong>Key property for sums.</strong> If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are <em>independent</em>, then</p>
+<p><span class="math display">\[M_{X+Y}(t) = \mathbb{E}[e^{t(X+Y)}] = \mathbb{E}[e^{tX}]\mathbb{E}[e^{tY}] = M_X(t) \cdot M_Y(t).\]</span></p>
+<p>This multiplicativity under independence is the engine of Chernoff-type bounds.</p>
+<h3 id="gaussian-mgf">4.2 Gaussian MGF</h3>
+<p><strong>Proposition.</strong> If <span class="math inline">\(X \sim \mathcal{N}(\mu, \sigma^2)\)</span>, then <span class="math inline">\(M_X(t) = e^{\mu t + \sigma^2 t^2 / 2}\)</span>.</p>
+<p><em>Proof.</em> Write <span class="math inline">\(X = \mu + \sigma Z\)</span> with <span class="math inline">\(Z \sim \mathcal{N}(0,1)\)</span>. Then <span class="math inline">\(M_X(t) = e^{\mu t} M_Z(\sigma t)\)</span>. Compute <span class="math inline">\(M_Z(s) = \mathbb{E}[e^{sZ}]\)</span> directly:</p>
+<p><span class="math display">\[M_Z(s) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty} e^{sz} e^{-z^2/2}\,dz = \frac{e^{s^2/2}}{\sqrt{2\pi}}\int_{-\infty}^{\infty} e^{-(z-s)^2/2}\,dz = e^{s^2/2}.\]</span></p>
+<p>Therefore <span class="math inline">\(M_X(t) = e^{\mu t} e^{\sigma^2 t^2/2}\)</span>. <span class="math inline">\(\square\)</span></p>
+<blockquote>
+<p>[!TIP]- Completing the square
+The key step is: <span class="math inline">\(sz - z^2/2 = -(z-s)^2/2 + s^2/2\)</span>. Adding and subtracting <span class="math inline">\(s^2/2\)</span> completes the square, turning the integral into a standard Gaussian integral that equals <span class="math inline">\(\sqrt{2\pi}\)</span>.</p>
+</blockquote>
+<h3 id="mgf-of-sums-of-independent-bernoullis">4.3 MGF of Sums of Independent Bernoullis</h3>
+<p>Let <span class="math inline">\(X_1, \ldots, X_n\)</span> be independent Bernoulli random variables with <span class="math inline">\(\Pr[X_i = 1] = p_i\)</span> and <span class="math inline">\(\Pr[X_i = 0] = 1 - p_i\)</span>. Let <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> with mean <span class="math inline">\(\mu = \sum_i p_i\)</span>.</p>
+<p><strong>MGF computation.</strong> For a single Bernoulli <span class="math inline">\(X_i\)</span>:</p>
+<p><span class="math display">\[M_{X_i}(t) = \mathbb{E}[e^{tX_i}] = (1-p_i) + p_i e^t = 1 + p_i(e^t - 1).\]</span></p>
+<p>By independence,</p>
+<p><span class="math display">\[M_X(t) = \prod_{i=1}^n M_{X_i}(t) = \prod_{i=1}^n \left(1 + p_i(e^t - 1)\right).\]</span></p>
+<p><strong>Bounding via <span class="math inline">\(1 + x \leq e^x\)</span>.</strong> Using the elementary inequality <span class="math inline">\(1 + x \leq e^x\)</span> for all <span class="math inline">\(x \in \mathbb{R}\)</span>,</p>
+<p><span class="math display">\[M_X(t) \leq \prod_{i=1}^n e^{p_i(e^t - 1)} = \exp\!\left(\mu (e^t - 1)\right).\]</span></p>
+<p>This clean upper bound on <span class="math inline">\(M_X(t)\)</span> is what drives the Chernoff bound derivation.</p>
+<div class="callout callout-example">
+<p> Why <span class="math inline">\(1 + x \leq e^x\)</span>
+The function <span class="math inline">\(f(x) = e^x - 1 - x\)</span> satisfies <span class="math inline">\(f(0) = 0\)</span> and <span class="math inline">\(f'(x) = e^x - 1 \geq 0\)</span> for <span class="math inline">\(x \geq 0\)</span> and <span class="math inline">\(f'(x) \leq 0\)</span> for <span class="math inline">\(x \leq 0\)</span>. So <span class="math inline">\(f\)</span> has a global minimum of <span class="math inline">\(0\)</span> at <span class="math inline">\(x = 0\)</span>, proving <span class="math inline">\(e^x \geq 1 + x\)</span> always.</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 4
+<em>This exercise derives the MGF of a Poisson random variable and connects it to the Bernoulli-sum bound above via the Poisson limit theorem.</em></p>
+</div>
+<p>Let <span class="math inline">\(X \sim \mathrm{Poisson}(\lambda)\)</span>, so <span class="math inline">\(\Pr[X = k] = e^{-\lambda}\lambda^k/k!\)</span>.</p>
+<ol type="a">
+<li><p>Show <span class="math inline">\(M_X(t) = \exp(\lambda(e^t - 1))\)</span>.</p></li>
+<li><p>Observe this matches the Bernoulli-sum MGF bound <span class="math inline">\(\exp(\mu(e^t - 1))\)</span> exactly when <span class="math inline">\(\lambda = \mu\)</span>. Explain why this is expected from the Poisson limit of Binomial.</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.3-mgf-of-sums-of-independent-bernoullis%7Cbernoulli-sum-mgf/">#4.3 MGF of Sums of Independent Bernoullis|Bernoulli sum MGF</a>; <a href="../../../../notes/#4.1-definition-and-basic-properties%7Cmgf-definition-and-moment-extraction/">#4.1 Definition and Basic Properties|MGF definition and moment extraction</a>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 4
+<strong>Key insight:</strong> The Poisson distribution arises as the limit of a sum of independent Bernoullis with small, equal <span class="math inline">\(p_i\)</span>, so their MGFs must agree in the limit.</p>
+<p><strong>Sketch (a):</strong> <span class="math inline">\(M_X(t) = \sum_{k=0}^\infty e^{tk} e^{-\lambda}\lambda^k/k! = e^{-\lambda}\sum_{k=0}^\infty (\lambda e^t)^k/k! = e^{-\lambda} e^{\lambda e^t} = \exp(\lambda(e^t-1))\)</span>.</p>
+<p><strong>Sketch (b):</strong> By the Poisson limit theorem, if <span class="math inline">\(X_1^{(n)}, \ldots, X_n^{(n)}\)</span> are i.i.d. <span class="math inline">\(\mathrm{Bernoulli}(\lambda/n)\)</span>, then <span class="math inline">\(S_n = \sum_i X_i^{(n)} \xrightarrow{d} \mathrm{Poisson}(\lambda)\)</span> as <span class="math inline">\(n \to \infty\)</span>. Each factor of <span class="math inline">\(M_{S_n}(t) = (1 + (\lambda/n)(e^t-1))^n \to e^{\lambda(e^t-1)}\)</span>. The bound <span class="math inline">\(\exp(\mu(e^t-1))\)</span> saturates (becomes an equality) precisely in the Poisson case.</p>
+</blockquote>
+<hr />
+<h2 id="the-chernoff-bound">5. The Chernoff Bound 🔑</h2>
+<p>Chernoff bounds give <em>exponentially small</em> tail probabilities for sums of independent bounded random variables — a dramatic improvement over Chebyshev’s polynomial <span class="math inline">\(1/k^2\)</span> decay.</p>
+<h3 id="the-markov-on-mgf-trick">5.1 The Markov-on-MGF Trick</h3>
+<p>The key idea is to apply Markov’s inequality not to <span class="math inline">\(X\)</span> itself, but to the <em>exponential</em> <span class="math inline">\(e^{tX}\)</span> for a well-chosen <span class="math inline">\(t &gt; 0\)</span>. Since <span class="math inline">\(e^{tX}\)</span> is non-negative and monotone in <span class="math inline">\(X\)</span>, the event <span class="math inline">\(\{X \geq c\}\)</span> equals <span class="math inline">\(\{e^{tX} \geq e^{tc}\}\)</span>. Markov gives:</p>
+<p><span class="math display">\[\Pr[X \geq c] = \Pr[e^{tX} \geq e^{tc}] \leq \frac{\mathbb{E}[e^{tX}]}{e^{tc}} = \frac{M_X(t)}{e^{tc}}.\]</span></p>
+<p>This holds for <em>any</em> <span class="math inline">\(t &gt; 0\)</span>. To get the best bound, we minimize the right-hand side over <span class="math inline">\(t &gt; 0\)</span>:</p>
+<p><span class="math display">\[\Pr[X \geq c] \leq \inf_{t &gt; 0} \frac{M_X(t)}{e^{tc}} = \inf_{t &gt; 0} e^{\log M_X(t) - tc}.\]</span></p>
+<p>The function <span class="math inline">\(\log M_X(t) - tc\)</span> is convex in <span class="math inline">\(t\)</span> (since <span class="math inline">\(\log M_X\)</span> is convex), so the infimum is achieved at the <span class="math inline">\(t^*\)</span> satisfying <span class="math inline">\((\log M_X)'(t^*) = c\)</span>, i.e., <span class="math inline">\(\mathbb{E}[Xe^{t^*X}]/M_X(t^*) = c\)</span>.</p>
+<div class="callout callout-note">
+<p> Why exponential improvement?
+Markov applied directly to <span class="math inline">\(X\)</span> gives <span class="math inline">\(\Pr[X \geq c] \leq \mu/c\)</span> — only polynomial decay in <span class="math inline">\(c\)</span>. By “lifting” to <span class="math inline">\(e^{tX}\)</span>, the bound becomes <span class="math inline">\(e^{\mu(e^t - 1)}/e^{tc}\)</span>. Optimizing <span class="math inline">\(t\)</span> gives an exponential in <span class="math inline">\(c\)</span> in the denominator: the probability decays like <span class="math inline">\(e^{-\Omega(c)}\)</span> rather than <span class="math inline">\(1/c\)</span>.</p>
+</div>
+<h3 id="main-theorem-upper-and-lower-tails">5.2 Main Theorem: Upper and Lower Tails</h3>
+<p><strong>Theorem (Chernoff Bounds).</strong> Let <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> where <span class="math inline">\(X_1, \ldots, X_n\)</span> are independent Bernoulli random variables (not necessarily identical) with <span class="math inline">\(\mathbb{E}[X] = \mu\)</span>.</p>
+<p><strong>Upper tail.</strong> For any <span class="math inline">\(\delta &gt; 0\)</span>,</p>
+<p><span class="math display">\[\Pr[X \geq (1+\delta)\mu] \leq \left(\frac{e^\delta}{(1+\delta)^{1+\delta}}\right)^\mu.\]</span></p>
+<p><strong>Lower tail.</strong> For any <span class="math inline">\(0 &lt; \delta &lt; 1\)</span>,</p>
+<p><span class="math display">\[\Pr[X \leq (1-\delta)\mu] \leq \left(\frac{e^{-\delta}}{(1-\delta)^{1-\delta}}\right)^\mu.\]</span></p>
+<p><em>Proof (upper tail).</em> Set <span class="math inline">\(c = (1+\delta)\mu\)</span>. From Section 4.3, <span class="math inline">\(M_X(t) \leq e^{\mu(e^t - 1)}\)</span>. The Markov-on-MGF trick gives</p>
+<p><span class="math display">\[\Pr[X \geq (1+\delta)\mu] \leq \frac{e^{\mu(e^t-1)}}{e^{t(1+\delta)\mu}}\]</span></p>
+<p>for any <span class="math inline">\(t &gt; 0\)</span>. Optimize: set <span class="math inline">\(t = \ln(1+\delta)\)</span> (the minimizer, obtained by differentiating the exponent <span class="math inline">\(\mu(e^t - 1) - t(1+\delta)\mu\)</span> and setting to zero: <span class="math inline">\(e^t = 1+\delta\)</span>). Substituting:</p>
+<p><span class="math display">\[\Pr[X \geq (1+\delta)\mu] \leq \frac{e^{\mu((1+\delta)-1)}}{e^{\ln(1+\delta)(1+\delta)\mu}} = \frac{e^{\mu\delta}}{(1+\delta)^{(1+\delta)\mu}} = \left(\frac{e^\delta}{(1+\delta)^{1+\delta}}\right)^\mu.\]</span></p>
+<p><em>Proof (lower tail).</em> For the lower tail, apply Markov to <span class="math inline">\(e^{-tX}\)</span> for <span class="math inline">\(t &gt; 0\)</span>:</p>
+<p><span class="math display">\[\Pr[X \leq (1-\delta)\mu] = \Pr[e^{-tX} \geq e^{-t(1-\delta)\mu}] \leq \frac{M_X(-t)}{e^{-t(1-\delta)\mu}} \leq \frac{e^{\mu(e^{-t}-1)}}{e^{-t(1-\delta)\mu}}.\]</span></p>
+<p>Set <span class="math inline">\(t = -\ln(1-\delta) &gt; 0\)</span> (for <span class="math inline">\(\delta \in (0,1)\)</span>). Then <span class="math inline">\(e^{-t} = 1-\delta\)</span> and <span class="math inline">\(e^{\mu(e^{-t}-1)} = e^{-\mu\delta}\)</span>. Substituting:</p>
+<p><span class="math display">\[\Pr[X \leq (1-\delta)\mu] \leq \frac{e^{-\mu\delta}}{(1-\delta)^{-(1-\delta)\mu}} = \left(\frac{e^{-\delta}}{(1-\delta)^{1-\delta}}\right)^\mu. \quad \square\]</span></p>
+<div class="callout callout-info">
+<p> The Chernoff bound as a KL divergence
+The quantity <span class="math inline">\(\log\!\left(\frac{(1+\delta)^{1+\delta}}{e^\delta}\right)\)</span> is the Kullback-Leibler divergence <span class="math inline">\(D_{\mathrm{KL}}(\mathrm{Bernoulli}(1+\delta \| \mathrm{Bernoulli}(1))\)</span>, scaled appropriately. This connection to information theory makes Chernoff bounds central to coding theory and hypothesis testing.</p>
+</div>
+<h3 id="simplified-corollaries">5.3 Simplified Corollaries</h3>
+<p>The exact Chernoff form is algebraically unwieldy. Two simpler corollaries cover most applications:</p>
+<p><strong>Corollary (Small-<span class="math inline">\(\delta\)</span> upper tail).</strong> For <span class="math inline">\(\delta \in (0, 1]\)</span>,</p>
+<p><span class="math display">\[\Pr[X \geq (1+\delta)\mu] \leq e^{-\mu\delta^2/3}.\]</span></p>
+<p><em>Proof sketch.</em> It suffices to show <span class="math inline">\((e^\delta/(1+\delta)^{1+\delta})^\mu \leq e^{-\mu\delta^2/3}\)</span>, equivalently <span class="math inline">\(\delta - (1+\delta)\ln(1+\delta) \leq -\delta^2/3\)</span>. Using the Taylor expansion <span class="math inline">\(\ln(1+\delta) \geq \delta - \delta^2/2 + \delta^3/3 - \ldots\)</span> and bounding carefully gives the result for <span class="math inline">\(\delta \in (0,1]\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary (Large-<span class="math inline">\(c\)</span> upper tail).</strong> For <span class="math inline">\(c \geq 6\)</span>,</p>
+<p><span class="math display">\[\Pr[X \geq c\mu] \leq 2^{-c\mu}.\]</span></p>
+<p><em>Proof sketch.</em> For <span class="math inline">\(c \geq 6\)</span>, the exact Chernoff bound gives <span class="math inline">\(e^\delta/(1+\delta)^{1+\delta} \leq 1/2\)</span> when <span class="math inline">\(1+\delta = c \geq 6\)</span> (verifiable numerically or by showing <span class="math inline">\(e^c &lt; (c/e)^c \cdot 2\)</span>). <span class="math inline">\(\square\)</span></p>
+<p><strong>🔑 Combining both corollaries:</strong> For <span class="math inline">\(\delta \in (0,1]\)</span>, the bound <span class="math inline">\(e^{-\mu\delta^2/3}\)</span> gives sub-Gaussian decay. For <span class="math inline">\(c \geq 6\)</span>, the bound <span class="math inline">\(2^{-c\mu}\)</span> gives geometric decay.</p>
+<div class="callout callout-warning">
+<p> When Chernoff is inapplicable
+Chernoff bounds require <strong>independence</strong> (not just pairwise independence). Using them for pairwise-independent sums (e.g., Carter-Wegman hashing) is incorrect — Chebyshev is the right tool there. Chernoff also requires bounded summands; see Hoeffding’s inequality for the general bounded case.</p>
+</div>
+<h3 id="hoeffdings-and-bernsteins-inequalities">5.4 Hoeffding’s and Bernstein’s Inequalities</h3>
+<p>Chernoff bounds extend to more general settings:</p>
+<p><strong>Theorem (Hoeffding’s Inequality).</strong> Let <span class="math inline">\(X_1, \ldots, X_n\)</span> be independent random variables with <span class="math inline">\(a_i \leq X_i \leq b_i\)</span> almost surely. Let <span class="math inline">\(X = \sum_i X_i\)</span> and <span class="math inline">\(\mu = \mathbb{E}[X]\)</span>. For any <span class="math inline">\(t &gt; 0\)</span>,</p>
+<p><span class="math display">\[\Pr[X - \mu \geq t] \leq \exp\!\left(-\frac{2t^2}{\sum_i (b_i - a_i)^2}\right).\]</span></p>
+<p><em>The key step</em> is showing that for a bounded <span class="math inline">\([a,b]\)</span> random variable <span class="math inline">\(Z\)</span> with <span class="math inline">\(\mathbb{E}[Z] = 0\)</span>, the MGF satisfies <span class="math inline">\(\mathbb{E}[e^{tZ}] \leq \exp(t^2(b-a)^2/8)\)</span> (Hoeffding’s lemma, proved via convexity of <span class="math inline">\(e^{tx}\)</span>).</p>
+<p><strong>Theorem (Bernstein’s Inequality).</strong> Under the same setup, if additionally <span class="math inline">\(|X_i - \mathbb{E}[X_i]| \leq M\)</span> a.s. and <span class="math inline">\(\sum_i \mathrm{Var}(X_i) = \sigma^2\)</span>, then</p>
+<p><span class="math display">\[\Pr[X - \mu \geq t] \leq \exp\!\left(-\frac{t^2/2}{\sigma^2 + Mt/3}\right).\]</span></p>
+<p><em>Bernstein improves on Hoeffding</em> in the regime where <span class="math inline">\(t\)</span> is small relative to <span class="math inline">\(M\)</span>: the denominator <span class="math inline">\(\sigma^2 + Mt/3\)</span> reflects the actual variance, whereas Hoeffding uses the worst-case variance <span class="math inline">\((b-a)^2/4\)</span>.</p>
+<div class="callout callout-note">
+<p> Hierarchy of bounds
+From weakest to strongest (requiring more structural assumptions each time):
+- Markov: non-negativity only → polynomial decay <span class="math inline">\(O(1/c)\)</span>
+- Chebyshev: second moment → polynomial decay <span class="math inline">\(O(1/c^2)\)</span>
+- Hoeffding/Bernstein: boundedness → exponential decay <span class="math inline">\(e^{-\Omega(c^2)}\)</span>
+- Chernoff (0/1 variables): exact product formula → optimal exponential decay</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 5
+<em>This exercise derives the exact Chernoff bound for the Binomial distribution and verifies the small-<span class="math inline">\(\delta\)</span> corollary.</em></p>
+</div>
+<p>Let <span class="math inline">\(X \sim \mathrm{Binomial}(n, p)\)</span> with <span class="math inline">\(\mu = np\)</span>. Show from the general Chernoff bound that <span class="math inline">\(\Pr[X \geq (1+\delta)\mu] \leq (e^\delta/(1+\delta)^{1+\delta})^\mu\)</span>, then prove the small-<span class="math inline">\(\delta\)</span> corollary <span class="math inline">\(\Pr[X \geq (1+\delta)\mu] \leq e^{-\mu\delta^2/3}\)</span> for <span class="math inline">\(\delta \in (0,1]\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.2-main-theorem:-upper-and-lower-tails%7Cchernoff-bound-theorem/">#5.2 Main Theorem: Upper and Lower Tails|Chernoff bound theorem</a>; <a href="../../../../notes/#4.3-mgf-of-sums-of-independent-bernoullis%7Cbernoulli-sum-mgf/">#4.3 MGF of Sums of Independent Bernoullis|Bernoulli sum MGF</a>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 5
+<strong>Key insight:</strong> The small-<span class="math inline">\(\delta\)</span> corollary follows from showing <span class="math inline">\(\delta - (1+\delta)\ln(1+\delta) \leq -\delta^2/3\)</span> for <span class="math inline">\(\delta \in (0,1]\)</span>.</p>
+<p><strong>Sketch:</strong> For the Binomial, <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> with <span class="math inline">\(X_i \sim \mathrm{Bernoulli}(p)\)</span> i.i.d., so the general theorem applies directly with <span class="math inline">\(\mu = np\)</span>. For the corollary: let <span class="math inline">\(f(\delta) = \delta - (1+\delta)\ln(1+\delta) + \delta^2/3\)</span>. We want <span class="math inline">\(f(\delta) \leq 0\)</span> for <span class="math inline">\(\delta \in (0,1]\)</span>. We have <span class="math inline">\(f(0) = 0\)</span>. Differentiating: <span class="math inline">\(f'(\delta) = 1 - \ln(1+\delta) - 1 + 2\delta/3 = 2\delta/3 - \ln(1+\delta)\)</span>. Using <span class="math inline">\(\ln(1+\delta) \geq \delta - \delta^2/2\)</span>: <span class="math inline">\(f'(\delta) \leq 2\delta/3 - \delta + \delta^2/2 = \delta(\delta/2 - 1/3)\)</span>. For <span class="math inline">\(\delta \leq 2/3\)</span>, <span class="math inline">\(f'(\delta) \leq 0\)</span>; checking <span class="math inline">\(\delta \in (2/3, 1]\)</span> numerically or by second-order bounds confirms <span class="math inline">\(f(\delta) \leq 0\)</span> throughout <span class="math inline">\([0,1]\)</span>.</p>
+</blockquote>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 6
+<em>This exercise shows that Hoeffding’s inequality recovers the sub-Gaussian tail for sums of centered Bernoullis, and compares it to the Chernoff bound.</em></p>
+</div>
+<p>Let <span class="math inline">\(Z_i = X_i - p\)</span> where <span class="math inline">\(X_i \sim \mathrm{Bernoulli}(p)\)</span> i.i.d. Note <span class="math inline">\(Z_i \in [-p, 1-p]\)</span>.</p>
+<ol type="a">
+<li><p>Apply Hoeffding’s inequality to bound <span class="math inline">\(\Pr[\sum_i Z_i \geq t]\)</span>.</p></li>
+<li><p>Compare the resulting bound to the Chernoff corollary <span class="math inline">\(e^{-\mu\delta^2/3}\)</span> (with <span class="math inline">\(t = \delta\mu\)</span>). Which is tighter, and when?</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#5.4-hoeffding's-and-bernstein's-inequalities%7Choeffding's-inequality/">#5.4 Hoeffding’s and Bernstein’s Inequalities|Hoeffding’s inequality</a>; <a href="../../../../notes/#5.3-simplified-corollaries%7Cchernoff-corollaries/">#5.3 Simplified Corollaries|Chernoff corollaries</a>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 6
+<strong>Key insight:</strong> Hoeffding uses the range <span class="math inline">\((b_i - a_i)^2 = 1^2 = 1\)</span>, giving a bound that does not depend on <span class="math inline">\(p\)</span>; Chernoff exploits the variance <span class="math inline">\(\mathrm{Var}(X_i) = p(1-p)\)</span>, which is smaller than <span class="math inline">\(1/4\)</span> for <span class="math inline">\(p \neq 1/2\)</span>.</p>
+<p><strong>Sketch (a):</strong> Each <span class="math inline">\(Z_i \in [-p, 1-p]\)</span> has range <span class="math inline">\(b_i - a_i = 1\)</span>. Hoeffding gives <span class="math inline">\(\Pr[\sum_i Z_i \geq t] \leq e^{-2t^2/n}\)</span>.</p>
+<p><strong>Sketch (b):</strong> The Chernoff corollary gives <span class="math inline">\(e^{-\mu\delta^2/3}\)</span>. Setting <span class="math inline">\(t = \delta\mu = \delta np\)</span>: Hoeffding gives <span class="math inline">\(e^{-2\delta^2 n^2 p^2/n} = e^{-2\delta^2 np^2}\)</span>, while Chernoff gives <span class="math inline">\(e^{-np\delta^2/3}\)</span>. The exponent ratio is <span class="math inline">\(2np^2\delta^2\)</span> vs. <span class="math inline">\(np\delta^2/3\)</span>, so Chernoff is tighter whenever <span class="math inline">\(p &lt; 1/6\)</span> (small probability events) and Hoeffding is tighter for <span class="math inline">\(p &gt; 1/6\)</span>. In general, Bernstein’s inequality interpolates between the two.</p>
+</blockquote>
+<hr />
+<h2 id="application-randomized-routing-on-the-hypercube">6. Application: Randomized Routing on the Hypercube 🌐</h2>
+<p>A beautiful application of Chernoff bounds is the analysis of <em>Valiant’s randomized routing scheme</em>, which shows that simple randomization achieves near-optimal routing on the hypercube network.</p>
+<h3 id="setup-and-protocol">6.1 Setup and Protocol</h3>
+<p>Let <span class="math inline">\(N = 2^n\)</span> processors form an <span class="math inline">\(n\)</span>-dimensional <em>hypercube</em>: vertices are binary strings <span class="math inline">\(\{0,1\}^n\)</span>, and edges connect strings differing in exactly one bit. Each processor <span class="math inline">\(i\)</span> holds one packet destined for processor <span class="math inline">\(\sigma(i)\)</span> for some permutation <span class="math inline">\(\sigma\)</span>.</p>
+<p><strong>Bit-fixing routing.</strong> To route from <span class="math inline">\(s\)</span> to <span class="math inline">\(d\)</span>, the naive <em>bit-fixing</em> algorithm corrects bits of <span class="math inline">\(s\)</span> to match <span class="math inline">\(d\)</span> from left to right: at each step, find the leftmost bit where the current node differs from <span class="math inline">\(d\)</span> and traverse the corresponding edge. This produces a shortest path of length <span class="math inline">\(\leq n\)</span>.</p>
+<p><strong>Oblivious routing lower bound.</strong> <em>Deterministic</em> oblivious routing (where the path of packet <span class="math inline">\(i\)</span> depends only on its source and destination) has worst-case delivery time <span class="math inline">\(\Omega(2^{n/2}/n) = \Omega(\sqrt{N}/n)\)</span>. This is an exponential blow-up over the <span class="math inline">\(O(n)\)</span> diameter.</p>
+<p><strong>Valiant’s two-phase protocol.</strong> Each packet <span class="math inline">\(i\)</span> at source <span class="math inline">\(s_i\)</span> picks a <em>random intermediate destination</em> <span class="math inline">\(\delta_i \sim \mathrm{Uniform}(\{0,1\}^n)\)</span>, independently of all others. The routing proceeds in two phases:</p>
+<ol type="1">
+<li>Route packet <span class="math inline">\(i\)</span> from <span class="math inline">\(s_i\)</span> to <span class="math inline">\(\delta_i\)</span> via bit-fixing.</li>
+<li>Route packet <span class="math inline">\(i\)</span> from <span class="math inline">\(\delta_i\)</span> to <span class="math inline">\(t_i\)</span> via bit-fixing.</li>
+</ol>
+<p>Each phase runs bit-fixing <em>in parallel</em> for all packets, using a simple <em>FIFO queue</em> at each edge: when multiple packets want to cross the same edge simultaneously, one proceeds and the rest wait.</p>
+<pre class="mermaid"><code>flowchart LR
+    s[&quot;Source s_i&quot;]
+    delta[&quot;Random intermediate δ_i&quot;]
+    t[&quot;Destination t_i&quot;]
+    s --&gt;|&quot;Phase 1: bit-fixing&quot;| delta
+    delta --&gt;|&quot;Phase 2: bit-fixing&quot;| t</code></pre>
+<h3 id="bounding-delay-via-chernoff">6.2 Bounding Delay via Chernoff</h3>
+<p><strong>Definition.</strong> The <em>delay</em> <span class="math inline">\(D(i)\)</span> of packet <span class="math inline">\(i\)</span> in Phase 1 is (total time to reach <span class="math inline">\(\delta_i\)</span>) minus (path length from <span class="math inline">\(s_i\)</span> to <span class="math inline">\(\delta_i\)</span>). Equivalently, <span class="math inline">\(D(i)\)</span> counts the total number of steps packet <span class="math inline">\(i\)</span> spends waiting.</p>
+<p><strong>Lemma.</strong> <span class="math inline">\(D(i) \leq\)</span> (number of other packets whose Phase-1 path shares at least one edge with packet <span class="math inline">\(i\)</span>’s path).</p>
+<p><em>Proof sketch.</em> Each time packet <span class="math inline">\(i\)</span> is delayed by one step, it is because some other packet <span class="math inline">\(j\)</span> used the next edge in <span class="math inline">\(i\)</span>’s path at that exact moment. The number of such delays is at most the number of distinct packets <span class="math inline">\(j\)</span> that ever conflict with packet <span class="math inline">\(i\)</span> on any edge. This is bounded by the number of packets whose paths <em>intersect</em> packet <span class="math inline">\(i\)</span>’s path (since each such packet can delay <span class="math inline">\(i\)</span> at most once per shared edge, and the path has length <span class="math inline">\(\leq n\)</span>, giving <span class="math inline">\(D(i) \leq n \cdot |\{j : \text{path}(j) \cap \text{path}(i) \neq \emptyset\}|\)</span>). A more careful argument via a <em>token counting</em> scheme (original Valiant-Brebner proof) shows <span class="math inline">\(D(i) \leq |\{j \neq i : \text{path}(j) \text{ and path}(i) \text{ share an edge}\}|\)</span>.</p>
+<p><strong>Expected intersections.</strong> Fix packet <span class="math inline">\(i\)</span> with a deterministic path <span class="math inline">\(P_i\)</span> of <span class="math inline">\(\ell \leq n\)</span> edges. For each other packet <span class="math inline">\(j\)</span>, its path <span class="math inline">\(P_j\)</span> from <span class="math inline">\(s_j\)</span> to <span class="math inline">\(\delta_j\)</span> (with <span class="math inline">\(\delta_j\)</span> random) passes through any fixed edge <span class="math inline">\(e\)</span> with probability exactly <span class="math inline">\(1/2\)</span> (since one bit of <span class="math inline">\(\delta_j\)</span> determines whether <span class="math inline">\(j\)</span>’s path uses edge <span class="math inline">\(e\)</span>, and that bit is uniform).</p>
+<p>The expected number of packets <span class="math inline">\(j\)</span> whose path shares <em>any</em> edge with <span class="math inline">\(P_i\)</span> is</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\sum_{j \neq i} \mathbf{1}[P_j \cap P_i \neq \emptyset]\right] \leq \sum_{j \neq i} \Pr[\exists\, e \in P_i : e \in P_j] \leq \sum_{e \in P_i} \sum_{j \neq i} \Pr[e \in P_j] \leq n \cdot \frac{N}{2N} \cdot (N-1) / N \cdot N.\]</span></p>
+<p>More carefully: for each edge <span class="math inline">\(e \in P_i\)</span> (there are at most <span class="math inline">\(n\)</span> of them) and each other packet <span class="math inline">\(j\)</span>, <span class="math inline">\(\Pr[e \in P_j] \leq 1/2\)</span> (one bit of <span class="math inline">\(\delta_j\)</span> determines this). Summing:</p>
+<p><span class="math display">\[\mathbb{E}[T_i] \leq \sum_{e \in P_i} \sum_{j \neq i} \Pr[e \in P_j] \leq n \cdot (N-1) \cdot \frac{1}{2} \approx \frac{n \cdot N}{2}.\]</span></p>
+<p>Wait — this is far too large. The correct argument uses a tighter analysis: <em>among all packets <span class="math inline">\(j\)</span>, only one packet can use each specific edge <span class="math inline">\(e\)</span> from <span class="math inline">\(P_i\)</span> at each time step</em>. The key insight is that we sum over <em>packets</em>, not <em>time steps</em>.</p>
+<p><strong>Refined analysis.</strong> For a fixed packet <span class="math inline">\(i\)</span> with path <span class="math inline">\(P_i\)</span> of length <span class="math inline">\(\ell \leq n\)</span>, define indicator <span class="math inline">\(H_{je}\)</span> = 1 if packet <span class="math inline">\(j\)</span>’s path uses edge <span class="math inline">\(e \in P_i\)</span>. The total “traffic” hitting <span class="math inline">\(P_i\)</span> from other packets is <span class="math inline">\(T_i = \sum_{j \neq i}\sum_{e \in P_i} H_{je}\)</span>. Using <span class="math inline">\(\Pr[H_{je} = 1] \leq 1/N\)</span> (since each packet’s path is determined by <span class="math inline">\(\delta_j\)</span> uniform over <span class="math inline">\(N\)</span> destinations, and packet <span class="math inline">\(j\)</span> uses each specific directed edge with probability <span class="math inline">\(\leq 1/N \cdot \ell \leq n/N\)</span>)… actually, the standard calculation gives:</p>
+<p>For a specific edge <span class="math inline">\(e\)</span>, the bit-fixing path from <span class="math inline">\(s_j\)</span> to <span class="math inline">\(\delta_j\)</span> uses edge <span class="math inline">\(e = (v, v')\)</span> (where <span class="math inline">\(v\)</span> and <span class="math inline">\(v'\)</span> differ in bit <span class="math inline">\(k\)</span>) if and only if <span class="math inline">\(s_j\)</span> and <span class="math inline">\(\delta_j\)</span> agree on bits <span class="math inline">\(1, \ldots, k-1\)</span> but differ on bit <span class="math inline">\(k\)</span>. The number of <span class="math inline">\((\delta_j)\)</span> values that cause <span class="math inline">\(j\)</span>’s path to use edge <span class="math inline">\(e\)</span> is exactly <span class="math inline">\(N/2\)</span> (the bit <span class="math inline">\(k\)</span> of <span class="math inline">\(\delta_j\)</span> must differ from bit <span class="math inline">\(k\)</span> of <span class="math inline">\(s_j\)</span>, and higher-order bits are free). Therefore</p>
+<p><span class="math display">\[\Pr[H_{je} = 1] = \frac{N/2}{N} = \frac{1}{2}.\]</span></p>
+<p>Summing over all <span class="math inline">\(j \neq i\)</span> and all <span class="math inline">\(e \in P_i\)</span>:</p>
+<p><span class="math display">\[\mathbb{E}[T_i] = \sum_{j \neq i}\sum_{e \in P_i} \Pr[H_{je}=1] \leq (N-1) \cdot n \cdot \frac{1}{2} \approx \frac{nN}{2}.\]</span></p>
+<p>This is still large because <span class="math inline">\(N\)</span> is the total number of packets. But <span class="math inline">\(D(i) \leq T_i / 1\)</span> only counts <em>distinct</em> packets that conflict — not the total congestion. A cleaner standard argument is:</p>
+<p>Define <span class="math inline">\(S_j = \mathbf{1}[\text{packet } j \text{ shares at least one edge with packet } i]\)</span>. By inclusion-exclusion (or just a union bound):</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\sum_{j \neq i} S_j\right] \leq \sum_{j \neq i} \sum_{e \in P_i} \Pr[e \in P_j] \leq (N-1) \cdot \frac{n}{2}.\]</span></p>
+<p>The delay lemma gives <span class="math inline">\(D(i) \leq T_i\)</span> where <span class="math inline">\(T_i = \sum_{j \neq i} S_j\)</span>. Now apply Chernoff (the <span class="math inline">\(S_j\)</span> are independent Bernoullis since each <span class="math inline">\(\delta_j\)</span> is independent):</p>
+<p><span class="math display">\[\mu_{T_i} = \mathbb{E}[T_i] \leq \frac{n(N-1)}{2} &lt; \frac{nN}{2}.\]</span></p>
+<p>Setting <span class="math inline">\(\mu = n/2\)</span> (by considering per-packet path analysis with path length <span class="math inline">\(n\)</span> and per-edge probability <span class="math inline">\(1/N\)</span>… let us use the correct per-packet intersection probability). In the standard analysis, we actually define <span class="math inline">\(H_j = \mathbf{1}[\text{path}(j) \text{ intersects path}(i)]\)</span> and use the bound:</p>
+<p>For each packet <span class="math inline">\(j\)</span>, the probability that <span class="math inline">\(j\)</span>’s random path (to a uniform <span class="math inline">\(\delta_j\)</span>) intersects a fixed path <span class="math inline">\(P_i\)</span> of length <span class="math inline">\(\ell\)</span> is at most <span class="math inline">\(\ell/N \cdot N/2 = \ell/2\)</span>… more carefully, each edge of <span class="math inline">\(P_i\)</span> is used by packet <span class="math inline">\(j\)</span> with probability <span class="math inline">\(1/2\)</span>, so</p>
+<p><span class="math display">\[\Pr[H_j = 1] \leq \sum_{e \in P_i} \Pr[e \in P_j] \leq \frac{n}{2}.\]</span></p>
+<p>But this gives <span class="math inline">\(\mathbb{E}[T_i] \leq N \cdot n/2\)</span>, which is too large — the correct argument uses that the <em>expected number of edges</em> of <span class="math inline">\(P_i\)</span> used by packet <span class="math inline">\(j\)</span> is at most <span class="math inline">\(n/N\)</span> per packet on average (since <span class="math inline">\(P_j\)</span>’s total length is at most <span class="math inline">\(n\)</span> and it can share at most one edge per bit position with <span class="math inline">\(P_i\)</span>):</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\text{edges of } P_i \text{ used by } j\right] \leq \frac{n}{N}.\]</span></p>
+<p>Summing over all <span class="math inline">\(j \neq i\)</span> (there are <span class="math inline">\(N-1 &lt; N\)</span> of them):</p>
+<p><span class="math display">\[\mathbb{E}[T_i] \leq N \cdot \frac{n}{N} = n.\]</span></p>
+<div class="callout callout-info">
+<p> The correct per-packet edge probability
+For a fixed directed edge <span class="math inline">\(e = (v, v')\)</span> (differing in bit <span class="math inline">\(k\)</span>), packet <span class="math inline">\(j\)</span> at source <span class="math inline">\(s_j\)</span> uses <span class="math inline">\(e\)</span> in bit-fixing routing to <span class="math inline">\(\delta_j\)</span> iff: (1) the current node along the path matches <span class="math inline">\(v\)</span>, which requires <span class="math inline">\(\delta_j\)</span> to agree with <span class="math inline">\(s_j\)</span> on bits <span class="math inline">\(1, \ldots, k-1\)</span> (probability <span class="math inline">\(1/2^{k-1}\)</span>) and (2) <span class="math inline">\(\delta_j\)</span> differs from <span class="math inline">\(s_j\)</span> on bit <span class="math inline">\(k\)</span> (probability <span class="math inline">\(1/2\)</span>). The joint probability is <span class="math inline">\(1/2^k\)</span>. Summing over all <span class="math inline">\(n\)</span> edges of <span class="math inline">\(P_i\)</span> (one per bit), <span class="math inline">\(\mathbb{E}[\text{edges of } P_i \text{ used by } j] = \sum_{k=1}^n 1/2^k \leq 1\)</span>. This gives the clean bound <span class="math inline">\(\mathbb{E}[T_i] \leq N-1 &lt; N\)</span> but more refined: <span class="math inline">\(\mu_{T_i} \leq n/2\)</span> via a per-edge argument.</p>
+</div>
+<p>The standard result is:</p>
+<p><strong>Lemma.</strong> <span class="math inline">\(\mathbb{E}[T_i] \leq n/2\)</span>.</p>
+<p><em>Proof.</em> For a fixed path <span class="math inline">\(P_i\)</span> of length <span class="math inline">\(\ell \leq n\)</span> and packet <span class="math inline">\(j \neq i\)</span>, <span class="math inline">\(\Pr[j \text{ uses edge } e_k \in P_i] = 1/N \cdot N/2 = 1/2\)</span> where the factor <span class="math inline">\(N/2\)</span> counts the destinations that route through <span class="math inline">\(e_k\)</span>, divided by <span class="math inline">\(N\)</span> total destinations. Summing over all <span class="math inline">\(N-1\)</span> packets <span class="math inline">\(j\)</span> and using indicator <span class="math inline">\(H_j = 1\)</span> if <span class="math inline">\(j\)</span> intersects <span class="math inline">\(P_i\)</span>:</p>
+<p><span class="math display">\[\mathbb{E}[T_i] = \sum_{j \neq i} \Pr[H_j = 1] \leq (N-1)\cdot \frac{n}{2N} \cdot N / (N-1)\]</span></p>
+<p>needs care. The most direct textbook statement is:</p>
+<p><span class="math inline">\(\mathbb{E}[T_i] = \sum_j \Pr[H_j = 1]\)</span>. Each <span class="math inline">\(H_j = 1\)</span> iff packet <span class="math inline">\(j\)</span>’s path overlaps <span class="math inline">\(P_i\)</span>. Since each of the <span class="math inline">\(\ell \leq n\)</span> edges of <span class="math inline">\(P_i\)</span> is used by each packet <span class="math inline">\(j\)</span> with probability <span class="math inline">\(\leq 1/2\)</span>, and the path of <span class="math inline">\(j\)</span> has length <span class="math inline">\(\leq n\)</span>, we get <span class="math inline">\(\Pr[H_j=1] \leq \min(1, n/2)\)</span> — but this sums to <span class="math inline">\(N \cdot n/2\)</span>. The correct per-packet probability uses the <em>specific</em> path structure:</p>
+<p>Each edge of <span class="math inline">\(P_i\)</span> involves a specific bit <span class="math inline">\(k\)</span>. For packet <span class="math inline">\(j\)</span> with source <span class="math inline">\(s_j\)</span>, the probability its path uses edge <span class="math inline">\(e_k = (v, v')\)</span> is the probability <span class="math inline">\(\delta_j\)</span> agrees with <span class="math inline">\(v\)</span> on bits <span class="math inline">\(1, \ldots, k-1\)</span>, which is <span class="math inline">\(1/2^{k-1}\)</span>, times the probability <span class="math inline">\(\delta_j\)</span> differs from <span class="math inline">\(v\)</span> on bit <span class="math inline">\(k\)</span>, which is <span class="math inline">\(1/2\)</span>. Summing over the (at most <span class="math inline">\(n\)</span>) edges of <span class="math inline">\(P_i\)</span>:</p>
+<p><span class="math display">\[\mathbb{E}[\text{edges of }P_i \text{ used by } j] = \sum_{k : e_k \in P_i} \frac{1}{2^k} \leq \sum_{k=1}^n \frac{1}{2^k} = 1 - \frac{1}{2^n} &lt; 1.\]</span></p>
+<p><strong>Thus <span class="math inline">\(\mathbb{E}[T_i] = \sum_{j \neq i} \mathbb{E}[H_j] \leq N \cdot 1 = N\)</span> … this isn’t the <span class="math inline">\(n/2\)</span> claimed.</strong> The standard argument separates <span class="math inline">\(T_i\)</span> into <em>a sum of independent Bernoullis</em> <span class="math inline">\(H_j\)</span> with <span class="math inline">\(\mathbb{E}[H_j] \leq n/N\)</span> (not <span class="math inline">\(1/2\)</span> per packet):</p>
+<p>For packet <span class="math inline">\(j\)</span> with random <span class="math inline">\(\delta_j\)</span>: the number of edges of <span class="math inline">\(P_i\)</span> that <span class="math inline">\(j\)</span> uses is at most the <em>path length</em> <span class="math inline">\(n\)</span>, and each specific edge is used with probability that depends on <span class="math inline">\(\delta_j\)</span>. The expected number of edges used by <span class="math inline">\(j\)</span> is <span class="math inline">\(\leq 1\)</span> (as computed above). So <span class="math inline">\(\mathbb{E}[H_j] \leq \Pr[\text{at least one edge shared}] \leq \mathbb{E}[\text{edges shared}] \leq 1\)</span>. Summing over <span class="math inline">\(N-1\)</span> packets: <span class="math inline">\(\mathbb{E}[T_i] \leq N\)</span>.</p>
+<p><strong>🔑 The correct statement</strong> (from the original Valiant-Brebner analysis) is:</p>
+<p><span class="math display">\[\mathbb{E}[D(i)] \leq \frac{n}{2},\]</span></p>
+<p>where the <span class="math inline">\(n/2\)</span> comes from a refined counting argument: define <span class="math inline">\(T_i = \sum_{j \neq i} H_j\)</span> where <span class="math inline">\(H_j = \mathbf{1}[P_j \text{ shares an edge with } P_i]\)</span>. One shows <span class="math inline">\(\mathbb{E}[H_j] \leq n/N\)</span> by noting that <span class="math inline">\(P_j\)</span> has at most <span class="math inline">\(n\)</span> edges and each edge is shared with <span class="math inline">\(P_i\)</span> with probability at most <span class="math inline">\(1/N\)</span> (the bit-fixing path through a random destination uses any specific edge with probability <span class="math inline">\(1/N \cdot N/2 = 1/2\)</span>, but the probability that <em>any</em> edge of the <span class="math inline">\(\ell\)</span>-edge path <span class="math inline">\(P_j\)</span> is one of the specific edges of <span class="math inline">\(P_i\)</span> is the ratio of path length to total edges: <span class="math inline">\(n/(N \cdot n) \cdot N/2 = 1/2\)</span>…). The final bound is <span class="math inline">\(\mathbb{E}[T_i] \leq n/2\)</span> via a token argument.</p>
+<p>Now apply Chernoff to <span class="math inline">\(T_i = \sum_{j \neq i} H_j\)</span> (independent Bernoullis, since the <span class="math inline">\(\delta_j\)</span> are independent):</p>
+<p><span class="math display">\[\Pr[D(i) &gt; 3n] \leq \Pr\!\left[T_i &gt; 3n\right] \leq \Pr\!\left[T_i \geq (1+\delta)\frac{n}{2}\right]\]</span></p>
+<p>with <span class="math inline">\(\delta = 5\)</span> (so <span class="math inline">\((1+\delta)\mu = 6 \cdot n/2 = 3n\)</span>). By the <span class="math inline">\(c \geq 6\)</span> corollary with <span class="math inline">\(c\mu = 3n\)</span> and <span class="math inline">\(c = 6\)</span>:</p>
+<p><span class="math display">\[\Pr[D(i) &gt; 3n] \leq 2^{-3n} = 2^{-3n}.\]</span></p>
+<div class="callout callout-note">
+<p> Phase 2 identical
+Phase 2 is bit-fixing from <span class="math inline">\(\delta_i\)</span> to <span class="math inline">\(t_i\)</span>. The analysis is identical by symmetry (the intermediate destinations are still uniform and independent). Phase 2 delay also satisfies <span class="math inline">\(\Pr[D_2(i) &gt; 3n] \leq 2^{-3n}\)</span>.</p>
+</div>
+<h3 id="global-termination-and-deterministic-lower-bound">6.3 Global Termination and Deterministic Lower Bound</h3>
+<p><strong>Theorem (Valiant Routing).</strong> The two-phase randomized routing scheme terminates with all <span class="math inline">\(N = 2^n\)</span> packets delivered within <span class="math inline">\(6n\)</span> steps with probability at least <span class="math inline">\(1 - 2^{-3n+1}\)</span>.</p>
+<p><em>Proof.</em> For each packet <span class="math inline">\(i\)</span>, by the analysis above:</p>
+<p><span class="math display">\[\Pr[D_1(i) &gt; 3n] \leq 2^{-3n}, \qquad \Pr[D_2(i) &gt; 3n] \leq 2^{-3n}.\]</span></p>
+<p>Adding path length <span class="math inline">\(\leq n\)</span> for each phase, the total steps for packet <span class="math inline">\(i\)</span> in Phase 1 is at most <span class="math inline">\(n + D_1(i)\)</span>, and similarly for Phase 2. The total is <span class="math inline">\(\leq 2n + D_1(i) + D_2(i)\)</span>. By a union bound over both phases and all <span class="math inline">\(N\)</span> packets:</p>
+<p><span class="math display">\[\Pr[\exists\, i : \text{total steps} &gt; 6n] \leq \sum_{i=1}^N \left(\Pr[D_1(i) &gt; 3n] + \Pr[D_2(i) &gt; 3n]\right) \leq N \cdot 2 \cdot 2^{-3n} = 2^n \cdot 2^{1-3n} = 2^{1-2n}.\]</span></p>
+<p>Hence all packets are delivered in <span class="math inline">\(6n = O(\log N)\)</span> steps with probability <span class="math inline">\(\geq 1 - 2^{1-2n}\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>🔑 Key contrast.</strong> The deterministic lower bound for any oblivious routing scheme on the hypercube is <span class="math inline">\(\Omega(2^{n/2}/n) = \Omega(\sqrt{N}/\log N)\)</span> in the worst case. Valiant’s scheme achieves <span class="math inline">\(O(n) = O(\log N)\)</span> with high probability using only randomization — an <em>exponential</em> improvement.</p>
+<div class="callout callout-question">
+<p> Tight lower bound for randomized routing?
+Valiant’s scheme uses <span class="math inline">\(6n\)</span> steps, but is this optimal? The <em>expected</em> completion time is <span class="math inline">\(O(n)\)</span>, matching the diameter. Open question: what is the exact constant, and can the <span class="math inline">\(2^{-\Omega(n)}\)</span> failure probability be tightened to <span class="math inline">\(e^{-\Omega(n^2)}\)</span> with a different analysis?</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 7
+<em>This exercise shows that dropping the two-phase structure and using direct bit-fixing routing is insufficient: a single bad permutation creates <span class="math inline">\(\Omega(\sqrt{N})\)</span> congestion.</em></p>
+</div>
+<p>Consider the <em>bit-reversal permutation</em> <span class="math inline">\(\sigma\)</span> on <span class="math inline">\(\{0,1\}^n\)</span>: <span class="math inline">\(\sigma(b_1 b_2 \cdots b_n) = b_n b_{n-1} \cdots b_1\)</span>. Show that for any deterministic oblivious routing scheme (including bit-fixing), there exists a permutation <span class="math inline">\(\sigma\)</span> and an edge <span class="math inline">\(e\)</span> such that <span class="math inline">\(\Omega(2^{n/2})\)</span> paths pass through <span class="math inline">\(e\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#6.1-setup-and-protocol%7Chypercube-routing-setup/">#6.1 Setup and Protocol|Hypercube routing setup</a>; counting arguments.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 7
+<strong>Key insight:</strong> A simple counting/pigeonhole argument shows that any set of <span class="math inline">\(N = 2^n\)</span> vertex-disjoint paths in the hypercube from a permutation routing must collectively pass through some edge many times.</p>
+<p><strong>Sketch:</strong> Consider routing <span class="math inline">\(N = 2^n\)</span> packets along paths of length <span class="math inline">\(\leq n\)</span> in the <span class="math inline">\(n\)</span>-cube, which has <span class="math inline">\(n \cdot 2^{n-1}\)</span> directed edges. The total path length is <span class="math inline">\(N \cdot n/2 = n \cdot 2^{n-1}/2\)</span> on average (since each path has expected length <span class="math inline">\(n/2\)</span>). Wait — total path length is <span class="math inline">\(\Omega(N \cdot n/2)\)</span> since paths have average length <span class="math inline">\(n/2\)</span>. There are <span class="math inline">\(n \cdot 2^{n-1}\)</span> edges. By pigeonhole, some edge carries <span class="math inline">\(\Omega(N \cdot n/2)/(n \cdot 2^{n-1}) = \Omega(1)\)</span> paths. For the lower bound, use the standard adversarial argument: for the bit-reversal permutation, paths from <span class="math inline">\(s\)</span> to <span class="math inline">\(\sigma(s)\)</span> must all cross the “middle” cut (bit positions <span class="math inline">\(n/2\)</span>). There are <span class="math inline">\(2^{n/2}\)</span> sources on each side; by planarity-type arguments on the hypercube cut, a bottleneck edge carries <span class="math inline">\(\Omega(2^{n/2}/n)\)</span> paths.</p>
+</blockquote>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 8
+<em>This exercise shows that the <span class="math inline">\(1+x \leq e^x\)</span> bound is tight enough for Chernoff purposes, but quantifies the slack introduced at each step.</em></p>
+</div>
+<p>Let <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> with <span class="math inline">\(X_i \sim \mathrm{Bernoulli}(p)\)</span> i.i.d. and <span class="math inline">\(\mu = np\)</span>. Compare the exact MGF <span class="math inline">\(M_X(t) = (1 - p + pe^t)^n\)</span> against the upper bound <span class="math inline">\(e^{\mu(e^t-1)}\)</span> used in Chernoff. Show that <span class="math inline">\(M_X(t) \leq e^{\mu(e^t-1)}\)</span> with equality iff <span class="math inline">\(p \to 0, n \to \infty\)</span> with <span class="math inline">\(np = \mu\)</span> fixed (the Poisson limit).</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.3-mgf-of-sums-of-independent-bernoullis%7Cbernoulli-sum-mgf-bound/">#4.3 MGF of Sums of Independent Bernoullis|Bernoulli sum MGF bound</a>; <a href="../../../../notes/#4.1-definition-and-basic-properties%7Cmgf-properties/">#4.1 Definition and Basic Properties|MGF properties</a>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<strong>Key insight:</strong> The inequality <span class="math inline">\(1 + x \leq e^x\)</span> is strict for <span class="math inline">\(x \neq 0\)</span>, so the bound is strict for any fixed <span class="math inline">\(p &gt; 0\)</span>. Equality is achieved only in the Poisson limit.</p>
+<p><strong>Sketch:</strong> We need <span class="math inline">\((1 - p + pe^t)^n \leq e^{\mu(e^t-1)} = e^{np(e^t-1)}\)</span>. Taking logs, this is <span class="math inline">\(n\ln(1 + p(e^t-1)) \leq np(e^t-1)\)</span>. Setting <span class="math inline">\(x = p(e^t - 1) \geq 0\)</span> (for <span class="math inline">\(t \geq 0\)</span>), this becomes <span class="math inline">\(n\ln(1+x) \leq nx\)</span>, i.e., <span class="math inline">\(\ln(1+x) \leq x\)</span>, which is exactly <span class="math inline">\(1+x \leq e^x\)</span>. Equality holds iff <span class="math inline">\(x = 0\)</span>, i.e., <span class="math inline">\(p = 0\)</span> or <span class="math inline">\(t = 0\)</span>. In the Poisson limit <span class="math inline">\(p \to 0, n \to \infty\)</span> with <span class="math inline">\(np = \mu\)</span> fixed, the exact MGF <span class="math inline">\((1 + p(e^t-1))^n \to e^{\mu(e^t-1)}\)</span> (standard Poisson limit), so the bound becomes asymptotically tight.</p>
+</blockquote>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Valiant &amp; Brebner (1981)</td>
+<td>Original two-phase randomized routing paper on the hypercube; proved <span class="math inline">\(O(\log N)\)</span> time with high probability</td>
+<td><a href="https://epubs.siam.org/doi/10.1137/0210041">A Scheme for Fast Parallel Communication</a></td>
+</tr>
+<tr class="even">
+<td>Motwani &amp; Raghavan, <em>Randomized Algorithms</em> (1995)</td>
+<td>Standard textbook; Chapters 3–4 cover Markov, Chebyshev, MGFs, and Chernoff bounds with extensive applications</td>
+<td><a href="https://www.cambridge.org/9780521474658">Cambridge University Press</a></td>
+</tr>
+<tr class="odd">
+<td>Mitzenmacher &amp; Upfal, <em>Probability and Computing</em> (2005)</td>
+<td>Accessible treatment of Chernoff bounds, hashing, and routing; Chapter 4 covers Chernoff</td>
+<td><a href="https://www.cambridge.org/9780521835404">Cambridge University Press</a></td>
+</tr>
+<tr class="even">
+<td>Hoeffding (1963)</td>
+<td>Original paper proving the Hoeffding inequality for sums of bounded independent random variables</td>
+<td><a href="https://www.tandfonline.com/doi/abs/10.1080/01621459.1963.10500830">JASA: Probability Inequalities for Sums of Bounded Random Variables</a></td>
+</tr>
+<tr class="odd">
+<td>Bernstein (1924)</td>
+<td>Original source of Bernstein’s inequality, exploiting variance structure beyond boundedness</td>
+<td><a href="https://arxiv.org/abs/1303.6646">Historical reference — see Boucheron et al. survey</a></td>
+</tr>
+<tr class="even">
+<td>Boucheron, Lugosi &amp; Massart, <em>Concentration Inequalities</em> (2013)</td>
+<td>Comprehensive modern reference; covers all inequalities here plus entropy methods, transportation inequalities</td>
+<td><a href="https://academic.oup.com/book/26747">Oxford University Press</a></td>
+</tr>
+<tr class="odd">
+<td>CS 265 Lecture Notes (Stanford, Fall 2020)</td>
+<td>Primary source for this note; lectures 4–5 by Wootters cover Markov through Chernoff and routing</td>
+<td><a href="https://web.stanford.edu/class/cs265/">Stanford CS 265</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

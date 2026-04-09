@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>attention-efficiency - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>attention-efficiency</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-introduction:-the-kv-cache-memory-problem%7C1.-introduction:-the-kv-cache-memory-problem/">#1. Introduction: The KV Cache Memory Problem|1. Introduction: The KV Cache Memory Problem</a></li>
+<li><a href="../../../../notes/#2.-multi-query-attention%7C2.-multi-query-attention/">#2. Multi-Query Attention|2. Multi-Query Attention</a>
+<ul>
+<li><a href="../../../../notes/#2.1-formulation%7C2.1-formulation/">#2.1 Formulation|2.1 Formulation</a></li>
+<li><a href="../../../../notes/#2.2-memory-analysis:-deepseek-v3-/-r1-as-reference%7C2.2-memory-analysis:-deepseek-v3-/-r1-as-reference/">#2.2 Memory Analysis: DeepSeek V3 / R1 as Reference|2.2 Memory Analysis: DeepSeek V3 / R1 as Reference</a></li>
+<li><a href="../../../../notes/#2.3-quality-tradeoffs%7C2.3-quality-tradeoffs/">#2.3 Quality Tradeoffs|2.3 Quality Tradeoffs</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-grouped-query-attention%7C3.-grouped-query-attention/">#3. Grouped-Query Attention|3. Grouped-Query Attention</a>
+<ul>
+<li><a href="../../../../notes/#3.1-formulation%7C3.1-formulation/">#3.1 Formulation|3.1 Formulation</a></li>
+<li><a href="../../../../notes/#3.2-gqa-as-low-rank-factorization-of-the-key-and-value-matrices%7C3.2-gqa-as-low-rank-factorization-of-the-key-and-value-matrices/">#3.2 GQA as Low-Rank Factorization of the Key and Value Matrices|3.2 GQA as Low-Rank Factorization of the Key and Value Matrices</a></li>
+<li><a href="../../../../notes/#3.3-memory-vs-expressiveness-tradeoff%7C3.3-memory-vs-expressiveness-tradeoff/">#3.3 Memory vs Expressiveness Tradeoff|3.3 Memory vs Expressiveness Tradeoff</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-rotary-positional-embeddings%7C4.-rotary-positional-embeddings/">#4. Rotary Positional Embeddings|4. Rotary Positional Embeddings</a>
+<ul>
+<li><a href="../../../../notes/#4.1-motivation:-encoding-relative-position%7C4.1-motivation:-encoding-relative-position/">#4.1 Motivation: Encoding Relative Position|4.1 Motivation: Encoding Relative Position</a></li>
+<li><a href="../../../../notes/#4.2-2d-rotation-construction%7C4.2-2d-rotation-construction/">#4.2 2D Rotation Construction|4.2 2D Rotation Construction</a></li>
+<li><a href="../../../../notes/#4.3-extension-to-higher-dimensions%7C4.3-extension-to-higher-dimensions/">#4.3 Extension to Higher Dimensions|4.3 Extension to Higher Dimensions</a></li>
+<li><a href="../../../../notes/#4.4-the-relative-position-property%7C4.4-the-relative-position-property/">#4.4 The Relative Position Property|4.4 The Relative Position Property</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-multi-head-latent-attention%7C5.-multi-head-latent-attention/">#5. Multi-Head Latent Attention|5. Multi-Head Latent Attention</a>
+<ul>
+<li><a href="../../../../notes/#5.1-low-rank-kv-compression%7C5.1-low-rank-kv-compression/">#5.1 Low-Rank KV Compression|5.1 Low-Rank KV Compression</a></li>
+<li><a href="../../../../notes/#5.2-query-compression%7C5.2-query-compression/">#5.2 Query Compression|5.2 Query Compression</a></li>
+<li><a href="../../../../notes/#5.3-matrix-absorption-trick-for-inference%7C5.3-matrix-absorption-trick-for-inference/">#5.3 Matrix Absorption Trick for Inference|5.3 Matrix Absorption Trick for Inference</a></li>
+<li><a href="../../../../notes/#5.4-incompatibility-with-rope%7C5.4-incompatibility-with-rope/">#5.4 Incompatibility with RoPE|5.4 Incompatibility with RoPE</a></li>
+<li><a href="../../../../notes/#5.5-decoupled-rope-as-the-solution%7C5.5-decoupled-rope-as-the-solution/">#5.5 Decoupled RoPE as the Solution|5.5 Decoupled RoPE as the Solution</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-deepseek-sparse-attention%7C6.-deepseek-sparse-attention/">#6. DeepSeek Sparse Attention|6. DeepSeek Sparse Attention</a>
+<ul>
+<li><a href="../../../../notes/#6.1-motivation:-full-attention-cost-during-decoding%7C6.1-motivation:-full-attention-cost-during-decoding/">#6.1 Motivation: Full Attention Cost During Decoding|6.1 Motivation: Full Attention Cost During Decoding</a></li>
+<li><a href="../../../../notes/#6.2-the-lightning-indexer%7C6.2-the-lightning-indexer/">#6.2 The Lightning Indexer|6.2 The Lightning Indexer</a></li>
+<li><a href="../../../../notes/#6.3-quantization-for-index-score-computation%7C6.3-quantization-for-index-score-computation/">#6.3 Quantization for Index Score Computation|6.3 Quantization for Index Score Computation</a></li>
+<li><a href="../../../../notes/#6.4-hadamard-transform-for-quantization-stability%7C6.4-hadamard-transform-for-quantization-stability/">#6.4 Hadamard Transform for Quantization Stability|6.4 Hadamard Transform for Quantization Stability</a></li>
+<li><a href="../../../../notes/#6.5-two-stage-training-of-the-indexer%7C6.5-two-stage-training-of-the-indexer/">#6.5 Two-Stage Training of the Indexer|6.5 Two-Stage Training of the Indexer</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ul>
+<hr />
+<h2 id="introduction-the-kv-cache-memory-problem">1. Introduction: The KV Cache Memory Problem</h2>
+<p>During autoregressive decoding, a transformer generates tokens one at a time. At each step <span class="math inline">\(t\)</span>, the new token’s query <span class="math inline">\(\mathbf{q}_t\)</span> must attend to the keys and values of all preceding tokens <span class="math inline">\(1, \ldots, t-1\)</span>. Rather than recomputing those keys and values from scratch at every step — which would require <span class="math inline">\(O(t)\)</span> forward passes — practitioners store them in a <em>KV cache</em>. For a full derivation of why the cache is necessary, see <a href="../../../../notes/standard-attention#5.-kv-caching%7C§5-of-standard-attention.md/">standard-attention#5. KV Caching|§5 of standard-attention.md</a>.</p>
+<p>The memory cost of this cache is substantial. In standard <em>multi-head attention</em> (MHA) with <span class="math inline">\(H\)</span> heads, head dimension <span class="math inline">\(d_k\)</span>, <span class="math inline">\(L\)</span> layers, and sequence length <span class="math inline">\(T\)</span>, the cache stores:</p>
+<p><span class="math display">\[\text{Memory}_{\text{MHA}} = 2 \cdot H \cdot d_k \cdot L \cdot T \cdot \text{bytes\_per\_element}\]</span></p>
+<p>The factor of 2 accounts for one key tensor and one value tensor per head. In float16 (2 bytes), with <span class="math inline">\(H = 128\)</span>, <span class="math inline">\(d_k = 128\)</span>, <span class="math inline">\(L = 61\)</span> (DeepSeek V3/R1 architecture), and <span class="math inline">\(T = 32{,}768\)</span>:</p>
+<p><span class="math display">\[\text{Memory}_{\text{MHA}} = 2 \times 128 \times 128 \times 61 \times 32{,}768 \times 2 \approx 131\ \text{GB}\]</span></p>
+<p>This exceeds the memory of four A100 GPUs for a single inference request at 32k context. The techniques in this note reduce this figure by factors ranging from 8× (GQA) to 57× (MLA).</p>
+<p><strong>Notation.</strong> <span class="math inline">\(D\)</span> denotes the model’s hidden dimension; <span class="math inline">\(H\)</span> the number of query heads; <span class="math inline">\(d_k\)</span> the per-head key/query dimension; <span class="math inline">\(d_v\)</span> the per-head value dimension; <span class="math inline">\(T\)</span> the sequence length; <span class="math inline">\(L\)</span> the number of layers. Index <span class="math inline">\(i\)</span> ranges over heads and <span class="math inline">\(t\)</span> over token positions. Vectors are bold lowercase (<span class="math inline">\(\mathbf{q}, \mathbf{k}, \mathbf{v}\)</span>), matrices are bold uppercase (<span class="math inline">\(\mathbf{W}\)</span>). All matrix dimensions are written as rows <span class="math inline">\(\times\)</span> columns.</p>
+<hr />
+<h2 id="multi-query-attention">2. Multi-Query Attention</h2>
+<h3 id="formulation">2.1 Formulation</h3>
+<p><strong>Definition (Multi-Query Attention).</strong> In <em>multi-query attention</em> (MQA), each of the <span class="math inline">\(H\)</span> query heads maintains its own projection matrix <span class="math inline">\(\mathbf{W}_Q^h \in \mathbb{R}^{d_k \times D}\)</span>, but all heads share a single key projection <span class="math inline">\(\mathbf{W}_K \in \mathbb{R}^{d_k \times D}\)</span> and a single value projection <span class="math inline">\(\mathbf{W}_V \in \mathbb{R}^{d_v \times D}\)</span>.</p>
+<p>For input <span class="math inline">\(\mathbf{x}_t \in \mathbb{R}^D\)</span>, the projections are:</p>
+<p><span class="math display">\[\mathbf{q}_t^h = \mathbf{W}_Q^h \mathbf{x}_t \in \mathbb{R}^{d_k}, \quad h = 1, \ldots, H\]</span></p>
+<p><span class="math display">\[\mathbf{k}_t = \mathbf{W}_K \mathbf{x}_t \in \mathbb{R}^{d_k}, \qquad \mathbf{v}_t = \mathbf{W}_V \mathbf{x}_t \in \mathbb{R}^{d_v}\]</span></p>
+<p>The attention output for head <span class="math inline">\(h\)</span> at position <span class="math inline">\(t\)</span> is then:</p>
+<p><span class="math display">\[\mathbf{o}_t^h = \sum_{s=1}^{t} a_{t,s}^h \, \mathbf{v}_s, \quad a_{t,s}^h = \frac{\exp\!\left(\mathbf{q}_t^h \cdot \mathbf{k}_s / \sqrt{d_k}\right)}{\sum_{s'=1}^{t} \exp\!\left(\mathbf{q}_t^h \cdot \mathbf{k}_{s'} / \sqrt{d_k}\right)}\]</span></p>
+<p>The <span class="math inline">\(H\)</span> outputs are concatenated and passed through an output projection <span class="math inline">\(\mathbf{W}_O \in \mathbb{R}^{D \times H d_v}\)</span>.</p>
+<p>In einsum notation (following <a href="https://arxiv.org/abs/1911.02150">Shazeer 2019</a>), the batched computation reads:</p>
+<p><span class="math display">\[Q = \operatorname{einsum}(\text{&quot;bnd,hdk} \to \text{bhnk&quot;}, X, P_Q), \quad K = \operatorname{einsum}(\text{&quot;bmd,dk} \to \text{bmk&quot;}, M, P_K)\]</span></p>
+<p>where <span class="math inline">\(X\)</span> is the input, <span class="math inline">\(M\)</span> is the memory (context), <span class="math inline">\(P_Q\)</span> has shape <span class="math inline">\([H, D, d_k]\)</span>, and <span class="math inline">\(P_K\)</span> has shape <span class="math inline">\([D, d_k]\)</span> — a single shared key projection.</p>
+<h3 id="memory-analysis-deepseek-v3-r1-as-reference">2.2 Memory Analysis: DeepSeek V3 / R1 as Reference</h3>
+<p>The KV cache stores keys and values for all past tokens. Under MQA there is only one key vector and one value vector per token (not <span class="math inline">\(H\)</span> of each), so:</p>
+<p><span class="math display">\[\text{Memory per token per layer}_{\text{MQA}} = 2 \cdot d_k \cdot \text{bytes\_per\_element}\]</span></p>
+<p>Using DeepSeek V3/R1 hyperparameters (<span class="math inline">\(H = 128\)</span>, <span class="math inline">\(d_k = d_v = 128\)</span>, <span class="math inline">\(L = 61\)</span>, float16):</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 34%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Configuration</th>
+<th>Per-token-per-layer</th>
+<th>Total at <span class="math inline">\(T = 32{,}768\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MHA (<span class="math inline">\(H = 128\)</span>)</td>
+<td><span class="math inline">\(2 \times 128 \times 128 \times 2 = 65{,}536\)</span> bytes <span class="math inline">\(\approx 64\)</span> KB</td>
+<td><span class="math inline">\(\approx 131\)</span> GB</td>
+</tr>
+<tr class="even">
+<td>MQA (<span class="math inline">\(H_{\text{KV}} = 1\)</span>)</td>
+<td><span class="math inline">\(2 \times 128 \times 2 = 512\)</span> bytes <span class="math inline">\(\approx 0.5\)</span> KB</td>
+<td><span class="math inline">\(\approx 1.0\)</span> GB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MQA reduces KV cache memory by a factor of <span class="math inline">\(H\)</span> relative to MHA.</strong> For DeepSeek V3/R1 hyperparameters, this is a 128× reduction, bringing the total from 131 GB to approximately 1 GB for a 32k context.</p>
+<p>The corresponding memory-to-compute ratio for incremental decoding improves from <span class="math inline">\(\Theta(T/D + 1/B)\)</span> (MHA) to <span class="math inline">\(\Theta(T/(D \cdot H) + 1/B)\)</span> (MQA), where <span class="math inline">\(B\)</span> is the batch size — a linear improvement in the dominant <span class="math inline">\(T/D\)</span> term by a factor of <span class="math inline">\(H\)</span>.</p>
+<h3 id="quality-tradeoffs">2.3 Quality Tradeoffs</h3>
+<p>Sharing a single KV projection eliminates the per-head specialization of keys and values. Empirically (<a href="https://arxiv.org/abs/1911.02150">Shazeer 2019</a>), MQA achieves around 12× decoder speedup on encoder-decoder translation tasks with only minor quality degradation — approximately 0.2 BLEU points on WMT14 — and comparable perplexity on language modeling. The quality gap is tolerable for many applications but motivates the intermediate Grouped-Query Attention of Section 3.</p>
+<hr />
+<h2 id="grouped-query-attention">3. Grouped-Query Attention</h2>
+<h3 id="formulation-1">3.1 Formulation</h3>
+<p><strong>Definition (Grouped-Query Attention).</strong> <em>Grouped-query attention</em> (GQA) with <span class="math inline">\(G\)</span> groups divides the <span class="math inline">\(H\)</span> query heads into <span class="math inline">\(G\)</span> equal groups of size <span class="math inline">\(H/G\)</span> each. Each group <span class="math inline">\(g \in \{1, \ldots, G\}\)</span> has its own key projection <span class="math inline">\(\mathbf{W}_K^g \in \mathbb{R}^{d_k \times D}\)</span> and value projection <span class="math inline">\(\mathbf{W}_V^g \in \mathbb{R}^{d_v \times D}\)</span>, shared by all <span class="math inline">\(H/G\)</span> query heads within the group.</p>
+<p>For head <span class="math inline">\(h\)</span> belonging to group <span class="math inline">\(g(h) = \lceil hG/H \rceil\)</span>:</p>
+<p><span class="math display">\[\mathbf{q}_t^h = \mathbf{W}_Q^h \mathbf{x}_t, \quad \mathbf{k}_t^{g(h)} = \mathbf{W}_K^{g(h)} \mathbf{x}_t, \quad \mathbf{v}_t^{g(h)} = \mathbf{W}_V^{g(h)} \mathbf{x}_t\]</span></p>
+<p>GQA interpolates between MHA (<span class="math inline">\(G = H\)</span>, one KV head per query head) and MQA (<span class="math inline">\(G = 1\)</span>, one shared KV head). The notation GQA-<span class="math inline">\(G\)</span> specifies the number of groups. The memory of the KV cache scales as <span class="math inline">\(G/H\)</span> relative to MHA.</p>
+<h3 id="gqa-as-low-rank-factorization-of-the-key-and-value-matrices">3.2 GQA as Low-Rank Factorization of the Key and Value Matrices</h3>
+<p><strong>Setup.</strong> Stack the per-head key projections of MHA into a single matrix:</p>
+<p><span class="math display">\[\mathbf{W}_K^{\text{MHA}} = \begin{pmatrix} \mathbf{W}_K^1 \\ \mathbf{W}_K^2 \\ \vdots \\ \mathbf{W}_K^H \end{pmatrix} \in \mathbb{R}^{H d_k \times D}\]</span></p>
+<p>Applying this to an input <span class="math inline">\(\mathbf{h}_t \in \mathbb{R}^D\)</span> yields all <span class="math inline">\(H\)</span> per-head keys in one shot: <span class="math inline">\(\mathbf{W}_K^{\text{MHA}} \mathbf{h}_t = [\mathbf{k}_t^1; \ldots; \mathbf{k}_t^H]\)</span>. This matrix has up to <span class="math inline">\(\min(H d_k, D)\)</span> degrees of freedom — in practice <span class="math inline">\(H d_k \ll D\)</span>, so <span class="math inline">\(H d_k\)</span> free parameters.</p>
+<p><strong>The GQA constraint.</strong> Under GQA-<span class="math inline">\(G\)</span>, all <span class="math inline">\(H/G\)</span> heads in group <span class="math inline">\(g\)</span> share <span class="math inline">\(\mathbf{W}_K^g\)</span>. The effective key matrix therefore has repeated row-blocks:</p>
+<p><span class="math display">\[\mathbf{W}_K^{\text{GQA}} = \begin{pmatrix} \underbrace{\mathbf{W}_K^1, \ldots, \mathbf{W}_K^1}_{H/G \text{ copies}} \\ \underbrace{\mathbf{W}_K^2, \ldots, \mathbf{W}_K^2}_{H/G \text{ copies}} \\ \vdots \\ \underbrace{\mathbf{W}_K^G, \ldots, \mathbf{W}_K^G}_{H/G \text{ copies}} \end{pmatrix} \in \mathbb{R}^{H d_k \times D}\]</span></p>
+<p>where each <span class="math inline">\(\mathbf{W}_K^g \in \mathbb{R}^{d_k \times D}\)</span> appears <span class="math inline">\(H/G\)</span> consecutive times. This is not an approximation to <span class="math inline">\(\mathbf{W}_K^{\text{MHA}}\)</span>; it is an exact structural constraint.</p>
+<p><strong>The factorization.</strong> Define the compact <em>down-projection</em> <span class="math inline">\(\mathbf{W}_K^{\text{down}} \in \mathbb{R}^{G d_k \times D}\)</span> as the vertical stack of the <span class="math inline">\(G\)</span> group projections:</p>
+<p><span class="math display">\[\mathbf{W}_K^{\text{down}} = \begin{pmatrix} \mathbf{W}_K^1 \\ \vdots \\ \mathbf{W}_K^G \end{pmatrix}\]</span></p>
+<p>and the fixed <em>broadcast operator</em>:</p>
+<p><span class="math display">\[\mathbf{U} = (\mathbf{I}_G \otimes \mathbf{1}_{H/G}) \otimes \mathbf{I}_{d_k} \in \mathbb{R}^{H d_k \times G d_k}\]</span></p>
+<blockquote>
+<p><strong>Aside: Kronecker product.</strong> For matrices <span class="math inline">\(\mathbf{A} \in \mathbb{R}^{m \times n}\)</span> and <span class="math inline">\(\mathbf{B} \in \mathbb{R}^{p \times q}\)</span>, the <em>Kronecker product</em> <span class="math inline">\(\mathbf{A} \otimes \mathbf{B} \in \mathbb{R}^{mp \times nq}\)</span> replaces each scalar entry <span class="math inline">\(a_{ij}\)</span> of <span class="math inline">\(\mathbf{A}\)</span> with the block <span class="math inline">\(a_{ij}\mathbf{B}\)</span>:
+<span class="math display">\[\mathbf{A} \otimes \mathbf{B} = \begin{pmatrix} a_{11}\mathbf{B} &amp; \cdots &amp; a_{1n}\mathbf{B} \\ \vdots &amp; \ddots &amp; \vdots \\ a_{m1}\mathbf{B} &amp; \cdots &amp; a_{mn}\mathbf{B} \end{pmatrix}\]</span>
+Two properties used here: (i) <strong>mixed-product</strong>: <span class="math inline">\((\mathbf{A} \otimes \mathbf{B})(\mathbf{C} \otimes \mathbf{D}) = (\mathbf{AC}) \otimes (\mathbf{BD})\)</span> whenever the ordinary products <span class="math inline">\(\mathbf{AC}\)</span> and <span class="math inline">\(\mathbf{BD}\)</span> are defined; (ii) <strong>associativity</strong>: <span class="math inline">\((\mathbf{A} \otimes \mathbf{B}) \otimes \mathbf{C} = \mathbf{A} \otimes (\mathbf{B} \otimes \mathbf{C})\)</span>.</p>
+<p>Concretely: <span class="math inline">\(\mathbf{I}_G \otimes \mathbf{1}_{H/G}\)</span> replaces each diagonal <span class="math inline">\(1\)</span> of <span class="math inline">\(\mathbf{I}_G\)</span> with the column <span class="math inline">\(\mathbf{1}_{H/G}\)</span>, yielding a block-diagonal repetition matrix in <span class="math inline">\(\mathbb{R}^{H \times G}\)</span>. Tensoring that with <span class="math inline">\(\mathbf{I}_{d_k}\)</span> promotes each scalar entry to a <span class="math inline">\(d_k \times d_k\)</span> identity block, giving <span class="math inline">\(\mathbf{U} \in \mathbb{R}^{H d_k \times G d_k}\)</span>.</p>
+</blockquote>
+<p>where <span class="math inline">\(\mathbf{1}_{H/G} \in \mathbb{R}^{H/G}\)</span> is the all-ones column vector and <span class="math inline">\(\mathbf{I}_n\)</span> is the <span class="math inline">\(n \times n\)</span> identity. Then:</p>
+<p><span class="math display">\[\mathbf{W}_K^{\text{GQA}} = \mathbf{U} \cdot \mathbf{W}_K^{\text{down}}\]</span></p>
+<p>To verify the dimensions: <span class="math inline">\(\mathbf{I}_G \otimes \mathbf{1}_{H/G} \in \mathbb{R}^{H \times G}\)</span> (each diagonal block replicates a scalar <span class="math inline">\(H/G\)</span> times); tensoring with <span class="math inline">\(\mathbf{I}_{d_k}\)</span> promotes each scalar entry to a <span class="math inline">\(d_k \times d_k\)</span> block, giving <span class="math inline">\(\mathbf{U} \in \mathbb{R}^{H d_k \times G d_k}\)</span>. Then <span class="math inline">\(\mathbf{U} \mathbf{W}_K^{\text{down}} \in \mathbb{R}^{H d_k \times D}\)</span> as required.</p>
+<p><strong>What <span class="math inline">\(\mathbf{U}\)</span> does.</strong> <span class="math inline">\(\mathbf{U}\)</span> is a block-structured repetition operator. Written out in <span class="math inline">\(d_k \times d_k\)</span> blocks:</p>
+<p><span class="math display">\[U_{hg} = \begin{cases} \mathbf{I}_{d_k} &amp; \text{if head } h \text{ belongs to group } g \\ \mathbf{0} &amp; \text{otherwise} \end{cases}\]</span></p>
+<p>It takes the <span class="math inline">\(G d_k\)</span> distinct key coordinates produced by <span class="math inline">\(\mathbf{W}_K^{\text{down}}\)</span> and broadcasts each group’s <span class="math inline">\(d_k\)</span>-dimensional key to all <span class="math inline">\(H/G\)</span> heads in that group. <span class="math inline">\(\mathbf{U}\)</span> has full column rank <span class="math inline">\(G d_k\)</span> and is not learned.</p>
+<p><strong>Low-rank consequence.</strong> The image of <span class="math inline">\(\mathbf{W}_K^{\text{GQA}}\)</span> as a linear map <span class="math inline">\(\mathbb{R}^D \to \mathbb{R}^{H d_k}\)</span> lies in the column space of <span class="math inline">\(\mathbf{U}\)</span>, which has dimension <span class="math inline">\(G d_k\)</span>. Therefore:</p>
+<p><span class="math display">\[\operatorname{rank}(\mathbf{W}_K^{\text{GQA}}) \leq G d_k = \frac{G}{H} \cdot H d_k\]</span></p>
+<p>A generic (unconstrained) <span class="math inline">\(\mathbf{W}_K^{\text{MHA}}\)</span> achieves rank <span class="math inline">\(H d_k\)</span>. GQA forces a <span class="math inline">\(G/H\)</span> rank ceiling, implemented through <span class="math inline">\(G\)</span> learned projections and one fixed broadcast. The two extremes recover the expected cases:</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 38%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Setting</th>
+<th><span class="math inline">\(\mathbf{U}\)</span></th>
+<th>Rank bound</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MHA (<span class="math inline">\(G = H\)</span>)</td>
+<td><span class="math inline">\(\mathbf{I}_{H d_k}\)</span> (identity)</td>
+<td><span class="math inline">\(H d_k\)</span> (unconstrained)</td>
+</tr>
+<tr class="even">
+<td>GQA-<span class="math inline">\(G\)</span></td>
+<td><span class="math inline">\((\mathbf{I}_G \otimes \mathbf{1}_{H/G}) \otimes \mathbf{I}_{d_k}\)</span></td>
+<td><span class="math inline">\(G d_k\)</span></td>
+</tr>
+<tr class="odd">
+<td>MQA (<span class="math inline">\(G = 1\)</span>)</td>
+<td><span class="math inline">\(\mathbf{1}_H \otimes \mathbf{I}_{d_k}\)</span></td>
+<td><span class="math inline">\(d_k\)</span> (single shared subspace)</td>
+</tr>
+</tbody>
+</table>
+<p>The same factorization applies identically to the value matrices. This perspective shows GQA is not an engineering heuristic — it is a principled structured low-rank constraint on the KV weight matrices, with the rank controlled by the number of groups <span class="math inline">\(G\)</span>.</p>
+<h3 id="memory-vs-expressiveness-tradeoff">3.3 Memory vs Expressiveness Tradeoff</h3>
+<p><strong>Memory reduction.</strong> GQA-<span class="math inline">\(G\)</span> stores <span class="math inline">\(2 G d_k\)</span> scalars per token per layer (versus <span class="math inline">\(2 H d_k\)</span> for MHA), giving a reduction factor of <span class="math inline">\(H/G\)</span>. For GQA-8 with <span class="math inline">\(H = 32\)</span> (LLaMA-style), this is a 4× reduction.</p>
+<p><strong>Expressiveness.</strong> All <span class="math inline">\(H/G\)</span> heads within a group are constrained to attend to the same linear subspace of the context. This removes the ability for those heads to develop specialized key/value representations. In practice (<a href="https://arxiv.org/abs/2305.13245">Ainslie et al. 2023</a>), GQA-8 upscaled from an MHA checkpoint matches MHA quality on summarization, translation, and question answering while attaining inference speed close to MQA. <em>The quality gap between GQA and MHA is substantially smaller than the gap between MQA and MHA.</em></p>
+<p>Larger models benefit more from GQA, because they use more heads (making MQA’s single-head constraint more severe) while the relative FLOPs consumed by KV cache loading decrease (quadratic FLOPs vs linear KV bandwidth).</p>
+<p><img src="figures/gqa2023-fig2-mha-gqa-mqa-comparison.png" alt="Figure 2 from Ainslie et al. (2023): side-by-side comparison of Multi-Head Attention, Grouped-Query Attention, and Multi-Query Attention head structures" />
+<em>Figure 2 (Ainslie et al., 2023): MHA gives every query head its own K and V head (left). GQA-G assigns one K/V head per group of H/G query heads (centre). MQA collapses all heads to a single shared K and V (right). The memory cost of the KV cache scales as the number of K/V heads, so the three designs represent a continuum from maximum expressiveness (MHA) to minimum cache footprint (MQA).</em></p>
+<hr />
+<h2 id="rotary-positional-embeddings">4. Rotary Positional Embeddings</h2>
+<h3 id="motivation-encoding-relative-position">4.1 Motivation: Encoding Relative Position</h3>
+<p>Standard dot-product attention computes <span class="math inline">\(\mathbf{q}^{\top} \mathbf{k}\)</span> without any position information. The original Transformer injects <em>absolute</em> positional information by adding a sinusoidal bias to the input embeddings before projection. This has two drawbacks: (i) absolute positions generalize poorly to lengths not seen during training; (ii) the positional signal is entangled with content in the same embedding space.</p>
+<p><em>Rotary Positional Embeddings</em> (RoPE), introduced by <a href="https://arxiv.org/abs/2104.09864">Su et al. (2021)</a>, take a different approach: modify the query and key vectors themselves so that their inner product depends only on the <em>relative</em> offset between their positions. This is achieved by rotating query and key vectors by an angle proportional to their absolute position; the rotation acts like a carrier frequency that cancels in the dot product.</p>
+<h3 id="d-rotation-construction">4.2 2D Rotation Construction</h3>
+<p><strong>Definition (2D RoPE).</strong> For a 2-dimensional query <span class="math inline">\(\mathbf{q} \in \mathbb{R}^2\)</span> at position <span class="math inline">\(m\)</span> and key <span class="math inline">\(\mathbf{k} \in \mathbb{R}^2\)</span> at position <span class="math inline">\(n\)</span>, define the rotation matrix at angle <span class="math inline">\(\phi\)</span>:</p>
+<p><span class="math display">\[\mathbf{R}(\phi) = \begin{pmatrix} \cos\phi &amp; -\sin\phi \\ \sin\phi &amp; \cos\phi \end{pmatrix}\]</span></p>
+<p>RoPE replaces <span class="math inline">\(\mathbf{q}\)</span> with <span class="math inline">\(\mathbf{R}(m\theta)\mathbf{q}\)</span> and <span class="math inline">\(\mathbf{k}\)</span> with <span class="math inline">\(\mathbf{R}(n\theta)\mathbf{k}\)</span>, where <span class="math inline">\(\theta &gt; 0\)</span> is a fixed base frequency. The attention logit then becomes:</p>
+<p><span class="math display">\[\left[\mathbf{R}(m\theta)\mathbf{q}\right]^{\top} \left[\mathbf{R}(n\theta)\mathbf{k}\right] = \mathbf{q}^{\top} \mathbf{R}(m\theta)^{\top} \mathbf{R}(n\theta) \mathbf{k}\]</span></p>
+<p>Since <span class="math inline">\(\mathbf{R}(\phi)\)</span> is orthogonal, <span class="math inline">\(\mathbf{R}(m\theta)^{\top} = \mathbf{R}(-m\theta)\)</span>, and the product of two rotation matrices satisfies <span class="math inline">\(\mathbf{R}(-m\theta)\mathbf{R}(n\theta) = \mathbf{R}((n-m)\theta)\)</span>. Therefore:</p>
+<p><span class="math display">\[\left[\mathbf{R}(m\theta)\mathbf{q}\right]^{\top} \left[\mathbf{R}(n\theta)\mathbf{k}\right] = \mathbf{q}^{\top} \mathbf{R}((n-m)\theta) \mathbf{k}\]</span></p>
+<p><strong>The dot product depends only on the relative position <span class="math inline">\(n - m\)</span>, not on <span class="math inline">\(m\)</span> or <span class="math inline">\(n\)</span> individually.</strong></p>
+<p><img src="figures/roformer2021-fig1-rope-illustration.png" alt="Figure 1 from Su et al. (2021): illustration of the Rotary Position Embedding mechanism" />
+<em>Figure 1 (Su et al., 2021): Implementation of Rotary Position Embedding. Each query and key vector is multiplied by a block-diagonal rotation matrix whose angle is proportional to the token’s absolute position. Because the rotation of Q at position m and the rotation of K at position n combine to a net rotation by (n − m), the resulting dot product encodes only the relative offset between the two positions.</em></p>
+<h3 id="extension-to-higher-dimensions">4.3 Extension to Higher Dimensions</h3>
+<p>For the realistic case <span class="math inline">\(d_k &gt; 2\)</span>, divide the <span class="math inline">\(d_k\)</span>-dimensional space into <span class="math inline">\(d_k/2\)</span> independent 2D subspaces (assuming <span class="math inline">\(d_k\)</span> is even). Apply a separate rotation to each pair of coordinates <span class="math inline">\((q_{2i-1}, q_{2i})\)</span> with its own frequency <span class="math inline">\(\theta_i\)</span>:</p>
+<p><span class="math display">\[\theta_i = \text{base}^{-2(i-1)/d_k}, \quad i = 1, \ldots, d_k/2\]</span></p>
+<p>where <span class="math inline">\(\text{base} = 10{,}000\)</span> is the standard choice (following the sinusoidal PE convention). This gives logarithmically-spaced frequencies: low-indexed pairs rotate fast (short-range relative positions), high-indexed pairs rotate slowly (long-range relative positions).</p>
+<p><strong>Definition (Full RoPE).</strong> The full rotation operator on <span class="math inline">\(\mathbf{q} \in \mathbb{R}^{d_k}\)</span> at position <span class="math inline">\(m\)</span> is:</p>
+<p><span class="math display">\[\mathbf{R}^{d_k}(m) = \operatorname{block-diag}\!\left(\mathbf{R}(m\theta_1),\, \mathbf{R}(m\theta_2),\, \ldots,\, \mathbf{R}(m\theta_{d_k/2})\right) \in \mathbb{R}^{d_k \times d_k}\]</span></p>
+<p>Applied to a vector <span class="math inline">\(\mathbf{q} = (q_1, q_2, \ldots, q_{d_k})^{\top}\)</span>:</p>
+<p><span class="math display">\[\mathbf{R}^{d_k}(m)\mathbf{q} = \begin{pmatrix} q_1 \cos(m\theta_1) - q_2 \sin(m\theta_1) \\ q_1 \sin(m\theta_1) + q_2 \cos(m\theta_1) \\ q_3 \cos(m\theta_2) - q_4 \sin(m\theta_2) \\ q_3 \sin(m\theta_2) + q_4 \cos(m\theta_2) \\ \vdots \end{pmatrix}\]</span></p>
+<h3 id="the-relative-position-property">4.4 The Relative Position Property</h3>
+<p><strong>Proposition (RoPE relative position property).</strong> For any <span class="math inline">\(\mathbf{q}, \mathbf{k} \in \mathbb{R}^{d_k}\)</span> and positions <span class="math inline">\(m, n \in \mathbb{Z}\)</span>:</p>
+<p><span class="math display">\[\left[\mathbf{R}^{d_k}(m)\mathbf{q}\right]^{\top} \left[\mathbf{R}^{d_k}(n)\mathbf{k}\right] = \mathbf{q}^{\top} \mathbf{R}^{d_k}(n-m) \mathbf{k}\]</span></p>
+<p><em>Proof sketch.</em> Since <span class="math inline">\(\mathbf{R}^{d_k}(m)\)</span> is block-diagonal with orthogonal <span class="math inline">\(2 \times 2\)</span> blocks, <span class="math inline">\(\mathbf{R}^{d_k}(m)^{\top} = \mathbf{R}^{d_k}(-m)\)</span>. The product <span class="math inline">\(\mathbf{R}^{d_k}(-m)\mathbf{R}^{d_k}(n)\)</span> is block-diagonal with blocks <span class="math inline">\(\mathbf{R}(-m\theta_i)\mathbf{R}(n\theta_i) = \mathbf{R}((n-m)\theta_i)\)</span>, yielding <span class="math inline">\(\mathbf{R}^{d_k}(n-m)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Consequence.</strong> The attention matrix entry <span class="math inline">\((t, s)\)</span> computed with RoPE is <span class="math inline">\(\mathbf{q}_t^{\top} \mathbf{R}^{d_k}(s-t) \mathbf{k}_s\)</span>, a function of the offset <span class="math inline">\(s - t\)</span> only. The model learns to use slow-rotating (large <span class="math inline">\(i\)</span>) pairs for long-range dependencies and fast-rotating (small <span class="math inline">\(i\)</span>) pairs for local structure. <em>Empirically, RoPE generalizes better to longer sequences than absolute positional embeddings, though extrapolation still degrades beyond the training length.</em></p>
+<hr />
+<h2 id="multi-head-latent-attention">5. Multi-Head Latent Attention</h2>
+<p>Standard MQA sacrifices expressiveness entirely; GQA is a middle ground. <em>Multi-head Latent Attention</em> (MLA), introduced in <a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2</a>, takes a different approach: cache a low-dimensional <em>latent</em> vector and reconstruct full KV tensors via learned up-projections, enabling both high expressiveness and a very small cache footprint.</p>
+<p>MLA introduces six new weight matrices. Their roles as linear maps are:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 26%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Matrix</th>
+<th>Map</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{W}_{KV}^{\text{down}}\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^D \to \mathbb{R}^{d_c}\)</span></td>
+<td>Compress hidden state to KV latent</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{W}_K^{\text{up},h}\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^{d_c} \to \mathbb{R}^{d_k}\)</span></td>
+<td>Expand KV latent to key for head <span class="math inline">\(h\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{W}_V^{\text{up},h}\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^{d_c} \to \mathbb{R}^{d_v}\)</span></td>
+<td>Expand KV latent to value for head <span class="math inline">\(h\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{W}_Q^{\text{down}}\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^D \to \mathbb{R}^{d_c'}\)</span></td>
+<td>Compress hidden state to query latent</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{W}_Q^{\text{up},h}\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^{d_c'} \to \mathbb{R}^{d_k}\)</span></td>
+<td>Expand query latent to query for head <span class="math inline">\(h\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{W}_K^R\)</span></td>
+<td><span class="math inline">\(\mathbb{R}^D \to \mathbb{R}^{d_h^R}\)</span></td>
+<td>Project hidden state to shared RoPE key</td>
+</tr>
+</tbody>
+</table>
+<p>The KV and Q paths through these maps are:</p>
+<p><span class="math display">\[\mathbb{R}^D \xrightarrow{\mathbf{W}_{KV}^{\text{down}}} \mathbb{R}^{d_c} \xrightarrow{\mathbf{W}_K^{\text{up},h}} \mathbb{R}^{d_k} \quad \text{(key for head } h\text{)}\]</span></p>
+<p><span class="math display">\[\mathbb{R}^D \xrightarrow{\mathbf{W}_{KV}^{\text{down}}} \mathbb{R}^{d_c} \xrightarrow{\mathbf{W}_V^{\text{up},h}} \mathbb{R}^{d_v} \quad \text{(value for head } h\text{)}\]</span></p>
+<p><span class="math display">\[\mathbb{R}^D \xrightarrow{\mathbf{W}_Q^{\text{down}}} \mathbb{R}^{d_c'} \xrightarrow{\mathbf{W}_Q^{\text{up},h}} \mathbb{R}^{d_k} \quad \text{(query for head } h\text{)}\]</span></p>
+<p>Only <span class="math inline">\(\mathbf{c}_t^{KV} \in \mathbb{R}^{d_c}\)</span> is cached. The up-projections are applied on-the-fly — or, as shown in Section 5.3, absorbed into adjacent matrices so they never need to be applied at all.</p>
+<p><em>One might worry that caching <span class="math inline">\(\mathbf{c}_t^{KV}\)</span> doesn’t help, since <span class="math inline">\(\mathbf{W}_K^{\text{up},h}\)</span> must still be applied to it at each decoding step to recover <span class="math inline">\(\mathbf{k}_t^h\)</span> — the same work avoided by the KV cache in MHA. The resolution is that the up-projection is moved to the query side (Section 5.3): rather than computing <span class="math inline">\(\mathbf{k}_s^h = \mathbf{W}_K^{\text{up},h} \mathbf{c}_s^{KV}\)</span> for every cached token <span class="math inline">\(s\)</span> (cost <span class="math inline">\(O(t \cdot d_c d_k)\)</span>), you compute <span class="math inline">\(\tilde{\mathbf{q}}_t^h = (\mathbf{W}_K^{\text{up},h})^\top \mathbf{q}_t^h\)</span> once per step (cost <span class="math inline">\(O(d_c d_k)\)</span>, independent of <span class="math inline">\(t\)</span>) and then dot against each <span class="math inline">\(\mathbf{c}_s^{KV}\)</span> directly. <span class="math inline">\(\mathbf{c}_s^{KV}\)</span> is the cached key, expressed in <span class="math inline">\(\mathbb{R}^{d_c}\)</span> rather than <span class="math inline">\(\mathbb{R}^{d_k}\)</span>.</em></p>
+<h3 id="low-rank-kv-compression">5.1 Low-Rank KV Compression</h3>
+<p><strong>Definition (MLA KV Down-Projection).</strong> For input hidden state <span class="math inline">\(\mathbf{h}_t \in \mathbb{R}^D\)</span>, MLA computes a compressed KV latent:</p>
+<p><span class="math display">\[\mathbf{c}_t^{KV} = \mathbf{W}_{KV}^{\text{down}} \mathbf{h}_t \in \mathbb{R}^{d_c}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_{KV}^{\text{down}} : \mathbb{R}^D \to \mathbb{R}^{d_c}\)</span> is a learned down-projection and <span class="math inline">\(d_c \ll H \cdot d_k\)</span> is the <em>KV compression dimension</em>. This single vector <span class="math inline">\(\mathbf{c}_t^{KV}\)</span> is what the KV cache stores, replacing the <span class="math inline">\(H\)</span> key and <span class="math inline">\(H\)</span> value vectors of MHA.</p>
+<p><strong>Definition (MLA KV Up-Projections).</strong> At each attention step, the compressed latent is expanded back to per-head key and value vectors:</p>
+<p><span class="math display">\[\mathbf{k}_t^h = \mathbf{W}_K^{\text{up},h} \mathbf{c}_t^{KV} \in \mathbb{R}^{d_k}, \qquad \mathbf{v}_t^h = \mathbf{W}_V^{\text{up},h} \mathbf{c}_t^{KV} \in \mathbb{R}^{d_v}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_K^{\text{up},h} : \mathbb{R}^{d_c} \to \mathbb{R}^{d_k}\)</span> and <span class="math inline">\(\mathbf{W}_V^{\text{up},h} : \mathbb{R}^{d_c} \to \mathbb{R}^{d_v}\)</span> are learned per-head up-projections. There are <span class="math inline">\(2H\)</span> such matrices in total — one key and one value map per head — compared to MHA’s <span class="math inline">\(2H\)</span> projections from <span class="math inline">\(\mathbb{R}^D\)</span>. The difference is the domain: MLA up-projects from the compressed <span class="math inline">\(\mathbb{R}^{d_c}\)</span>, so the composition <span class="math inline">\(\mathbf{W}_K^{\text{up},h} \circ \mathbf{W}_{KV}^{\text{down}} : \mathbb{R}^D \to \mathbb{R}^{d_k}\)</span> is a rank-<span class="math inline">\(d_c\)</span> factorization of what would otherwise be a full-rank <span class="math inline">\(\mathbb{R}^D \to \mathbb{R}^{d_k}\)</span> map.</p>
+<p><strong><a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2</a> dimensions.</strong> The model uses <span class="math inline">\(H = n_h = 128\)</span> query heads, <span class="math inline">\(d_k = d_v = d_h = 128\)</span>, so standard MHA would cache <span class="math inline">\(2 \times 128 \times 128 = 32{,}768\)</span> scalars per token per layer. MLA sets <span class="math inline">\(d_c = 512\)</span> (approximately <span class="math inline">\(4 d_h\)</span>), caching only 512 scalars — a compression ratio of <span class="math inline">\(d_c / (2 H d_k) = 512 / 32{,}768 \approx 1/64\)</span>. <em>In practice the effective cache includes additional RoPE components (Section 5.5), bringing the ratio to approximately <span class="math inline">\(1/57\)</span>.</em></p>
+<p><strong>Memory reduction factor:</strong></p>
+<p><span class="math display">\[\frac{\text{MLA cache size}}{\text{MHA cache size}} = \frac{d_c}{2 H d_k}\]</span></p>
+<p>For the DeepSeek-V2 numbers: <span class="math inline">\(512 / (2 \times 128 \times 128) = 512 / 32{,}768 \approx 1.6\%\)</span> of MHA.</p>
+<p><img src="figures/deepseekv2-fig3-mla-architecture.png" alt="Figure 3 from DeepSeek-AI (2024): simplified comparison of MHA, GQA, MQA, and MLA attention mechanisms" />
+<em>Figure 3 (DeepSeek-AI, 2024): Simplified illustration of Multi-Head Attention (MHA), Grouped-Query Attention (GQA), Multi-Query Attention (MQA), and Multi-Head Latent Attention (MLA). MLA replaces the per-head K and V tensors with a single low-dimensional latent vector <span class="math inline">\(\mathbf{c}_t^{KV}\)</span> of size <span class="math inline">\(d_c\)</span>, which is projected back to full K and V representations via learned up-projections. Only this latent is stored in the KV cache, achieving a ~57× reduction over MHA.</em></p>
+<h3 id="query-compression">5.2 Query Compression</h3>
+<p>MLA also compresses queries, not to reduce the KV cache (queries are not cached) but to reduce <em>activation memory during training</em>:</p>
+<p><span class="math display">\[\mathbf{c}_t^Q = \mathbf{W}_Q^{\text{down}} \mathbf{h}_t \in \mathbb{R}^{d_c'}, \qquad \mathbf{q}_t^h = \mathbf{W}_Q^{\text{up},h} \mathbf{c}_t^Q \in \mathbb{R}^{d_k}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_Q^{\text{down}} : \mathbb{R}^D \to \mathbb{R}^{d_c'}\)</span> and <span class="math inline">\(\mathbf{W}_Q^{\text{up},h} : \mathbb{R}^{d_c'} \to \mathbb{R}^{d_k}\)</span>. In <a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2</a>, <span class="math inline">\(d_c' = 1{,}536\)</span>.</p>
+<p><em>This does not affect inference memory for the KV cache.</em> The intermediate query latent <span class="math inline">\(\mathbf{c}_t^Q\)</span> is ephemeral and not stored across decoding steps.</p>
+<h3 id="matrix-absorption-trick-for-inference">5.3 Matrix Absorption Trick for Inference</h3>
+<p>During inference, materializing <span class="math inline">\(\mathbf{k}_t^h\)</span> and <span class="math inline">\(\mathbf{v}_t^h\)</span> from every cached <span class="math inline">\(\mathbf{c}_t^{KV}\)</span> would require <span class="math inline">\(H\)</span> matrix-vector products per cached token per query step — expensive. The key observation is that the up-projections can be absorbed into adjacent weight matrices.</p>
+<p><strong>Value-side absorption.</strong> The attention output for head <span class="math inline">\(h\)</span> at query position <span class="math inline">\(t\)</span> is:</p>
+<p><span class="math display">\[\mathbf{o}_t^h = \sum_{s=1}^{t} a_{t,s}^h \, \mathbf{v}_s^h = \sum_{s=1}^{t} a_{t,s}^h \left(\mathbf{W}_V^{\text{up},h} \mathbf{c}_s^{KV}\right) = \mathbf{W}_V^{\text{up},h} \left(\sum_{s=1}^{t} a_{t,s}^h \mathbf{c}_s^{KV}\right)\]</span></p>
+<p>where the last equality holds because <span class="math inline">\(\mathbf{W}_V^{\text{up},h}\)</span> does not depend on <span class="math inline">\(s\)</span>. Define <span class="math inline">\(\tilde{\mathbf{o}}_t^h = \sum_s a_{t,s}^h \mathbf{c}_s^{KV} \in \mathbb{R}^{d_c}\)</span>. The final output is:</p>
+<p><span class="math display">\[\Delta \mathbf{x}_t = \operatorname{concat}(\mathbf{o}_t^1, \ldots, \mathbf{o}_t^H) \mathbf{W}_O = \operatorname{concat}\!\left(\mathbf{W}_V^{\text{up},1}\tilde{\mathbf{o}}_t^1, \ldots, \mathbf{W}_V^{\text{up},H}\tilde{\mathbf{o}}_t^H\right) \mathbf{W}_O\]</span></p>
+<p>Defining the absorbed output weight:</p>
+<p><span class="math display">\[\mathbf{W}_O' = \operatorname{block-diag}\!\left(\mathbf{W}_V^{\text{up},1}, \ldots, \mathbf{W}_V^{\text{up},H}\right) \mathbf{W}_O \in \mathbb{R}^{H d_c \times D} \quad \bigl(\mathbb{R}^{H d_c} \to \mathbb{R}^D\bigr)\]</span></p>
+<p>one can write <span class="math inline">\(\Delta \mathbf{x}_t = \operatorname{concat}(\tilde{\mathbf{o}}_t^1, \ldots, \tilde{\mathbf{o}}_t^H) \mathbf{W}_O'\)</span>, so <strong>no <span class="math inline">\(\mathbf{v}_t^h\)</span> vectors need to be materialized during inference.</strong></p>
+<p><strong>Key-side absorption.</strong> Similarly, for the attention logit between query head <span class="math inline">\(h\)</span> at position <span class="math inline">\(t\)</span> and latent <span class="math inline">\(\mathbf{c}_s^{KV}\)</span>:</p>
+<p><span class="math display">\[a_{t,s}^h \propto \exp\!\left(\frac{\mathbf{q}_t^h \cdot \mathbf{k}_s^h}{\sqrt{d_k}}\right) = \exp\!\left(\frac{\mathbf{q}_t^h \cdot \textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}} \textcolor{#2E86C1}{\mathbf{c}_s^{KV}}}{\sqrt{d_k}}\right) = \exp\!\left(\frac{\left(\textcolor{#2E86C1}{(\mathbf{W}_K^{\text{up},h})^{\top}} \mathbf{q}_t^h\right) \cdot \textcolor{#2E86C1}{\mathbf{c}_s^{KV}}}{\sqrt{d_k}}\right)\]</span></p>
+<p>Define the absorbed query <span class="math inline">\(\textcolor{#2E86C1}{\tilde{\mathbf{q}}_t^h} = \textcolor{#2E86C1}{(\mathbf{W}_K^{\text{up},h})^{\top}} \mathbf{q}_t^h \in \mathbb{R}^{d_c}\)</span>, where <span class="math inline">\(\textcolor{#2E86C1}{(\mathbf{W}_K^{\text{up},h})^{\top}} : \mathbb{R}^{d_k} \to \mathbb{R}^{d_c}\)</span> is the transpose of the key up-projection. The attention logit is then <span class="math inline">\(\textcolor{#2E86C1}{\tilde{\mathbf{q}}_t^h \cdot \mathbf{c}_s^{KV}}\)</span>, computed directly from the cached latent. <strong>Neither <span class="math inline">\(\mathbf{k}_s^h\)</span> nor <span class="math inline">\(\mathbf{v}_s^h\)</span> need to be reconstructed; only the low-dimensional <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\)</span> is read from cache.</strong></p>
+<h3 id="incompatibility-with-rope">5.4 Incompatibility with RoPE</h3>
+<p>The absorption trick works because <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}}\)</span> is a <em>fixed</em> matrix — independent of the cached position <span class="math inline">\(s\)</span> — so it can be transposed once and preapplied to the query. RoPE breaks this by making the effective key transformation position-dependent.</p>
+<p>With standard RoPE, the key at position <span class="math inline">\(s\)</span> for head <span class="math inline">\(h\)</span> would be:</p>
+<p><span class="math display">\[\mathbf{k}_s^h = \textcolor{#D35400}{\mathbf{R}^{d_k}(s)} \, \textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h} \mathbf{c}_s^{KV}}\]</span></p>
+<p>The rotation <span class="math inline">\(\textcolor{#D35400}{\mathbf{R}^{d_k}(s)}\)</span> is applied <em>outside</em> — it acts on the result of the up-projection, not between <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}}\)</span> and <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\)</span>. The attention logit is therefore:</p>
+<p><span class="math display">\[\mathbf{q}_t^h \cdot \mathbf{k}_s^h = \mathbf{q}_t^h \cdot \textcolor{#D35400}{\mathbf{R}^{d_k}(s)}\,\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}\mathbf{c}_s^{KV}} = \underbrace{\left(\textcolor{#D35400}{\mathbf{R}^{d_k}(s)}\,\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}}\right)^{\!\top} \mathbf{q}_t^h}_{\text{position-dependent absorbed query}} \cdot\; \textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\]</span></p>
+<p>The composite <span class="math inline">\(\left(\textcolor{#D35400}{\mathbf{R}^{d_k}(s)}\,\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}}\right)^{\!\top} = \textcolor{#2E86C1}{(\mathbf{W}_K^{\text{up},h})^{\top}}\textcolor{#D35400}{\mathbf{R}^{d_k}(s)^{\top}}\)</span> varies with <span class="math inline">\(s\)</span>: a different matrix must be applied to <span class="math inline">\(\mathbf{q}_t^h\)</span> for every cached position. This is the same <span class="math inline">\(O(t \cdot d_c d_k)\)</span> per-step cost that the absorption trick was designed to avoid — the benefit of caching only <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\)</span> is eliminated.</p>
+<h3 id="decoupled-rope-as-the-solution">5.5 Decoupled RoPE as the Solution</h3>
+<p>💡 The key idea: rather than applying RoPE to the full key vector (which poisons the absorption trick), split the attention logit into two <em>independent additive terms</em> — one that carries content (no rotation, so absorption still applies) and one that carries position (rotation but no up-projection to absorb). Each term is then tractable for a different reason.</p>
+<pre class="mermaid"><code>flowchart LR
+    classDef content fill:#D6E8FA,stroke:#2E86C1,color:#1A5276
+    classDef pos fill:#FDEBD0,stroke:#D35400,color:#784212
+    classDef cache fill:#E9F7EF,stroke:#1E8449,color:#145A32
+    classDef logit fill:#F4ECF7,stroke:#7D3C98,color:#4A235A
+    classDef inp fill:#EAECEE,stroke:#566573,color:#17202A
+
+    subgraph KEY[&quot;Key path — encode token s&quot;]
+        direction TB
+        hs[&quot;h_s&quot;]:::inp
+        cKV[&quot;c_s^KV ∈ ℝ^512&lt;br/&gt;content latent&quot;]:::content
+        kR[&quot;k_s^R ∈ ℝ^64&lt;br/&gt;RoPE key&quot;]:::pos
+        hs --&gt;|&quot;W_KV^down&quot;| cKV
+        hs --&gt;|&quot;W_K^R → R(s)·&quot;| kR
+    end
+
+    subgraph CACHE[&quot;KV Cache&quot;]
+        direction TB
+        cKV_c[(&quot;c_s^KV&quot;)]:::cache
+        kR_c[(&quot;k_s^R&quot;)]:::cache
+    end
+
+    subgraph QUERY[&quot;Query path — decode token t&quot;]
+        direction TB
+        ht[&quot;h_t&quot;]:::inp
+        cQ[&quot;c_t^Q ∈ ℝ^1536&quot;]:::inp
+        qtilde[&quot;q̃_t^h ∈ ℝ^512&lt;br/&gt;absorbed query&quot;]:::content
+        qtR[&quot;q_t^R,h ∈ ℝ^64&lt;br/&gt;RoPE query&quot;]:::pos
+        ht --&gt;|&quot;W_Q^down&quot;| cQ
+        cQ --&gt;|&quot;W_Q^up,h → (W_K^up,h)^T&quot;| qtilde
+        cQ --&gt;|&quot;W_Q^R,h → R(t)·&quot;| qtR
+    end
+
+    subgraph LOGIT[&quot;Attention logit (t, s)&quot;]
+        direction TB
+        lc[&quot;content:&lt;br/&gt;q̃_t^h · c_s^KV&quot;]:::logit
+        lp[&quot;positional:&lt;br/&gt;q_t^R,h · k_s^R&quot;]:::logit
+        L[&quot;logit(t, s)&quot;]:::logit
+        lc --&gt;|&quot;+&quot;| L
+        lp --&gt;|&quot;+&quot;| L
+    end
+
+    cKV -.-&gt;|&quot;cache&quot;| cKV_c
+    kR -.-&gt;|&quot;cache&quot;| kR_c
+    cKV_c --&gt; lc
+    qtilde --&gt; lc
+    kR_c --&gt; lp
+    qtR --&gt; lp</code></pre>
+<p><em>Color coding used throughout this section: <span class="math inline">\(\textcolor{#2E86C1}{\text{blue = content path}}\)</span>, <span class="math inline">\(\textcolor{#D35400}{\text{orange = positional path}}\)</span>.</em></p>
+<p><strong>Definition (Decoupled RoPE).</strong> In addition to the content-based keys derived from <span class="math inline">\(\mathbf{c}_t^{KV}\)</span>, MLA maintains a <em>shared</em> RoPE key <span class="math inline">\(\mathbf{k}_t^R \in \mathbb{R}^{d_h^R}\)</span> computed directly from the hidden state (no up-projection):</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{k}_t^R = \mathbf{R}^{d_h^R}(t) \, \mathbf{W}_K^R \mathbf{h}_t}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_K^R \in \mathbb{R}^{d_h^R \times D}\)</span> is a shared projection and <span class="math inline">\(d_h^R = 64\)</span> in <a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2</a> (half the head dimension). Similarly, each query head receives a per-head RoPE component, computed from the compressed query latent <span class="math inline">\(\mathbf{c}_t^Q\)</span>:</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{q}_t^{R,h} = \mathbf{R}^{d_h^R}(t) \, \mathbf{W}_Q^{R,h} \mathbf{c}_t^Q}\]</span></p>
+<p>The effective key and query for head <span class="math inline">\(h\)</span> are formed by concatenation:</p>
+<p><span class="math display">\[\mathbf{k}_t^{\text{eff},h} = \begin{pmatrix} \textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h} \mathbf{c}_t^{KV}} \\ \textcolor{#D35400}{\mathbf{k}_t^R} \end{pmatrix} \in \mathbb{R}^{d_k + d_h^R}, \qquad \mathbf{q}_t^{\text{eff},h} = \begin{pmatrix} \textcolor{#2E86C1}{\mathbf{q}_t^h} \\ \textcolor{#D35400}{\mathbf{q}_t^{R,h}} \end{pmatrix} \in \mathbb{R}^{d_k + d_h^R}\]</span></p>
+<p><strong>The logit decomposition.</strong> Because the query and key are concatenations of independent parts, their dot product splits into two independent terms:</p>
+<p><span class="math display">\[\mathbf{q}_t^{\text{eff},h} \cdot \mathbf{k}_s^{\text{eff},h} = \underbrace{\textcolor{#2E86C1}{\mathbf{q}_t^h \cdot \mathbf{W}_K^{\text{up},h} \mathbf{c}_s^{KV}}}_{\text{(i) content term}} \;+\; \underbrace{\textcolor{#D35400}{\mathbf{q}_t^{R,h} \cdot \mathbf{k}_s^R}}_{\text{(ii) positional term}}\]</span></p>
+<p>Each term is handled differently:</p>
+<p>📐 <strong>Content term — absorption applies.</strong> There is no rotation on this path, so the up-projection commutes freely to the query side:</p>
+<p><span class="math display">\[\textcolor{#2E86C1}{\mathbf{q}_t^h \cdot \mathbf{W}_K^{\text{up},h} \mathbf{c}_s^{KV}} = \underbrace{\textcolor{#2E86C1}{\left((\mathbf{W}_K^{\text{up},h})^{\top} \mathbf{q}_t^h\right)}}_{\textcolor{#2E86C1}{\tilde{\mathbf{q}}_t^h} \;\in\; \mathbb{R}^{d_c}} \cdot \; \textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\]</span></p>
+<p><span class="math inline">\(\textcolor{#2E86C1}{\tilde{\mathbf{q}}_t^h}\)</span> is computed once at query time. The cache stores only <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{c}_s^{KV}} \in \mathbb{R}^{d_c}\)</span> — no key materialization required. The commutativity problem does not arise because no rotation is interleaved between <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{W}_K^{\text{up},h}}\)</span> and <span class="math inline">\(\textcolor{#2E86C1}{\mathbf{c}_s^{KV}}\)</span>.</p>
+<p>📐 <strong>Positional term — direct caching, no absorption needed.</strong> Expanding:</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{q}_t^{R,h} \cdot \mathbf{k}_s^R = \left[\mathbf{R}^{d_h^R}(t)\, \mathbf{W}_Q^{R,h} \mathbf{c}_t^Q\right]^{\top} \left[\mathbf{R}^{d_h^R}(s)\, \mathbf{W}_K^R \mathbf{h}_s\right]}\]</span></p>
+<p>Both sides are fully concrete low-dimensional vectors — there is no up-projection on the key side to absorb. The rotation <span class="math inline">\(\mathbf{R}^{d_h^R}(s)\)</span> is baked into <span class="math inline">\(\mathbf{k}_s^R\)</span> at encoding time and stored directly in the cache. Because <span class="math inline">\(\mathbf{k}_s^R\)</span> is <em>shared across all <span class="math inline">\(H\)</span> heads</em> and lives in <span class="math inline">\(\mathbb{R}^{d_h^R}\)</span>, the additional cache overhead is just 64 scalars per token.</p>
+<p><strong>Why this resolves the incompatibility.</strong> The original problem was that <span class="math inline">\(\mathbf{R}(s)\)</span> sits between <span class="math inline">\(\mathbf{c}_s^{KV}\)</span> and <span class="math inline">\(\mathbf{W}_K^{\text{up},h}\)</span>, preventing absorption. Decoupled RoPE eliminates this conflict by <em>removing RoPE from the absorption path entirely</em>. The content key <span class="math inline">\(\mathbf{W}_K^{\text{up},h}\mathbf{c}_s^{KV}\)</span> carries no positional information; the positional key <span class="math inline">\(\mathbf{k}_s^R\)</span> requires no absorption. The two design constraints never meet.</p>
+<p><em>The relative-position property (§4.4) is preserved in the positional term.</em> Substituting:</p>
+<p><span class="math display">\[\textcolor{#D35400}{\mathbf{q}_t^{R,h} \cdot \mathbf{k}_s^R \propto \left(\mathbf{W}_Q^{R,h}\mathbf{c}_t^Q\right)^{\top} \mathbf{R}^{d_h^R}(t)^{\top} \mathbf{R}^{d_h^R}(s) \left(\mathbf{W}_K^R \mathbf{h}_s\right) = \left(\mathbf{W}_Q^{R,h}\mathbf{c}_t^Q\right)^{\top} \mathbf{R}^{d_h^R}(s-t) \left(\mathbf{W}_K^R \mathbf{h}_s\right)}\]</span></p>
+<p>so the positional logit depends only on the offset <span class="math inline">\(s - t\)</span>, exactly as in standard RoPE.</p>
+<p><strong>Cache contents and compression.</strong> The cache stores per token per layer:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cached quantity</th>
+<th>Dimension</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{c}_t^{KV}\)</span></td>
+<td><span class="math inline">\(d_c = 512\)</span></td>
+<td>Content logits for all heads via absorption</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{k}_t^R\)</span></td>
+<td><span class="math inline">\(d_h^R = 64\)</span></td>
+<td>Positional logits, shared across all heads</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: <span class="math inline">\(d_c + d_h^R = 576\)</span> scalars per token per layer, versus <span class="math inline">\(2Hd_k = 32{,}768\)</span> for standard MHA — a compression of approximately 57×.</strong></p>
+<hr />
+<h2 id="deepseek-sparse-attention">6. DeepSeek Sparse Attention</h2>
+<h3 id="motivation-full-attention-cost-during-decoding">6.1 Motivation: Full Attention Cost During Decoding</h3>
+<p>Even after MLA reduces the KV cache size by 57×, the attention computation itself during decoding still scales as <span class="math inline">\(O(T)\)</span> per token: for each new query, the model must compute dot products with all <span class="math inline">\(T\)</span> cached latents and read them from memory. For very long contexts (<span class="math inline">\(T \sim 128{,}000\)</span>), this becomes the dominant cost.</p>
+<p><em>DeepSeek Sparse Attention</em> (DSA), introduced in <a href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a>, addresses this by selecting a small subset <span class="math inline">\(\mathcal{S}_t \subset \{1, \ldots, t-1\}\)</span> of <span class="math inline">\(|\mathcal{S}_t| = K\)</span> past tokens for each query position <span class="math inline">\(t\)</span>, where <span class="math inline">\(K \ll t\)</span> (in practice <span class="math inline">\(K = 2{,}048\)</span>). Full MLA is then computed only over <span class="math inline">\(\mathcal{S}_t\)</span>. The challenge is selecting <span class="math inline">\(\mathcal{S}_t\)</span> cheaply and accurately.</p>
+<p>DSA splits this into two components with different cost profiles: a <em>lightweight indexer</em> that scores all past tokens cheaply (quantized INT8 dot products), and the full <em>MLA attention</em> run only over the top-<span class="math inline">\(K\)</span> tokens selected by the indexer. The diagram below shows the data flow.</p>
+<pre class="mermaid"><code>flowchart LR
+    classDef indexer fill:#D5F5E3,stroke:#1E8449,color:#145A32
+    classDef quant fill:#D6EAF8,stroke:#2980B9,color:#1A5276
+    classDef selection fill:#FEF9E7,stroke:#D4AC0D,color:#7D6608
+    classDef mla fill:#F4ECF7,stroke:#7D3C98,color:#4A235A
+    classDef inp fill:#EAECEE,stroke:#566573,color:#17202A
+
+    subgraph ENC[&quot;Encode — token s&quot;]
+        direction TB
+        hs[&quot;h_s&quot;]:::inp
+        kI[&quot;k_s^I ∈ ℝ^d^I&lt;br/&gt;indexer key&quot;]:::indexer
+        kIq[&quot;k̂_s^I (INT8)&lt;br/&gt;+ scale s_k&quot;]:::quant
+        hs --&gt;|&quot;W_K^I&quot;| kI
+        kI --&gt;|&quot;H → quantize&quot;| kIq
+    end
+
+    subgraph ICACHE[&quot;Index Cache&quot;]
+        direction TB
+        kIc[(&quot;k̂_s^I&lt;br/&gt;s_k(s)&quot;)]:::quant
+    end
+
+    subgraph DEC[&quot;Decode — token t&quot;]
+        direction TB
+        ht[&quot;h_t&quot;]:::inp
+        qI[&quot;q_{t,j}^I ∈ ℝ^d^I&lt;br/&gt;indexer query, head j&quot;]:::indexer
+        qIq[&quot;q̂_{t,j}^I (INT8)&quot;]:::quant
+        w[&quot;w_{t,j}&lt;br/&gt;head weights&quot;]:::indexer
+        ht --&gt;|&quot;W_Q^{I,j}&quot;| qI
+        qI --&gt;|&quot;H → quantize&quot;| qIq
+        ht --&gt;|&quot;Linear&quot;| w
+    end
+
+    subgraph SCORE[&quot;Index Score — per s&quot;]
+        direction TB
+        dot[&quot;q̂_{t,j}^I · k̂_s^I&quot;]:::quant
+        relu[&quot;s_q·s_k · ReLU(·)&quot;]:::quant
+        wavg[&quot;Σ_j w_{t,j} · (·)&quot;]:::indexer
+        Its[&quot;I_{t,s}&quot;]:::indexer
+        dot --&gt; relu --&gt; wavg --&gt; Its
+    end
+
+    subgraph ATTN[&quot;Sparse Attention&quot;]
+        direction TB
+        topk[&quot;top-K → S_t&lt;br/&gt;|S_t| = K = 2048&quot;]:::selection
+        mla[&quot;Full MLA&lt;br/&gt;over S_t only&quot;]:::mla
+        topk --&gt; mla
+    end
+
+    kIq -.-&gt;|&quot;cache&quot;| kIc
+    kIc --&gt; dot
+    qIq --&gt; dot
+    w --&gt; wavg
+    Its --&gt; topk</code></pre>
+<p><em>Color coding: <span class="math inline">\(\textcolor{#1E8449}{\text{green = indexer scoring path}}\)</span>, <span class="math inline">\(\textcolor{#2980B9}{\text{blue = quantization}}\)</span>, <span class="math inline">\(\textcolor{#D4AC0D}{\text{gold = token selection}}\)</span>.</em></p>
+<h3 id="the-lightning-indexer">6.2 The Lightning Indexer</h3>
+<p><strong>Definition (Lightning Indexer).</strong> For each query position <span class="math inline">\(t\)</span>, the lightning indexer computes an <em>index score</em> <span class="math inline">\(I_{t,s} \geq 0\)</span> for every preceding position <span class="math inline">\(s &lt; t\)</span>, and <span class="math inline">\(\mathcal{S}_t\)</span> is the top-<span class="math inline">\(K\)</span> set by score.</p>
+<p>The indexer uses a lightweight multi-query-style architecture with <span class="math inline">\(H^I\)</span> indexer query heads of dimension <span class="math inline">\(d^I\)</span> (both much smaller than <span class="math inline">\(H\)</span> and <span class="math inline">\(d_k\)</span>) and a single shared indexer key. Let <span class="math inline">\(\mathbf{W}_{Q}^{I,j} \in \mathbb{R}^{d^I \times D}\)</span> be the <span class="math inline">\(j\)</span>-th query head projection, <span class="math inline">\(\mathbf{W}_K^I \in \mathbb{R}^{d^I \times D}\)</span> the shared key projection, and <span class="math inline">\(w_{t,j} \geq 0\)</span> learned per-head scalar weights (themselves a linear function of <span class="math inline">\(\mathbf{h}_t\)</span>):</p>
+<p><span class="math display">\[\textcolor{#1E8449}{\mathbf{q}_{t,j}^I = \mathbf{W}_{Q}^{I,j} \mathbf{h}_t} \in \mathbb{R}^{d^I}, \qquad \textcolor{#1E8449}{\mathbf{k}_s^I = \mathbf{W}_K^I \mathbf{h}_s} \in \mathbb{R}^{d^I}\]</span></p>
+<p><span class="math display">\[\textcolor{#1E8449}{I_{t,s} = \sum_{j=1}^{H^I} w_{t,j} \cdot \operatorname{ReLU}\!\left(\mathbf{q}_{t,j}^I \cdot \mathbf{k}_s^I\right)}\]</span></p>
+<p>The ReLU discards negatively-correlated token pairs rather than treating them as weakly relevant. <em>The squaring convention sometimes reported in the literature is an alternate formulation; the core design is ReLU-activated weighted dot products.</em></p>
+<p>Note the encode/decode split visible in the diagram: <span class="math inline">\(\textcolor{#1E8449}{\mathbf{k}_s^I}\)</span> is computed once per token at encoding time and cached (quantized); <span class="math inline">\(\textcolor{#1E8449}{\mathbf{q}_{t,j}^I}\)</span> and <span class="math inline">\(\textcolor{#1E8449}{w_{t,j}}\)</span> are computed fresh at each decoding step for the current query. The per-step cost is therefore <span class="math inline">\(O(K_{\text{cache}} \cdot d^I \cdot H^I)\)</span> INT8 dot products, not <span class="math inline">\(O(K_{\text{cache}} \cdot d_k \cdot H)\)</span> full-precision MLA operations.</p>
+<p>The token selector then forms <span class="math inline">\(\mathcal{S}_t = \operatorname{top}\text{-}K\{\textcolor{#1E8449}{I_{t,s}} : s &lt; t\}\)</span>, and the full MLA attention is computed only over tokens in <span class="math inline">\(\mathcal{S}_t\)</span>.</p>
+<h3 id="quantization-for-index-score-computation">6.3 Quantization for Index Score Computation</h3>
+<p>The indexer runs over the full token history at each decoding step, so its constant factor matters. To minimize cost, both query and key vectors are quantized to 8-bit precision before the dot products. Let <span class="math inline">\(\hat{\mathbf{q}}_{t,j}^I\)</span> and <span class="math inline">\(\hat{\mathbf{k}}_s^I\)</span> denote the quantized versions with per-vector or per-block scale factors <span class="math inline">\(s_q\)</span> and <span class="math inline">\(s_k\)</span>:</p>
+<p><span class="math display">\[\textcolor{#1E8449}{I_{t,s}} \approx \sum_{j=1}^{H^I} \textcolor{#1E8449}{w_{t,j}} \cdot \operatorname{ReLU}\!\left(\textcolor{#2980B9}{s_q \cdot s_k \cdot \hat{\mathbf{q}}_{t,j}^I \cdot \hat{\mathbf{k}}_s^I}\right) = \textcolor{#2980B9}{s_q \cdot s_k} \cdot \sum_{j=1}^{H^I} \textcolor{#1E8449}{w_{t,j}} \cdot \operatorname{ReLU}\!\left(\textcolor{#2980B9}{\hat{\mathbf{q}}_{t,j}^I \cdot \hat{\mathbf{k}}_s^I}\right)\]</span></p>
+<p>where the scale factors have been pulled outside the ReLU (valid since <span class="math inline">\(\textcolor{#2980B9}{s_q}, \textcolor{#2980B9}{s_k} &gt; 0\)</span>). The indexer keys <span class="math inline">\(\textcolor{#2980B9}{\hat{\mathbf{k}}_s^I}\)</span> are stored in the cache alongside the MLA latents; the scale factor <span class="math inline">\(\textcolor{#2980B9}{s_k(s)}\)</span> is stored per block (block size 64) to support efficient dequantization. The goal of the indexer is token <em>ranking</em>, not exact score values, so quantization error is tolerable as long as the top-<span class="math inline">\(K\)</span> ordering is approximately preserved.</p>
+<h3 id="hadamard-transform-for-quantization-stability">6.4 Hadamard Transform for Quantization Stability</h3>
+<p><strong>Problem.</strong> Raw attention vectors often have a heavy-tailed distribution across dimensions: a small number of coordinates carry disproportionately large magnitudes (so-called <em>outlier dimensions</em>). When such a vector is quantized to 8 bits, the quantization step size must accommodate the outliers, wasting precision on the majority of near-zero coordinates and degrading the dot product approximation.</p>
+<p><strong>Solution.</strong> Before quantization, apply a <em>Walsh-Hadamard transform</em> (WHT) combined with a random sign matrix to the query and key vectors. The WHT is the <span class="math inline">\(d^I \times d^I\)</span> matrix <span class="math inline">\(\textcolor{#2980B9}{\mathbf{H}}\)</span> satisfying <span class="math inline">\(H_{ij} = d_I^{-1/2}(-1)^{\langle i-1, j-1 \rangle}\)</span> where <span class="math inline">\(\langle \cdot, \cdot \rangle\)</span> is the bitwise inner product of binary representations. This transform has the property that it spreads the energy of any vector uniformly across all coordinates:</p>
+<p><span class="math display">\[\|\textcolor{#2980B9}{\mathbf{H}}\mathbf{x}\|_\infty \leq \|\mathbf{x}\|_2 / \sqrt{d^I}\]</span></p>
+<p>That is, after the WHT, no single dimension can dominate. Quantization applied to the <span class="math inline">\(\textcolor{#2980B9}{\mathbf{H}}\)</span>-transformed vector therefore incurs uniform error across coordinates, reducing the worst-case dot product error from <span class="math inline">\(O(\|\mathbf{x}\|_2)\)</span> to <span class="math inline">\(O(\|\mathbf{x}\|_2 / \sqrt{d^I})\)</span>.</p>
+<p><strong>Computational cost.</strong> The WHT can be computed in <span class="math inline">\(O(d^I \log d^I)\)</span> using a butterfly (fast Hadamard transform) algorithm, without materializing the dense matrix <span class="math inline">\(\textcolor{#2980B9}{\mathbf{H}}\)</span>. Since both <span class="math inline">\(\mathbf{q}\)</span> and <span class="math inline">\(\mathbf{k}\)</span> are transformed, the dot product <span class="math inline">\((\textcolor{#2980B9}{\mathbf{H}}\mathbf{q}) \cdot (\textcolor{#2980B9}{\mathbf{H}}\mathbf{k}) = \mathbf{q}^{\top} \textcolor{#2980B9}{\mathbf{H}}^{\top} \textcolor{#2980B9}{\mathbf{H}} \mathbf{k} = \mathbf{q}^{\top} \mathbf{k}\)</span> (the WHT is orthogonal), so the transform is invisible to the score values while benefiting quantization stability.</p>
+<p><em>Note.</em> The initial <a href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a> technical report included Hadamard preprocessing, but subsequent engineering analysis found no measurable accuracy impact and removed it from the production implementation. The theoretical motivation above describes the original design rationale.</p>
+<h3 id="two-stage-training-of-the-indexer">6.5 Two-Stage Training of the Indexer</h3>
+<p>Training the lightning indexer end-to-end with the main model is problematic: the top-<span class="math inline">\(K\)</span> selection is non-differentiable, and gradient signals from the language modeling loss would propagate through the selection into the indexer, creating instability.</p>
+<p>DSA resolves this with a two-stage curriculum:</p>
+<p><strong>Stage 1 (Dense warm-up — 1,000 steps, 2.1B tokens).</strong> All model parameters (the pretrained MLA transformer) are <em>frozen</em>. Only the indexer parameters are trained. The indexer is supervised by a KL-divergence loss that aligns its scores with the full attention distribution:</p>
+<p><span class="math display">\[\mathcal{L}^I = \sum_t D_{\mathrm{KL}}\!\left(p_{t,\cdot} \;\big\|\; \operatorname{Softmax}(I_{t,\cdot})\right)\]</span></p>
+<p>where <span class="math inline">\(p_{t,s} = \operatorname{Softmax}_{s'&lt;t}\!\left(\mathbf{q}_t^{\text{eff}} \cdot \mathbf{k}_{s'}^{\text{eff}} / \sqrt{d_k + d_h^R}\right)_s\)</span> is the full (dense) attention distribution. This stage teaches the indexer to approximate the attention pattern without altering the main model.</p>
+<p><strong>Stage 2 (Sparse fine-tuning — 15,000 steps, 943.7B tokens).</strong> All model parameters are unfrozen. At each step, the indexer selects <span class="math inline">\(K = 2{,}048\)</span> tokens per query position, and the main model is fine-tuned using only those selected tokens in its attention computation. Two losses operate in parallel:</p>
+<ol type="1">
+<li><span class="math inline">\(\mathcal{L}^{\text{LM}}\)</span>: standard next-token prediction loss, backpropagated through MLA (but not the indexer — the indexer’s output is used as a non-differentiable mask).</li>
+<li><span class="math inline">\(\mathcal{L}^I\)</span>: indexer KL-divergence loss over the selected token set <span class="math inline">\(\mathcal{S}_t\)</span>:</li>
+</ol>
+<p><span class="math display">\[\mathcal{L}^I = \sum_t D_{\mathrm{KL}}\!\left(p_{t,\mathcal{S}_t} \;\big\|\; \operatorname{Softmax}(I_{t,\mathcal{S}_t})\right)\]</span></p>
+<p><strong>The indexer input is detached from the main computational graph.</strong> This means: (i) <span class="math inline">\(\mathcal{L}^{\text{LM}}\)</span> gradients do not flow into the indexer, so the main model cannot implicitly communicate with the indexer to ease token selection; (ii) <span class="math inline">\(\mathcal{L}^I\)</span> gradients do not flow into the main model, so the indexer cannot distort the main model’s representations in service of making its own job easier. Each component is optimized independently.</p>
+<p><strong>Reported results.</strong> <a href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">DeepSeek-V3.2-Exp</a> achieves approximately 2–3× faster long-sequence processing and 30–40% memory reduction relative to full dense attention at long contexts, with no measurable quality loss on standard benchmarks including GSM8K and GPQA-Diamond.</p>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Shazeer (2019), “Fast Transformer Decoding: One Write-Head is All You Need”</td>
+<td>Introduces Multi-Query Attention: all heads share one K and one V projection, reducing KV cache by factor H with minor quality loss</td>
+<td><a href="https://arxiv.org/abs/1911.02150">arxiv.org/abs/1911.02150</a></td>
+</tr>
+<tr class="even">
+<td>Ainslie et al. (2023), “GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints”</td>
+<td>Introduces Grouped-Query Attention as a middle ground between MHA and MQA; provides uptraining recipe from MHA checkpoints</td>
+<td><a href="https://arxiv.org/abs/2305.13245">arxiv.org/abs/2305.13245</a></td>
+</tr>
+<tr class="odd">
+<td>Su et al. (2021), “RoFormer: Enhanced Transformer with Rotary Position Embedding”</td>
+<td>Introduces RoPE: rotates Q and K by position-proportional angles so that dot products depend only on relative position</td>
+<td><a href="https://arxiv.org/abs/2104.09864">arxiv.org/abs/2104.09864</a></td>
+</tr>
+<tr class="even">
+<td>DeepSeek-AI (2024), “DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model”</td>
+<td>Introduces Multi-Head Latent Attention: low-rank KV compression, matrix absorption trick, and decoupled RoPE</td>
+<td><a href="https://arxiv.org/abs/2405.04434">arxiv.org/abs/2405.04434</a></td>
+</tr>
+<tr class="odd">
+<td>DeepSeek-AI (2025), “DeepSeek-V3.2-Exp”</td>
+<td>Experimental model introducing DeepSeek Sparse Attention with the lightning indexer, FP8 quantization, and two-stage training</td>
+<td><a href="https://github.com/deepseek-ai/DeepSeek-V3.2-Exp">github.com/deepseek-ai/DeepSeek-V3.2-Exp</a></td>
+</tr>
+<tr class="even">
+<td>vLLM Blog (2025), “DeepSeek-V3.2-Exp in vLLM: Fine-Grained Sparse Attention in Action”</td>
+<td>Engineering walkthrough of DSA implementation in vLLM; details FP8 KV cache layout and lightning indexer kernel design</td>
+<td><a href="https://blog.vllm.ai/2025/09/29/deepseek-v3-2.html">blog.vllm.ai/2025/09/29/deepseek-v3-2.html</a></td>
+</tr>
+<tr class="odd">
+<td>Thomson (2025), “DeepSeek Sparse Attention”</td>
+<td>Detailed technical exposition of DSA: indexer score formula, quantization scaling, Hadamard transform motivation, and two-stage training</td>
+<td><a href="https://loganthomson.com/DeepSeek-Sparse-Attention/">loganthomson.com/DeepSeek-Sparse-Attention</a></td>
+</tr>
+<tr class="even">
+<td>Ericsson (2025), “DeepSeek Sparse Attention”</td>
+<td>Blog walkthrough of DSA mechanics including FP8 dot product formulation and training phase details</td>
+<td><a href="https://leonericsson.github.io/blog/2025-10-16-dsa">leonericsson.github.io/blog/2025-10-16-dsa</a></td>
+</tr>
+<tr class="odd">
+<td>Jamil (2023), “Attention Mechanism” (YouTube)</td>
+<td>Accessible walkthrough of attention, MHA, MQA, GQA, and RoPE with implementation details</td>
+<td><a href="https://www.youtube.com/watch?v=Y-o545eYjXM">youtube.com/watch?v=Y-o545eYjXM</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

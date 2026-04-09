@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>equivariant-postnikov-and-slice - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>equivariant-postnikov-and-slice</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-non-equivariant-postnikov-towers%7C1.-non-equivariant-postnikov-towers/">#1. Non-Equivariant Postnikov Towers|1. Non-Equivariant Postnikov Towers</a>
+<ul>
+<li><a href="../../../../notes/#1.1-postnikov-sections:-definition-and-characterization%7C1.1-postnikov-sections:-definition-and-characterization/">#1.1 Postnikov Sections: Definition and Characterization|1.1 Postnikov Sections: Definition and Characterization</a></li>
+<li><a href="../../../../notes/#1.2-construction-via-the-small-object-argument%7C1.2-construction-via-the-small-object-argument/">#1.2 Construction via the Small Object Argument|1.2 Construction via the Small Object Argument</a></li>
+<li><a href="../../../../notes/#1.3-the-fiber-sequences-and-k-invariants%7C1.3-the-fiber-sequences-and-k-invariants/">#1.3 The Fiber Sequences and k-Invariants|1.3 The Fiber Sequences and k-Invariants</a></li>
+<li><a href="../../../../notes/#1.4-postnikov-towers-as-localization%7C1.4-postnikov-towers-as-localization/">#1.4 Postnikov Towers as Localization|1.4 Postnikov Towers as Localization</a></li>
+<li><a href="../../../../notes/#1.5-the-atiyah-hirzebruch-spectral-sequence%7C1.5-the-atiyah-hirzebruch-spectral-sequence/">#1.5 The Atiyah-Hirzebruch Spectral Sequence|1.5 The Atiyah-Hirzebruch Spectral Sequence</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-equivariant-postnikov-towers:-unstable%7C2.-equivariant-postnikov-towers:-unstable/">#2. Equivariant Postnikov Towers: Unstable|2. Equivariant Postnikov Towers: Unstable</a>
+<ul>
+<li><a href="../../../../notes/#2.1-equivariant-homotopy-groups-as-coefficient-systems%7C2.1-equivariant-homotopy-groups-as-coefficient-systems/">#2.1 Equivariant Homotopy Groups as Coefficient Systems|2.1 Equivariant Homotopy Groups as Coefficient Systems</a></li>
+<li><a href="../../../../notes/#2.2-construction-via-elmendorf's-theorem%7C2.2-construction-via-elmendorf's-theorem/">#2.2 Construction via Elmendorf’s Theorem|2.2 Construction via Elmendorf’s Theorem</a></li>
+<li><a href="../../../../notes/#2.3-equivariant-eilenberg-mac-lane-spaces%7C2.3-equivariant-eilenberg-mac-lane-spaces/">#2.3 Equivariant Eilenberg-Mac Lane Spaces|2.3 Equivariant Eilenberg-Mac Lane Spaces</a></li>
+<li><a href="../../../../notes/#2.4-fiber-sequences-and-bredon-k-invariants%7C2.4-fiber-sequences-and-bredon-k-invariants/">#2.4 Fiber Sequences and Bredon k-Invariants|2.4 Fiber Sequences and Bredon k-Invariants</a></li>
+<li><a href="../../../../notes/#2.5-non-equivariant-vs.-equivariant-comparison%7C2.5-non-equivariant-vs.-equivariant-comparison/">#2.5 Non-Equivariant vs. Equivariant Comparison|2.5 Non-Equivariant vs. Equivariant Comparison</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-why-the-naive-stable-analogue-fails%7C3.-why-the-naive-stable-analogue-fails/">#3. Why the Naive Stable Analogue Fails|3. Why the Naive Stable Analogue Fails</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-integer-indexed-stable-postnikov-tower%7C3.1-the-integer-indexed-stable-postnikov-tower/">#3.1 The Integer-Indexed Stable Postnikov Tower|3.1 The Integer-Indexed Stable Postnikov Tower</a></li>
+<li><a href="../../../../notes/#3.2-non-nullhomotopic-maps-between-representation-spheres%7C3.2-non-nullhomotopic-maps-between-representation-spheres/">#3.2 Non-Nullhomotopic Maps Between Representation Spheres|3.2 Non-Nullhomotopic Maps Between Representation Spheres</a></li>
+<li><a href="../../../../notes/#3.3-mackey-functors-vs.-coefficient-systems%7C3.3-mackey-functors-vs.-coefficient-systems/">#3.3 Mackey Functors vs. Coefficient Systems|3.3 Mackey Functors vs. Coefficient Systems</a></li>
+<li><a href="../../../../notes/#3.4-the-remedy:-representation-indexed-filtration%7C3.4-the-remedy:-representation-indexed-filtration/">#3.4 The Remedy: Representation-Indexed Filtration|3.4 The Remedy: Representation-Indexed Filtration</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-the-slice-filtration%7C4.-the-slice-filtration/">#4. The Slice Filtration|4. The Slice Filtration</a>
+<ul>
+<li><a href="../../../../notes/#4.1-slice-cells%7C4.1-slice-cells/">#4.1 Slice Cells|4.1 Slice Cells</a></li>
+<li><a href="../../../../notes/#4.2-slice-null-and-slice-positive-spectra%7C4.2-slice-null-and-slice-positive-spectra/">#4.2 Slice Null and Slice Positive Spectra|4.2 Slice Null and Slice Positive Spectra</a></li>
+<li><a href="../../../../notes/#4.3-relationship-to-ordinary-connectivity%7C4.3-relationship-to-ordinary-connectivity/">#4.3 Relationship to Ordinary Connectivity|4.3 Relationship to Ordinary Connectivity</a></li>
+<li><a href="../../../../notes/#4.4-characterization-via-filtrations%7C4.4-characterization-via-filtrations/">#4.4 Characterization via Filtrations|4.4 Characterization via Filtrations</a></li>
+<li><a href="../../../../notes/#4.5-the-slice-sections-and-the-slice-tower%7C4.5-the-slice-sections-and-the-slice-tower/">#4.5 The Slice Sections and the Slice Tower|4.5 The Slice Sections and the Slice Tower</a></li>
+<li><a href="../../../../notes/#4.6-the-n-slice-and-an-explicit-example%7C4.6-the-n-slice-and-an-explicit-example/">#4.6 The n-Slice and an Explicit Example|4.6 The n-Slice and an Explicit Example</a></li>
+<li><a href="../../../../notes/#4.7-behavior-under-change-functors%7C4.7-behavior-under-change-functors/">#4.7 Behavior Under Change Functors|4.7 Behavior Under Change Functors</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-the-slice-spectral-sequence%7C5.-the-slice-spectral-sequence/">#5. The Slice Spectral Sequence|5. The Slice Spectral Sequence</a>
+<ul>
+<li><a href="../../../../notes/#5.1-construction-from-the-slice-tower%7C5.1-construction-from-the-slice-tower/">#5.1 Construction from the Slice Tower|5.1 Construction from the Slice Tower</a></li>
+<li><a href="../../../../notes/#5.2-dugger's-c2-construction-and-kr-theory%7C5.2-dugger's-c2-construction-and-kr-theory/">#5.2 Dugger’s C2 Construction and KR-Theory|5.2 Dugger’s C2 Construction and KR-Theory</a></li>
+<li><a href="../../../../notes/#5.3-the-general-hhr-slice-spectral-sequence%7C5.3-the-general-hhr-slice-spectral-sequence/">#5.3 The General HHR Slice Spectral Sequence|5.3 The General HHR Slice Spectral Sequence</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-comparison-and-the-hhr-application%7C6.-comparison-and-the-hhr-application/">#6. Comparison and the HHR Application|6. Comparison and the HHR Application</a>
+<ul>
+<li><a href="../../../../notes/#6.1-the-three-way-comparison-table%7C6.1-the-three-way-comparison-table/">#6.1 The Three-Way Comparison Table|6.1 The Three-Way Comparison Table</a></li>
+<li><a href="../../../../notes/#6.2-the-slices-of-the-real-cobordism-spectrum%7C6.2-the-slices-of-the-real-cobordism-spectrum/">#6.2 The Slices of the Real Cobordism Spectrum|6.2 The Slices of the Real Cobordism Spectrum</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-cw-postnikov-duality-and-eckmann-hilton%7C7.-cw-postnikov-duality-and-eckmann-hilton/">#7. CW-Postnikov Duality and Eckmann-Hilton|7. CW-Postnikov Duality and Eckmann-Hilton</a>
+<ul>
+<li><a href="../../../../notes/#7.1-the-classical-duality%7C7.1-the-classical-duality/">#7.1 The Classical Duality|7.1 The Classical Duality</a></li>
+<li><a href="../../../../notes/#7.2-the-equivariant-unstable-setting:-duality-holds-objectwise%7C7.2-the-equivariant-unstable-setting:-duality-holds-objectwise/">#7.2 The Equivariant Unstable Setting: Duality Holds Objectwise|7.2 The Equivariant Unstable Setting: Duality Holds Objectwise</a></li>
+<li><a href="../../../../notes/#7.3-the-equivariant-stable-setting:-the-duality-breaks%7C7.3-the-equivariant-stable-setting:-the-duality-breaks/">#7.3 The Equivariant Stable Setting: The Duality Breaks|7.3 The Equivariant Stable Setting: The Duality Breaks</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="non-equivariant-postnikov-towers">1. Non-Equivariant Postnikov Towers 📐</h2>
+<p>We begin with a careful review of the classical theory. This section establishes the precise statements that will be <em>upgraded</em> in the equivariant and stable settings.</p>
+<h3 id="postnikov-sections-definition-and-characterization">1.1 Postnikov Sections: Definition and Characterization</h3>
+<p>Throughout this section, <span class="math inline">\(X\)</span> is a based, connected topological space (or spectrum, when noted).</p>
+<p><strong>Definition (Postnikov Section).</strong> A <em>Postnikov section</em> of <span class="math inline">\(X\)</span> at level <span class="math inline">\(n\)</span> is a space <span class="math inline">\(P_n X\)</span> equipped with a map <span class="math inline">\(p_n: X \to P_n X\)</span> such that:</p>
+<ol type="1">
+<li><span class="math inline">\((p_n)_*: \pi_k(X) \xrightarrow{\sim} \pi_k(P_n X)\)</span> is an isomorphism for all <span class="math inline">\(k \leq n\)</span>,</li>
+<li><span class="math inline">\(\pi_k(P_n X) = 0\)</span> for all <span class="math inline">\(k &gt; n\)</span>,</li>
+<li><span class="math inline">\(X \simeq \operatorname{holim}_n P_n X\)</span> (convergence of the tower).</li>
+</ol>
+<p>The natural transformations <span class="math inline">\(P_n X \to P_{n-1} X\)</span> are induced by the universal property: since <span class="math inline">\(\pi_k(P_{n-1} X) = 0\)</span> for <span class="math inline">\(k \geq n\)</span> and <span class="math inline">\(\pi_k(P_n X) = \pi_k(X)\)</span> for <span class="math inline">\(k \leq n-1\)</span>, there is an essentially unique compatible map between sections.</p>
+<p>The collection <span class="math inline">\(\{\cdots \to P_2 X \to P_1 X \to P_0 X\}\)</span> is the <em>Postnikov tower</em> of <span class="math inline">\(X\)</span>.</p>
+<div class="callout callout-info">
+<p> Duality with CW complexes
+The Postnikov tower is, in a precise sense, dual to the cellular (CW) filtration. The CW filtration is a colimit of skeleta <span class="math inline">\(X^0 \hookrightarrow X^1 \hookrightarrow X^2 \hookrightarrow \cdots\)</span> where each attachment kills only finitely many cells; the Postnikov tower is a limit of stages <span class="math inline">\(\cdots \to P_2 X \to P_1 X \to P_0 X\)</span> where each stage kills infinitely many cells. The axiomatization of Postnikov towers in a triangulated category is called a <em>t-structure</em>; the dual axiomatization of CW filtrations is a <em>weight structure</em>.</p>
+</div>
+<h3 id="construction-via-the-small-object-argument">1.2 Construction via the Small Object Argument</h3>
+<p>There is a canonical point-set construction. The naive attempt — given <span class="math inline">\(\alpha \in \pi_{n+1}(X)\)</span>, form a pushout
+<span class="math display">\[\begin{tikzcd}
+S^{n+1} \arrow[r, &quot;\alpha&quot;] \arrow[d, hook] &amp; X \arrow[d] \\
+D^{n+2} \arrow[r] &amp; X \cup_\alpha D^{n+2}
+\end{tikzcd}\]</span>
+to kill <span class="math inline">\(\alpha\)</span> — is not functorial: it depends on the choice of representative <span class="math inline">\(\alpha\)</span>.</p>
+<p>The fix is the <em>small object argument</em>. Fix <span class="math inline">\(n \geq 0\)</span>. Define:</p>
+<p><span class="math display">\[X^{(n+1)} := X \cup \left( \coprod_{\alpha: S^{n+1} \to X} D^{n+2} \right),\]</span></p>
+<p>where we attach a disk along every map <span class="math inline">\(S^{n+1} \to X\)</span> simultaneously. Iterate: form <span class="math inline">\(X^{(N)}\)</span> by attaching disks along all maps <span class="math inline">\(S^N \to X^{(N-1)}\)</span> for each <span class="math inline">\(N &gt; n+1\)</span>. Set</p>
+<p><span class="math display">\[P_n X := \operatorname{colim}_{N \geq n+1} X^{(N)}.\]</span></p>
+<p>This is functorial in <span class="math inline">\(X\)</span>: a map <span class="math inline">\(f: X \to Y\)</span> induces maps between the pushout diagrams at each stage by post-composition.</p>
+<div class="callout callout-note">
+<p> Why the iteration is necessary
+Attaching a disk to kill <span class="math inline">\(\alpha \in \pi_{n+1}(X)\)</span> may create new elements in <span class="math inline">\(\pi_{n+2}\)</span> (via the attaching map <span class="math inline">\(S^{n+1} \to X\)</span>, viewed as a class in the relative homotopy). One must iterate to kill all these new contributions. The colimit converges because at each stage we only affect homotopy groups in degrees <span class="math inline">\(&gt; n\)</span>.</p>
+</div>
+<p><strong>Proposition.</strong> The map <span class="math inline">\(X \to P_n X\)</span> constructed above satisfies the Postnikov section axioms. <em>The proof follows by induction on the relative homotopy long exact sequence and the observation that the colimit is filtered, so the homotopy groups of <span class="math inline">\(P_n X\)</span> are computed as the colimit of the homotopy groups.</em></p>
+<h3 id="the-fiber-sequences-and-k-invariants">1.3 The Fiber Sequences and k-Invariants</h3>
+<p><strong>Proposition (Fiber Sequence).</strong> For each <span class="math inline">\(n \geq 1\)</span>, there is a homotopy fiber sequence</p>
+<p><span class="math display">\[K(\pi_n X, n) \longrightarrow P_n X \longrightarrow P_{n-1} X.\]</span></p>
+<p><em>Proof sketch.</em> Let <span class="math inline">\(F_n\)</span> be the homotopy fiber of <span class="math inline">\(P_n X \to P_{n-1} X\)</span>. From the long exact sequence on homotopy groups:</p>
+<p><span class="math display">\[\cdots \to \pi_k(F_n) \to \pi_k(P_n X) \to \pi_k(P_{n-1} X) \to \pi_{k-1}(F_n) \to \cdots\]</span></p>
+<p>By the Postnikov section axioms:
+- For <span class="math inline">\(k &lt; n\)</span>: <span class="math inline">\(\pi_k(P_n X) \cong \pi_k(X) \cong \pi_k(P_{n-1} X)\)</span>, so <span class="math inline">\(\pi_k(F_n) = 0\)</span>.
+- For <span class="math inline">\(k = n\)</span>: <span class="math inline">\(\pi_n(P_n X) \cong \pi_n(X)\)</span> and <span class="math inline">\(\pi_n(P_{n-1} X) = 0\)</span>, so <span class="math inline">\(\pi_n(F_n) \cong \pi_n(X)\)</span>.
+- For <span class="math inline">\(k &gt; n\)</span>: <span class="math inline">\(\pi_k(P_n X) = 0\)</span> and <span class="math inline">\(\pi_k(P_{n-1} X) = 0\)</span>, so <span class="math inline">\(\pi_k(F_n) = 0\)</span>.</p>
+<p>Thus <span class="math inline">\(F_n\)</span> has exactly one nonzero homotopy group, <span class="math inline">\(\pi_n(F_n) \cong \pi_n(X)\)</span>, in degree <span class="math inline">\(n\)</span>, so <span class="math inline">\(F_n \simeq K(\pi_n X, n)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p>The map <span class="math inline">\(P_n X \to P_{n-1} X\)</span> is classified by an element</p>
+<p><span class="math display">\[k^{n+2}(X) \in H^{n+2}(P_{n-1} X;\, \pi_n X),\]</span></p>
+<p>called the <em>(n+2)-th) k-invariant</em> of <span class="math inline">\(X\)</span>. Here we use the bijection <span class="math inline">\([P_{n-1} X, K(\pi_n X, n+1)] \cong H^{n+2}(P_{n-1} X; \pi_n X)\)</span> (noting that <span class="math inline">\(K(\pi_n X, n+1)\)</span> is the classifying space for <span class="math inline">\(H^{n+1}(-; \pi_n X)\)</span>, so a map <span class="math inline">\(P_{n-1} X \to K(\pi_n X, n+1)\)</span> — whose homotopy fiber is <span class="math inline">\(K(\pi_n X, n)\)</span> — is classified by a class in <span class="math inline">\(H^{n+2}\)</span>). <em>Iterating the k-invariants completely determines the Postnikov tower, and hence the homotopy type of <span class="math inline">\(X\)</span>, up to extensions.</em></p>
+<blockquote>
+<p>[!EXAMPLE]- k-invariant for the 2-sphere
+For <span class="math inline">\(X = S^2\)</span>, the first nontrivial k-invariant lives in <span class="math inline">\(H^4(K(\mathbb{Z},2); \mathbb{Z}) \cong \mathbb{Z}\)</span>, generated by the fundamental class. This k-invariant records the Hopf fibration <span class="math inline">\(S^3 \to S^2\)</span>; its nontriviality reflects <span class="math inline">\(\pi_3(S^2) \cong \mathbb{Z}\)</span>.</p>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 1 (Computational)
+<em>This exercise computes the first two nontrivial Postnikov sections of <span class="math inline">\(S^2\)</span> explicitly, grounding the abstract fiber sequence story in a familiar example.</em></p>
+<ol type="a">
+<li><p>Show <span class="math inline">\(P_1(S^2) \simeq *\)</span> and <span class="math inline">\(P_2(S^2) \simeq K(\mathbb{Z}, 2) = \mathbb{CP}^\infty\)</span>. What is the map <span class="math inline">\(S^2 \to \mathbb{CP}^\infty\)</span>?</p></li>
+<li><p>The k-invariant <span class="math inline">\(k^4 \in H^4(\mathbb{CP}^\infty; \mathbb{Z})\)</span> for <span class="math inline">\(P_3(S^2) \to P_2(S^2) = \mathbb{CP}^\infty\)</span> classifies the extension. Compute <span class="math inline">\(H^4(\mathbb{CP}^\infty; \mathbb{Z})\)</span> and identify the k-invariant. What does its nontriviality say about <span class="math inline">\(\pi_3(S^2)\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 1
+(a) <span class="math inline">\(\pi_1(S^2) = 0\)</span>, so <span class="math inline">\(P_1(S^2)\)</span> is contractible. <span class="math inline">\(P_2(S^2)\)</span> has <span class="math inline">\(\pi_2 = \mathbb{Z}\)</span> and all other homotopy groups zero, so <span class="math inline">\(P_2(S^2) \simeq K(\mathbb{Z}, 2) = \mathbb{CP}^\infty\)</span>. The map <span class="math inline">\(S^2 \to \mathbb{CP}^\infty\)</span> is the inclusion of the bottom cell (the standard embedding of <span class="math inline">\(S^2 \cong \mathbb{CP}^1 \hookrightarrow \mathbb{CP}^\infty\)</span>).</p>
+<ol start="2" type="a">
+<li><span class="math inline">\(H^*(\mathbb{CP}^\infty; \mathbb{Z}) = \mathbb{Z}[c]\)</span> with <span class="math inline">\(|c| = 2\)</span>, so <span class="math inline">\(H^4(\mathbb{CP}^\infty; \mathbb{Z}) \cong \mathbb{Z}\)</span>, generated by <span class="math inline">\(c^2\)</span>. The k-invariant <span class="math inline">\(k^4 \in \mathbb{Z}\)</span> is the generator <span class="math inline">\(\pm 1\)</span> (it is nontrivial, since <span class="math inline">\(\pi_3(S^2) \cong \mathbb{Z} \neq 0\)</span>). A trivial k-invariant would give <span class="math inline">\(P_3(S^2) \simeq \mathbb{CP}^\infty \times K(\mathbb{Z}, 3)\)</span>, which is wrong. The Hopf fibration <span class="math inline">\(\eta: S^3 \to S^2\)</span> represents the generator of <span class="math inline">\(\pi_3(S^2)\)</span> and the nontriviality of <span class="math inline">\(k^4\)</span> is exactly the statement that <span class="math inline">\(\eta\)</span> does not extend to <span class="math inline">\(\mathbb{CP}^\infty\)</span>.</li>
+</ol>
+</blockquote>
+<h3 id="postnikov-towers-as-localization">1.4 Postnikov Towers as Localization</h3>
+<p>The Postnikov section <span class="math inline">\(P_n\)</span> has a clean categorical description: it is <em><span class="math inline">\(n\)</span>-truncation</em>, or localization with respect to the class of maps that are <span class="math inline">\(\pi_k\)</span>-isomorphisms for <span class="math inline">\(k \leq n\)</span> and <span class="math inline">\(\pi_k\)</span>-surjections for <span class="math inline">\(k = n+1\)</span>.</p>
+<p>More precisely, <span class="math inline">\(P_n\)</span> is the left adjoint (in the homotopy category) to the inclusion of <span class="math inline">\(n\)</span>-truncated spaces (spaces with <span class="math inline">\(\pi_k = 0\)</span> for <span class="math inline">\(k &gt; n\)</span>) into all spaces. The unit of this adjunction is the map <span class="math inline">\(X \to P_n X\)</span>.</p>
+<p>This localization perspective is crucial: it will generalize directly to the equivariant stable setting, where the slice sections <span class="math inline">\(P^n\)</span> are defined as localizations with respect to an appropriate class of spectra.</p>
+<h3 id="the-atiyah-hirzebruch-spectral-sequence">1.5 The Atiyah-Hirzebruch Spectral Sequence</h3>
+<p>For a generalized (co)homology theory <span class="math inline">\(E_*\)</span>, the Postnikov tower of a space <span class="math inline">\(X\)</span> gives rise to the <em>Atiyah-Hirzebruch spectral sequence</em> (AHSS). The key observation is that the fiber sequences</p>
+<p><span class="math display">\[\Sigma^n H\pi_n(X) \to \Sigma^\infty P_n X \to \Sigma^\infty P_{n-1} X\]</span></p>
+<p>(after suspending to spectra) form an exact couple whose associated spectral sequence has:</p>
+<p><span class="math display">\[E_2^{p,q} = H^p(X;\, E_q(*)) \Implies E^{p+q}(X).\]</span></p>
+<p><em>The <span class="math inline">\(E_2\)</span>-page is the Bredon cohomology of <span class="math inline">\(X\)</span> with coefficients in the homotopy groups of <span class="math inline">\(E\)</span>; the spectral sequence converges to the <span class="math inline">\(E\)</span>-cohomology of <span class="math inline">\(X\)</span>.</em> The analogous construction in the equivariant stable setting — replacing the Postnikov tower with the slice tower — produces the slice spectral sequence.</p>
+<div class="callout callout-note">
+<p> t-structures
+The abstract framework for Postnikov towers in a triangulated (or stable <span class="math inline">\(\infty\)</span>-) category is a <em>t-structure</em> <span class="math inline">\((\mathcal{C}_{\geq 0}, \mathcal{C}_{\leq 0})\)</span>: a pair of full subcategories closed under appropriate suspensions with the property that every object <span class="math inline">\(X\)</span> fits into a unique fiber sequence <span class="math inline">\(X_{\geq n} \to X \to X_{\leq n-1}\)</span>. The slice filtration will be a t-structure on <span class="math inline">\(\mathrm{Sp}^G\)</span> (though with integer indexing replaced by a more refined dimension function).</p>
+</div>
+<hr />
+<h2 id="equivariant-postnikov-towers-unstable">2. Equivariant Postnikov Towers: Unstable 💡</h2>
+<p>We now pass to the equivariant setting, working in <span class="math inline">\(G\mathbf{Top}\)</span> (see <a href="../../../../notes/concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps%7Cg-spaces-and-equivariant-maps/">concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps|G-Spaces and Equivariant Maps</a> for foundations). The key insight — due to Elmendorf — is that the equivariant Postnikov tower is completely determined by the ordinary Postnikov towers of all the fixed-point spaces simultaneously.</p>
+<h3 id="equivariant-homotopy-groups-as-coefficient-systems">2.1 Equivariant Homotopy Groups as Coefficient Systems</h3>
+<p>Recall from <a href="../../../../notes/concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps%7Cg-spaces-and-equivariant-maps/">concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps|G-Spaces and Equivariant Maps</a> that the <em>equivariant homotopy groups</em> of a based <span class="math inline">\(G\)</span>-space <span class="math inline">\(X\)</span> are defined, for each closed subgroup <span class="math inline">\(H \leq G\)</span>, as</p>
+<p><span class="math display">\[\pi_n^H(X) := \pi_n(X^H),\]</span></p>
+<p>the <span class="math inline">\(n\)</span>-th homotopy group of the <span class="math inline">\(H\)</span>-fixed-point space.</p>
+<p><strong>Definition (Coefficient System).</strong> A <em>coefficient system</em> for <span class="math inline">\(G\)</span> is a functor <span class="math inline">\(\underline{M}: \mathcal{O}_G^{op} \to \mathbf{Ab}\)</span>, where <span class="math inline">\(\mathcal{O}_G\)</span> is the <em>orbit category</em> of <span class="math inline">\(G\)</span> (objects: orbits <span class="math inline">\(G/H\)</span> for closed <span class="math inline">\(H \leq G\)</span>; morphisms: <span class="math inline">\(G\)</span>-equivariant maps <span class="math inline">\(G/H \to G/K\)</span>, corresponding to elements <span class="math inline">\(g \in G\)</span> with <span class="math inline">\(gHg^{-1} \leq K\)</span>).</p>
+<p>The equivariant homotopy groups assemble into a coefficient system: define</p>
+<p><span class="math display">\[\underline{\pi}_n X: \mathcal{O}_G^{op} \to \mathbf{Ab}, \qquad G/H \mapsto \pi_n(X^H).\]</span></p>
+<p>The functoriality is as follows: a <span class="math inline">\(G\)</span>-map <span class="math inline">\(G/H \to G/K\)</span> (corresponding to conjugation by some <span class="math inline">\(g\)</span>) induces a map <span class="math inline">\(X^K \to X^H\)</span> on fixed-point spaces (by precomposition), and hence a map <span class="math inline">\(\pi_n(X^K) \to \pi_n(X^H)\)</span> — these are the <em>restriction maps</em> of the coefficient system.</p>
+<div class="callout callout-warning">
+<p> Coefficient systems vs. Mackey functors
+A coefficient system has only <em>restriction maps</em> (contravariant functoriality). A <em>Mackey functor</em> additionally has <em>transfer maps</em> (covariant functoriality) satisfying a double-coset formula. Stably, homotopy groups always form Mackey functors; unstably, they only form coefficient systems. This distinction is invisible non-equivariantly (where there are no proper subgroups to transfer along) but is fundamental in the equivariant stable setting. See Section 3.3 for more.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise C (Computational)
+<em>This exercise computes the coefficient system of equivariant homotopy groups for the orbits of <span class="math inline">\(G\)</span>, identifying a basic class of <span class="math inline">\(G\)</span>-spaces that are already their own Postnikov sections.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span>. Recall the orbit category <span class="math inline">\(\mathcal{O}_{C_2}\)</span> has two objects: <span class="math inline">\(C_2/e\)</span> and <span class="math inline">\(C_2/C_2\)</span>.</p>
+<ol type="a">
+<li><p>Regard each orbit <span class="math inline">\(G/H\)</span> as a <span class="math inline">\(C_2\)</span>-space. Compute <span class="math inline">\(\underline{\pi}_n(C_2/e)\)</span> and <span class="math inline">\(\underline{\pi}_n(C_2/C_2)\)</span> for <span class="math inline">\(n \geq 0\)</span>. That is, compute the abelian group at each object of <span class="math inline">\(\mathcal{O}_{C_2}^{op}\)</span> and the restriction map.</p></li>
+<li><p>Show that both orbits <span class="math inline">\(C_2/e\)</span> and <span class="math inline">\(C_2/C_2\)</span> are already their own 0-th Postnikov sections: <span class="math inline">\(P_0^{C_2}(G/H) \simeq G/H\)</span> for <span class="math inline">\(H \in \{e, C_2\}\)</span>.</p></li>
+<li><p>Conclude that any discrete <span class="math inline">\(C_2\)</span>-set <span class="math inline">\(S\)</span> (with <span class="math inline">\(C_2\)</span>-action) satisfies <span class="math inline">\(P_0^{C_2}(S) \simeq S\)</span>. Why does this follow from Elmendorf’s theorem without further computation?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise C
+(a) <strong>For <span class="math inline">\(G/e = C_2\)</span></strong> (the free orbit, underlying set <span class="math inline">\(\{e, \tau\}\)</span> with <span class="math inline">\(\tau\)</span> acting by the nontrivial element):
+- <span class="math inline">\((C_2/e)^e = C_2\)</span> (two points), <span class="math inline">\((C_2/e)^{C_2} = \emptyset\)</span> (no fixed points — <span class="math inline">\(\tau\)</span> acts freely).
+- <span class="math inline">\(\underline{\pi}_0(C_2/e)(C_2/e) = \pi_0(C_2) = \mathbb{Z}/2\)</span> (two path components).
+- <span class="math inline">\(\underline{\pi}_0(C_2/e)(C_2/C_2) = \pi_0(\emptyset)\)</span>: undefined (basepoint issue; as an unpointed set, <span class="math inline">\(\emptyset\)</span>).
+- <span class="math inline">\(\underline{\pi}_n(C_2/e) = 0\)</span> for <span class="math inline">\(n \geq 1\)</span> (both <span class="math inline">\((C_2/e)^e = C_2\)</span> and <span class="math inline">\((C_2/e)^{C_2} = \emptyset\)</span> are discrete, so all higher homotopy groups vanish).</p>
+<p><strong>For <span class="math inline">\(G/C_2 = *\)</span></strong> (the trivial orbit, one point with trivial action):
+- <span class="math inline">\((*) ^e = *\)</span>, <span class="math inline">\((*) ^{C_2} = *\)</span>.
+- <span class="math inline">\(\underline{\pi}_0(*)(C_2/e) = \pi_0(*) = 0\)</span>, <span class="math inline">\(\underline{\pi}_0(*)(C_2/C_2) = \pi_0(*) = 0\)</span>.
+- <span class="math inline">\(\underline{\pi}_n(*) = 0\)</span> for all <span class="math inline">\(n\)</span> (a point has trivial homotopy).</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\(P_0^{C_2}(X)\)</span> is characterized by <span class="math inline">\(\pi_k^H(P_0^{C_2}(X)) = 0\)</span> for <span class="math inline">\(k \geq 1\)</span> and all <span class="math inline">\(H\)</span>. Since both orbits have <span class="math inline">\(\pi_k^H = 0\)</span> for <span class="math inline">\(k \geq 1\)</span> (they are discrete), they are already 0-truncated. So <span class="math inline">\(P_0^{C_2}(G/H) \simeq G/H\)</span>.</p></li>
+<li><p>Any discrete <span class="math inline">\(C_2\)</span>-set <span class="math inline">\(S\)</span> is a disjoint union of orbits <span class="math inline">\(C_2/e\)</span> and <span class="math inline">\(C_2/C_2\)</span>, which are both already 0-truncated. Elmendorf’s theorem says <span class="math inline">\(P_0^{C_2}(S)\)</span> is computed objectwise on fixed-point sets: <span class="math inline">\((P_0^{C_2}(S))^H \simeq P_0(S^H)\)</span>. Since <span class="math inline">\(S^H\)</span> is discrete for each <span class="math inline">\(H\)</span>, <span class="math inline">\(P_0(S^H) \simeq S^H\)</span>. Hence <span class="math inline">\(P_0^{C_2}(S) \simeq S\)</span>.</p></li>
+</ol>
+</blockquote>
+<h3 id="construction-via-elmendorfs-theorem">2.2 Construction via Elmendorf’s Theorem</h3>
+<p><strong>Elmendorf’s Theorem</strong> (recalled from <a href="../../../../notes/concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps%7Cg-spaces-and-equivariant-maps/">concepts/equivariant-stable-homotopy/g-spaces-and-equivariant-maps|G-Spaces and Equivariant Maps</a>): There is a Quillen equivalence</p>
+<p><span class="math display">\[G\mathbf{Top} \simeq \mathrm{Fun}(\mathcal{O}_G^{op}, \mathbf{Spaces}),\]</span></p>
+<p>under which a <span class="math inline">\(G\)</span>-space <span class="math inline">\(X\)</span> corresponds to the presheaf <span class="math inline">\(G/H \mapsto X^H\)</span>.</p>
+<p>This equivalence immediately gives us equivariant Postnikov sections for free:</p>
+<p><strong>Definition (Equivariant Postnikov Section).</strong> The <em>equivariant Postnikov section</em> <span class="math inline">\(P_n^G X\)</span> is the <span class="math inline">\(G\)</span>-space corresponding, under Elmendorf’s theorem, to the presheaf</p>
+<p><span class="math display">\[G/H \mapsto P_n(X^H).\]</span></p>
+<p>Equivalently:</p>
+<p><strong>Proposition.</strong> <span class="math inline">\(P_n^G X\)</span> is uniquely characterized (up to weak <span class="math inline">\(G\)</span>-equivalence) by:
+1. <span class="math inline">\(\pi_k^H(P_n^G X) \cong \pi_k^H(X)\)</span> for all closed <span class="math inline">\(H \leq G\)</span> and <span class="math inline">\(k \leq n\)</span>,
+2. <span class="math inline">\(\pi_k^H(P_n^G X) = 0\)</span> for all closed <span class="math inline">\(H \leq G\)</span> and <span class="math inline">\(k &gt; n\)</span>,
+3. <span class="math inline">\(X \simeq \operatorname{holim}_n P_n^G X\)</span>.</p>
+<p>The fixed-point formula <span class="math inline">\((P_n^G X)^H \simeq P_n(X^H)\)</span> is the key identity: the equivariant Postnikov section is computed objectwise on fixed-point spaces.</p>
+<div class="callout callout-info">
+<p> As an application of Elmendorf
+Blumberg’s lecture notes explicitly identify the equivariant Postnikov tower as “another application of Elmendorf’s theorem.” The equivalence <span class="math inline">\(G\mathbf{Top} \simeq \mathrm{Fun}(\mathcal{O}_G^{op}, \mathbf{Spaces})\)</span> reduces any homotopy-theoretic construction on <span class="math inline">\(G\)</span>-spaces — such as Postnikov sections — to the corresponding objectwise construction on presheaves of spaces. This is the power of the Elmendorf perspective.</p>
+</div>
+<p>The construction of Section 1.2 applies objectwise: form <span class="math inline">\((P_n^G X)^H\)</span> by the small object argument applied to <span class="math inline">\(X^H\)</span>, using all maps <span class="math inline">\(S^k \to X^H\)</span> for <span class="math inline">\(k &gt; n\)</span>. The equivariance is automatic because the construction is functorial in <span class="math inline">\(X^H\)</span>, and the fixed-point functors <span class="math inline">\(X \mapsto X^H\)</span> are functorial in <span class="math inline">\(G\)</span>-equivariant maps.</p>
+<div class="callout callout-question">
+<p> Exercise D (Proof)
+<em>This exercise proves the equivariant Whitehead theorem, identifying the precise role of Elmendorf’s theorem in the argument.</em></p>
+<p>Let <span class="math inline">\(f: X \to Y\)</span> be a <span class="math inline">\(G\)</span>-equivariant map between <span class="math inline">\(G\)</span>-CW complexes. Suppose <span class="math inline">\(f\)</span> induces isomorphisms <span class="math inline">\(\pi_n^H(X) \xrightarrow{\sim} \pi_n^H(Y)\)</span> for all closed subgroups <span class="math inline">\(H \leq G\)</span> and all <span class="math inline">\(n \geq 0\)</span>.</p>
+<ol type="a">
+<li><p>Using Elmendorf’s theorem, translate the hypothesis into a statement about the induced map of presheaves <span class="math inline">\(\mathcal{O}_G^{op} \to \mathbf{Spaces}\)</span>.</p></li>
+<li><p>Apply the classical (non-equivariant) Whitehead theorem objectwise to conclude that <span class="math inline">\(f^H: X^H \to Y^H\)</span> is a homotopy equivalence for each <span class="math inline">\(H\)</span>.</p></li>
+<li><p>Conclude that <span class="math inline">\(f\)</span> is a <span class="math inline">\(G\)</span>-homotopy equivalence. Where is the <span class="math inline">\(G\)</span>-CW assumption used?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise D
+(a) Under Elmendorf’s equivalence, <span class="math inline">\(f: X \to Y\)</span> corresponds to a natural transformation <span class="math inline">\(\hat{f}: \hat{X} \to \hat{Y}\)</span> between presheaves, where <span class="math inline">\(\hat{X}(G/H) = X^H\)</span>. The hypothesis <span class="math inline">\(\pi_n^H(f): \pi_n(X^H) \xrightarrow{\sim} \pi_n(Y^H)\)</span> for all <span class="math inline">\(H\)</span> and <span class="math inline">\(n\)</span> says precisely that <span class="math inline">\(\hat{f}(G/H): X^H \to Y^H\)</span> is a weak homotopy equivalence for each <span class="math inline">\(H\)</span> — i.e., <span class="math inline">\(\hat{f}\)</span> is an objectwise weak equivalence.</p>
+<ol start="2" type="a">
+<li><p>The classical Whitehead theorem states: a weak homotopy equivalence between CW complexes is a homotopy equivalence. Since <span class="math inline">\(X\)</span> is a <span class="math inline">\(G\)</span>-CW complex, each fixed-point space <span class="math inline">\(X^H\)</span> is a CW complex (the <span class="math inline">\(H\)</span>-fixed points of a <span class="math inline">\(G\)</span>-CW complex form a sub-CW complex). Similarly <span class="math inline">\(Y^H\)</span>. So the classical Whitehead theorem applies: <span class="math inline">\(f^H: X^H \xrightarrow{\simeq} Y^H\)</span> is a homotopy equivalence for each <span class="math inline">\(H\)</span>.</p></li>
+<li><p>An objectwise homotopy equivalence of presheaves is an equivalence in the functor category <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{op}, \mathbf{Spaces})\)</span>. Under Elmendorf’s Quillen equivalence, this corresponds to a <span class="math inline">\(G\)</span>-homotopy equivalence <span class="math inline">\(X \xrightarrow{\simeq} Y\)</span>. The <span class="math inline">\(G\)</span>-CW assumption is used in step (b): without it, <span class="math inline">\(X^H\)</span> and <span class="math inline">\(Y^H\)</span> need not be CW complexes, so the classical Whitehead theorem does not directly apply. (One can still conclude that <span class="math inline">\(f\)</span> is a weak <span class="math inline">\(G\)</span>-equivalence using only the isomorphism on equivariant homotopy groups, but the stronger conclusion of a <span class="math inline">\(G\)</span>-homotopy equivalence requires the CW structure.)</p></li>
+</ol>
+</blockquote>
+<h3 id="equivariant-eilenberg-mac-lane-spaces">2.3 Equivariant Eilenberg-Mac Lane Spaces</h3>
+<p><strong>Definition (Equivariant Eilenberg-Mac Lane Space).</strong> For a coefficient system <span class="math inline">\(\underline{M}: \mathcal{O}_G^{op} \to \mathbf{Ab}\)</span> and an integer <span class="math inline">\(n \geq 1\)</span>, the <em>equivariant Eilenberg-Mac Lane space</em> <span class="math inline">\(K(\underline{M}, n)\)</span> is the <span class="math inline">\(G\)</span>-space corresponding under Elmendorf’s theorem to the presheaf</p>
+<p><span class="math display">\[G/H \mapsto K(\underline{M}(G/H),\, n).\]</span></p>
+<p>That is, <span class="math inline">\((K(\underline{M},n))^H = K(\underline{M}(G/H), n)\)</span>.</p>
+<p><strong>Theorem (Representability).</strong> For a <span class="math inline">\(G\)</span>-CW complex <span class="math inline">\(X\)</span> and a coefficient system <span class="math inline">\(\underline{M}\)</span>:</p>
+<p><span class="math display">\[[X,\, K(\underline{M}, n)]_G \cong H_G^n(X;\, \underline{M}),\]</span></p>
+<p>where <span class="math inline">\(H_G^*(X; \underline{M})\)</span> denotes <em>Bredon cohomology</em> with coefficients in <span class="math inline">\(\underline{M}\)</span>.</p>
+<p><em>Proof sketch.</em> Under Elmendorf’s equivalence, <span class="math inline">\(G\)</span>-equivariant maps <span class="math inline">\(X \to K(\underline{M},n)\)</span> correspond to natural transformations between the corresponding presheaves. Since <span class="math inline">\(K(\underline{M}(G/H),n)\)</span> represents <span class="math inline">\(H^n(-; \underline{M}(G/H))\)</span> objectwise, and Bredon cohomology is defined as the cohomology of the chain complex <span class="math inline">\(\mathrm{Hom}_{\mathcal{O}_G}(C_*^{cell}(X), \underline{M})\)</span> (where <span class="math inline">\(C_*^{cell}(X)(G/H) = H_*(X^H, (X^H)^{n-1})\)</span> are the cellular chains), the result follows from the objectwise representability and the Elmendorf equivalence. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Bredon cohomology
+Bredon cohomology, introduced by Bredon in 1967, is the “correct” cohomology theory for <span class="math inline">\(G\)</span>-spaces. Its coefficient systems take values in all of <span class="math inline">\(\mathcal{O}_G\)</span>, not just individual subgroups. The equivariant Eilenberg-Mac Lane spaces show that Bredon cohomology classes have geometric representatives, exactly as in the non-equivariant case.</p>
+</div>
+<h3 id="fiber-sequences-and-bredon-k-invariants">2.4 Fiber Sequences and Bredon k-Invariants</h3>
+<p><strong>Proposition (Equivariant Fiber Sequence).</strong> For each <span class="math inline">\(n \geq 1\)</span>, there is a homotopy fiber sequence of <span class="math inline">\(G\)</span>-spaces:</p>
+<p><span class="math display">\[K(\underline{\pi}_n X, n) \longrightarrow P_n^G X \longrightarrow P_{n-1}^G X.\]</span></p>
+<p><em>Proof.</em> Taking <span class="math inline">\(H\)</span>-fixed points, we get the ordinary fiber sequence <span class="math inline">\(K(\pi_n(X^H), n) \to P_n(X^H) \to P_{n-1}(X^H)\)</span> for each <span class="math inline">\(H\)</span>. Since Elmendorf’s theorem is a Quillen equivalence (in particular, it preserves fiber sequences), the objectwise fiber sequences assemble into a <span class="math inline">\(G\)</span>-equivariant fiber sequence. <span class="math inline">\(\square\)</span></p>
+<p>The fiber sequence is classified by a <em>Bredon k-invariant</em></p>
+<p><span class="math display">\[k^{n+2}(X) \in H_G^{n+2}(P_{n-1}^G X;\, \underline{\pi}_n X),\]</span></p>
+<p>which lives in Bredon cohomology (not ordinary cohomology). This follows from the representability theorem: the map <span class="math inline">\(P_{n-1}^G X \to K(\underline{\pi}_n X, n+1)\)</span> classifying the fiber sequence corresponds to a class in <span class="math inline">\([P_{n-1}^G X, K(\underline{\pi}_n X, n+1)]_G \cong H_G^{n+2}(P_{n-1}^G X; \underline{\pi}_n X)\)</span>.</p>
+<div class="callout callout-warning">
+<p> The role of coefficient systems vs. Mackey functors here
+In the unstable equivariant setting, the k-invariants live in Bredon cohomology with coefficient system coefficients — not Mackey functor coefficients. This is because the coefficient system <span class="math inline">\(\underline{\pi}_n X\)</span> only has restriction maps (it sees <span class="math inline">\(X^K \to X^H\)</span> for inclusions <span class="math inline">\(H \hookrightarrow K\)</span>), not transfer maps. Stably, this upgrades: the <span class="math inline">\(n\)</span>-slice involves Mackey functors with genuine transfer maps. See Section 3.3.</p>
+</div>
+<h3 id="non-equivariant-vs.-equivariant-comparison">2.5 Non-Equivariant vs. Equivariant Comparison</h3>
+<p>The following table summarizes the parallel structure between the non-equivariant and equivariant unstable Postnikov towers.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Non-equivariant <span class="math inline">\(\mathbf{Top}\)</span></th>
+<th>Equivariant <span class="math inline">\(G\mathbf{Top}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Homotopy groups</td>
+<td><span class="math inline">\(\pi_n(X) \in \mathbf{Ab}\)</span></td>
+<td><span class="math inline">\(\underline{\pi}_n X: \mathcal{O}_G^{op} \to \mathbf{Ab}\)</span> (coefficient system)</td>
+</tr>
+<tr class="even">
+<td>Postnikov section</td>
+<td><span class="math inline">\(P_n X\)</span>, <span class="math inline">\(\pi_k(P_n X) = \begin{cases}\pi_k X &amp; k\leq n \\ 0 &amp; k &gt; n\end{cases}\)</span></td>
+<td><span class="math inline">\(P_n^G X\)</span>, same for each <span class="math inline">\(\pi_k^H\)</span></td>
+</tr>
+<tr class="odd">
+<td>Construction</td>
+<td>Small object argument on <span class="math inline">\(X\)</span></td>
+<td>Small object argument objectwise on each <span class="math inline">\(X^H\)</span></td>
+</tr>
+<tr class="even">
+<td>Eilenberg-Mac Lane</td>
+<td><span class="math inline">\(K(A, n)\)</span>, <span class="math inline">\(A \in \mathbf{Ab}\)</span></td>
+<td><span class="math inline">\(K(\underline{M}, n)\)</span>, <span class="math inline">\(\underline{M}: \mathcal{O}_G^{op} \to \mathbf{Ab}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Fiber sequence</td>
+<td><span class="math inline">\(K(\pi_n X, n) \to P_n X \to P_{n-1} X\)</span></td>
+<td><span class="math inline">\(K(\underline{\pi}_n X, n) \to P_n^G X \to P_{n-1}^G X\)</span></td>
+</tr>
+<tr class="even">
+<td>k-invariant</td>
+<td><span class="math inline">\(k^{n+2} \in H^{n+2}(P_{n-1} X; \pi_n X)\)</span></td>
+<td><span class="math inline">\(k^{n+2} \in H_G^{n+2}(P_{n-1}^G X; \underline{\pi}_n X)\)</span> (Bredon)</td>
+</tr>
+<tr class="odd">
+<td>Key tool</td>
+<td>Whitehead theorem</td>
+<td>Elmendorf’s theorem + objectwise Whitehead</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The formal structure is identical; the coefficients upgrade from abelian groups to coefficient systems, and ordinary cohomology upgrades to Bredon cohomology.</strong></p>
+<div class="callout callout-question">
+<p> Exercise 2 (Computational)
+<em>This exercise computes the coefficient system of equivariant homotopy groups for a basic <span class="math inline">\(C_2\)</span>-space, and identifies the Postnikov section.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(X = S^1\)</span> with the reflection action <span class="math inline">\(\tau \cdot e^{i\theta} = e^{-i\theta}\)</span>.</p>
+<ol type="a">
+<li><p>Compute the coefficient system <span class="math inline">\(\underline{\pi}_1(X): \mathcal{O}_{C_2}^{op} \to \mathbf{Ab}\)</span>. What abelian groups and restriction map does it consist of?</p></li>
+<li><p>Show that <span class="math inline">\(P_1^{C_2}(S^1_{\mathrm{refl}}) \simeq S^1_{\mathrm{refl}}\)</span> (i.e., the space is already its own first Postnikov section).</p></li>
+<li><p>What is the equivariant Eilenberg-Mac Lane space <span class="math inline">\(K(\underline{\pi}_1(X), 1)\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 2
+(a) Recall <span class="math inline">\((S^1)^{C_2} = \{1, -1\} \cong S^0\)</span> (the two real points). So:
+- <span class="math inline">\(\underline{\pi}_1(X)(C_2/e) = \pi_1(S^1) = \mathbb{Z}\)</span>, with <span class="math inline">\(C_2\)</span> acting by <span class="math inline">\(-1\)</span> (reflection reverses orientation, hence acts by inversion on <span class="math inline">\(\pi_1\)</span>).
+- <span class="math inline">\(\underline{\pi}_1(X)(C_2/C_2) = \pi_1((S^1)^{C_2}) = \pi_1(S^0) = 0\)</span>.
+- Restriction map: <span class="math inline">\(0 \to \mathbb{Z}\)</span>.
+The coefficient system is <span class="math inline">\(\underline{\pi}_1(S^1_{\mathrm{refl}}) = (0 \leftarrow \mathbb{Z}^-)\)</span>, where <span class="math inline">\(\mathbb{Z}^-\)</span> denotes <span class="math inline">\(\mathbb{Z}\)</span> with <span class="math inline">\(C_2\)</span> acting by <span class="math inline">\(-1\)</span>.</p>
+<ol start="2" type="a">
+<li><p>For <span class="math inline">\(k &gt; 1\)</span>: <span class="math inline">\(\pi_k^e(S^1) = \pi_k(S^1) = 0\)</span> and <span class="math inline">\(\pi_k^{C_2}(S^1) = \pi_k(S^0) = 0\)</span> (for <span class="math inline">\(k \geq 2\)</span>). So <span class="math inline">\(\pi_k^H(S^1_{\mathrm{refl}}) = 0\)</span> for all <span class="math inline">\(k &gt; 1\)</span> and all <span class="math inline">\(H\)</span>, meaning <span class="math inline">\(S^1_{\mathrm{refl}}\)</span> is already 1-truncated. Thus <span class="math inline">\(P_1^{C_2}(S^1_{\mathrm{refl}}) \simeq S^1_{\mathrm{refl}}\)</span>.</p></li>
+<li><p><span class="math inline">\(K(\underline{\pi}_1(X), 1) = K(\underline{M}, 1)\)</span> where <span class="math inline">\(\underline{M}(C_2/e) = \mathbb{Z}^-\)</span> and <span class="math inline">\(\underline{M}(C_2/C_2) = 0\)</span>. Under Elmendorf: <span class="math inline">\((K(\underline{M},1))^e = K(\mathbb{Z}, 1) = S^1\)</span> and <span class="math inline">\((K(\underline{M},1))^{C_2} = K(0,1) = *\)</span>. So <span class="math inline">\(K(\underline{M}, 1) \simeq S^1_{\mathrm{antipodal}}\)</span> — the circle with <span class="math inline">\(C_2\)</span> acting antipodally (no fixed points, and the underlying <span class="math inline">\(K(\mathbb{Z},1)\)</span>-structure is recovered).</p></li>
+</ol>
+</blockquote>
+<hr />
+<h2 id="why-the-naive-stable-analogue-fails">3. Why the Naive Stable Analogue Fails ⚠️</h2>
+<p>Passing to genuine <span class="math inline">\(G\)</span>-spectra indexed by a complete universe <span class="math inline">\(\mathcal{U}\)</span>, the situation becomes subtler. The integer-indexed Postnikov filtration fails to capture the correct equivariant structure.</p>
+<h3 id="the-integer-indexed-stable-postnikov-tower">3.1 The Integer-Indexed Stable Postnikov Tower</h3>
+<p>In the non-equivariant stable category <span class="math inline">\(\mathrm{Sp}\)</span>, the Postnikov tower works as follows. Given a spectrum <span class="math inline">\(E\)</span>, define <span class="math inline">\(P^n E\)</span> by attaching <span class="math inline">\(\Sigma^{n+1}\)</span>-cells (cones on Moore spaces <span class="math inline">\(M(\pi_{n+1}E, n+1)\)</span>) to kill <span class="math inline">\(\pi_{n+1}\)</span>, then iterating. The construction is indexed by the integers: attaching <span class="math inline">\(\Sigma^k\)</span>-cells for <span class="math inline">\(k &gt; n\)</span>.</p>
+<p>Naively, one might attempt the same in <span class="math inline">\(\mathrm{Sp}^G\)</span> (genuine <span class="math inline">\(G\)</span>-spectra): for each subgroup <span class="math inline">\(H \leq G\)</span>, attach cells of the form <span class="math inline">\(\Sigma^\infty_G G/H_+ \wedge \Sigma^{n+1} M\)</span> to kill <span class="math inline">\(\pi_{n+1}^H\)</span>. This defines an integer-indexed filtration</p>
+<p><span class="math display">\[\cdots \to \tau_{\leq n} E \to \tau_{\leq n-1} E \to \cdots\]</span></p>
+<p>where <span class="math inline">\(\pi_k^H(\tau_{\leq n} E) = \begin{cases} \pi_k^H(E) &amp; k \leq n \\ 0 &amp; k &gt; n \end{cases}\)</span> for all <span class="math inline">\(H\)</span>.</p>
+<h3 id="non-nullhomotopic-maps-between-representation-spheres">3.2 Non-Nullhomotopic Maps Between Representation Spheres</h3>
+<p>The integer-indexed Postnikov filtration has a fundamental deficiency: it is not compatible with the richer sphere spectrum structure of <span class="math inline">\(\mathrm{Sp}^G\)</span>.</p>
+<p><strong>The Key Issue.</strong> In <span class="math inline">\(\mathrm{Sp}^G\)</span>, the sphere spectrum is <span class="math inline">\(S = \{S^V\}_{V \in \mathcal{U}}\)</span> (the sphere <span class="math inline">\(G\)</span>-spectrum indexed over the complete universe <span class="math inline">\(\mathcal{U}\)</span> of representations). For representations <span class="math inline">\(V \subset W\)</span>, there is a canonical map <span class="math inline">\(S^V \to S^W\)</span> induced by the inclusion <span class="math inline">\(V \hookrightarrow W\)</span>. <em>This map need not be null-homotopic in the <span class="math inline">\(G\)</span>-equivariant stable category, even when <span class="math inline">\(\dim W &gt; \dim V\)</span>.</em></p>
+<p><strong>Example.</strong> Let <span class="math inline">\(G = C_2\)</span> and let <span class="math inline">\(\sigma\)</span> denote the sign representation of <span class="math inline">\(C_2\)</span> (the 1-dimensional real representation where the generator acts by <span class="math inline">\(-1\)</span>). The map</p>
+<p><span class="math display">\[S^\sigma \longrightarrow S^{2\sigma}\]</span></p>
+<p>induced by the inclusion <span class="math inline">\(\sigma \hookrightarrow 2\sigma = \sigma \oplus \sigma\)</span> is <em>not</em> null-homotopic in <span class="math inline">\(\mathrm{Sp}^{C_2}\)</span>.</p>
+<p><em>Why?</em> Nonequivariantly, <span class="math inline">\(S^\sigma \simeq S^1\)</span> and <span class="math inline">\(S^{2\sigma} \simeq S^2\)</span>, so the map is a degree-1 map <span class="math inline">\(S^1 \to S^2\)</span>, which is null-homotopic. But equivariantly, one must check the <span class="math inline">\(C_2\)</span>-fixed-point level: <span class="math inline">\((S^\sigma)^{C_2} = S^0\)</span> and <span class="math inline">\((S^{2\sigma})^{C_2} = S^0\)</span>, and the induced map <span class="math inline">\((S^\sigma)^{C_2} \to (S^{2\sigma})^{C_2}\)</span> is a degree-1 map <span class="math inline">\(S^0 \to S^0\)</span>, which is not null-homotopic. Since a <span class="math inline">\(G\)</span>-equivariant map is null-homotopic iff its fixed-point maps are all null-homotopic, this map is non-null.</p>
+<p>More generally: <em>any map <span class="math inline">\(S^V \to S^W\)</span> with <span class="math inline">\(V \subseteq W\)</span> is non-null-homotopic at the <span class="math inline">\(H\)</span>-fixed-point level precisely when <span class="math inline">\(W^H \neq V^H\)</span>, i.e., when <span class="math inline">\(W - V\)</span> has <span class="math inline">\(H\)</span>-fixed summands.</em> If <span class="math inline">\(V\)</span> contains a trivial summand, all such maps are null-homotopic (since we can use the trivial direction to contract); if <span class="math inline">\(V\)</span> has no trivial summands, non-null maps abound.</p>
+<div class="callout callout-danger">
+<p> Why this breaks the integer Postnikov tower
+Suppose we build an integer-indexed Postnikov section <span class="math inline">\(\tau_{\leq n} E\)</span> by attaching integer-suspension cells. A slice cell <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> of dimension <span class="math inline">\(m|H|\)</span> might not be “seen” by any integer-suspension cell of the right dimension, because the representation sphere <span class="math inline">\(S^{m\rho_H}\)</span> has non-trivial equivariant structure that <span class="math inline">\(\Sigma^{m|H|}\)</span> (with trivial <span class="math inline">\(G\)</span>-action) does not capture. The cells of the integer Postnikov tower are “too coarse” — they see the underlying non-equivariant homotopy but miss the representation-theoretic data.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 3 (Computational)
+<em>This exercise verifies the non-nullhomotopy of <span class="math inline">\(S^\sigma \to S^{2\sigma}\)</span> directly from fixed-point data, making the failure of the integer Postnikov tower concrete.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(\sigma\)</span> the sign representation.</p>
+<ol type="a">
+<li><p>Show that <span class="math inline">\(S^\sigma \simeq S^1\)</span> non-equivariantly and <span class="math inline">\(S^{2\sigma} \simeq S^2\)</span> non-equivariantly. Conclude that the map <span class="math inline">\(S^\sigma \to S^{2\sigma}\)</span> is null non-equivariantly.</p></li>
+<li><p>Compute <span class="math inline">\((S^\sigma)^{C_2}\)</span> and <span class="math inline">\((S^{2\sigma})^{C_2}\)</span>. Show the induced map <span class="math inline">\((S^\sigma)^{C_2} \to (S^{2\sigma})^{C_2}\)</span> is the identity <span class="math inline">\(S^0 \to S^0\)</span> (degree 1), hence not null.</p></li>
+<li><p>Explain why parts (a) and (b) together show that the map <span class="math inline">\(S^\sigma \to S^{2\sigma}\)</span> is non-null in <span class="math inline">\(\mathrm{Sp}^{C_2}\)</span> but null in <span class="math inline">\(\mathrm{Sp}\)</span> (with trivial <span class="math inline">\(C_2\)</span>-action).</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 3
+(a) Non-equivariantly, <span class="math inline">\(S^\sigma = (\mathbb{R}_\sigma)^+ \simeq S^1\)</span> (1-point compactification of <span class="math inline">\(\mathbb{R}\)</span>). The map <span class="math inline">\(\mathbb{R}_\sigma \hookrightarrow \mathbb{R}_\sigma \oplus \mathbb{R}_\sigma\)</span> induces <span class="math inline">\(S^1 \to S^2\)</span>, which is null (as <span class="math inline">\([S^1, S^2] = \pi_1(S^2) = 0\)</span>).</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\((S^\sigma)^{C_2}\)</span>: <span class="math inline">\(C_2\)</span> fixes <span class="math inline">\(0 \in \mathbb{R}\)</span> and <span class="math inline">\(\infty\)</span>, giving <span class="math inline">\((S^\sigma)^{C_2} = \{0, \infty\} \cong S^0\)</span>. Similarly <span class="math inline">\((S^{2\sigma})^{C_2} = \{0, \infty\} \cong S^0\)</span>. The map <span class="math inline">\(\sigma \hookrightarrow 2\sigma\)</span> sends <span class="math inline">\(v \mapsto (v, 0)\)</span>; on the 1-point compactifications, <span class="math inline">\(0 \mapsto 0\)</span> and <span class="math inline">\(\infty \mapsto \infty\)</span>, which is the identity map <span class="math inline">\(S^0 \to S^0\)</span>, of degree 1, hence not null.</p></li>
+<li><p>A map of <span class="math inline">\(G\)</span>-spectra is null iff ALL of its fixed-point maps are null (for all <span class="math inline">\(H \leq G\)</span>). The <span class="math inline">\(e\)</span>-level gives the non-equivariant map (null by (a)); but the <span class="math inline">\(C_2\)</span>-level gives degree 1 on <span class="math inline">\(S^0\)</span> (non-null by (b)). Since at least one fixed-point level is non-null, the <span class="math inline">\(C_2\)</span>-equivariant map is non-null.</p></li>
+</ol>
+</blockquote>
+<h3 id="mackey-functors-vs.-coefficient-systems">3.3 Mackey Functors vs. Coefficient Systems</h3>
+<p>Stably, equivariant homotopy groups always form <em>Mackey functors</em>, not merely coefficient systems.</p>
+<p><strong>Definition (Mackey Functor).</strong> A <em>Mackey functor</em> <span class="math inline">\(\underline{M}\)</span> for <span class="math inline">\(G\)</span> is a pair of functors</p>
+<p><span class="math display">\[\underline{M}^*: \mathcal{O}_G^{op} \to \mathbf{Ab}, \qquad \underline{M}_*: \mathcal{O}_G \to \mathbf{Ab}\]</span></p>
+<p>(i.e., a contravariant part encoding restriction maps <span class="math inline">\(\mathrm{res}_H^K: \underline{M}(G/K) \to \underline{M}(G/H)\)</span> and a covariant part encoding transfer maps <span class="math inline">\(\mathrm{tr}_H^K: \underline{M}(G/H) \to \underline{M}(G/K)\)</span>) satisfying:
+1. <span class="math inline">\(\underline{M}^*(G/H) = \underline{M}_*(G/H)\)</span> for all <span class="math inline">\(H\)</span> (same underlying abelian groups),
+2. The <em>Mackey double-coset formula</em>: for <span class="math inline">\(H, K \leq G\)</span>,
+<span class="math display">\[\mathrm{res}_H^G \circ \mathrm{tr}_K^G = \sum_{[g] \in H \backslash G / K} \mathrm{tr}_{H \cap gKg^{-1}}^H \circ c_g \circ \mathrm{res}_{g^{-1}Hg \cap K}^K,\]</span>
+where <span class="math inline">\(c_g\)</span> is conjugation by <span class="math inline">\(g\)</span>.</p>
+<p><strong>Theorem.</strong> For a genuine <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(E \in \mathrm{Sp}^G\)</span>, the homotopy groups <span class="math inline">\(\underline{\pi}_n^{Mky}(E)(G/H) := \pi_n^H(E) = [G/H_+ \wedge S^n, E]_G\)</span> assemble into a Mackey functor, with:
+- <em>Restriction</em>: induced by the <span class="math inline">\(G\)</span>-map <span class="math inline">\(G/H_+ \to G/K_+\)</span> (for <span class="math inline">\(H \leq K\)</span>),
+- <em>Transfer</em>: induced by the norm map / umkehr map in the stable category.</p>
+<p><em>The transfer maps arise from the covariant functoriality of the smash product in <span class="math inline">\(\mathrm{Sp}^G\)</span> — they have no counterpart in the unstable setting because the suspension spectrum functor <span class="math inline">\(\Sigma^\infty_G\)</span> does not preserve covariant functoriality of orbit sets.</em></p>
+<p>The integer Postnikov filtration only captures the coefficient system structure (restriction maps); it misses the transfer maps. The slice filtration, built from representation spheres, is sensitive to the full Mackey functor structure.</p>
+<div class="callout callout-question">
+<p> Exercise F (Computational)
+<em>This exercise makes the Burnside Mackey functor explicit for <span class="math inline">\(G = C_2\)</span>, concretely illustrating the distinction between coefficient systems and Mackey functors.</em></p>
+<p>The <em>Burnside Mackey functor</em> <span class="math inline">\(\underline{A}\)</span> assigns to each <span class="math inline">\(G\)</span>-orbit the Burnside ring: <span class="math inline">\(\underline{A}(G/H) = A(H)\)</span>, the Grothendieck group of finite <span class="math inline">\(H\)</span>-sets.</p>
+<ol type="a">
+<li><p>Compute <span class="math inline">\(\underline{A}(C_2/e) = A(e)\)</span> and <span class="math inline">\(\underline{A}(C_2/C_2) = A(C_2)\)</span> explicitly as abelian groups, listing generators.</p></li>
+<li><p>Write down the restriction map <span class="math inline">\(\mathrm{res}^{C_2}_e: A(C_2) \to A(e)\)</span> and the transfer map <span class="math inline">\(\mathrm{tr}_e^{C_2}: A(e) \to A(C_2)\)</span> on generators.</p></li>
+<li><p>Verify the double-coset formula: <span class="math inline">\(\mathrm{res}^{C_2}_e \circ \mathrm{tr}_e^{C_2} = \sum_{[g] \in e \backslash C_2 / e} c_g = \mathrm{id} + \tau_*\)</span>, where <span class="math inline">\(\tau\)</span> is the nontrivial element. Conclude <span class="math inline">\(\mathrm{res} \circ \mathrm{tr}([1]) = 2 \in A(e) = \mathbb{Z}\)</span>.</p></li>
+<li><p>Explain why the constant coefficient system <span class="math inline">\(\underline{\mathbb{Z}}\)</span> (with restriction <span class="math inline">\(\mathrm{id}: \mathbb{Z} \to \mathbb{Z}\)</span> and <em>no</em> transfer) is not a Mackey functor: what transfer would be forced by the double-coset formula?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise F
+(a) $A(e) = $ Grothendieck group of finite sets <span class="math inline">\(= \mathbb{Z}\)</span>, generated by <span class="math inline">\([*]\)</span> (one point). $A(C_2) = $ Grothendieck group of finite <span class="math inline">\(C_2\)</span>-sets. The indecomposable <span class="math inline">\(C_2\)</span>-sets are <span class="math inline">\([C_2/C_2] = [*]\)</span> (trivial) and <span class="math inline">\([C_2/e] = [C_2]\)</span> (free orbit). So <span class="math inline">\(A(C_2) \cong \mathbb{Z}^2\)</span>, with generators <span class="math inline">\([C_2/C_2]\)</span> and <span class="math inline">\([C_2/e]\)</span>.</p>
+<ol start="2" type="a">
+<li><strong>Restriction</strong> <span class="math inline">\(\mathrm{res}: A(C_2) \to A(e)\)</span>: forget the <span class="math inline">\(C_2\)</span>-action and take the underlying set. <span class="math inline">\([C_2/C_2] = [*] \mapsto [*] = 1\)</span> and <span class="math inline">\([C_2/e] = [C_2] \mapsto [C_2] = 2[*] = 2\)</span>.</li>
+</ol>
+<p><strong>Transfer</strong> <span class="math inline">\(\mathrm{tr}: A(e) \to A(C_2)\)</span>: “induce” the <span class="math inline">\(e\)</span>-set to a <span class="math inline">\(C_2\)</span>-set. <span class="math inline">\(\mathrm{tr}([*]) = [C_2 \times_e *] = [C_2/e]\)</span> (the free <span class="math inline">\(C_2\)</span>-orbit on one point). So <span class="math inline">\(\mathrm{tr}(n) = n \cdot [C_2/e]\)</span>.</p>
+<ol start="3" type="a">
+<li><p><span class="math inline">\(\mathrm{res}(\mathrm{tr}([*])) = \mathrm{res}([C_2/e]) = 2\)</span>. The double-coset formula: <span class="math inline">\(e \backslash C_2 / e = \{[e], [\tau]\}\)</span> (two cosets). Each contributes <span class="math inline">\(c_g \circ \mathrm{res}^e_{e \cap e} = \mathrm{id}\)</span>, so <span class="math inline">\(\mathrm{res} \circ \mathrm{tr} = \mathrm{id} + \mathrm{id} = 2\cdot\mathrm{id}\)</span> on <span class="math inline">\(A(e) = \mathbb{Z}\)</span>. So <span class="math inline">\(\mathrm{res}(\mathrm{tr}(1)) = 2\)</span>. ✓</p></li>
+<li><p>For <span class="math inline">\(\underline{\mathbb{Z}}\)</span> to be a Mackey functor with <span class="math inline">\(\underline{\mathbb{Z}}(C_2/e) = \underline{\mathbb{Z}}(C_2/C_2) = \mathbb{Z}\)</span> and restriction <span class="math inline">\(= \mathrm{id}\)</span>, the double-coset formula forces <span class="math inline">\(\mathrm{res} \circ \mathrm{tr} = 2\cdot\mathrm{id}\)</span> (as above), so the transfer <span class="math inline">\(\mathrm{tr}: \mathbb{Z} \to \mathbb{Z}\)</span> would need to satisfy <span class="math inline">\(\mathrm{id} \circ \mathrm{tr} = 2\cdot\mathrm{id}\)</span>, i.e., <span class="math inline">\(\mathrm{tr}(n) = 2n\)</span>. This is the <em>multiplication-by-2</em> transfer. The “naively constant” Mackey functor has <span class="math inline">\(\mathrm{tr} = 2\)</span>; the constant <em>coefficient system</em> ignores this map entirely. They agree as coefficient systems but differ as Mackey functors.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise G (Proof)
+<em>This exercise identifies the transfer map in stable homotopy concretely, showing why stable homotopy groups carry Mackey functor structure while unstable ones do not.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span>, and consider the stable transfer map <span class="math inline">\(\mathrm{tr}_e^{C_2}: \pi_n^e(X) \to \pi_n^{C_2}(X)\)</span> for <span class="math inline">\(X \in \mathrm{Sp}^{C_2}\)</span>.</p>
+<ol type="a">
+<li><p>The stable transfer for the covering <span class="math inline">\(p: C_2/e \to C_2/C_2\)</span> is a map of <span class="math inline">\(G\)</span>-spectra <span class="math inline">\(\Sigma^\infty_G C_{2+} \to \Sigma^\infty_G S^0\)</span> (the “norm map” / “umkehr map”). Identify the counit of the adjunction <span class="math inline">\(\Sigma^\infty_G(C_{2+} \wedge -) \dashv \mathrm{Res}^{C_2}_e\)</span> and explain how it gives a map <span class="math inline">\(\Sigma^\infty_G C_{2+} \to S^0\)</span> in <span class="math inline">\(\mathrm{Sp}^{C_2}\)</span>.</p></li>
+<li><p>Explain why the corresponding <em>unstable</em> transfer does not exist: why is there no natural map <span class="math inline">\(\Sigma(C_2/e)_+ \to S^0\)</span> in <span class="math inline">\(G\mathbf{Top}\)</span> that deserves to be called a transfer? (Hint: consider what happens to fixed-point sets.)</p></li>
+<li><p>Conclude: the suspension spectrum functor <span class="math inline">\(\Sigma^\infty_G: G\mathbf{Top} \to \mathrm{Sp}^G\)</span> does not preserve the absence of transfers — passing to spectra creates transfer maps that did not exist unstably.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise G
+(a) The adjunction <span class="math inline">\(G_+ \wedge_H (-): \mathrm{Sp}^H \rightleftharpoons \mathrm{Sp}^G: i_H^*\)</span> has counit <span class="math inline">\(\epsilon: G_+ \wedge_H i_H^* X \to X\)</span>. For <span class="math inline">\(H = e\)</span> and <span class="math inline">\(X = S^0\)</span>: <span class="math inline">\(\epsilon: G_+ \wedge_e S^0 = \Sigma^\infty_G C_{2+} \to S^0\)</span>. This is the stable fold map (fold <span class="math inline">\(C_2\)</span> copies of <span class="math inline">\(S^0\)</span> together), and it induces the transfer <span class="math inline">\(\mathrm{tr}_e^{C_2}: \pi_n(X^e) \to \pi_n^{C_2}(X)\)</span> on homotopy groups by precomposition.</p>
+<ol start="2" type="a">
+<li><p>The unstable analogue would be a map <span class="math inline">\(C_{2+} = C_2 \sqcup \{+\} \to S^0\)</span> in based <span class="math inline">\(C_2\)</span>-spaces. The only based maps <span class="math inline">\(C_{2+} \to S^0\)</span> send <span class="math inline">\(C_2\)</span> to the basepoint, i.e., collapse everything — there is no “fold” in the unstable category that respects the <span class="math inline">\(C_2\)</span>-action nontrivially. Checking fixed points: <span class="math inline">\((C_{2+})^{C_2} = \{+\}\)</span> (the basepoint, since <span class="math inline">\(C_2\)</span> acts freely on <span class="math inline">\(C_2\)</span>) and <span class="math inline">\((S^0)^{C_2} = S^0\)</span>. A <span class="math inline">\(C_2\)</span>-equivariant map <span class="math inline">\(\{+\} \to S^0\)</span> must land at the basepoint, giving no information. The unstable transfer would need to “pick up” elements of <span class="math inline">\(\pi_n(X^e)\)</span> and push them to <span class="math inline">\(\pi_n^{C_2}(X)\)</span> via a norm construction, but the pointset-level norm is not available without the stable structure.</p></li>
+<li><p>The suspension spectrum functor is symmetric monoidal (and in particular smash-product-preserving), and the smash product in <span class="math inline">\(\mathrm{Sp}^G\)</span> supports the norm/transfer via the counit of the induction–restriction adjunction. The unstable category <span class="math inline">\(G\mathbf{Top}\)</span> has induction <span class="math inline">\(G_+ \wedge_H -\)</span>, but its counit is only a <em>unstable</em> map of spaces, and the fold map <span class="math inline">\(C_{2+} \to S^0\)</span> is only well-defined in spectra (where <span class="math inline">\(S^0\)</span> is the unit for <span class="math inline">\(\wedge\)</span>, not just a space). Thus <span class="math inline">\(\Sigma^\infty_G\)</span> creates transfers that do not exist in <span class="math inline">\(G\mathbf{Top}\)</span>.</p></li>
+</ol>
+</blockquote>
+<h3 id="the-remedy-representation-indexed-filtration">3.4 The Remedy: Representation-Indexed Filtration</h3>
+<p>The resolution, due to Hill-Hopkins-Ravenel, is to replace the integer indexing with a <em>representation-dimension</em> indexing. Instead of attaching cells <span class="math inline">\(G/H_+ \wedge \Sigma^n D^1\)</span> to kill integer-degree homotopy, one uses <em>slice cells</em> — cells built from representation spheres <span class="math inline">\(S^{m\rho_H}\)</span> — to filter by representation dimension.</p>
+<p>The philosophy: <em>the “correct” notion of dimension for the slice filtration is not the integer dimension of a cell, but the representation-theoretic dimension, which counts each irreducible representation with multiplicity according to its role in the regular representation.</em></p>
+<hr />
+<h2 id="the-slice-filtration">4. The Slice Filtration 🔑</h2>
+<p>We now develop the slice filtration of Hill-Hopkins-Ravenel. Throughout, <span class="math inline">\(G\)</span> is a finite group and <span class="math inline">\(\mathrm{Sp}^G\)</span> denotes the category of genuine <span class="math inline">\(G\)</span>-spectra.</p>
+<h3 id="slice-cells">4.1 Slice Cells</h3>
+<p><strong>Definition (Regular Representation).</strong> For a finite group <span class="math inline">\(H\)</span>, the <em>regular representation</em> <span class="math inline">\(\rho_H\)</span> is the real representation <span class="math inline">\(\mathbb{R}[H]\)</span> with <span class="math inline">\(H\)</span> acting by left multiplication. Its dimension is <span class="math inline">\(|\rho_H| = |H|\)</span>.</p>
+<p><strong>Definition (Slice Cells, HHR §4).</strong> For a subgroup <span class="math inline">\(H \leq G\)</span> and integer <span class="math inline">\(m \geq 0\)</span>, the <em>slice cells</em> are the <span class="math inline">\(G\)</span>-spectra:</p>
+<ul>
+<li><p><strong>Even slice cell of dimension <span class="math inline">\(m|H|\)</span>:</strong>
+<span class="math display">\[\widetilde{S}^{m|H|} := G_+ \wedge_H S^{m\rho_H},\]</span>
+where <span class="math inline">\(S^{m\rho_H}\)</span> is the one-point compactification of <span class="math inline">\(m\rho_H = \rho_H^{\oplus m}\)</span>, and <span class="math inline">\(G_+ \wedge_H -\)</span> is the induction from <span class="math inline">\(H\)</span> to <span class="math inline">\(G\)</span>.</p></li>
+<li><p><strong>Odd slice cell of dimension <span class="math inline">\(m|H| - 1\)</span>:</strong>
+<span class="math display">\[\widetilde{S}^{m|H|-1} := \Sigma^{-1}(G_+ \wedge_H S^{m\rho_H}).\]</span></p></li>
+</ul>
+<p>The <em>dimension</em> of <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> is <span class="math inline">\(m|H|\)</span> because <span class="math inline">\(\dim_\mathbb{R}(m\rho_H) = m \cdot |H|\)</span>, and suspension by a representation of dimension <span class="math inline">\(d\)</span> raises underlying (non-equivariant) dimension by <span class="math inline">\(d\)</span>.</p>
+<blockquote>
+<p>[!EXAMPLE]- Slice cells for G = C2
+Let <span class="math inline">\(G = C_2\)</span>, <span class="math inline">\(H = C_2\)</span>. The regular representation is <span class="math inline">\(\rho_{C_2} = \mathbb{R} \oplus \sigma\)</span> where <span class="math inline">\(\sigma\)</span> is the sign representation (<span class="math inline">\(\dim \rho_{C_2} = 2\)</span>). The even slice cells are:
+- <span class="math inline">\(m=0\)</span>: <span class="math inline">\(G_+ \wedge_{C_2} S^0 = S^0\)</span> (dimension 0)
+- <span class="math inline">\(m=1\)</span>: <span class="math inline">\(G_+ \wedge_{C_2} S^{\rho_{C_2}} = G_+ \wedge_{C_2} S^{1+\sigma}\)</span> (dimension 2)
+- <span class="math inline">\(m=2\)</span>: <span class="math inline">\(G_+ \wedge_{C_2} S^{2\rho_{C_2}}\)</span> (dimension 4)</p>
+<p>For <span class="math inline">\(H = e\)</span> (trivial subgroup), <span class="math inline">\(\rho_e = \mathbb{R}\)</span> (trivial 1-dimensional representation), <span class="math inline">\(|H| = 1\)</span>. The slice cells are <span class="math inline">\(G_+ \wedge_e S^m = \Sigma^\infty_G G_+ \wedge S^m\)</span> — just the free <span class="math inline">\(G\)</span>-spectrum on <span class="math inline">\(S^m\)</span>. These are the “ordinary” suspension cells.</p>
+<p><em>Surprisingly,</em> the slice cells for <span class="math inline">\(H = e\)</span> are exactly the cells that appear in the ordinary (integer-indexed) Postnikov tower. The extra structure comes from the nontrivial subgroup cells.</p>
+</blockquote>
+<div class="callout callout-note">
+<p> Why the regular representation?
+The choice of <span class="math inline">\(\rho_H\)</span> (rather than some other representation) is not arbitrary. The regular representation has the property that <span class="math inline">\(\rho_H^{C_2} = 0\)</span> for all proper subgroups <span class="math inline">\(H' &lt; H\)</span> of <span class="math inline">\(G\)</span> that don’t fix <span class="math inline">\(H\)</span> — this ensures that the slice cells behave well under restriction and induction. More precisely, the regular representation is the unique (up to multiples) representation whose character is the delta function at the identity of <span class="math inline">\(H\)</span>, which makes the slice cells “concentrated” at the right level of the subgroup lattice.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 4 (Computational)
+<em>This exercise enumerates all <span class="math inline">\(C_2\)</span>-slice cells of low dimension, making the slice filtration concrete for the simplest non-trivial group.</em></p>
+<p>For <span class="math inline">\(G = C_2\)</span>, list all slice cells <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> and their odd counterparts <span class="math inline">\(\Sigma^{-1} G_+ \wedge_H S^{m\rho_H}\)</span> of dimension <span class="math inline">\(\leq 4\)</span>. For each, identify:
+- The subgroup <span class="math inline">\(H\)</span> and integer <span class="math inline">\(m\)</span>
+- The underlying non-equivariant space
+- The equivariant structure (<span class="math inline">\(C_2\)</span>-action)</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 4
+For <span class="math inline">\(G = C_2\)</span>, the subgroups are <span class="math inline">\(H = e\)</span> and <span class="math inline">\(H = C_2\)</span>.</p>
+<p><strong><span class="math inline">\(H = e\)</span></strong> (free cells, <span class="math inline">\(\rho_e = \mathbb{R}^1\)</span> trivial, <span class="math inline">\(|\mathrm{e}| = 1\)</span>, dim <span class="math inline">\(= m\)</span>):</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><span class="math inline">\(m\)</span></th>
+<th>Cell <span class="math inline">\(C_{2+} \wedge S^m\)</span></th>
+<th>Dim</th>
+<th><span class="math inline">\(C_2\)</span>-action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td><span class="math inline">\(C_{2+} \wedge S^0 = \Sigma^\infty_+ C_2\)</span></td>
+<td>0</td>
+<td>Free (permutes two copies)</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td><span class="math inline">\(C_{2+} \wedge S^1\)</span></td>
+<td>1</td>
+<td>Free</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td><span class="math inline">\(C_{2+} \wedge S^2\)</span></td>
+<td>2</td>
+<td>Free</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><span class="math inline">\(C_{2+} \wedge S^3\)</span></td>
+<td>3</td>
+<td>Free</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td><span class="math inline">\(C_{2+} \wedge S^4\)</span></td>
+<td>4</td>
+<td>Free</td>
+</tr>
+</tbody>
+</table>
+<p><strong><span class="math inline">\(H = C_2\)</span></strong> (regular rep cells, <span class="math inline">\(\rho_{C_2} = 1 + \sigma\)</span>, <span class="math inline">\(|C_2| = 2\)</span>, even dim <span class="math inline">\(= 2m\)</span>):</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th><span class="math inline">\(m\)</span></th>
+<th>Even cell <span class="math inline">\(S^{m\rho_{C_2}}\)</span></th>
+<th>Dim</th>
+<th>Odd cell <span class="math inline">\(\Sigma^{-1}S^{m\rho_{C_2}}\)</span></th>
+<th>Odd dim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><span class="math inline">\(S^{1+\sigma} = S^1 \wedge S^\sigma\)</span></td>
+<td>2</td>
+<td><span class="math inline">\(S^\sigma\)</span></td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><span class="math inline">\(S^{2+2\sigma}\)</span></td>
+<td>4</td>
+<td><span class="math inline">\(S^{1+2\sigma}\)</span></td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>So at dimension 1: two slice cells — the free <span class="math inline">\(C_{2+} \wedge S^1\)</span> and the representation-sphere <span class="math inline">\(S^\sigma\)</span>. At dimension 2: two cells — <span class="math inline">\(C_{2+} \wedge S^2\)</span> and <span class="math inline">\(S^{1+\sigma}\)</span>. This multiplicity at each dimension (one free, one from the regular representation) is a key feature of <span class="math inline">\(C_2\)</span>-equivariant stable homotopy theory.</p>
+</blockquote>
+<h3 id="slice-null-and-slice-positive-spectra">4.2 Slice Null and Slice Positive Spectra</h3>
+<p><strong>Definition (Blumberg/HHR, Definition 5.2.2).</strong> Let <span class="math inline">\(X \in \mathrm{Sp}^G\)</span>.</p>
+<ul>
+<li><p><span class="math inline">\(X\)</span> is <em>slice <span class="math inline">\(n\)</span>-null</em> (also written: slice <span class="math inline">\(\leq n-1\)</span>, or slice <span class="math inline">\(&lt; n\)</span>) if <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X)\)</span> is contractible as a <span class="math inline">\(G\)</span>-space for every slice cell <span class="math inline">\(\widetilde{S}\)</span> of dimension greater than <span class="math inline">\(n\)</span>.</p></li>
+<li><p><span class="math inline">\(X\)</span> is <em>slice <span class="math inline">\(n\)</span>-positive</em> (also written: slice <span class="math inline">\(&gt; n\)</span>, or slice <span class="math inline">\(\geq n+1\)</span>) if <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X)\)</span> is contractible as a <span class="math inline">\(G\)</span>-space for every slice cell <span class="math inline">\(\widetilde{S}\)</span> of dimension at most <span class="math inline">\(n\)</span>.</p></li>
+</ul>
+<p>Here <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X)\)</span> is the <span class="math inline">\(G\)</span>-equivariant mapping space (the internal hom in <span class="math inline">\(\mathrm{Sp}^G\)</span>, evaluated as a <span class="math inline">\(G\)</span>-space).</p>
+<div class="callout callout-warning">
+<p> Contractibility is as G-spaces
+The condition is that <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X)\)</span> is contractible <em>as a <span class="math inline">\(G\)</span>-space</em>, meaning <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X)^H \simeq *\)</span> for all closed <span class="math inline">\(H \leq G\)</span>. This is stronger than just asking the underlying (non-equivariant) mapping space to be contractible. In particular, it encodes the mapping spaces out of all representations simultaneously.</p>
+</div>
+<p>Note the parallel with the non-equivariant case: a spectrum <span class="math inline">\(E\)</span> is <span class="math inline">\(n\)</span>-truncated (Postnikov <span class="math inline">\(\leq n\)</span>) iff <span class="math inline">\(\mathrm{Map}(S^k, E) \simeq *\)</span> for all <span class="math inline">\(k &gt; n\)</span>, and <span class="math inline">\(n\)</span>-connective iff <span class="math inline">\(\mathrm{Map}(S^k, E) \simeq *\)</span> for all <span class="math inline">\(k \leq n\)</span>. The slice conditions replace <span class="math inline">\(\{S^k\}\)</span> with <span class="math inline">\(\{\widetilde{S}^k\}\)</span> (slice cells).</p>
+<h3 id="relationship-to-ordinary-connectivity">4.3 Relationship to Ordinary Connectivity</h3>
+<p><strong>Proposition (HHR, Proposition 4.11; Blumberg Exercise 5.2.3).</strong> Let <span class="math inline">\(X\)</span> be a <span class="math inline">\(G\)</span>-spectrum. Then:</p>
+<ol type="1">
+<li><span class="math inline">\(X\)</span> is slice <span class="math inline">\(0\)</span>-positive if and only if <span class="math inline">\(X\)</span> is <span class="math inline">\((-1)\)</span>-connected (i.e., <span class="math inline">\(\pi_k^H(X) = 0\)</span> for <span class="math inline">\(k \leq -1\)</span> and all <span class="math inline">\(H \leq G\)</span>).</li>
+<li><span class="math inline">\(X\)</span> is slice <span class="math inline">\((-1)\)</span>-positive if and only if <span class="math inline">\(X\)</span> is <span class="math inline">\((-2)\)</span>-connected.</li>
+<li><span class="math inline">\(X\)</span> is slice <span class="math inline">\(0\)</span>-null if and only if <span class="math inline">\(X\)</span> is <span class="math inline">\(0\)</span>-coconnected (i.e., <span class="math inline">\(\pi_k^H(X) = 0\)</span> for <span class="math inline">\(k \geq 1\)</span> and all <span class="math inline">\(H \leq G\)</span>).</li>
+<li><span class="math inline">\(X\)</span> is slice <span class="math inline">\((-1)\)</span>-null if and only if <span class="math inline">\(X\)</span> is <span class="math inline">\((-1)\)</span>-coconnected.</li>
+</ol>
+<p><em>Proof sketch for (1).</em> <span class="math inline">\(X\)</span> is slice <span class="math inline">\(0\)</span>-positive iff <span class="math inline">\(\mathrm{Map}(\widetilde{S}, X) \simeq *\)</span> for all slice cells of dimension <span class="math inline">\(\leq 0\)</span>. The slice cells of dimension <span class="math inline">\(\leq 0\)</span> are: <span class="math inline">\(\widetilde{S}^0 = G_+ \wedge_H S^0\)</span> (the <span class="math inline">\(0\)</span>-dimensional even cells, <span class="math inline">\(m=0\)</span>) and <span class="math inline">\(\widetilde{S}^{-1} = \Sigma^{-1}(G_+ \wedge_H S^0)\)</span> (for <span class="math inline">\(m=0\)</span> and various <span class="math inline">\(H\)</span>). Mapping out of <span class="math inline">\(G_+ \wedge_H S^0\)</span> gives <span class="math inline">\(\mathrm{Map}_G(G_+ \wedge_H S^0, X) \simeq \mathrm{Map}_H(S^0, i_H^* X) \simeq X^H\)</span>, and mapping out of <span class="math inline">\(\Sigma^{-1}(G_+ \wedge_H S^0)\)</span> gives <span class="math inline">\(\Omega X^H\)</span>. These are contractible iff <span class="math inline">\(X^H \simeq *\)</span> and <span class="math inline">\(\pi_0(X^H) = 0\)</span>, i.e., iff <span class="math inline">\(\pi_k^H(X) = 0\)</span> for <span class="math inline">\(k \leq -1\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>This proposition shows that, for small dimensions, the slice conditions precisely recover ordinary connectivity conditions. The slice filtration is a genuine generalization of the connectivity filtration.</strong></p>
+<div class="callout callout-note">
+<p> The general pattern
+The connectivity statements hold in the range where slice cells are “the same” as ordinary suspension cells — i.e., for <span class="math inline">\(H = e\)</span>, where <span class="math inline">\(G_+ \wedge_e S^m = \Sigma^\infty_G G_+ \wedge S^m\)</span> are just free <span class="math inline">\(G\)</span>-spectra. At higher dimensions, the slice cells for nontrivial <span class="math inline">\(H\)</span> introduce additional conditions beyond ordinary connectivity.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 5
+<em>This exercise verifies the connectivity–slice dimension correspondence for Eilenberg-Mac Lane spectra, connecting the abstract slice conditions to familiar objects.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> the Eilenberg-Mac Lane <span class="math inline">\(C_2\)</span>-spectrum for the constant Mackey functor <span class="math inline">\(\underline{\mathbb{Z}}\)</span> (sending both <span class="math inline">\(C_2/e\)</span> and <span class="math inline">\(C_2/C_2\)</span> to <span class="math inline">\(\mathbb{Z}\)</span>).</p>
+<ol type="a">
+<li><p>Show <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is slice 0-null: verify that <span class="math inline">\(\mathrm{Map}_{C_2}(\tilde{S}, H\underline{\mathbb{Z}})\)</span> is contractible for every slice cell <span class="math inline">\(\tilde{S}\)</span> of dimension <span class="math inline">\(&gt; 0\)</span>.</p></li>
+<li><p>Is <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> slice 0-positive? Explain.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 5
+(a) Slice cells of dimension <span class="math inline">\(&gt; 0\)</span> include <span class="math inline">\(C_{2+} \wedge S^n\)</span> (<span class="math inline">\(n &gt; 0\)</span>) and <span class="math inline">\(S^{m\rho_{C_2}}\)</span> (<span class="math inline">\(m \geq 1\)</span>, dim <span class="math inline">\(= 2m \geq 2\)</span>). For the free cells: <span class="math inline">\(\mathrm{Map}_{C_2}(C_{2+} \wedge S^n, H\underline{\mathbb{Z}}) \simeq \mathrm{Map}(S^n, (H\underline{\mathbb{Z}})^e) \simeq \mathrm{Map}(S^n, H\mathbb{Z})\)</span>, which is contractible for <span class="math inline">\(n &gt; 0\)</span> since <span class="math inline">\(\pi_n(H\mathbb{Z}) = 0\)</span>. For representation cells: <span class="math inline">\(\mathrm{Map}_{C_2}(S^{m\rho}, H\underline{\mathbb{Z}}) \simeq \Omega^{m\rho} H\underline{\mathbb{Z}}\)</span>, which is contractible since <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is 0-truncated (all homotopy groups vanish in positive degrees). So <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is slice 0-null. ✓</p>
+<ol start="2" type="a">
+<li>No. <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is NOT slice 0-positive. Slice 0-positive requires <span class="math inline">\(\mathrm{Map}_{C_2}(\tilde{S}, H\underline{\mathbb{Z}}) \simeq *\)</span> for all slice cells of dimension <span class="math inline">\(\leq 0\)</span>. But <span class="math inline">\(\mathrm{Map}_{C_2}(S^0, H\underline{\mathbb{Z}}) \simeq H\underline{\mathbb{Z}}(S^0)\)</span>, which is not contractible (it has <span class="math inline">\(\pi_0 = \mathbb{Z}\)</span>). So <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is slice 0-null but NOT slice 0-positive — it sits in the “heart” at slice level 0, which is consistent with it being the 0-slice of the sphere spectrum <span class="math inline">\(P_0^0(S^0) \simeq H\underline{\mathbb{Z}}\)</span>.</li>
+</ol>
+</blockquote>
+<h3 id="characterization-via-filtrations">4.4 Characterization via Filtrations</h3>
+<p><strong>Proposition (HHR, Proposition 4.15; Blumberg Proposition 5.2.4).</strong> A <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(X\)</span> is slice <span class="math inline">\(n\)</span>-positive if and only if, up to weak <span class="math inline">\(G\)</span>-equivalence, <span class="math inline">\(X\)</span> admits a filtration</p>
+<p><span class="math display">\[X^0 \subseteq X^1 \subseteq X^2 \subseteq \cdots \subseteq X\]</span></p>
+<p>such that:
+- <span class="math inline">\(X \simeq \operatorname{hocolim}_i X^i\)</span>,
+- each cofiber <span class="math inline">\(X^i / X^{i-1}\)</span> is a wedge of slice cells of dimension <span class="math inline">\(&gt; n\)</span>.</p>
+<p><em>This is the analogue of the CW approximation theorem: slice <span class="math inline">\(n\)</span>-positive spectra are exactly those built from slice cells in dimensions <span class="math inline">\(&gt; n\)</span>.</em></p>
+<div class="callout callout-info">
+<p> Parallels with Postnikov and CW
+Compare: in <span class="math inline">\(\mathrm{Sp}\)</span>, an <span class="math inline">\(n\)</span>-connective spectrum is one built from cells <span class="math inline">\(\Sigma^k\)</span> for <span class="math inline">\(k &gt; n\)</span>. The slice <span class="math inline">\(n\)</span>-positivity replaces <span class="math inline">\(\{\Sigma^k : k &gt; n\}\)</span> with <span class="math inline">\(\{\widetilde{S}^k : k &gt; n\}\)</span>. Since slice cells include the ordinary suspension cells (via <span class="math inline">\(H = e\)</span>), slice <span class="math inline">\(n\)</span>-positivity is in general a stronger condition than <span class="math inline">\(n\)</span>-connectivity.</p>
+</div>
+<h3 id="the-slice-sections-and-the-slice-tower">4.5 The Slice Sections and the Slice Tower</h3>
+<p><strong>Definition (Slice Section <span class="math inline">\(P^n X\)</span>).</strong> For <span class="math inline">\(X \in \mathrm{Sp}^G\)</span>, the <em><span class="math inline">\(n\)</span>-th slice section</em> <span class="math inline">\(P^n X\)</span> is the <em>localization</em> of <span class="math inline">\(X\)</span> with respect to the class of slice <span class="math inline">\(n\)</span>-null spectra. Concretely:</p>
+<ul>
+<li>There is a natural map <span class="math inline">\(X \to P^n X\)</span>,</li>
+<li><span class="math inline">\(P^n X\)</span> is slice <span class="math inline">\(n\)</span>-null,</li>
+<li>The homotopy fiber <span class="math inline">\(P_n^{n+1} X := \mathrm{fib}(X \to P^n X)\)</span> is slice <span class="math inline">\(n\)</span>-positive.</li>
+</ul>
+<p>The existence of <span class="math inline">\(P^n X\)</span> follows from Bousfield localization theory applied in <span class="math inline">\(\mathrm{Sp}^G\)</span>; the class of slice <span class="math inline">\(n\)</span>-null spectra is a localizing subcategory (closed under arbitrary homotopy colimits and retracts).</p>
+<div class="callout callout-warning">
+<p> Subtlety in the construction
+The naive attempt — kill all mapping spaces from slice cells of dimension <span class="math inline">\(&gt; n\)</span> — runs into the same issue as Section 1.2: one must iterate. An additional subtlety in the equivariant case is the existence of nontrivial maps <span class="math inline">\(S^V \to S^W\)</span> for <span class="math inline">\(V \subset W\)</span> representations. <em>If <span class="math inline">\(V\)</span> contains a trivial summand, all such maps are null-homotopic</em> (one can deform via the trivial direction), but if <span class="math inline">\(V\)</span> has no trivial summands, these maps are genuinely nontrivial and must be handled separately in the small object argument. This is the precise obstruction identified in Section 3.2, and it forces the use of representation spheres rather than integer spheres in the construction.</p>
+</div>
+<p><strong>Definition (Slice Tower).</strong> The <em>slice tower</em> of <span class="math inline">\(X\)</span> is the sequence of maps</p>
+<p><span class="math display">\[\cdots \longrightarrow P^{n+1} X \longrightarrow P^n X \longrightarrow P^{n-1} X \longrightarrow \cdots\]</span></p>
+<p>obtained from the natural maps <span class="math inline">\(X \to P^n X\)</span> and the functoriality of localization. The maps <span class="math inline">\(P^{n+1} X \to P^n X\)</span> arise because any slice <span class="math inline">\(n\)</span>-null spectrum is also slice <span class="math inline">\((n+1)\)</span>-null (trivially: if all mapping spaces from cells of dimension <span class="math inline">\(&gt; n\)</span> are contractible, then a fortiori all mapping spaces from cells of dimension <span class="math inline">\(&gt; n+1\)</span> are contractible).</p>
+<p><strong>Theorem.</strong> <span class="math inline">\(X \simeq \operatorname{holim}_n P^n X\)</span>.</p>
+<p><em>This is the convergence theorem for the slice tower, analogous to <span class="math inline">\(X \simeq \operatorname{holim}_n P_n X\)</span> for the Postnikov tower. The proof uses the fact that <span class="math inline">\(X\)</span> is built from slice cells (by Proposition 4.4) and that the localization maps are compatible with the filtration.</em></p>
+<h3 id="the-n-slice-and-an-explicit-example">4.6 The n-Slice and an Explicit Example</h3>
+<p><strong>Definition (n-Slice).</strong> The <em><span class="math inline">\(n\)</span>-slice</em> of <span class="math inline">\(X\)</span> is</p>
+<p><span class="math display">\[P_n^n X := \mathrm{fib}(P^n X \to P^{n-1} X).\]</span></p>
+<p>This is the “associated graded piece” of the slice tower at level <span class="math inline">\(n\)</span>: it captures the “purely dimension-<span class="math inline">\(n\)</span>” part of <span class="math inline">\(X\)</span>.</p>
+<p><strong>Proposition (Blumberg Exercise 5.2.5; HHR Proposition 4.20).</strong> The <span class="math inline">\((-1)\)</span>-slice of <span class="math inline">\(X\)</span> is</p>
+<p><span class="math display">\[P_{-1}^{-1} X \simeq \Sigma^{-1} H\underline{\pi}_{-1}(X),\]</span></p>
+<p>where <span class="math inline">\(\underline{\pi}_{-1}(X)\)</span> is the <span class="math inline">\((-1)\)</span>-st homotopy group of <span class="math inline">\(X\)</span> viewed as a Mackey functor (with <span class="math inline">\(\underline{\pi}_{-1}(X)(G/H) = \pi_{-1}^H(X)\)</span>, with restriction and transfer maps), and <span class="math inline">\(H\underline{M}\)</span> is the <em>Eilenberg-Mac Lane <span class="math inline">\(G\)</span>-spectrum</em> for a Mackey functor <span class="math inline">\(\underline{M}\)</span>.</p>
+<p><em>Proof sketch.</em> From the long exact sequence on homotopy Mackey functors associated to the fibration <span class="math inline">\(P_{-1}^{-1} X \to P^{-1} X \to P^{-2} X\)</span>:
+- <span class="math inline">\(P^{-1} X\)</span> is slice <span class="math inline">\((-1)\)</span>-null, so <span class="math inline">\(\pi_k^H(P^{-1} X) = 0\)</span> for <span class="math inline">\(k \geq 0\)</span> (by Proposition 4.3, part 3).
+- <span class="math inline">\(P^{-2} X\)</span> is slice <span class="math inline">\((-2)\)</span>-null, so <span class="math inline">\(\pi_k^H(P^{-2} X) = 0\)</span> for <span class="math inline">\(k \geq -1\)</span>.
+- From the long exact sequence, <span class="math inline">\(\pi_k^H(P_{-1}^{-1} X) \cong \begin{cases} \pi_{-1}^H(X) &amp; k = -1 \\ 0 &amp; k \neq -1 \end{cases}\)</span>.</p>
+<p>A <span class="math inline">\(G\)</span>-spectrum with exactly one nonzero homotopy Mackey functor (in degree <span class="math inline">\(-1\)</span>) is, by the equivariant Whitehead theorem, equivalent to <span class="math inline">\(\Sigma^{-1} H\underline{\pi}_{-1}(X)\)</span>, where <span class="math inline">\(H\underline{M}\)</span> denotes the Eilenberg-Mac Lane spectrum for the Mackey functor <span class="math inline">\(\underline{M}\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Eilenberg-Mac Lane G-spectra
+For a Mackey functor <span class="math inline">\(\underline{M}\)</span>, the Eilenberg-Mac Lane <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(H\underline{M}\)</span> is the unique (up to weak equivalence) <span class="math inline">\(G\)</span>-spectrum with <span class="math inline">\(\underline{\pi}_0(H\underline{M}) \cong \underline{M}\)</span> and <span class="math inline">\(\underline{\pi}_k(H\underline{M}) = 0\)</span> for <span class="math inline">\(k \neq 0\)</span>. It represents <em>Bredon cohomology with Mackey functor coefficients</em>: <span class="math inline">\([X, H\underline{M}]_G \cong H_G^0(X; \underline{M})\)</span>. The stable Eilenberg-Mac Lane spectra extend the unstable <span class="math inline">\(K(\underline{M}, n)\)</span> to the full stable category and encode both restriction and transfer maps.</p>
+</div>
+<div class="callout callout-example">
+<p> The 0-slice
+For a connective <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(X\)</span>, the <span class="math inline">\(0\)</span>-slice is <span class="math inline">\(P_0^0 X \simeq H\underline{\pi}_0(X)\)</span> — the Eilenberg-Mac Lane spectrum on the <span class="math inline">\(0\)</span>-th homotopy Mackey functor. This is the exact stable analogue of the fact that the <span class="math inline">\(0\)</span>-th Postnikov section <span class="math inline">\(P_0 X\)</span> is a <span class="math inline">\(K(\pi_0 X, 0)\)</span>.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise I (Proof)
+<em>This exercise proves that the <span class="math inline">\((-1)\)</span>-slice is a desuspended Eilenberg-Mac Lane spectrum, anchoring the slice tower from below and making the analogy with Postnikov towers precise.</em></p>
+<p>Let <span class="math inline">\(X \in \mathrm{Sp}^G\)</span> be any <span class="math inline">\(G\)</span>-spectrum with <span class="math inline">\(\underline{\pi}_{-1}(X) \neq 0\)</span>.</p>
+<ol type="a">
+<li><p>Using the long exact sequence in homotopy Mackey functors for the fiber sequence <span class="math inline">\(P_{-1}^{-1} X \to P^{-1} X \to P^{-2} X\)</span>, show:
+<span class="math display">\[\underline{\pi}_k(P_{-1}^{-1} X) \cong \begin{cases} \underline{\pi}_{-1}(X) &amp; k = -1 \\ 0 &amp; k \neq -1. \end{cases}\]</span></p></li>
+<li><p>Show that any <span class="math inline">\(G\)</span>-spectrum with exactly one nonzero homotopy Mackey functor <span class="math inline">\(\underline{M}\)</span> concentrated in degree <span class="math inline">\(n\)</span> is equivalent to <span class="math inline">\(\Sigma^n H\underline{M}\)</span>. (Use the equivariant Whitehead theorem and the fact that <span class="math inline">\(H\underline{M}\)</span> represents Bredon cohomology.)</p></li>
+<li><p>Combine (a) and (b) to conclude <span class="math inline">\(P_{-1}^{-1} X \simeq \Sigma^{-1} H\underline{\pi}_{-1}(X)\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise I
+(a) Recall from §4.3: <span class="math inline">\(P^{-1} X\)</span> is slice <span class="math inline">\((-1)\)</span>-null, so <span class="math inline">\(\underline{\pi}_k(P^{-1} X) = 0\)</span> for <span class="math inline">\(k \geq -1\)</span> (by Proposition 4.3 part 4 — slice <span class="math inline">\((-1)\)</span>-null iff <span class="math inline">\((-1)\)</span>-coconnected, i.e., <span class="math inline">\(\pi_k = 0\)</span> for <span class="math inline">\(k \geq -1\)</span>). And <span class="math inline">\(P^{-2} X\)</span> is slice <span class="math inline">\((-2)\)</span>-null, so <span class="math inline">\(\underline{\pi}_k(P^{-2} X) = 0\)</span> for <span class="math inline">\(k \geq -2\)</span>. From the long exact sequence of the fibration <span class="math inline">\(P_{-1}^{-1} X \to P^{-1} X \to P^{-2} X\)</span>:
+<span class="math display">\[\cdots \to \underline{\pi}_k(P_{-1}^{-1} X) \to \underline{\pi}_k(P^{-1} X) \to \underline{\pi}_k(P^{-2} X) \to \underline{\pi}_{k-1}(P_{-1}^{-1} X) \to \cdots\]</span>
+For <span class="math inline">\(k \geq 0\)</span>: both <span class="math inline">\(\underline{\pi}_k(P^{-1} X) = 0\)</span> and <span class="math inline">\(\underline{\pi}_k(P^{-2} X) = 0\)</span>, so <span class="math inline">\(\underline{\pi}_k(P_{-1}^{-1} X) = 0\)</span>.
+For <span class="math inline">\(k = -1\)</span>: <span class="math inline">\(\underline{\pi}_{-1}(P^{-1} X) = 0\)</span> and <span class="math inline">\(\underline{\pi}_{-1}(P^{-2} X) = \underline{\pi}_{-1}(X)\)</span> (the map <span class="math inline">\(X \to P^{-2} X\)</span> is an isomorphism on <span class="math inline">\(\pi_{-1}\)</span> since <span class="math inline">\(P^{-2}\)</span> kills nothing below <span class="math inline">\(-2\)</span>). The exact sequence gives <span class="math inline">\(\underline{\pi}_{-1}(P_{-1}^{-1} X) \cong \underline{\pi}_{-1}(X)\)</span>.
+For <span class="math inline">\(k \leq -2\)</span>: <span class="math inline">\(\underline{\pi}_k(P^{-2} X) = 0\)</span> forces <span class="math inline">\(\underline{\pi}_k(P_{-1}^{-1} X) = 0\)</span>.</p>
+<ol start="2" type="a">
+<li><p>Let <span class="math inline">\(Y\)</span> have <span class="math inline">\(\underline{\pi}_n(Y) = \underline{M}\)</span> and <span class="math inline">\(\underline{\pi}_k(Y) = 0\)</span> for <span class="math inline">\(k \neq n\)</span>. The map <span class="math inline">\(Y \to \Sigma^n H\underline{M}\)</span> classifying the fundamental class (the identity on <span class="math inline">\(\underline{\pi}_n\)</span>) is a map of <span class="math inline">\(G\)</span>-spectra inducing isomorphisms on all <span class="math inline">\(\underline{\pi}_k^H\)</span> for all <span class="math inline">\(H\)</span> and all <span class="math inline">\(k\)</span>. By the equivariant Whitehead theorem for spectra, this is a weak equivalence. (The spectrum-level Whitehead theorem holds for <span class="math inline">\(G\)</span>-spectra: a map in <span class="math inline">\(\mathrm{Sp}^G\)</span> is a weak equivalence iff it induces isomorphisms on <span class="math inline">\(\pi_k^H\)</span> for all <span class="math inline">\(k \in \mathbb{Z}\)</span> and all <span class="math inline">\(H \leq G\)</span>.)</p></li>
+<li><p>Part (a) gives <span class="math inline">\(P_{-1}^{-1} X\)</span> has a single nonzero homotopy Mackey functor <span class="math inline">\(\underline{\pi}_{-1}(X)\)</span> in degree <span class="math inline">\(-1\)</span>. By (b), <span class="math inline">\(P_{-1}^{-1} X \simeq \Sigma^{-1} H\underline{\pi}_{-1}(X)\)</span>. <span class="math inline">\(\square\)</span></p></li>
+</ol>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 6 (Computational)
+<em>This exercise computes the slices of the sphere <span class="math inline">\(G\)</span>-spectrum in the lowest degrees, making the slice tower concrete.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(S^0\)</span> the sphere <span class="math inline">\(C_2\)</span>-spectrum (with trivial <span class="math inline">\(C_2\)</span>-action).</p>
+<ol type="a">
+<li><p>Compute <span class="math inline">\(P^0 S^0\)</span> (the slice 0-section). What does the slice tower <span class="math inline">\(S^0 \to P^0 S^0\)</span> look like?</p></li>
+<li><p>Identify the 0-slice <span class="math inline">\(P_0^0 S^0\)</span>. By the result of §4.6 adapted to degree 0, this should be an Eilenberg-Mac Lane spectrum. Which one?</p></li>
+<li><p>What is the <span class="math inline">\((-1)\)</span>-slice <span class="math inline">\(P_{-1}^{-1} S^0\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 6
+(a) <span class="math inline">\(P^0 S^0\)</span> is the 0-slice section of <span class="math inline">\(S^0\)</span>: the Bousfield localization of <span class="math inline">\(S^0\)</span> with respect to slice 0-null spectra. Since <span class="math inline">\(S^0\)</span> is <span class="math inline">\((-1)\)</span>-connected (it has <span class="math inline">\(\pi_n = 0\)</span> for <span class="math inline">\(n &lt; 0\)</span>) and the slice 0-null condition corresponds to 0-coconnectedness, the map <span class="math inline">\(S^0 \to P^0 S^0\)</span> is the unit map <span class="math inline">\(S^0 \to \tau_{\leq 0} S^0\)</span> (Postnikov truncation to degree 0). Since <span class="math inline">\(\pi_0^{C_2}(S^0) = \underline{\mathbb{Z}}\)</span> (the constant Mackey functor valued in <span class="math inline">\(\mathbb{Z}\)</span>, since the sphere is the unit), <span class="math inline">\(P^0 S^0 \simeq H\underline{\mathbb{Z}}\)</span>.</p>
+<ol start="2" type="a">
+<li><p>The 0-slice <span class="math inline">\(P_0^0 S^0\)</span> = homotopy fiber of <span class="math inline">\(P^0 S^0 \to P^{-1} S^0\)</span>. Since <span class="math inline">\(S^0\)</span> is <span class="math inline">\((-1)\)</span>-connected, <span class="math inline">\(P^{-1} S^0 \simeq *\)</span> (there’s nothing in degree <span class="math inline">\(&lt; 0\)</span>). So <span class="math inline">\(P_0^0 S^0 \simeq P^0 S^0 \simeq H\underline{\mathbb{Z}}\)</span>.</p></li>
+<li><p>By §4.6, <span class="math inline">\(P_{-1}^{-1} S^0 = \Sigma^{-1} H\underline{\pi}_{-1}(S^0)\)</span>. Since <span class="math inline">\(\pi_{-1}(S^0) = 0\)</span> as a Mackey functor (the sphere spectrum is <span class="math inline">\((-1)\)</span>-connected), <span class="math inline">\(P_{-1}^{-1} S^0 \simeq *\)</span>.</p></li>
+</ol>
+</blockquote>
+<h3 id="behavior-under-change-functors">4.7 Behavior Under Change Functors</h3>
+<p><strong>Proposition (HHR).</strong> The slice cells, and hence the slice filtration, are preserved by the following change-of-group functors:
+- <em>Restriction</em>: <span class="math inline">\(i_K^*: \mathrm{Sp}^G \to \mathrm{Sp}^K\)</span> (restrict to a subgroup <span class="math inline">\(K \leq G\)</span>),
+- <em>Induction</em>: <span class="math inline">\(G_+ \wedge_K -: \mathrm{Sp}^K \to \mathrm{Sp}^G\)</span> (induce from <span class="math inline">\(K\)</span> to <span class="math inline">\(G\)</span>),
+- <em>Norm</em>: <span class="math inline">\(N_K^G: \mathrm{Sp}^K \to \mathrm{Sp}^G\)</span> (the Hill-Hopkins-Ravenel norm).</p>
+<p><em>Proof sketch for restriction.</em> A slice cell <span class="math inline">\(\widetilde{S} = G_+ \wedge_H S^{m\rho_H}\)</span> restricts under <span class="math inline">\(i_K^*\)</span> to <span class="math inline">\(i_K^*(G_+ \wedge_H S^{m\rho_H}) \cong (G/H)_+ \wedge_\emptyset S^{m\rho_H|_K}\)</span>. By Mackey’s double coset formula, <span class="math inline">\((i_K^* G_+ \wedge_H -) \cong \bigvee_{[g] \in K\backslash G/H} K_+ \wedge_{K \cap gHg^{-1}} (-)^{c_g}\)</span>. Each term <span class="math inline">\(K_+ \wedge_{K \cap gHg^{-1}} S^{m \cdot g \cdot \rho_H|_{K \cap gHg^{-1}}}\)</span> is a <span class="math inline">\(K\)</span>-slice cell (since <span class="math inline">\(g \cdot \rho_H|_{K \cap gHg^{-1}}\)</span> contains the regular representation of <span class="math inline">\(K \cap gHg^{-1}\)</span> as a summand). <span class="math inline">\(\square\)</span></p>
+<p><strong>The compatibility of the slice filtration with all three change functors is crucial for HHR’s proof: it allows slice computations to be moved between groups and norms to be taken without losing the slice structure.</strong></p>
+<div class="callout callout-question">
+<p> Exercise H (Computational)
+<em>This exercise verifies that restriction commutes with the slice tower and uses this to compute an explicit example, making the change-of-group compatibility concrete.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(H = e\)</span> (trivial subgroup), and let <span class="math inline">\(i_e^*: \mathrm{Sp}^{C_2} \to \mathrm{Sp}\)</span> denote restriction to the trivial subgroup (forgetting equivariance).</p>
+<ol type="a">
+<li><p>Show directly from the definitions that <span class="math inline">\(i_e^* P^n X \simeq P^n (i_e^* X)\)</span> for any <span class="math inline">\(G\)</span>-spectrum <span class="math inline">\(X\)</span>. That is, restriction to the trivial subgroup commutes with the slice section. (Use that <span class="math inline">\(i_e^*\)</span> of a slice <span class="math inline">\(C_2\)</span>-cell of dimension <span class="math inline">\(m\)</span> is a wedge of non-equivariant cells of total dimension <span class="math inline">\(m\)</span>.)</p></li>
+<li><p>Compute <span class="math inline">\(i_e^*(H\underline{\mathbb{Z}})\)</span> — the underlying non-equivariant spectrum of the Eilenberg-Mac Lane <span class="math inline">\(C_2\)</span>-spectrum for the constant Mackey functor <span class="math inline">\(\underline{\mathbb{Z}}\)</span>. Use the fact that <span class="math inline">\((H\underline{\mathbb{Z}})^e = H\mathbb{Z}\)</span> to identify <span class="math inline">\(i_e^*(H\underline{\mathbb{Z}}) \simeq H\mathbb{Z}\)</span>.</p></li>
+<li><p>Use (a) and (b) to compute <span class="math inline">\(i_e^*(P^n H\underline{\mathbb{Z}})\)</span> for all <span class="math inline">\(n\)</span>. For which <span class="math inline">\(n\)</span> is <span class="math inline">\(P^n H\underline{\mathbb{Z}}\)</span> non-trivially equivariant?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise H
+(a) The slice section <span class="math inline">\(P^n X\)</span> is characterized by: (i) <span class="math inline">\(P^n X\)</span> is slice <span class="math inline">\(n\)</span>-null, and (ii) the fiber of <span class="math inline">\(X \to P^n X\)</span> is slice <span class="math inline">\(n\)</span>-positive. Applying <span class="math inline">\(i_e^*\)</span>: since <span class="math inline">\(i_e^*\)</span> of a slice cell <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> of dimension <span class="math inline">\(m|H|\)</span> is <span class="math inline">\((G/H)_+ \wedge S^{m\rho_H|_e}\)</span>, which is a wedge of copies of <span class="math inline">\(S^{m|H|}\)</span> (all equivariant structure forgotten). A spectrum is slice <span class="math inline">\(n\)</span>-null (resp. <span class="math inline">\(n\)</span>-positive) iff mapping spaces from all slice cells of dim <span class="math inline">\(&gt; n\)</span> (resp. <span class="math inline">\(\leq n\)</span>) are contractible; after applying <span class="math inline">\(i_e^*\)</span>, this reduces to the ordinary connectivity conditions for <span class="math inline">\(i_e^* X\)</span> in <span class="math inline">\(\mathrm{Sp}\)</span>. One checks the universal property: <span class="math inline">\(i_e^* P^n X\)</span> satisfies the characterization of <span class="math inline">\(P^n(i_e^* X)\)</span>, hence <span class="math inline">\(i_e^* P^n X \simeq P^n(i_e^* X)\)</span>.</p>
+<ol start="2" type="a">
+<li><p>The underlying spectrum of <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is <span class="math inline">\((H\underline{\mathbb{Z}})^e = H\mathbb{Z}\)</span> (the ordinary Eilenberg-Mac Lane spectrum). This is because the fixed-point functor <span class="math inline">\((-)^e = i_e^*\)</span> on <span class="math inline">\(\mathrm{Sp}^{C_2}\)</span> forgets the <span class="math inline">\(C_2\)</span>-action, and the fixed-point space of an EM spectrum for the constant Mackey functor is the ordinary EM spectrum. So <span class="math inline">\(i_e^*(H\underline{\mathbb{Z}}) \simeq H\mathbb{Z}\)</span>.</p></li>
+<li><p>By (a): <span class="math inline">\(i_e^*(P^n H\underline{\mathbb{Z}}) \simeq P^n(H\mathbb{Z})\)</span>.</p></li>
+</ol>
+<ul>
+<li>For <span class="math inline">\(n \geq 0\)</span>: <span class="math inline">\(H\mathbb{Z}\)</span> is 0-truncated, so <span class="math inline">\(P^0(H\mathbb{Z}) \simeq H\mathbb{Z}\)</span> and <span class="math inline">\(P^n(H\mathbb{Z}) \simeq H\mathbb{Z}\)</span> for all <span class="math inline">\(n \geq 0\)</span>.</li>
+<li>For <span class="math inline">\(n &lt; 0\)</span>: <span class="math inline">\(P^n(H\mathbb{Z}) \simeq *\)</span> (since <span class="math inline">\(H\mathbb{Z}\)</span> is 0-connected, it is already in the positive part; the <span class="math inline">\(n\)</span>-section for <span class="math inline">\(n &lt; 0\)</span> kills it entirely).</li>
+</ul>
+<p>So the underlying spectrum <span class="math inline">\(i_e^* P^n H\underline{\mathbb{Z}}\)</span> is <span class="math inline">\(H\mathbb{Z}\)</span> for <span class="math inline">\(n \geq 0\)</span> and <span class="math inline">\(*\)</span> for <span class="math inline">\(n &lt; 0\)</span>. The equivariant content of <span class="math inline">\(P^n H\underline{\mathbb{Z}}\)</span> is non-trivial for all <span class="math inline">\(n \geq 0\)</span> (it retains the <span class="math inline">\(C_2\)</span>-action on <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> via the transfer maps in <span class="math inline">\(\underline{\mathbb{Z}}\)</span>), but the underlying non-equivariant spectrum is always just <span class="math inline">\(H\mathbb{Z}\)</span>.</p>
+</blockquote>
+<blockquote>
+<p>[!TIP]- Intuition for norm compatibility
+The norm <span class="math inline">\(N_K^G\)</span> is the equivariant analogue of the tensor product (not the direct sum). For the slice filtration to be compatible with norms, one needs the dimensions to multiply correctly: a <span class="math inline">\(K\)</span>-spectrum of slice dimension <span class="math inline">\(d\)</span> has norm of slice dimension <span class="math inline">\([G:K] \cdot d\)</span> (since the norm raises the “representation dimension” by the index). This multiplicativity is exactly what the regular representation provides: <span class="math inline">\(\rho_{G|_K}^{\otimes [G:K]}\)</span> contributes to <span class="math inline">\(\rho_G\)</span>, matching dimensions.</p>
+</blockquote>
+<hr />
+<h2 id="the-slice-spectral-sequence">5. The Slice Spectral Sequence 📐</h2>
+<p>The slice tower, like any filtered object in a stable <span class="math inline">\(\infty\)</span>-category, gives rise to a spectral sequence. This is the <em>slice spectral sequence</em>, the equivariant analogue of the Atiyah-Hirzebruch spectral sequence.</p>
+<h3 id="construction-from-the-slice-tower">5.1 Construction from the Slice Tower</h3>
+<p>Let <span class="math inline">\(X \in \mathrm{Sp}^G\)</span> and fix a subgroup <span class="math inline">\(H \leq G\)</span>. The slice tower</p>
+<p><span class="math display">\[\cdots \to P^{n+1} X \to P^n X \to P^{n-1} X \to \cdots\]</span></p>
+<p>is a filtration of <span class="math inline">\(X\)</span> in <span class="math inline">\(\mathrm{Sp}^G\)</span>. Applying <span class="math inline">\(\pi_*^H(-)\)</span> and using the long exact sequences associated to the fiber sequences</p>
+<p><span class="math display">\[P_n^n X \longrightarrow P^n X \longrightarrow P^{n-1} X,\]</span></p>
+<p>we obtain an exact couple, hence a spectral sequence.</p>
+<p><strong>Definition (Slice Spectral Sequence).</strong> The <em>slice spectral sequence</em> for <span class="math inline">\(X\)</span> is the spectral sequence with:</p>
+<p><span class="math display">\[E_1^{n,*} = \pi_*^G(P_n^n X) \Implies \pi_*^G(X),\]</span></p>
+<p>where <span class="math inline">\(P_n^n X\)</span> is the <span class="math inline">\(n\)</span>-slice of <span class="math inline">\(X\)</span>. The differentials <span class="math inline">\(d_r: E_r^{n,*} \to E_r^{n-r, *+r-1}\)</span> are induced by the attaching maps in the slice tower.</p>
+<p>More precisely, since the slices <span class="math inline">\(P_n^n X\)</span> are Eilenberg-Mac Lane-type spectra (built from <span class="math inline">\(H\underline{M}\)</span>’s), the <span class="math inline">\(E_2\)</span>-page can often be computed in terms of Bredon cohomology of the slices. One writes</p>
+<p><span class="math display">\[E_2^{p,q} = \pi_p^G(P_q^q X) \Implies \pi_{p+q}^G(X).\]</span></p>
+<div class="callout callout-warning">
+<p> RO(G)-grading
+For genuine <span class="math inline">\(G\)</span>-spectra, the homotopy groups are <em><span class="math inline">\(RO(G)\)</span>-graded</em>: <span class="math inline">\(\pi_\alpha^H(X) = [S^\alpha, X]_G\)</span> for <span class="math inline">\(\alpha \in RO(G)\)</span> (the real representation ring of <span class="math inline">\(G\)</span>). The slice spectral sequence is naturally <span class="math inline">\(RO(G)\)</span>-graded, and its full strength requires tracking contributions from all representation spheres. The integer-graded version (collapsing <span class="math inline">\(RO(G)\)</span> to <span class="math inline">\(\mathbb{Z}\)</span>) is a shadow of the full spectral sequence.</p>
+</div>
+<h3 id="duggers-c2-construction-and-kr-theory">5.2 Dugger’s C2 Construction and KR-Theory</h3>
+<p>The first instance of the slice spectral sequence was constructed by Dugger for <span class="math inline">\(G = C_2\)</span> and Atiyah’s <em>KR-theory</em>.</p>
+<p><strong>KR-theory</strong> is the <span class="math inline">\(C_2\)</span>-equivariant cohomology theory <span class="math inline">\(KR^{*,*}(X)\)</span> defined by Atiyah, with <span class="math inline">\(C_2\)</span> acting by complex conjugation. Non-equivariantly, <span class="math inline">\(KR^*(X) \cong K^*(X)\)</span>; at the <span class="math inline">\(C_2\)</span>-fixed level, <span class="math inline">\(KR^*(X^{C_2}) \cong KO^*(X^{C_2})\)</span> (real K-theory).</p>
+<p>Dugger’s motivation was the deep analogy between <span class="math inline">\(C_2\)</span>-equivariant homotopy theory and <em>motivic homotopy theory</em> over <span class="math inline">\(\mathbb{R}\)</span>: both have a “weight” grading (corresponding to the sign representation <span class="math inline">\(\sigma\)</span> for <span class="math inline">\(C_2\)</span>, or the Tate twist for motivic) in addition to the topological grading.</p>
+<p><strong>Theorem (Dugger).</strong> There is a conditionally convergent spectral sequence</p>
+<p><span class="math display">\[E_2^{p,q} = H^{p,\, r-q/2}(X;\, \underline{\mathbb{Z}}) \Implies KR^{p+q,\, r}(X),\]</span></p>
+<p>where <span class="math inline">\(X\)</span> is a <span class="math inline">\(C_2\)</span>-space, <span class="math inline">\(\underline{\mathbb{Z}}\)</span> is the constant Mackey functor valued in <span class="math inline">\(\mathbb{Z}\)</span>, and <span class="math inline">\(KR^{p+q, r}\)</span> is the <span class="math inline">\((p+q)\)</span>-th <span class="math inline">\(KR\)</span>-group with motivic weight <span class="math inline">\(r\)</span>. The left-hand side uses bigraded cohomology reflecting the <span class="math inline">\(C_2\)</span>-equivariant structure.</p>
+<div class="callout callout-info">
+<p> The motivic analogy
+Dugger’s construction was explicitly motivated by the analogous spectral sequence in motivic homotopy theory:
+<span class="math display">\[E_2^{p,q} = H^{p,q}(X; \mathbb{Z}) \Implies K^{p+q}(X)_\mathbb{Z}^{\wedge}\]</span>
+(the motivic AHSS for algebraic K-theory). The <span class="math inline">\(C_2\)</span>-equivariant slice spectral sequence is the “topological realization” of the motivic one, via the Betti realization functor sending motivic spectra over <span class="math inline">\(\mathbb{R}\)</span> to <span class="math inline">\(C_2\)</span>-equivariant spectra.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 7
+<em>This exercise checks that the Dugger slice spectral sequence reduces to the classical AHSS in the non-equivariant limit.</em></p>
+<p>In Dugger’s slice spectral sequence <span class="math inline">\(E_2^{p,q} = H^{p, r-q/2}(X; \underline{\mathbb{Z}}) \Rightarrow KR^{p+q,r}(X)\)</span>, set <span class="math inline">\(G = C_2\)</span> acting trivially on a space <span class="math inline">\(X\)</span> (so <span class="math inline">\(X\)</span> is a space with trivial <span class="math inline">\(C_2\)</span>-action).</p>
+<ol type="a">
+<li><p>What does <span class="math inline">\(KR^{*,*}(X)\)</span> reduce to when <span class="math inline">\(C_2\)</span> acts trivially on <span class="math inline">\(X\)</span>?</p></li>
+<li><p>What does the bigraded cohomology <span class="math inline">\(H^{p, r-q/2}(X; \underline{\mathbb{Z}})\)</span> reduce to in this case?</p></li>
+<li><p>Verify the spectral sequence reduces to the classical AHSS <span class="math inline">\(E_2^{p,q} = H^p(X; KU^q(*)) \Rightarrow KU^{p+q}(X)\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 7
+When <span class="math inline">\(C_2\)</span> acts trivially, <span class="math inline">\(KR^{*,*}(X) \cong KO^*(X) \oplus KU^*(X)\)</span> splits (roughly), with the bigraded structure collapsing. The bigraded cohomology <span class="math inline">\(H^{p,q}(X; \underline{\mathbb{Z}})\)</span> with trivial <span class="math inline">\(C_2\)</span>-action reduces to ordinary cohomology <span class="math inline">\(H^p(X; \mathbb{Z})\)</span> (the weight grading collapses). Comparing dimensions gives the AHSS.</p>
+</blockquote>
+<h3 id="the-general-hhr-slice-spectral-sequence">5.3 The General HHR Slice Spectral Sequence</h3>
+<p>The full generality of the slice spectral sequence, for <span class="math inline">\(G = C_{2^n}\)</span> and arbitrary <span class="math inline">\(G\)</span>-spectra, was developed by Hill-Hopkins-Ravenel in their proof of the Kervaire invariant one theorem.</p>
+<p><strong>Theorem (HHR).</strong> For <span class="math inline">\(G = C_{2^n}\)</span> and <span class="math inline">\(X \in \mathrm{Sp}^G\)</span>, the slice tower gives a conditionally convergent spectral sequence</p>
+<p><span class="math display">\[E_2^{p,q} = \pi_p^G(P_q^q X) \Implies \pi_{p+q}^G(X),\]</span></p>
+<p>which is the <em>slice spectral sequence</em> for <span class="math inline">\(X\)</span>.</p>
+<p>The key properties established by HHR:
+1. <em>Convergence</em>: the tower converges conditionally (and strongly under finiteness hypotheses).
+2. <em><span class="math inline">\(E_2\)</span>-page identification</em>: the slices <span class="math inline">\(P_q^q X\)</span> are Eilenberg-Mac Lane spectra (wedges of <span class="math inline">\(H\underline{M}\)</span>’s) in favorable cases, making the <span class="math inline">\(E_2\)</span>-page computable in terms of Mackey functor cohomology.
+3. <em>Multiplicative structure</em>: when <span class="math inline">\(X\)</span> is a commutative <span class="math inline">\(G\)</span>-ring spectrum, the slice spectral sequence is multiplicative (a spectral sequence of rings).</p>
+<p><strong>The key feature distinguishing the slice spectral sequence from the ordinary AHSS is its sensitivity to the <span class="math inline">\(RO(G)\)</span>-graded homotopy groups.</strong> Non-equivariantly (with trivial <span class="math inline">\(G\)</span>-action), the slice tower and integer Postnikov tower coincide, and the spectral sequence reduces to the ordinary AHSS:</p>
+<p><span class="math display">\[E_2^{p,q} = H^p(X; \pi_q E) \Implies E^{p+q}(X).\]</span></p>
+<hr />
+<h2 id="comparison-and-the-hhr-application">6. Comparison and the HHR Application 🔑</h2>
+<h3 id="the-three-way-comparison-table">6.1 The Three-Way Comparison Table</h3>
+<p>The following table compares the three tiers of Postnikov/slice theory.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Non-equivariant <span class="math inline">\(\mathrm{Sp}\)</span></th>
+<th>Equivariant unstable <span class="math inline">\(G\mathbf{Top}\)</span></th>
+<th>Equivariant stable <span class="math inline">\(\mathrm{Sp}^G\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cells</td>
+<td><span class="math inline">\(S^n\)</span> (integer spheres)</td>
+<td><span class="math inline">\(G/H_+ \times S^n\)</span> (orbit cells)</td>
+<td><span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> (slice cells)</td>
+</tr>
+<tr class="even">
+<td>Dimension indexing</td>
+<td>Integer <span class="math inline">\(n\)</span></td>
+<td>Integer <span class="math inline">\(n\)</span></td>
+<td>Representation dim <span class="math inline">\(m|H|\)</span></td>
+</tr>
+<tr class="odd">
+<td>Filtration sections</td>
+<td><span class="math inline">\(P_n X\)</span> (Postnikov)</td>
+<td><span class="math inline">\(P_n^G X\)</span> (equivariant Postnikov)</td>
+<td><span class="math inline">\(P^n X\)</span> (slice section)</td>
+</tr>
+<tr class="even">
+<td>Fiber / slice</td>
+<td><span class="math inline">\(K(\pi_n X, n)\)</span></td>
+<td><span class="math inline">\(K(\underline{\pi}_n X, n)\)</span></td>
+<td><span class="math inline">\(P_n^n X \simeq \Sigma^n H\underline{M}\)</span></td>
+</tr>
+<tr class="odd">
+<td>Coefficients</td>
+<td><span class="math inline">\(\pi_n(X) \in \mathbf{Ab}\)</span></td>
+<td><span class="math inline">\(\underline{\pi}_n X\)</span> (coeff. system)</td>
+<td><span class="math inline">\(\underline{\pi}_n^{Mky}(X)\)</span> (Mackey functor)</td>
+</tr>
+<tr class="even">
+<td>k-invariants</td>
+<td><span class="math inline">\(H^{n+2}(-; \pi_n X)\)</span></td>
+<td><span class="math inline">\(H_G^{n+2}(-; \underline{\pi}_n X)\)</span> (Bredon)</td>
+<td>Mackey functor cohomology</td>
+</tr>
+<tr class="odd">
+<td>Spectral sequence</td>
+<td>—</td>
+<td>Bredon AHSS</td>
+<td>Slice SS</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(E_2\)</span>-page</td>
+<td><span class="math inline">\(H^p(X; \pi_q E)\)</span></td>
+<td><span class="math inline">\(H_G^p(X; \underline{\pi}_q E)\)</span></td>
+<td><span class="math inline">\(\pi_p^G(P_q^q X)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Construction tool</td>
+<td>Small object argument</td>
+<td>Elmendorf + objectwise</td>
+<td>Bousfield localization</td>
+</tr>
+<tr class="even">
+<td>Key theorem</td>
+<td>Whitehead</td>
+<td>Elmendorf’s theorem</td>
+<td>HHR (Prop. 4.11, 4.15, 4.20)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-info">
+<p> Summary of the upgrade chain
+As one passes from non-equivariant to equivariant unstable to equivariant stable, each layer adds structure:
+- Non-equivariant → equivariant unstable: coefficients upgrade from abelian groups to coefficient systems (add restriction maps); k-invariants upgrade from ordinary to Bredon cohomology.
+- Equivariant unstable → equivariant stable: coefficients upgrade from coefficient systems to Mackey functors (add transfer maps); cells upgrade from orbit cells to slice cells (add representation spheres); the indexing upgrades from integers to representation dimensions.</p>
+</div>
+<h3 id="the-slices-of-the-real-cobordism-spectrum">6.2 The Slices of the Real Cobordism Spectrum</h3>
+<p>The central computation in HHR’s proof of the Kervaire invariant one theorem is the identification of the slices of the <em>Real cobordism spectrum</em> <span class="math inline">\(MU_\mathbb{R}\)</span>.</p>
+<p><strong>Construction.</strong> The Real cobordism spectrum <span class="math inline">\(MU_\mathbb{R}\)</span> is a <span class="math inline">\(C_2\)</span>-equivariant spectrum; it is the Thom spectrum of the <span class="math inline">\(C_2\)</span>-equivariant complex cobordism, with <span class="math inline">\(C_2\)</span> acting by complex conjugation. The full <span class="math inline">\(C_{2^n}\)</span>-equivariant spectrum used by HHR is the <em>norm</em>:</p>
+<p><span class="math display">\[MU^{((C_{2^n}))} := N_{C_2}^{C_{2^n}} MU_\mathbb{R},\]</span></p>
+<p>the Hill-Hopkins-Ravenel norm of <span class="math inline">\(MU_\mathbb{R}\)</span> from <span class="math inline">\(C_2\)</span> to <span class="math inline">\(C_{2^n}\)</span>.</p>
+<p><strong>Theorem (HHR, Theorem 6.1).</strong> The slices of <span class="math inline">\(MU^{((C_{2^n}))}\)</span> are:</p>
+<p><span class="math display">\[P_{2k}^{2k} MU^{((C_{2^n}))} \simeq \bigvee H\underline{\mathbb{Z}} \wedge S^{k\rho_G},\]</span></p>
+<p>where the wedge is over an explicit finite set of representation spheres, and <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> is the Eilenberg-Mac Lane <span class="math inline">\(G\)</span>-spectrum for the constant Mackey functor <span class="math inline">\(\underline{\mathbb{Z}}\)</span>. Odd slices vanish.</p>
+<p><em>This explicit identification is the “hard part” of the HHR proof.</em> Once the slices are known, the slice spectral sequence converges to <span class="math inline">\(\pi_*^G(MU^{((C_{2^n}))})\)</span>, and the differentials can be analyzed to prove the vanishing of Kervaire invariant one elements <span class="math inline">\(\theta_j\)</span> for <span class="math inline">\(j \geq 7\)</span>.</p>
+<div class="callout callout-question">
+<p> Open: the general slice computation
+The full slice structure of <span class="math inline">\(MU^{((G))}\)</span> for groups <span class="math inline">\(G\)</span> beyond <span class="math inline">\(C_{2^n}\)</span> is not known in general. The slice machinery extends to all finite groups <span class="math inline">\(G\)</span> (and more generally to compact Lie groups), but the explicit slice computations depend on detailed knowledge of the representation theory of <span class="math inline">\(G\)</span>. This remains an active area of research.</p>
+</div>
+<div class="callout callout-info">
+<p> Historical note: Dugger’s priority
+The first piece of the slice spectral sequence was worked out by Dugger for <span class="math inline">\(C_2\)</span>. His motivation was purely the <span class="math inline">\(C_2\)</span>-motivic analogy: he sought a spectral sequence converging to <span class="math inline">\(KR\)</span>-theory whose <span class="math inline">\(E_2\)</span>-page was motivic cohomology. HHR recognized that this construction generalized to a filtration of all <span class="math inline">\(G\)</span>-spectra indexed by representation dimension, and that the resulting spectral sequence for <span class="math inline">\(MU^{((C_{2^n}))}\)</span> would be powerful enough to settle the Kervaire invariant problem.</p>
+</div>
+<hr />
+<h2 id="cw-postnikov-duality-and-eckmann-hilton">7. CW-Postnikov Duality and Eckmann-Hilton 💡</h2>
+<p>The Postnikov tower and the CW filtration are not merely analogous — they are <em>dual</em> in a precise sense that goes by the name of <strong>Eckmann-Hilton duality</strong>. Understanding this duality clarifies both the structure of the Postnikov tower and why the equivariant stable analogue (the slice filtration) breaks the classical picture.</p>
+<h3 id="the-classical-duality">7.1 The Classical Duality</h3>
+<p>Every CW complex <span class="math inline">\(X\)</span> has two canonical filtrations:</p>
+<ul>
+<li><strong>CW filtration (bottom-up):</strong> <span class="math inline">\(X^{(0)} \hookrightarrow X^{(1)} \hookrightarrow X^{(2)} \hookrightarrow \cdots \xrightarrow{\sim} X\)</span>, a homotopy colimit along cofibrations, with cofibers <span class="math inline">\(X^{(n)}/X^{(n-1)} \simeq \bigvee_\alpha S^n\)</span>.</li>
+<li><strong>Postnikov tower (top-down):</strong> <span class="math inline">\(X \to \cdots \to P_2 X \to P_1 X \to P_0 X\)</span>, a homotopy limit along fibrations, with fibers <span class="math inline">\(K(\pi_n X, n) \to P_n X \to P_{n-1} X\)</span>.</li>
+</ul>
+<p>The duality is the observation that one is obtained from the other by <strong>reversing all arrows</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>CW filtration</th>
+<th>Postnikov tower</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Built by <strong>pushouts</strong> (cofibrations)</td>
+<td>Built by <strong>pullbacks</strong> (fibrations)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(X \simeq \hocolim_n X^{(n)}\)</span></td>
+<td><span class="math inline">\(X \simeq \holim_n P_n X\)</span></td>
+</tr>
+<tr class="odd">
+<td>Cells: <span class="math inline">\(S^n \simeq D^n/S^{n-1}\)</span> (cofibers)</td>
+<td>Fibers: <span class="math inline">\(K(\pi_n X, n)\)</span></td>
+</tr>
+<tr class="even">
+<td>Attaching maps: <span class="math inline">\(\phi_\alpha: S^{n-1} \to X^{(n-1)}\)</span></td>
+<td>k-invariants: <span class="math inline">\(k^{n+2}: P_{n-1} X \to K(\pi_n X, n+1)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Classification: <span class="math inline">\([\phi_\alpha] \in \pi_{n-1}(X^{(n-1)})\)</span></td>
+<td>Classification: <span class="math inline">\([k^{n+2}] \in H^{n+2}(P_{n-1} X;\, \pi_n X)\)</span></td>
+</tr>
+<tr class="even">
+<td>Cells probe: <span class="math inline">\([S^n, X] = \pi_n(X)\)</span></td>
+<td>Fibers probe: <span class="math inline">\([X, K(G,n)] = H^n(X; G)\)</span></td>
+</tr>
+<tr class="odd">
+<td>“Dual cells”: Moore spaces <span class="math inline">\(M(G, n)\)</span> with <span class="math inline">\(H_n = G\)</span></td>
+<td>“Dual cells”: Eilenberg-Mac Lane spaces <span class="math inline">\(K(G, n)\)</span> with <span class="math inline">\(\pi_n = G\)</span></td>
+</tr>
+<tr class="even">
+<td>Abstract: <strong>weight structure</strong> (Bondarko)</td>
+<td>Abstract: <strong>t-structure</strong> (Beilinson-Bernstein-Deligne)</td>
+</tr>
+</tbody>
+</table>
+<p>The deep reason for the duality is that <span class="math inline">\(S^n\)</span> and <span class="math inline">\(K(\mathbb{Z}, n)\)</span> are <em>Eckmann-Hilton duals</em>:
+- <span class="math inline">\(S^n = \Sigma^n S^0\)</span> is the <em>cogroup object</em> in <span class="math inline">\(\mathrm{Ho}(\mathbf{Top}_*)\)</span>: it carries a comultiplication <span class="math inline">\(S^n \to S^n \vee S^n\)</span> (pinch map), making <span class="math inline">\([S^n, X] = \pi_n(X)\)</span> into a group.
+- <span class="math inline">\(K(\mathbb{Z}, n) = \Omega^n K(\mathbb{Z}, 0)\)</span> is the <em>group object</em>: it carries a multiplication <span class="math inline">\(K(\mathbb{Z},n) \times K(\mathbb{Z},n) \to K(\mathbb{Z},n)\)</span>, making <span class="math inline">\([X, K(\mathbb{Z}, n)] = H^n(X; \mathbb{Z})\)</span> into a group.</p>
+<div class="callout callout-info">
+<p> Eckmann-Hilton Duality
+<em>Eckmann-Hilton duality</em> is the meta-principle that any homotopy-theoretic construction has a dual obtained by reversing all arrows. Concretely:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Primal</th>
+<th>Dual</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cofibration <span class="math inline">\(A \hookrightarrow X\)</span></td>
+<td>Fibration <span class="math inline">\(E \twoheadrightarrow B\)</span></td>
+</tr>
+<tr class="even">
+<td>Cofiber <span class="math inline">\(X/A\)</span> (pushout)</td>
+<td>Fiber <span class="math inline">\(F\)</span> (pullback)</td>
+</tr>
+<tr class="odd">
+<td>Suspension <span class="math inline">\(\Sigma X\)</span></td>
+<td>Loop space <span class="math inline">\(\Omega X\)</span></td>
+</tr>
+<tr class="even">
+<td>Sphere <span class="math inline">\(S^n = \Sigma^n S^0\)</span></td>
+<td>Eilenberg-Mac Lane <span class="math inline">\(K(G, n) = \Omega^{-n} HG\)</span></td>
+</tr>
+<tr class="odd">
+<td>Co-H-space (comultiplication)</td>
+<td>H-space (multiplication)</td>
+</tr>
+<tr class="even">
+<td>Homotopy groups <span class="math inline">\(\pi_n(X) = [S^n, X]\)</span></td>
+<td>Cohomology <span class="math inline">\(H^n(X;G) = [X, K(G,n)]\)</span></td>
+</tr>
+<tr class="odd">
+<td>Moore space <span class="math inline">\(M(G,n)\)</span>: <span class="math inline">\(\tilde{H}_n = G\)</span></td>
+<td>Eilenberg-Mac Lane <span class="math inline">\(K(G,n)\)</span>: <span class="math inline">\(\pi_n = G\)</span></td>
+</tr>
+<tr class="even">
+<td>CW filtration / weight structure</td>
+<td>Postnikov tower / t-structure</td>
+</tr>
+</tbody>
+</table>
+<p>The duality is <strong>not</strong> an equivalence: the primal and dual constructions live in different parts of the homotopy category. But every theorem about one has a dual theorem about the other.</p>
+</div>
+<div class="callout callout-note">
+<p> t-Structures and Weight Structures
+In a triangulated category <span class="math inline">\(\mathcal{C}\)</span>:
+- A <strong>t-structure</strong> <span class="math inline">\((\mathcal{C}^{\leq 0}, \mathcal{C}^{\geq 0})\)</span> axiomatizes the Postnikov filtration: every object <span class="math inline">\(X\)</span> fits into a unique triangle <span class="math inline">\(\tau_{\geq 1} X \to X \to \tau_{\leq 0} X\)</span>. The <em>heart</em> <span class="math inline">\(\mathcal{C}^{\leq 0} \cap \mathcal{C}^{\geq 0}\)</span> is an abelian category (e.g., abelian groups in <span class="math inline">\(\mathrm{Sp}\)</span>).
+- A <strong>weight structure</strong> <span class="math inline">\((\mathcal{C}^{w \leq 0}, \mathcal{C}^{w \geq 0})\)</span> (Bondarko, 2010) axiomatizes the CW filtration: every object fits into a (non-unique) triangle <span class="math inline">\(X' \to X \to X''\)</span> with <span class="math inline">\(X' \in \mathcal{C}^{w \leq 0}\)</span> and <span class="math inline">\(X'' \in \mathcal{C}^{w \geq 0}\)</span>. The <em>heart</em> <span class="math inline">\(\mathcal{C}^{w=0} = \mathcal{C}^{w \leq 0} \cap \mathcal{C}^{w \geq 0}\)</span> is an additive (but generally not abelian) category.</p>
+<p>The axioms of a weight structure are obtained from those of a t-structure by reversing the inclusion directions and removing exactness requirements. In <span class="math inline">\(\mathrm{Sp}\)</span>, the standard t-structure has heart <span class="math inline">\(\mathbf{Ab}\)</span> (= <span class="math inline">\(H\mathbb{Z}\)</span>-modules), and the standard weight structure has heart generated by the sphere spectrum <span class="math inline">\(S^0\)</span>.</p>
+</div>
+<p><strong>In spectra, the duality is especially clean.</strong> For <span class="math inline">\(E \in \mathrm{Sp}\)</span> and the standard t-structure:</p>
+<p><span class="math display">\[\tau_{\geq n+1} E \longrightarrow E \longrightarrow \tau_{\leq n} E \longrightarrow \Sigma \tau_{\geq n+1} E\]</span></p>
+<p>is a cofiber sequence. The cofiber <span class="math inline">\(\tau_{\leq n} E / \tau_{\leq n-1} E \simeq H\pi_n(E)[n]\)</span> is an Eilenberg-Mac Lane spectrum. Dually, the <em>weight filtration</em> has associated graded <span class="math inline">\(\bigoplus_n S^n \otimes \pi_n^{cell}(E)\)</span> built from spheres.</p>
+<div class="callout callout-question">
+<p> Exercise L (Proof)
+<em>This exercise makes the Eckmann-Hilton duality between spheres and Eilenberg-Mac Lane spectra precise at the level of t-structures and weight structures, identifying the generating objects of each heart.</em></p>
+<p>Work in <span class="math inline">\(\mathrm{Sp}\)</span> (non-equivariant spectra) with the standard t-structure <span class="math inline">\((\tau_{\geq 0}, \tau_{\leq 0})\)</span>.</p>
+<ol type="a">
+<li><p>Show that the heart <span class="math inline">\(\mathcal{C}^{\heartsuit} = \tau_{\geq 0} \mathrm{Sp} \cap \tau_{\leq 0} \mathrm{Sp}\)</span> is equivalent to <span class="math inline">\(\mathbf{Ab}\)</span> (abelian groups). Identify the functor realizing this equivalence explicitly. (Hint: <span class="math inline">\(\pi_0: \mathcal{C}^{\heartsuit} \to \mathbf{Ab}\)</span>.)</p></li>
+<li><p>Show that <span class="math inline">\(H\mathbb{Z} \in \mathrm{Sp}\)</span> is the unique (up to equivalence) spectrum in the heart with <span class="math inline">\(\pi_0(H\mathbb{Z}) = \mathbb{Z}\)</span>, and that every object in the heart is a product of copies of <span class="math inline">\(H\mathbb{Z}[n]\)</span> for varying <span class="math inline">\(n\)</span> (i.e., the heart is generated by <span class="math inline">\(H\mathbb{Z}\)</span>).</p></li>
+<li><p>For the standard weight structure on <span class="math inline">\(\mathrm{Sp}\)</span> (whose heart <span class="math inline">\(\mathcal{C}^{w=0}\)</span> consists of retracts of wedges of <span class="math inline">\(S^0\)</span>), show that the sphere spectrum <span class="math inline">\(S^0\)</span> generates the heart, and that its Eckmann-Hilton dual is <span class="math inline">\(H\mathbb{Z}\)</span> in the sense that <span class="math inline">\([S^n, H\mathbb{Z}] = \pi_n(H\mathbb{Z}) = \delta_{n,0} \mathbb{Z}\)</span> and <span class="math inline">\([H\mathbb{Z}, S^n] = H^n(H\mathbb{Z}; \mathbb{Z})\)</span>.</p></li>
+<li><p>Why is the duality between t-structure heart and weight structure heart exact in <span class="math inline">\(\mathrm{Sp}\)</span> but not (with integer cells and slices) in <span class="math inline">\(\mathrm{Sp}^G\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise L
+(a) The functor <span class="math inline">\(\pi_0: \tau_{\geq 0}\mathrm{Sp} \cap \tau_{\leq 0}\mathrm{Sp} \to \mathbf{Ab}\)</span> is an equivalence. Every object <span class="math inline">\(E\)</span> in the heart has <span class="math inline">\(\pi_k(E) = 0\)</span> for <span class="math inline">\(k \neq 0\)</span> and <span class="math inline">\(\pi_0(E) \in \mathbf{Ab}\)</span>. The inverse is <span class="math inline">\(A \mapsto HA\)</span> (Eilenberg-Mac Lane spectrum). This is an equivalence of categories: <span class="math inline">\(\pi_0(HA) = A\)</span> and a map <span class="math inline">\(E \to E'\)</span> in the heart is determined by <span class="math inline">\(\pi_0(E) \to \pi_0(E')\)</span> (since both spectra are connective and coconnective, the Postnikov section map <span class="math inline">\(E \to H\pi_0(E)\)</span> is an equivalence).</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\(H\mathbb{Z}\)</span> is the spectrum with <span class="math inline">\(\pi_k(H\mathbb{Z}) = \delta_{k,0}\mathbb{Z}\)</span>; it is the unit of the equivalence in (a) for <span class="math inline">\(A = \mathbb{Z}\)</span>. Every abelian group <span class="math inline">\(A\)</span> is a quotient (or extension) of free groups, hence <span class="math inline">\(HA\)</span> is built from copies of <span class="math inline">\(H\mathbb{Z}\)</span> in the derived sense. More precisely, the heart <span class="math inline">\(\mathbf{Ab}\)</span> is generated by <span class="math inline">\(\mathbb{Z}\)</span> (every abelian group is a quotient of a free one), so the heart of <span class="math inline">\(\mathrm{Sp}\)</span> is generated by <span class="math inline">\(H\mathbb{Z}\)</span>.</p></li>
+<li><p>The weight structure heart <span class="math inline">\(\mathcal{C}^{w=0}\)</span> consists of retracts of <span class="math inline">\(\bigvee_\alpha S^0\)</span>; its generating object is <span class="math inline">\(S^0\)</span>. The duality: <span class="math inline">\([S^n, H\mathbb{Z}] = \pi_n(H\mathbb{Z}) = \delta_{n,0}\mathbb{Z}\)</span> (maps from the CW-generator to the t-structure generator concentrate in degree 0). Dually, <span class="math inline">\([H\mathbb{Z}, S^n]\)</span> computes the cohomology of <span class="math inline">\(H\mathbb{Z}\)</span> with <span class="math inline">\(\mathbb{Z}\)</span> coefficients via <span class="math inline">\(H^n(H\mathbb{Z}; \mathbb{Z}) = [H\mathbb{Z}, H\mathbb{Z}[n]]\)</span>, which is <span class="math inline">\(\mathbb{Z}\)</span> for <span class="math inline">\(n=0\)</span> and more complex for <span class="math inline">\(n &gt; 0\)</span> (the cohomology of <span class="math inline">\(K(\mathbb{Z},0) = \mathbb{Z}\)</span> in spaces is trivial, but the stable cohomology is <span class="math inline">\(\mathbb{Z}\)</span> concentrated in degree 0). The key point: <span class="math inline">\(S^0\)</span> and <span class="math inline">\(H\mathbb{Z}\)</span> are “dual” in the sense that <span class="math inline">\([S^0, H\mathbb{Z}] = \mathbb{Z}\)</span> and <span class="math inline">\(H\mathbb{Z}\)</span> is built from <span class="math inline">\(S^0\)</span> via the unit map <span class="math inline">\(S^0 \to H\mathbb{Z}\)</span>.</p></li>
+<li><p>In <span class="math inline">\(\mathrm{Sp}\)</span>, the sphere spectrum is the only “basic” cell — <span class="math inline">\(S^n = \Sigma^n S^0\)</span> for all <span class="math inline">\(n\)</span>. So the weight structure heart (generated by <span class="math inline">\(S^0\)</span>) and the t-structure heart (generated by <span class="math inline">\(H\mathbb{Z}\)</span>) are genuinely dual: one generates by suspensions of a single object, the other by desuspensions of the Eilenberg-Mac Lane spectrum for <span class="math inline">\(\pi_0(S^0) = \mathbb{Z}\)</span>.</p></li>
+</ol>
+<p>In <span class="math inline">\(\mathrm{Sp}^G\)</span>, there are <em>two</em> families of basic cells: integer-graded cells <span class="math inline">\(G/H_+ \wedge S^n\)</span> and slice cells <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span>. The integer CW cells generate the weight structure of the naive (integer) Postnikov tower; the slice cells generate the weight structure of the slice filtration. These are genuinely different categories of cells (they use different representations), so there is no single “equivariant sphere spectrum” that simultaneously generates both. The duality splits into two separate dualities that are not related by a single Eckmann-Hilton symmetry.</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Duality for <span class="math inline">\(E = H\mathbb{Z}\)</span>
+The Eilenberg-Mac Lane spectrum <span class="math inline">\(H\mathbb{Z}\)</span> is both slice 0-null AND in the heart of the weight structure: it has <span class="math inline">\(\pi_n(H\mathbb{Z}) = 0\)</span> for <span class="math inline">\(n \neq 0\)</span> (so the Postnikov tower collapses) and is built from a single cell <span class="math inline">\(S^0\)</span> (so the CW filtration is trivial). This extreme simplicity is why <span class="math inline">\(H\mathbb{Z}\)</span> appears as both the fibers of Postnikov towers and the cells of Moore complexes.</p>
+</blockquote>
+<h3 id="the-equivariant-unstable-setting-duality-holds-objectwise">7.2 The Equivariant Unstable Setting: Duality Holds Objectwise</h3>
+<p>In <span class="math inline">\(G\mathbf{Top}\)</span>, the CW-Postnikov duality holds perfectly, mediated by Elmendorf’s theorem.</p>
+<p><strong>Equivariant CW cells and their duals.</strong> The generating equivariant CW cells are <span class="math inline">\(G/H_+ \wedge S^n\)</span> (i.e., <span class="math inline">\(G/H \times D^n\)</span> with boundary <span class="math inline">\(G/H \times S^{n-1}\)</span>). Their Eckmann-Hilton duals are the equivariant Eilenberg-Mac Lane spaces <span class="math inline">\(K(\underline{M}, n)\)</span> for coefficient systems <span class="math inline">\(\underline{M}\)</span>.</p>
+<p>The duality is precise: the equivariant CW cells detect the same homotopy-theoretic data as the Postnikov fibers:</p>
+<p><span class="math display">\[[G/H_+ \wedge S^n,\, X]_G = [S^n, X^H] = \pi_n(X^H) = \pi_n^H(X)\]</span></p>
+<p>and</p>
+<p><span class="math display">\[[X,\, K(\underline{M}, n)]_G = H_G^n(X;\, \underline{M}) \quad \text{(Bredon cohomology)}.\]</span></p>
+<p>The equivariant CW cells probe the fixed-point homotopy groups <span class="math inline">\(\pi_n^H(X)\)</span>; the equivariant Eilenberg-Mac Lane spaces represent Bredon cohomology with coefficient systems valued in <span class="math inline">\(\pi_n^H(X)\)</span>.</p>
+<p><strong>Via Elmendorf</strong>, both reduce to objectwise classical duality: for each <span class="math inline">\(H\)</span>, the <span class="math inline">\(H\)</span>-fixed-point level of the G-CW filtration gives the CW filtration of <span class="math inline">\(X^H\)</span>, and the <span class="math inline">\(H\)</span>-fixed-point level of the equivariant Postnikov tower gives <span class="math inline">\(P_n(X^H)\)</span>. The CW-Postnikov duality for <span class="math inline">\(X^H\)</span> holds by the classical result, and these piece together equivariantly.</p>
+<div class="callout callout-info">
+<p> Why Elmendorf Makes Duality Easy
+The Elmendorf equivalence <span class="math inline">\(G\mathbf{Top} \simeq \mathrm{Fun}(\mathcal{O}_G^{op}, \mathbf{Spaces})\)</span> reduces all homotopy-theoretic questions about <span class="math inline">\(G\)</span>-spaces to objectwise questions about spaces. Since CW-Postnikov duality holds in <span class="math inline">\(\mathbf{Spaces}\)</span>, it holds in <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{op}, \mathbf{Spaces})\)</span> (objectwise), and hence in <span class="math inline">\(G\mathbf{Top}\)</span>. This is the “cost” of the Elmendorf perspective: it makes equivariant homotopy theory look like ordinary homotopy theory with extra coefficients, at the expense of not immediately seeing the representation-theoretic structure.</p>
+</div>
+<h3 id="the-equivariant-stable-setting-the-duality-breaks">7.3 The Equivariant Stable Setting: The Duality Breaks</h3>
+<p>In the equivariant stable category <span class="math inline">\(\mathrm{Sp}^G\)</span>, the clean CW-Postnikov duality of the unstable setting breaks down. This is precisely why the slice filtration is necessary and non-trivial.</p>
+<p><strong>The naive integer-graded duality.</strong> There is still an integer-graded t-structure on <span class="math inline">\(\mathrm{Sp}^G\)</span> (the naive Postnikov filtration of §3.1), and its dual weight structure uses integer-indexed CW cells <span class="math inline">\(G/H_+ \wedge S^n\)</span>. This duality holds, but it is the <em>wrong</em> duality for genuine equivariant stable homotopy theory: it misses all the representation-theoretic structure.</p>
+<p><strong>The slice t-structure and its dual.</strong> The slice filtration defines a t-structure on <span class="math inline">\(\mathrm{Sp}^G\)</span> (or more precisely, a <em>semi-t-structure</em> with non-standard truncation properties) whose “truncation objects” are the slice sections <span class="math inline">\(P^n X\)</span>. The “heart” at each level consists of the <em>slices</em> <span class="math inline">\(P_n^n X\)</span> — Eilenberg-Mac Lane-type spectra built from <span class="math inline">\(H\underline{M} \wedge S^V\)</span> for Mackey functors <span class="math inline">\(\underline{M}\)</span> and representation spheres <span class="math inline">\(S^V\)</span>.</p>
+<p>The <em>dual</em> of the slice t-structure would be a weight structure whose generating objects are the slice cells <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span>. This exists formally (by general machinery), but the “slice CW complexes” built from representation-sphere cells are much harder to work with than either integer-graded CW complexes or ordinary equivariant CW complexes.</p>
+<p><strong>The key asymmetry.</strong> In <span class="math inline">\(\mathrm{Sp}\)</span>, the non-equivariant Postnikov t-structure and CW weight structure are symmetric because <span class="math inline">\(S^n = \Sigma^n S^0\)</span> — all cells are desuspensions of the same sphere spectrum. In <span class="math inline">\(\mathrm{Sp}^G\)</span>:</p>
+<ul>
+<li>Integer-graded CW cells: <span class="math inline">\(G/H_+ \wedge S^n\)</span> use spheres with <strong>trivial</strong> <span class="math inline">\(G\)</span>-representation.</li>
+<li>Slice cells: <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> use the <strong>regular representation</strong> <span class="math inline">\(\rho_H\)</span>.</li>
+</ul>
+<p>These are genuinely different cells, and there is no single “equivariant sphere spectrum” that generates both. The slice filtration is sensitive to the regular representation in a way that integer-graded CW complexes are not.</p>
+<div class="callout callout-question">
+<p> Exercise M (Computational)
+<em>This exercise exhibits an explicit <span class="math inline">\(C_2\)</span>-spectrum that lies in the integer-graded Postnikov filtration but not in the correct slice filtration, making the divergence of the two theories concrete.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and consider <span class="math inline">\(X = \Sigma^1 H\underline{\mathbb{Z}}\)</span> (the suspension of the Eilenberg-Mac Lane <span class="math inline">\(C_2\)</span>-spectrum for the constant Mackey functor).</p>
+<ol type="a">
+<li><p>Show that <span class="math inline">\(X = \Sigma H\underline{\mathbb{Z}}\)</span> is in the integer-graded Postnikov filtration at level 1: <span class="math inline">\(\pi_k^H(X) = 0\)</span> for <span class="math inline">\(k &gt; 1\)</span> and all <span class="math inline">\(H \leq C_2\)</span>. (This means <span class="math inline">\(X \simeq \tau_{\leq 1} X\)</span> in the naive integer Postnikov tower.)</p></li>
+<li><p>Show that <span class="math inline">\(X\)</span> is <em>not</em> slice 1-null. Specifically, find a slice cell <span class="math inline">\(\widetilde{S}\)</span> of dimension <span class="math inline">\(&gt; 1\)</span> such that <span class="math inline">\(\mathrm{Map}_{C_2}(\widetilde{S}, X)\)</span> is not contractible.</p></li>
+<li><p>Conclude that the integer-graded Postnikov filtration and the slice filtration give <em>different</em> answers for <span class="math inline">\(X\)</span>: integer-Postnikov declares <span class="math inline">\(X\)</span> to be in level <span class="math inline">\(\leq 1\)</span>, but the slice filtration does not. Explain in one sentence what extra structure the slice filtration detects.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise M
+(a) <span class="math inline">\(\pi_k^H(\Sigma H\underline{\mathbb{Z}}) = \pi_{k-1}^H(H\underline{\mathbb{Z}})\)</span>. Since <span class="math inline">\(H\underline{\mathbb{Z}}\)</span> has <span class="math inline">\(\pi_j^H = \delta_{j,0}\mathbb{Z}\)</span> for all <span class="math inline">\(H \leq C_2\)</span> (it is 0-truncated and 0-connected), we get <span class="math inline">\(\pi_k^H(\Sigma H\underline{\mathbb{Z}}) = \delta_{k,1}\mathbb{Z}\)</span>. In particular, <span class="math inline">\(\pi_k^H(X) = 0\)</span> for <span class="math inline">\(k &gt; 1\)</span>, so <span class="math inline">\(X\)</span> is in the integer Postnikov level 1: <span class="math inline">\(\tau_{\leq 1}^{\mathrm{int}} X \simeq X\)</span>. ✓</p>
+<ol start="2" type="a">
+<li><p>Consider the even slice cell <span class="math inline">\(\widetilde{S} = S^{1+\sigma} = G_+ \wedge_{C_2} S^{\rho_{C_2}}\)</span> of dimension 2 (see Exercise 4). Compute:
+<span class="math display">\[\mathrm{Map}_{C_2}(S^{1+\sigma}, \Sigma H\underline{\mathbb{Z}}) \simeq \Omega^{1+\sigma}(\Sigma H\underline{\mathbb{Z}}) \simeq \Omega^\sigma H\underline{\mathbb{Z}}.\]</span>
+Now <span class="math inline">\(\Omega^\sigma H\underline{\mathbb{Z}} \simeq \mathrm{Map}_{C_2}(S^\sigma, H\underline{\mathbb{Z}})\)</span>. Since <span class="math inline">\(S^\sigma\)</span> has <span class="math inline">\((S^\sigma)^{C_2} = S^0\)</span> and <span class="math inline">\((S^\sigma)^e = S^1\)</span>, a <span class="math inline">\(C_2\)</span>-map <span class="math inline">\(S^\sigma \to H\underline{\mathbb{Z}}\)</span> involves a map <span class="math inline">\(S^0 \to (H\underline{\mathbb{Z}})^{C_2} = H\mathbb{Z}\)</span> and a compatible map <span class="math inline">\(S^1 \to (H\underline{\mathbb{Z}})^e = H\mathbb{Z}\)</span>. The map <span class="math inline">\(S^0 \to H\mathbb{Z}\)</span> picks a class in <span class="math inline">\(\pi_0(H\mathbb{Z}) = \mathbb{Z}\)</span> (non-contractible), so <span class="math inline">\(\mathrm{Map}_{C_2}(S^\sigma, H\underline{\mathbb{Z}})\)</span> has <span class="math inline">\(\pi_0 \cong \mathbb{Z} \neq 0\)</span>. Hence <span class="math inline">\(\mathrm{Map}_{C_2}(\widetilde{S}, X)\)</span> is not contractible, and <span class="math inline">\(X\)</span> is <em>not</em> slice 1-null (the slice cell of dimension 2 “sees” it).</p></li>
+<li><p>The integer-graded Postnikov filtration only tracks <span class="math inline">\(\pi_k^H(X)\)</span> for integer <span class="math inline">\(k\)</span>, seeing that <span class="math inline">\(X\)</span> has homotopy concentrated in degree 1. The slice filtration additionally detects <em>representation-theoretic structure</em>: specifically, the <span class="math inline">\(RO(C_2)\)</span>-graded homotopy groups <span class="math inline">\(\pi_\alpha^H(X)\)</span> for <span class="math inline">\(\alpha \in RO(C_2)\)</span>. The class detected by <span class="math inline">\(S^\sigma \to H\underline{\mathbb{Z}}\)</span> lives in <span class="math inline">\(\pi_{-\sigma}(H\underline{\mathbb{Z}}) = \pi_0(H\underline{\mathbb{Z}}) = \mathbb{Z}\)</span> (a representation-graded homotopy group), which the integer filtration is blind to.</p></li>
+</ol>
+</blockquote>
+<div class="callout callout-danger">
+<p> The Failure of Naive Equivariant Eckmann-Hilton Duality
+In the equivariant stable category, the Eckmann-Hilton duality between CW filtrations and Postnikov towers <strong>fails</strong> to extend cleanly from the integer-graded setting to the representation-graded setting. Specifically:</p>
+<ul>
+<li>The dual of the integer-graded Postnikov tower is the integer-graded CW filtration: <strong>this duality works</strong>, but it is the wrong theory (it misses representation-theoretic data, as explained in §3).</li>
+<li>The slice t-structure IS the “right” Postnikov analogue, but its dual (the slice weight structure built from <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span>) is <strong>not the same as</strong> the integer-graded CW weight structure.</li>
+</ul>
+<p>The lesson: the CW-Postnikov duality is not merely a formal consequence of t/weight structure duality in <span class="math inline">\(\mathrm{Sp}^G\)</span>. It depends on the identification of cells and fibers, which in the equivariant stable setting requires a choice: integer or representation-graded? The slice filtration makes the representation-graded choice, and its CW dual is less studied.</p>
+</div>
+<div class="callout callout-question">
+<p> Open: Slice Weight Structure
+The weight structure dual to the slice t-structure — whose heart consists of direct sums of slice cells <span class="math inline">\(G_+ \wedge_H S^{m\rho_H}\)</span> — has not been fully developed in the literature. One expects a “slice cellular approximation theorem” saying every <span class="math inline">\(G\)</span>-spectrum is weakly equivalent to one built from slice cells. The precise formulation and its consequences (e.g., for duality in <span class="math inline">\(\mathrm{Sp}^G\)</span>) remain open problems.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf">M392C Lecture Notes (Blumberg, notes by Debray)</a></td>
+<td>Primary source; §1.3 for equivariant Postnikov towers, §5.2 for the full slice filtration and slice spectral sequence</td>
+<td><a href="https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf">https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/0908.3724">On the Non-Existence of Elements of Kervaire Invariant One (Hill, Hopkins, Ravenel)</a></td>
+<td>Original slice filtration paper; Propositions 4.11, 4.15, 4.20 are the foundational results on slice null/positive and the slice tower</td>
+<td><a href="https://arxiv.org/abs/0908.3724">https://arxiv.org/abs/0908.3724</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1107.3582">The Equivariant Slice Filtration: A Primer (Hill)</a></td>
+<td>Best expository introduction to slice cells and the slice tower; highly recommended as a companion to HHR</td>
+<td><a href="https://arxiv.org/abs/1107.3582">https://arxiv.org/abs/1107.3582</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.math.uchicago.edu/~may/BOOKS/alaska.pdf">Equivariant Homotopy and Cohomology Theory (May et al.)</a></td>
+<td>Classical treatment of equivariant Postnikov towers, coefficient systems, Bredon cohomology, and equivariant Eilenberg-Mac Lane spaces</td>
+<td><a href="https://www.math.uchicago.edu/~may/BOOKS/alaska.pdf">https://www.math.uchicago.edu/~may/BOOKS/alaska.pdf</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/Newthird.pdf">Equivariant Stable Homotopy Theory — Handbook (Greenlees, May)</a></td>
+<td>Survey covering Mackey functors, RO(G)-grading, the stable equivariant category, and change-of-group functors</td>
+<td><a href="https://www.math.uchicago.edu/~may/PAPERS/Newthird.pdf">https://www.math.uchicago.edu/~may/PAPERS/Newthird.pdf</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://link.springer.com/book/10.1007/BFb0082690">Equivariant Cohomology Theories (Bredon)</a></td>
+<td>Original definition of Bredon cohomology and coefficient systems; foundational for the equivariant Postnikov theory</td>
+<td><a href="https://link.springer.com/book/10.1007/BFb0082690">https://link.springer.com/book/10.1007/BFb0082690</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/0704.4003">Weight Structures and Motives (Bondarko)</a></td>
+<td>Defines weight structures as the categorical dual of t-structures; gives the abstract framework for CW-Postnikov duality in triangulated categories</td>
+<td><a href="https://arxiv.org/abs/0704.4003">arXiv:0704.4003</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

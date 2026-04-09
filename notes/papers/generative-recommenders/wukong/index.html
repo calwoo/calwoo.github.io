@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>wukong - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>wukong</h1>
+            <article>
+    <section>
+        <p>Buyun Zhang, Liang Luo, Yuxin Chen, Jade Nie, Xi Liu, Daifeng Guo, Yanli Zhao, Shen Li, Yuchen Hao, Yantao Yao, Guna Lakshminarayanan, Ellie Dingqiao Wen, Jongsoo Park, Maxim Naumov, Wenlin Chen. Meta Platforms, Inc. arXiv 2403.02545, March 2024.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scaling behavior</td>
+<td>Models plateau (DLRM at ~31 GFLOP/example); no established scaling law for recommendation</td>
+<td>Power-law scaling maintained across two orders of magnitude (up to 100+ GFLOP/example, ~637B parameters)</td>
+<td>Power-law scaling sustained up to 100+ GFLOP/example and ~637B parameters</td>
+</tr>
+<tr class="even">
+<td>Interaction order</td>
+<td>Fixed depth → limited order; FM captures order 2; xDeepFM/DCN capture higher orders but plateau</td>
+<td>Stacked FMBs: layer <span class="math inline">\(l\)</span> captures interactions up to order <span class="math inline">\(2^l\)</span> (exponential growth via depth)</td>
+<td>Layer <span class="math inline">\(l\)</span> captures interactions up to order <span class="math inline">\(2^l\)</span> (exponential via depth)</td>
+</tr>
+<tr class="odd">
+<td>Architecture</td>
+<td>Homogeneous stacking of MLP or single interaction module (DLRM, DCNv2, xDeepFM)</td>
+<td>Dual-block layers: FM Block (explicit interactions) + Linear Compression Block (embedding recombination)</td>
+<td>SOTA on all 6 public datasets tested</td>
+</tr>
+<tr class="even">
+<td>Compute efficiency</td>
+<td>DCNv2 requires 40× more compute to match Wukong’s quality</td>
+<td>Optimized FM reduces O(n²d) → O(nkd) via low-rank projection; total O(ndh log n + h²)</td>
+<td>DCNv2 requires 40x more compute to match Wukong quality</td>
+</tr>
+<tr class="odd">
+<td>Public benchmarks</td>
+<td>MaskNet best on KuaiVideo (0.7376 AUC); DCNv2 best on TaobaoAds (0.6457 AUC)</td>
+<td>State-of-the-art on all 6 public datasets tested</td>
+<td>KuaiVideo AUC 0.7414 vs 0.7376; TaobaoAds AUC 0.6488 vs 0.6457</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../../notes/papers/dhen-ranking%7Cdhen/">papers/dhen-ranking|DHEN</a>, <a href="../../../../notes/papers/generative-recommenders/hstu%7Chstu/">papers/generative-recommenders/hstu|HSTU</a>
+<strong>Concepts used:</strong> <a href="../../../../notes/concepts/neural-scaling-laws/note%7Cneural-scaling-laws/">concepts/neural-scaling-laws/note|Neural Scaling Laws</a>, <a href="../../../../notes/concepts/ab-testing/foundations%7Ca/b-testing-foundations/">concepts/ab-testing/foundations|A/B Testing Foundations</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation-and-background%7C1.-motivation-and-background/">#1. Motivation and Background|1. Motivation and Background</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-scaling-gap-in-recommendation%7C1.1-the-scaling-gap-in-recommendation/">#1.1 The Scaling Gap in Recommendation|1.1 The Scaling Gap in Recommendation</a></li>
+<li><a href="../../../../notes/#1.2-limitations-of-prior-interaction-modules%7C1.2-limitations-of-prior-interaction-modules/">#1.2 Limitations of Prior Interaction Modules|1.2 Limitations of Prior Interaction Modules</a></li>
+<li><a href="../../../../notes/#1.3-research-lineage:-dhen-to-wukong%7C1.3-research-lineage:-dhen-to-wukong/">#1.3 Research Lineage: DHEN to Wukong|1.3 Research Lineage: DHEN to Wukong</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-architecture%7C2.-architecture/">#2. Architecture|2. Architecture</a>
+<ul>
+<li><a href="../../../../notes/#2.1-embedding-layer%7C2.1-embedding-layer/">#2.1 Embedding Layer|2.1 Embedding Layer</a></li>
+<li><a href="../../../../notes/#2.2-factorization-machine-block%7C2.2-factorization-machine-block/">#2.2 Factorization Machine Block|2.2 Factorization Machine Block</a></li>
+<li><a href="../../../../notes/#2.3-linear-compression-block%7C2.3-linear-compression-block/">#2.3 Linear Compression Block|2.3 Linear Compression Block</a></li>
+<li><a href="../../../../notes/#2.4-interaction-stack-and-residual-update%7C2.4-interaction-stack-and-residual-update/">#2.4 Interaction Stack and Residual Update|2.4 Interaction Stack and Residual Update</a></li>
+<li><a href="../../../../notes/#2.5-output-layer%7C2.5-output-layer/">#2.5 Output Layer|2.5 Output Layer</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-theory:-exponential-interaction-orders%7C3.-theory:-exponential-interaction-orders/">#3. Theory: Exponential Interaction Orders|3. Theory: Exponential Interaction Orders</a>
+<ul>
+<li><a href="../../../../notes/#3.1-order-definitions%7C3.1-order-definitions/">#3.1 Order Definitions|3.1 Order Definitions</a></li>
+<li><a href="../../../../notes/#3.2-inductive-proof%7C3.2-inductive-proof/">#3.2 Inductive Proof|3.2 Inductive Proof</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-complexity-analysis%7C4.-complexity-analysis/">#4. Complexity Analysis|4. Complexity Analysis</a></li>
+<li><a href="../../../../notes/#5.-scaling-strategy-and-hyperparameters%7C5.-scaling-strategy-and-hyperparameters/">#5. Scaling Strategy and Hyperparameters|5. Scaling Strategy and Hyperparameters</a></li>
+<li><a href="../../../../notes/#6.-experiments%7C6.-experiments/">#6. Experiments|6. Experiments</a>
+<ul>
+<li><a href="../../../../notes/#6.1-public-dataset-benchmarks%7C6.1-public-dataset-benchmarks/">#6.1 Public Dataset Benchmarks|6.1 Public Dataset Benchmarks</a></li>
+<li><a href="../../../../notes/#6.2-industrial-scale-validation%7C6.2-industrial-scale-validation/">#6.2 Industrial-Scale Validation|6.2 Industrial-Scale Validation</a></li>
+<li><a href="../../../../notes/#6.3-ablation-studies%7C6.3-ablation-studies/">#6.3 Ablation Studies|6.3 Ablation Studies</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-training-system-design%7C7.-training-system-design/">#7. Training System Design|7. Training System Design</a></li>
+<li><a href="../../../../notes/#8.-relation-to-hstu-and-broader-context%7C8.-relation-to-hstu-and-broader-context/">#8. Relation to HSTU and Broader Context|8. Relation to HSTU and Broader Context</a></li>
+<li><a href="../../../../notes/#9.-references%7C9.-references/">#9. References|9. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-and-background">1. Motivation and Background</h2>
+<h3 id="the-scaling-gap-in-recommendation">1.1 The Scaling Gap in Recommendation</h3>
+<p>Language models exhibit a well-studied <em><a href="../../../../notes/concepts/neural-scaling-laws/note%7Cscaling-law/">concepts/neural-scaling-laws/note|scaling law</a></em>: loss decreases as a power of compute, <span class="math inline">\(L \propto C^{-\alpha}\)</span>, enabling confident prediction of model quality before training. This property has driven massive investment in LLMs. Recommendation systems, which arguably have equal commercial importance (hundreds of billions in ad revenue), lack an equivalent. Prior work found that recommendation models <em>plateau</em>: adding parameters beyond a threshold yields diminishing returns, and baselines like DLRM saturate at roughly 31 GFLOP/example on large internal datasets.</p>
+<p>The core question Wukong addresses is: <em>is the plateau a fundamental property of recommendation problems, or an architectural artifact?</em></p>
+<p>The answer is the latter. Wukong demonstrates that the right architecture — one capable of systematically generating richer feature interactions as model size grows — can exhibit a clean power-law scaling relationship across two orders of magnitude in compute.</p>
+<h3 id="limitations-of-prior-interaction-modules">1.2 Limitations of Prior Interaction Modules</h3>
+<p>The taxonomy of interaction modules in recommendation:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Interaction Mechanism</th>
+<th>Max Order</th>
+<th>Key Limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FM</td>
+<td>Pairwise dot products <span class="math inline">\(\langle \mathbf{v}_i, \mathbf{v}_j \rangle\)</span></td>
+<td>2</td>
+<td>Shallow; only second-order</td>
+</tr>
+<tr class="even">
+<td>DeepFM</td>
+<td>FM + MLP in parallel</td>
+<td>2 (explicit)</td>
+<td>MLP captures implicit, uncontrolled order</td>
+</tr>
+<tr class="odd">
+<td>DCNv2</td>
+<td>Cross network <span class="math inline">\(\mathbf{x}^{(l+1)} = \mathbf{x}_0 (\mathbf{x}^{(l)})^\top \mathbf{w} + \mathbf{b} + \mathbf{x}^{(l)}\)</span></td>
+<td><span class="math inline">\(l+1\)</span> after <span class="math inline">\(l\)</span> layers</td>
+<td>Linear order growth with depth</td>
+</tr>
+<tr class="even">
+<td>xDeepFM</td>
+<td>Compressed Interaction Network</td>
+<td><span class="math inline">\(l+1\)</span> after <span class="math inline">\(l\)</span> layers</td>
+<td>Same; linear order growth</td>
+</tr>
+<tr class="odd">
+<td>AutoInt</td>
+<td>Self-attention on embeddings</td>
+<td>Implicit</td>
+<td>Attention doesn’t guarantee higher-order; MLP-dependent</td>
+</tr>
+<tr class="even">
+<td>DLRM</td>
+<td>Dot product + MLP</td>
+<td>2 (explicit)</td>
+<td>Plateaus; MLP doesn’t systematically scale</td>
+</tr>
+</tbody>
+</table>
+<p>The fundamental issue: linear depth → linear interaction order. To reach 16th-order interactions you need 16 explicit cross/FM layers. Wukong breaks this barrier.</p>
+<h3 id="research-lineage-dhen-to-wukong">1.3 Research Lineage: DHEN to Wukong</h3>
+<p>Wukong comes from the same Meta Ads team as <em><a href="../../../../notes/papers/dhen-ranking%7Cdhen/">papers/dhen-ranking|DHEN</a></em> (Deep and Hierarchical Ensemble Network, KDD 2022). DHEN established that <em>heterogeneous</em> interaction modules (self-attention, DCN, convolution, linear) arranged in a hierarchical ensemble outperform any single module type. The insight was architectural diversity, not depth alone.</p>
+<p>Wukong takes the next step: rather than ensemble diversity, it achieves quality and scale through <em>systematic interaction order growth</em>. Specifically, it abandons the heterogeneous ensemble in favor of a single principled operation — factorization machines — stacked in a way that generates exponentially higher-order interactions. The result is a simpler, more scalable architecture.</p>
+<hr />
+<h2 id="architecture">2. Architecture</h2>
+<h3 id="embedding-layer">2.1 Embedding Layer</h3>
+<p>All input features — both categorical (user ID, item ID, category) and dense (age, price) — are mapped to a <em>global embedding dimension</em> <span class="math inline">\(d\)</span>. Let <span class="math inline">\(n\)</span> be the total number of feature embeddings after this transformation. The embedding layer outputs:</p>
+<p><span class="math display">\[X_0 \in \mathbb{R}^{n \times d}\]</span></p>
+<p>Each row <span class="math inline">\(\mathbf{x}_i \in \mathbb{R}^d\)</span> is a single feature embedding. Dense features are projected by a learned linear map to match dimension <span class="math inline">\(d\)</span>; categorical features use a standard embedding table lookup.</p>
+<p><strong>Motivation:</strong> A uniform representation space is critical for the FM operation, which computes dot products between embedding pairs. Without a common dimension, cross-feature dot products are undefined. The unified embedding matrix <span class="math inline">\(X_0\)</span> also enables the LCB to linearly recombine across all features without type-specific handling.</p>
+<h3 id="factorization-machine-block">2.2 Factorization Machine Block</h3>
+<p>The <em>Factorization Machine Block</em> (FMB) is the primary interaction generator. It explicitly computes pairwise dot products between all feature embeddings, processes them through an MLP, and outputs a new set of embeddings:</p>
+<p><span class="math display">\[\text{FMB}(X_i) = \text{reshape}\!\left(\text{MLP}\!\left(\text{LN}\!\left(\text{flatten}\!\left(\text{FM}(X_i)\right)\right)\right)\right)\]</span></p>
+<p><strong>The FM operation.</strong> For input <span class="math inline">\(X_i \in \mathbb{R}^{n_i \times d}\)</span>, the standard FM computes all pairwise inner products:</p>
+<p><span class="math display">\[\text{FM}(X_i) = X_i X_i^\top \in \mathbb{R}^{n_i \times n_i}\]</span></p>
+<p>Entry <span class="math inline">\((j, k)\)</span> is <span class="math inline">\(\langle \mathbf{x}_j, \mathbf{x}_k \rangle\)</span>, capturing the interaction between feature <span class="math inline">\(j\)</span> and feature <span class="math inline">\(k\)</span>.</p>
+<p><strong>Optimized FM with low-rank projection.</strong> The naive computation costs <span class="math inline">\(O(n_i^2 d)\)</span>. Instead, Wukong introduces a learnable projection <span class="math inline">\(Y \in \mathbb{R}^{n_i \times k}\)</span> with <span class="math inline">\(k \ll n_i\)</span> and computes:</p>
+<p><span class="math display">\[\text{FM}_{\text{opt}}(X_i) = X_i X_i^\top Y \in \mathbb{R}^{n_i \times k}\]</span></p>
+<p>By associativity, this is computed as <span class="math inline">\(X_i \cdot (X_i^\top Y)\)</span>. The inner product <span class="math inline">\(X_i^\top Y \in \mathbb{R}^{d \times k}\)</span> costs <span class="math inline">\(O(n_i d k)\)</span>; then <span class="math inline">\(X_i \cdot (X_i^\top Y) \in \mathbb{R}^{n_i \times k}\)</span> costs <span class="math inline">\(O(n_i d k)\)</span>. Total: <span class="math inline">\(O(n_i d k)\)</span> vs <span class="math inline">\(O(n_i^2 d)\)</span>.</p>
+<p><strong>Post-FM processing.</strong> The <span class="math inline">\(n_i \times k\)</span> matrix is flattened to a vector of length <span class="math inline">\(n_i k\)</span>, layer-normalized, and passed through an MLP. The MLP output is then reshaped into <span class="math inline">\(n_F\)</span> new embeddings each of dimension <span class="math inline">\(d\)</span>:</p>
+<p><span class="math display">\[\text{FMB}(X_i) \in \mathbb{R}^{n_F \times d}\]</span></p>
+<p><strong>Motivation for FMB:</strong> The MLP after the FM serves a different purpose than in DLRM-style models. In DLRM, MLPs are used to <em>implicitly</em> capture interactions from concatenated features. In Wukong, the MLP transforms <em>explicitly computed</em> pairwise interactions into new embeddings, which then serve as inputs to the next layer’s FM. This is the mechanism that drives exponential interaction order growth.</p>
+<h3 id="linear-compression-block">2.3 Linear Compression Block</h3>
+<p>The <em>Linear Compression Block</em> (LCB) recombines embeddings linearly, without generating new interactions:</p>
+<p><span class="math display">\[\text{LCB}(X_i) = W_L X_i \in \mathbb{R}^{n_L \times d}\]</span></p>
+<p>where <span class="math inline">\(W_L \in \mathbb{R}^{n_L \times n_i}\)</span> is a learned weight matrix. This is simply a linear projection that reduces (or changes) the number of embeddings from <span class="math inline">\(n_i\)</span> to <span class="math inline">\(n_L\)</span>.</p>
+<p><strong>Motivation for LCB:</strong> The LCB serves two roles:</p>
+<ol type="1">
+<li><strong>Dimensionality control.</strong> As interactions accumulate across layers, <span class="math inline">\(n_i\)</span> could grow without bound. The LCB projects back to <span class="math inline">\(n_L\)</span> embeddings, keeping the per-layer computation budget fixed.</li>
+<li><strong>Gradient and residual flow.</strong> The LCB provides a <em>linear pathway</em> from layer <span class="math inline">\(i\)</span> to layer <span class="math inline">\(i+1\)</span>. This is analogous to the skip connection in ResNets: it ensures that gradient signals from the loss can flow back through the stack without passing through the nonlinear FM. The ablation study (Section 6.3) confirms that removing both the LCB and the residual simultaneously causes a “substantial degradation” — much larger than either alone.</li>
+</ol>
+<h3 id="interaction-stack-and-residual-update">2.4 Interaction Stack and Residual Update</h3>
+<p>The interaction stack consists of <span class="math inline">\(l\)</span> identical layers, each applying FMB and LCB in parallel and combining their outputs with a residual connection:</p>
+<p><span class="math display">\[X_{i+1} = \text{LN}\!\left(\text{concat}\!\left(\text{FMB}_i(X_i),\ \text{LCB}_i(X_i)\right) + X_i\right)\]</span></p>
+<p>The concatenation produces <span class="math inline">\(n_F + n_L\)</span> new embeddings. The residual <span class="math inline">\(+ X_i\)</span> (padded to match dimensions) ensures preservation of lower-order interactions from earlier layers. Layer normalization stabilizes training across deep stacks.</p>
+<p><strong>Motivation for stacking:</strong> Each additional layer doubles the maximum interaction order (proven in Section 3). Stacking is the mechanism by which Wukong achieves scalability: increasing <span class="math inline">\(l\)</span> does not just add more parameters, it expands the <em>expressivity</em> of the model in a principled, quantifiable way.</p>
+<p><img src="figures/wukong-architecture.png" alt="Figure 2 from Zhang et al. (2024): Wukong overall architecture showing the Interaction Stack, Wukong Layer (FMB + LCB in parallel with Add &amp; Norm), and output MLP" />
+<em>Figure 2 (Zhang et al., 2024): The Wukong architecture. Dense embeddings feed into a stack of Wukong Layers, each consisting of a Factorization Machine Block (FMB) and a Linear Compression Block (LCB) applied in parallel, combined via concatenation and a residual Add &amp; Norm. A final MLP produces the output prediction.</em></p>
+<h3 id="output-layer">2.5 Output Layer</h3>
+<p>After <span class="math inline">\(l\)</span> interaction layers, the final embedding matrix <span class="math inline">\(X_l \in \mathbb{R}^{n_l \times d}\)</span> is flattened and passed through a final MLP to produce a scalar prediction (click probability):</p>
+<p><span class="math display">\[\hat{y} = \text{sigmoid}\!\left(\text{MLP}_{\text{out}}\!\left(\text{flatten}(X_l)\right)\right)\]</span></p>
+<hr />
+<h2 id="theory-exponential-interaction-orders">3. Theory: Exponential Interaction Orders</h2>
+<h3 id="order-definitions">3.1 Order Definitions</h3>
+<p>Define the <em>interaction order</em> of a feature representation as the maximum number of original input features whose values multiply together in any single component. Concretely:</p>
+<ul>
+<li>A raw embedding <span class="math inline">\(\mathbf{x}_i\)</span> has order 1.</li>
+<li>The inner product <span class="math inline">\(\langle \mathbf{x}_j, \mathbf{x}_k \rangle\)</span> has order 2 (involves <span class="math inline">\(\mathbf{x}_j\)</span> and <span class="math inline">\(\mathbf{x}_k\)</span>).</li>
+<li>An embedding derived from <span class="math inline">\(\langle \mathbf{z}_{j}, \mathbf{z}_k \rangle\)</span> where <span class="math inline">\(\mathbf{z}_j, \mathbf{z}_k\)</span> are themselves order-2 embeddings has order <span class="math inline">\(2 + 2 = 4\)</span>.</li>
+</ul>
+<p>More precisely, for two embeddings <span class="math inline">\(\mathbf{u}\)</span> and <span class="math inline">\(\mathbf{v}\)</span> of orders <span class="math inline">\(o_1\)</span> and <span class="math inline">\(o_2\)</span> respectively, their inner product <span class="math inline">\(\langle \mathbf{u}, \mathbf{v} \rangle\)</span> has order <span class="math inline">\(o_1 + o_2\)</span>.</p>
+<h3 id="inductive-proof">3.2 Inductive Proof</h3>
+<p><strong>Claim.</strong> After layer <span class="math inline">\(i\)</span> of the interaction stack (zero-indexed), the embedding matrix <span class="math inline">\(X_i\)</span> contains feature representations with orders ranging from 1 to <span class="math inline">\(2^i\)</span>.</p>
+<p><strong>Base case (<span class="math inline">\(i = 0\)</span>).</strong> The input <span class="math inline">\(X_0\)</span> contains raw embeddings of order 1.</p>
+<p><strong>Inductive step.</strong> Assume <span class="math inline">\(X_i\)</span> contains orders from 1 to <span class="math inline">\(2^i\)</span>.</p>
+<ul>
+<li>The <strong>LCB</strong> applies a linear combination: <span class="math inline">\(\text{LCB}(X_i) = W_L X_i\)</span>. Linear combination preserves interaction order (no new products are formed), so LCB output contains orders 1 to <span class="math inline">\(2^i\)</span>.</li>
+<li>The <strong>FM</strong> computes all pairwise inner products of rows of <span class="math inline">\(X_i\)</span>. A pair of rows with orders <span class="math inline">\(o_1\)</span> and <span class="math inline">\(o_2\)</span> produces an order-<span class="math inline">\((o_1 + o_2)\)</span> interaction. With <span class="math inline">\(o_1, o_2 \in [1, 2^i]\)</span>, the FM can produce orders up to <span class="math inline">\(2^i + 2^i = 2^{i+1}\)</span>.</li>
+<li><strong>MLP</strong> inside FMB is a nonlinear transformation of the FM outputs, but it does not combine distinct feature chains — it transforms existing interactions into new embedding vectors. Thus FMB outputs contain orders from 1 (trivially, via bias terms) to <span class="math inline">\(2^{i+1}\)</span>.</li>
+<li>The <strong>concat + residual</strong> combines LCB (orders <span class="math inline">\(\leq 2^i\)</span>) and FMB (orders <span class="math inline">\(\leq 2^{i+1}\)</span>), so <span class="math inline">\(X_{i+1}\)</span> contains orders from 1 to <span class="math inline">\(2^{i+1}\)</span>.</li>
+</ul>
+<p><strong>Conclusion.</strong> After <span class="math inline">\(l\)</span> layers, <span class="math inline">\(X_l\)</span> contains interactions up to order <span class="math inline">\(2^l\)</span>.</p>
+<p><strong>Significance.</strong> Compare with DCNv2 or xDeepFM, where <span class="math inline">\(l\)</span> layers yield at most order <span class="math inline">\(l+1\)</span>. With Wukong’s stacking:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Depth <span class="math inline">\(l\)</span></th>
+<th>Wukong max order</th>
+<th>DCNv2/xDeepFM max order</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>16</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>256</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p><strong>This exponential scaling of expressivity is the key mechanism enabling Wukong’s scaling law.</strong> As the model grows (more layers, wider MLPs), it does not merely add parameters — it gains access to qualitatively richer feature combinations.</p>
+<p><img src="figures/wukong-component-scaling.png" alt="Figure 5 from Zhang et al. (2024): Impact of scaling individual components — number of layers (l), FMB output embeddings (n_F), LCB output embeddings (n_L), FM rank (k), and MLP configuration — on relative LogLoss improvement vs. GFLOP/example" />
+<em>Figure 5 (Zhang et al., 2024): Scaling individual Wukong hyperparameters on the industrial dataset. Increasing the number of layers <span class="math inline">\(l\)</span> (depth) yields the steepest improvement per compute dollar — consistent with the theory that each layer doubles the maximum interaction order. Increasing <span class="math inline">\(n_F\)</span>, <span class="math inline">\(k\)</span>, or MLP width also helps but with diminishing returns at higher compute budgets.</em></p>
+<hr />
+<h2 id="complexity-analysis">4. Complexity Analysis</h2>
+<p>Let <span class="math inline">\(h\)</span> be the largest fully-connected layer size in the FMB MLP, and <span class="math inline">\(n'= n_F + n_L\)</span> be the total output embeddings per layer.</p>
+<p><strong>FMB cost (per layer):</strong>
+- Optimized FM: <span class="math inline">\(O(n_i \cdot d \cdot k)\)</span> where <span class="math inline">\(k \ll n_i\)</span>. Since <span class="math inline">\(k \sim n_i\)</span> is bounded and <span class="math inline">\(n_i \approx n'\)</span>, this is <span class="math inline">\(O(n'd) \approx O(ndh)\)</span> for proportional dimensions.
+- MLP on flattened FM output: input size <span class="math inline">\(n_i k \approx n'k\)</span>, output size <span class="math inline">\(n_F d\)</span>; for MLP with hidden size <span class="math inline">\(h\)</span>: <span class="math inline">\(O(n'kh + h^2 + n_F dh) \approx O(ndh + h^2)\)</span>.</p>
+<p><strong>LCB cost (per layer):</strong> <span class="math inline">\(O(n_i \cdot n_L \cdot d) \approx O(ndh)\)</span>.</p>
+<p><strong>Across <span class="math inline">\(l\)</span> layers:</strong> Since <span class="math inline">\(n_i\)</span> grows slowly (bounded by <span class="math inline">\(n' = n_F + n_L\)</span> per layer), and the depth is <span class="math inline">\(l \approx \log_2(n)\)</span> to cover order <span class="math inline">\(n\)</span>:</p>
+<p><span class="math display">\[\text{Total cost} = O\!\left(ndh \log n + h^2\right)\]</span></p>
+<p>This near-linear scaling in <span class="math inline">\(n\)</span> (with a <span class="math inline">\(\log n\)</span> factor) is much better than a naive FM which would cost <span class="math inline">\(O(n^2 d)\)</span> to compute all pairwise interactions.</p>
+<hr />
+<h2 id="scaling-strategy-and-hyperparameters">5. Scaling Strategy and Hyperparameters</h2>
+<p>Wukong exposes five primary scaling knobs:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hyperparameter</th>
+<th>Symbol</th>
+<th>Description</th>
+<th>Scaling impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Number of layers</td>
+<td><span class="math inline">\(l\)</span></td>
+<td>Depth of interaction stack</td>
+<td>Doubles max interaction order per +1 layer</td>
+</tr>
+<tr class="even">
+<td>FMB output embeddings</td>
+<td><span class="math inline">\(n_F\)</span></td>
+<td>Rows output by FMB per layer</td>
+<td>Increases interaction branching factor</td>
+</tr>
+<tr class="odd">
+<td>LCB output embeddings</td>
+<td><span class="math inline">\(n_L\)</span></td>
+<td>Rows output by LCB per layer</td>
+<td>Controls linear pathway width</td>
+</tr>
+<tr class="even">
+<td>FM projection dim</td>
+<td><span class="math inline">\(k\)</span></td>
+<td>Low-rank projection in optimized FM</td>
+<td>Trades interaction fidelity for compute</td>
+</tr>
+<tr class="odd">
+<td>MLP configuration</td>
+<td><span class="math inline">\(h\)</span></td>
+<td>Hidden size and depth in FMB MLP</td>
+<td>Controls transformation capacity</td>
+</tr>
+</tbody>
+</table>
+<p>The scaling law is demonstrated by varying all five jointly according to a compute budget. At fixed dataset size (146B samples, 720 features), Wukong exhibits:</p>
+<p><span class="math display">\[\text{AUC improvement} \propto C^\alpha \quad \text{for } C \in [1 \text{ GFLOP}, 100+\text{ GFLOP per example}]\]</span></p>
+<p>where the exponent <span class="math inline">\(\alpha\)</span> is empirically stable across two orders of magnitude. This power-law relationship is analogous to the Chinchilla <a href="../../../../notes/concepts/neural-scaling-laws/note%7Cscaling-law/">concepts/neural-scaling-laws/note|scaling law</a> for LLMs.</p>
+<p><strong>Contrast with baselines:</strong> DCNv2, the strongest baseline, requires a <em>40-fold increase in compute</em> to reach the quality level that Wukong achieves at 1× compute. DLRM plateaus entirely around 31 GFLOP/example.</p>
+<p><img src="figures/wukong-scaling-law.png" alt="Figure 1 from Zhang et al. (2024): Scaling law plot — Relative LogLoss (%) vs. GFLOP/example for Wukong and baselines (DLRM, AutoInt+, AFN+, MaskNet, FinalMLP, DCNv2) across two orders of magnitude in compute" />
+<em>Figure 1 (Zhang et al., 2024): The Wukong scaling law on the industrial dataset (146B samples, 720 features). Wukong (blue) follows a clean power-law across two orders of magnitude in GFLOP/example. All baselines — including DCNv2, MaskNet, and FinalMLP — plateau or degrade at higher compute budgets. DLRM saturates earliest, around 31 GFLOP/example.</em></p>
+<hr />
+<h2 id="experiments">6. Experiments</h2>
+<h3 id="public-dataset-benchmarks">6.1 Public Dataset Benchmarks</h3>
+<p>Evaluated on 6 public datasets against 7 baselines (AFN+, AutoInt+, DCNv2, DLRM, FinalMLP, MaskNet, xDeepFM):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Wukong AUC</th>
+<th>Best Baseline (model)</th>
+<th><span class="math inline">\(\Delta\)</span> AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Frappe</td>
+<td>0.9868</td>
+<td>0.9868 (FinalMLP)</td>
+<td>0.0000</td>
+</tr>
+<tr class="even">
+<td>MicroVideo</td>
+<td>0.7292</td>
+<td>0.7255 (MaskNet)</td>
+<td>+0.0037</td>
+</tr>
+<tr class="odd">
+<td>MovieLens</td>
+<td>0.9723</td>
+<td>0.9723 (FinalMLP)</td>
+<td>0.0000</td>
+</tr>
+<tr class="even">
+<td>KuaiVideo</td>
+<td>0.7414</td>
+<td>0.7376 (MaskNet)</td>
+<td>+0.0038</td>
+</tr>
+<tr class="odd">
+<td>TaobaoAds</td>
+<td>0.6488</td>
+<td>0.6457 (DCNv2)</td>
+<td>+0.0031</td>
+</tr>
+<tr class="even">
+<td>Criteo</td>
+<td>0.8106</td>
+<td>0.8100 (MaskNet)</td>
+<td>+0.0006</td>
+</tr>
+</tbody>
+</table>
+<p>Wukong achieves state-of-the-art or ties the best model on all six datasets.</p>
+<h3 id="industrial-scale-validation">6.2 Industrial-Scale Validation</h3>
+<p><strong>Dataset:</strong> 146B samples, 720 features (Meta internal). Models trained with identical data budgets; quality measured by relative LogLoss improvement over a fixed baseline.</p>
+<p>Key findings:</p>
+<ul>
+<li>Wukong outperforms all baselines by <strong>~0.2% relative LogLoss</strong> consistently across all model scales.</li>
+<li>Wukong scales continuously from ~1 to 100+ GFLOP/example; baselines plateau far earlier.</li>
+<li>At maximum scale, Wukong reaches <strong>637 billion parameters</strong> with total training compute equivalent to GPT-3 scale (2336 PF-days).</li>
+<li>DCNv2, the best scaling baseline, requires 40× more compute to reach the same quality as Wukong.</li>
+</ul>
+<h3 id="ablation-studies">6.3 Ablation Studies</h3>
+<p>The paper performs component-level ablations (Figure 4):</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>Quality impact</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Full Wukong</td>
+<td>Baseline (best)</td>
+</tr>
+<tr class="even">
+<td>Remove FMB</td>
+<td>Large degradation — FMB is the primary interaction source</td>
+</tr>
+<tr class="odd">
+<td>Remove LCB</td>
+<td>Modest decline</td>
+</tr>
+<tr class="even">
+<td>Remove residual</td>
+<td>Modest decline</td>
+</tr>
+<tr class="odd">
+<td>Remove both LCB and residual</td>
+<td>Substantial degradation — both provide critical gradient flow</td>
+</tr>
+</tbody>
+</table>
+<p><em>Notably</em>, removing only LCB or only the residual has modest impact, but removing both simultaneously causes large degradation. This is because they serve as complementary linear pathways: LCB recombines embeddings at the layer level while the residual preserves the identity map. Together, they ensure that lower-order information is not “overwritten” by the FM’s high-order outputs.</p>
+<p><img src="figures/wukong-ablation.png" alt="Figure 4 from Zhang et al. (2024): Ablation study — relative LogLoss degradation when zeroing out individual components: FMB (+0.8%), LCB (+0.03%), residual (+0.08%), and both LCB + residual simultaneously (+1.84%)" />
+<em>Figure 4 (Zhang et al., 2024): Component ablation on the industrial dataset. Zeroing out the FMB causes the largest single-component degradation (0.8% relative LogLoss), confirming it as the primary interaction source. Removing LCB alone (0.03%) or the residual alone (0.08%) has modest impact, but removing both together causes 1.84% degradation — more than twice the FMB removal — demonstrating that LCB and residual are complementary linear pathways.</em></p>
+<hr />
+<h2 id="training-system-design">7. Training System Design</h2>
+<p>Wukong’s scale (hundreds of billions of parameters) requires several systems innovations:</p>
+<ul>
+<li><strong>Column-wise sharded embedding bags:</strong> Embedding tables are sharded across devices along the column dimension, distributing memory across GPUs.</li>
+<li><strong>FSDP for dense parameters:</strong> Fully Sharded Data Parallel handles the dense layers (FMB MLPs, LCBs), sharding gradients and optimizer states across the data parallel dimension.</li>
+<li><strong>Operator fusion via <code>torch.fx</code>:</strong> Automatic graph rewriting fuses operations (e.g., LN + flatten + FM) to reduce memory bandwidth.</li>
+<li><strong>Mixed precision:</strong> FP16 for embedding lookups (memory-bound), BF16 for gradients (stability).</li>
+</ul>
+<hr />
+<h2 id="relation-to-hstu-and-broader-context">8. Relation to HSTU and Broader Context</h2>
+<p>See <a href="../../../../notes/papers/generative-recommenders/hstu%7Chstu/">papers/generative-recommenders/hstu|HSTU</a> for full analysis. Briefly: Wukong and HSTU are near-simultaneous publications from Meta (both early 2024) addressing the <em>same gap</em> (no scaling law for recommendation) via <em>different paradigms</em>:</p>
+<ul>
+<li><strong>Wukong</strong> treats recommendation as a static <em>ranking problem over dense features</em>. It scales by deepening and widening the FM-based interaction stack.</li>
+<li><strong>HSTU</strong> treats recommendation as a <em>sequential transduction problem</em> over user behavior history. It scales by growing the Transformer-like architecture over longer sequences.</li>
+</ul>
+<p>Together they suggest that the absence of scaling laws in prior recommendation systems was entirely an architectural artifact — not a fundamental limit of the task.</p>
+<hr />
+<h2 id="references">9. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wukong: Towards a Scaling Law for Large-Scale Recommendation</td>
+<td>Main paper: FM-stack architecture with power-law scaling</td>
+<td>https://arxiv.org/abs/2403.02545</td>
+</tr>
+<tr class="even">
+<td>DHEN: A Deep and Hierarchical Ensemble Network</td>
+<td>Precursor from same Meta team; heterogeneous interaction ensemble</td>
+<td>https://arxiv.org/abs/2203.11014</td>
+</tr>
+<tr class="odd">
+<td>Scaling Laws for Neural Language Models (Kaplan et al.)</td>
+<td>Original LLM scaling law establishing <span class="math inline">\(L \propto C^{-\alpha}\)</span></td>
+<td>https://arxiv.org/abs/2001.08361</td>
+</tr>
+<tr class="even">
+<td>DCNv2: Improved Deep &amp; Cross Network</td>
+<td>Strong baseline; cross-network with linear interaction-order growth</td>
+<td>https://arxiv.org/abs/2008.13535</td>
+</tr>
+<tr class="odd">
+<td>DeepFM: A Factorization-Machine based Neural Network</td>
+<td>FM + MLP baseline</td>
+<td>https://arxiv.org/abs/1703.04247</td>
+</tr>
+<tr class="even">
+<td>xDeepFM: Combining Explicit and Implicit Feature Interactions</td>
+<td>CIN-based explicit interaction; linear order growth</td>
+<td>https://arxiv.org/abs/1803.05170</td>
+</tr>
+<tr class="odd">
+<td>DLRM: An Advanced, Open Source Deep Learning Recommendation Model</td>
+<td>Meta’s production DLRM baseline</td>
+<td>https://arxiv.org/abs/1906.00091</td>
+</tr>
+<tr class="even">
+<td>FinalMLP: An Enhanced Two-Stream MLP Model for CTR Prediction</td>
+<td>Strong public-dataset baseline</td>
+<td>https://arxiv.org/abs/2304.00902</td>
+</tr>
+<tr class="odd">
+<td>Chinchilla: Training Compute-Optimal Large Language Models</td>
+<td>Compute-optimal scaling laws</td>
+<td>https://arxiv.org/abs/2203.15556</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

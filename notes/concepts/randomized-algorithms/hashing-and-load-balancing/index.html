@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>hashing-and-load-balancing - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>hashing-and-load-balancing</h1>
+            <article>
+    <section>
+        <p><em>CS 265/CME309: Randomized Algorithms — Lecture 6</em>
+<em>Gregory Valiant, updated by Mary Wootters (Stanford, Fall 2020)</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-the-balls-in-bins-model%7C1.-the-balls-in-bins-model/">#1. The Balls-in-Bins Model|1. The Balls-in-Bins Model</a>
+<ul>
+<li><a href="../../../../notes/#1.1-setup-and-basic-probabilities%7C1.1-setup-and-basic-probabilities/">#1.1 Setup and Basic Probabilities|1.1 Setup and Basic Probabilities</a></li>
+<li><a href="../../../../notes/#1.2-the-birthday-paradox%7C1.2-the-birthday-paradox/">#1.2 The Birthday Paradox|1.2 The Birthday Paradox</a></li>
+<li><a href="../../../../notes/#1.3-coupon-collector-as-balls-in-bins%7C1.3-coupon-collector-as-balls-in-bins/">#1.3 Coupon Collector as Balls-in-Bins|1.3 Coupon Collector as Balls-in-Bins</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-maximum-bin-load%7C2.-maximum-bin-load/">#2. Maximum Bin Load|2. Maximum Bin Load</a>
+<ul>
+<li><a href="../../../../notes/#2.1-upper-bound%7C2.1-upper-bound/">#2.1 Upper Bound|2.1 Upper Bound</a></li>
+<li><a href="../../../../notes/#2.2-lower-bound%7C2.2-lower-bound/">#2.2 Lower Bound|2.2 Lower Bound</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-poisson-distribution-and-poissonization%7C3.-poisson-distribution-and-poissonization/">#3. Poisson Distribution and Poissonization|3. Poisson Distribution and Poissonization</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-poisson-distribution%7C3.1-the-poisson-distribution/">#3.1 The Poisson Distribution|3.1 The Poisson Distribution</a></li>
+<li><a href="../../../../notes/#3.2-the-poissonization-theorem%7C3.2-the-poissonization-theorem/">#3.2 The Poissonization Theorem|3.2 The Poissonization Theorem</a></li>
+<li><a href="../../../../notes/#3.3-application:-coupon-collector-exact-limit%7C3.3-application:-coupon-collector-exact-limit/">#3.3 Application: Coupon Collector Exact Limit|3.3 Application: Coupon Collector Exact Limit</a></li>
+<li><a href="../../../../notes/#3.4-lower-bound-via-poissonization%7C3.4-lower-bound-via-poissonization/">#3.4 Lower Bound via Poissonization|3.4 Lower Bound via Poissonization</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-the-power-of-two-choices%7C4.-the-power-of-two-choices/">#4. The Power of Two Choices|4. The Power of Two Choices</a>
+<ul>
+<li><a href="../../../../notes/#4.1-setup-and-theorem%7C4.1-setup-and-theorem/">#4.1 Setup and Theorem|4.1 Setup and Theorem</a></li>
+<li><a href="../../../../notes/#4.2-proof-via-load-level-recursion%7C4.2-proof-via-load-level-recursion/">#4.2 Proof via Load-Level Recursion|4.2 Proof via Load-Level Recursion</a></li>
+<li><a href="../../../../notes/#4.3-stochastic-dominance-and-formal-justification%7C4.3-stochastic-dominance-and-formal-justification/">#4.3 Stochastic Dominance and Formal Justification|4.3 Stochastic Dominance and Formal Justification</a></li>
+<li><a href="../../../../notes/#4.4-extension-to-d-choices%7C4.4-extension-to-d-choices/">#4.4 Extension to d Choices|4.4 Extension to d Choices</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-exercises%7C5.-exercises/">#5. Exercises|5. Exercises</a></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="the-balls-in-bins-model">1. The Balls-in-Bins Model 🎲</h2>
+<h3 id="setup-and-basic-probabilities">1.1 Setup and Basic Probabilities</h3>
+<p>The <em>balls-in-bins</em> model is one of the most versatile abstractions in the analysis of randomized algorithms. It captures hashing, load balancing, coupon collecting, and birthday-style coincidences within a single probabilistic framework.</p>
+<p><strong>Setup.</strong> Toss <span class="math inline">\(n\)</span> balls independently and uniformly at random into <span class="math inline">\(m\)</span> bins. Each ball lands in bin <span class="math inline">\(j\)</span> with probability <span class="math inline">\(1/m\)</span>, independently of all other balls.</p>
+<p>The central questions are:
+1. <strong>Collision:</strong> When do two balls first land in the same bin?
+2. <strong>Coverage:</strong> When has every bin received at least one ball?
+3. <strong>Load:</strong> What is the maximum number of balls in any single bin?</p>
+<div class="callout callout-info">
+<p> Connection to Hashing
+In a hash table with <span class="math inline">\(m\)</span> slots and <span class="math inline">\(n\)</span> keys, each key is mapped to a slot uniformly at random (under ideal hashing). “Collisions” are exactly the event that two keys map to the same slot. The maximum bin load is the worst-case chain length in separate-chaining hashing.</p>
+</div>
+<hr />
+<h3 id="the-birthday-paradox">1.2 The Birthday Paradox</h3>
+<p>The <em>birthday paradox</em> asks: how large must <span class="math inline">\(n\)</span> be before the probability of at least one collision exceeds <span class="math inline">\(1/2\)</span>?</p>
+<p><strong>Proposition 1 (Birthday Threshold).</strong> When <span class="math inline">\(n\)</span> balls are tossed into <span class="math inline">\(m\)</span> bins, the probability that all <span class="math inline">\(n\)</span> balls land in distinct bins is</p>
+<p><span class="math display">\[\Pr[\text{no collision}] = \prod_{i=0}^{n-1}\left(1 - \frac{i}{m}\right).\]</span></p>
+<p>Using <span class="math inline">\(1 - x \leq e^{-x}\)</span>,</p>
+<p><span class="math display">\[\Pr[\text{no collision}] \leq \exp\!\left(-\sum_{i=0}^{n-1}\frac{i}{m}\right) = \exp\!\left(-\frac{n(n-1)}{2m}\right).\]</span></p>
+<p>This is <span class="math inline">\(\leq 1/2\)</span> once <span class="math inline">\(n(n-1) \geq 2m\ln 2\)</span>, i.e., <strong><span class="math inline">\(n \approx \sqrt{2m\ln 2} \approx 1.177\sqrt{m}\)</span>.</strong></p>
+<p><strong>Key conclusion: <span class="math inline">\(n = \Theta(\sqrt{m})\)</span> is the collision threshold.</strong></p>
+<p>For the standard birthday problem, <span class="math inline">\(m = 365\)</span> gives <span class="math inline">\(n \approx 23\)</span>, which famously surprises most people.</p>
+<div class="callout callout-note">
+<p> Lower Bound on Collision Probability
+By inclusion-exclusion (or direct computation), one can show a matching lower bound: for <span class="math inline">\(n \leq m\)</span>, <span class="math inline">\(\Pr[\text{collision}] \geq 1 - e^{-n(n-1)/(2m)}\)</span>. So <span class="math inline">\(n = c\sqrt{m}\)</span> gives <span class="math inline">\(\Pr[\text{collision}] \to 1 - e^{-c^2/2}\)</span> as <span class="math inline">\(m \to \infty\)</span>, and this probability exceeds <span class="math inline">\(1/2\)</span> for <span class="math inline">\(c &gt; \sqrt{2\ln 2}\)</span>.</p>
+</div>
+<hr />
+<p><em>Exercise 1 is placed in <a href="../../../../notes/#5.-exercises%7Csection-5/">#5. Exercises|Section 5</a>.</em></p>
+<h3 id="coupon-collector-as-balls-in-bins">1.3 Coupon Collector as Balls-in-Bins</h3>
+<p>The <em>coupon collector problem</em> asks: how many balls must be tossed into <span class="math inline">\(m\)</span> bins so that every bin is non-empty in expectation?</p>
+<p>When <span class="math inline">\(j\)</span> distinct bins are already occupied, each new ball hits a new bin with probability <span class="math inline">\((m-j)/m\)</span>. The number of additional balls needed is geometrically distributed with mean <span class="math inline">\(m/(m-j)\)</span>. Summing over <span class="math inline">\(j = 0, 1, \ldots, m-1\)</span>,</p>
+<p><span class="math display">\[\mathbb{E}[\text{balls to fill all bins}] = \sum_{j=0}^{m-1}\frac{m}{m-j} = m\sum_{k=1}^{m}\frac{1}{k} = m H_m \approx m\ln m.\]</span></p>
+<p>So the expected number of balls needed to cover all <span class="math inline">\(m\)</span> bins is <span class="math inline">\(m \ln m\)</span>. An exact distributional characterization — not just the expectation — is established in <a href="../../../../notes/#3.3-application:-coupon-collector-exact-limit%7Csection-3.3/">#3.3 Application: Coupon Collector Exact Limit|Section 3.3</a> via Poissonization.</p>
+<div class="callout callout-example">
+<p> Coupon Collector for m = 10
+With 10 bins, the expected coverage time is <span class="math inline">\(10 H_{10} = 10(1 + 1/2 + \cdots + 1/10) \approx 29.3\)</span> balls. The last few bins are hardest: the 10th bin has expected waiting time 10.</p>
+</div>
+<hr />
+<h2 id="maximum-bin-load">2. Maximum Bin Load 📊</h2>
+<h3 id="upper-bound">2.1 Upper Bound</h3>
+<p>The most practically important question in load balancing is: how overloaded can any single bin become?</p>
+<p><strong>Proposition 2 (Max Load Upper Bound).</strong> When <span class="math inline">\(n\)</span> balls are tossed into <span class="math inline">\(n\)</span> bins, the maximum bin load satisfies</p>
+<p><span class="math display">\[\Pr\!\left[\max_j \text{load}(j) \geq \frac{c\ln n}{\ln\ln n}\right] \leq \frac{1}{n^{c-1}}\]</span></p>
+<p>for any constant <span class="math inline">\(c &gt; 1\)</span>, with high probability (i.e., probability <span class="math inline">\(1 - o(1)\)</span> for <span class="math inline">\(c &gt; 2\)</span>).</p>
+<p><strong>Proof.</strong> Set <span class="math inline">\(k = \lceil c\ln n / \ln\ln n \rceil\)</span>. The probability that bin 1 receives at least <span class="math inline">\(k\)</span> balls is</p>
+<p><span class="math display">\[\Pr[\text{load}(1) \geq k] = \sum_{j=k}^{n}\binom{n}{j}\left(\frac{1}{n}\right)^j\left(1-\frac{1}{n}\right)^{n-j} \leq \sum_{j=k}^{n}\frac{n^j}{j!}\cdot\frac{1}{n^j} = \sum_{j=k}^{\infty}\frac{1}{j!}.\]</span></p>
+<p>Since <span class="math inline">\(\sum_{j=k}^{\infty} 1/j! \leq 2/k!\)</span> for large <span class="math inline">\(k\)</span>, we have</p>
+<p><span class="math display">\[\Pr[\text{load}(1) \geq k] \leq \frac{2}{k!}.\]</span></p>
+<p>Now bound <span class="math inline">\(k!\)</span> from below using <em>Stirling’s inequality</em> <span class="math inline">\(k! \geq (k/e)^k\)</span>:</p>
+<p><span class="math display">\[\frac{1}{k!} \leq \left(\frac{e}{k}\right)^k.\]</span></p>
+<p>Substituting <span class="math inline">\(k = c\ln n / \ln\ln n\)</span>:</p>
+<p><span class="math display">\[\frac{e}{k} = \frac{e\ln\ln n}{c\ln n},\]</span></p>
+<p>so</p>
+<p><span class="math display">\[\left(\frac{e}{k}\right)^k = \left(\frac{e\ln\ln n}{c\ln n}\right)^{c\ln n/\ln\ln n}.\]</span></p>
+<p>Taking the logarithm:</p>
+<p><span class="math display">\[k\ln(e/k) = \frac{c\ln n}{\ln\ln n}\left(1 + \ln\ln\ln n - \ln c - \ln\ln n\right) = \frac{c\ln n}{\ln\ln n}\left(-\ln\ln n + O(\ln\ln\ln n)\right).\]</span></p>
+<p><span class="math display">\[= -c\ln n + O\!\left(\frac{\ln n \cdot \ln\ln\ln n}{\ln\ln n}\right) = -c\ln n + o(\ln n) = -(c - o(1))\ln n.\]</span></p>
+<p>Therefore <span class="math inline">\(1/k! \leq n^{-(c-o(1))}\)</span>, so</p>
+<p><span class="math display">\[\Pr[\text{load}(1) \geq k] \leq n^{-(c-o(1))}.\]</span></p>
+<p>By the <em>union bound</em> over all <span class="math inline">\(n\)</span> bins,</p>
+<p><span class="math display">\[\Pr\!\left[\max_j \text{load}(j) \geq k\right] \leq n \cdot n^{-(c-o(1))} = n^{-(c-1-o(1))}.\]</span></p>
+<p><strong>For <span class="math inline">\(c &gt; 2\)</span>, this probability is <span class="math inline">\(o(1)\)</span>, so the maximum load is at most <span class="math inline">\(c\ln n/\ln\ln n\)</span> with high probability.</strong> <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> The Bound is Tight
+This upper bound is essentially tight: the lower bound (Proposition 5, proved via Poissonization) shows the max load is also <span class="math inline">\(\Omega(\ln n/\ln\ln n)\)</span> with high probability. The <span class="math inline">\(\ln n/\ln\ln n\)</span> behavior is a fundamental feature of uniform hashing, not an artifact of the proof.</p>
+</div>
+<hr />
+<h3 id="lower-bound">2.2 Lower Bound</h3>
+<p><strong>Proposition 5 (Max Load Lower Bound).</strong> When <span class="math inline">\(n\)</span> balls are tossed into <span class="math inline">\(n\)</span> bins, there exists a constant <span class="math inline">\(c &gt; 0\)</span> such that</p>
+<p><span class="math display">\[\Pr\!\left[\max_j \text{load}(j) \geq \frac{c\ln n}{\ln\ln n}\right] \geq 1 - o(1).\]</span></p>
+<p>The proof uses Poissonization to make the bin loads independent, enabling a second-moment argument. The details appear in <a href="../../../../notes/#3.4-lower-bound-via-poissonization%7Csection-3.4/">#3.4 Lower Bound via Poissonization|Section 3.4</a> after we develop the necessary machinery.</p>
+<hr />
+<h2 id="poisson-distribution-and-poissonization">3. Poisson Distribution and Poissonization ⚗️</h2>
+<h3 id="the-poisson-distribution">3.1 The Poisson Distribution</h3>
+<p><strong>Definition (Poisson Distribution).</strong> A random variable <span class="math inline">\(X\)</span> is <em>Poisson with parameter <span class="math inline">\(\lambda\)</span></em>, written <span class="math inline">\(X \sim \text{Poi}(\lambda)\)</span>, if</p>
+<p><span class="math display">\[\Pr[X = k] = e^{-\lambda}\frac{\lambda^k}{k!}, \quad k = 0, 1, 2, \ldots\]</span></p>
+<p>Direct computation gives <span class="math inline">\(\mathbb{E}[X] = \lambda\)</span> and <span class="math inline">\(\text{Var}(X) = \lambda\)</span>.</p>
+<div class="callout callout-note">
+<p> Poisson as a Limit of Binomials
+An equivalent characterization: <span class="math inline">\(X \sim \text{Poi}(\lambda)\)</span> is the weak limit of <span class="math inline">\(\text{Bin}(n, \lambda/n)\)</span> as <span class="math inline">\(n \to \infty\)</span>. This follows from <span class="math inline">\(\binom{n}{k}(\lambda/n)^k(1-\lambda/n)^{n-k} \to e^{-\lambda}\lambda^k/k!\)</span> for each fixed <span class="math inline">\(k\)</span>. The Poisson distribution thus models rare events in large populations.</p>
+</div>
+<p><strong>Key properties:</strong>
+1. <strong>Additivity.</strong> If <span class="math inline">\(X_1 \sim \text{Poi}(\lambda_1)\)</span> and <span class="math inline">\(X_2 \sim \text{Poi}(\lambda_2)\)</span> are independent, then <span class="math inline">\(X_1 + X_2 \sim \text{Poi}(\lambda_1 + \lambda_2)\)</span>.
+2. <strong>Tail bound.</strong> For <span class="math inline">\(X \sim \text{Poi}(\lambda)\)</span> and any <span class="math inline">\(c &gt; 0\)</span>,
+<span class="math display">\[\Pr[|X - \lambda| \geq c] \leq 2\exp\!\left(-\frac{c^2}{2(c+\lambda)}\right).\]</span>
+3. <strong>MGF.</strong> <span class="math inline">\(\mathbb{E}[e^{tX}] = e^{\lambda(e^t - 1)}\)</span> for all <span class="math inline">\(t \in \mathbb{R}\)</span>.</p>
+<div class="callout callout-example">
+<p> Poisson MGF Derivation
+<span class="math display">\[\mathbb{E}[e^{tX}] = \sum_{k=0}^{\infty}e^{tk}\cdot e^{-\lambda}\frac{\lambda^k}{k!} = e^{-\lambda}\sum_{k=0}^{\infty}\frac{(\lambda e^t)^k}{k!} = e^{-\lambda}\cdot e^{\lambda e^t} = e^{\lambda(e^t-1)}.\]</span>
+This MGF is used to derive Chernoff-style tail bounds for Poisson random variables.</p>
+</div>
+<hr />
+<h3 id="the-poissonization-theorem">3.2 The Poissonization Theorem</h3>
+<p>The central technical tool of this lecture is <em>Poissonization</em>: by randomizing the number of balls, we gain independence between bin loads — a property that fails dramatically in the fixed-<span class="math inline">\(n\)</span> model.</p>
+<p><strong>Theorem 1 (Poissonization).</strong> Suppose the number of balls <span class="math inline">\(K \sim \text{Poi}(n)\)</span> and each ball is placed independently and uniformly into one of <span class="math inline">\(m\)</span> bins. Let <span class="math inline">\(L_j\)</span> denote the load in bin <span class="math inline">\(j\)</span>. Then:</p>
+<ol type="1">
+<li>Each <span class="math inline">\(L_j \sim \text{Poi}(n/m)\)</span>.</li>
+<li>The loads <span class="math inline">\(L_1, L_2, \ldots, L_m\)</span> are <strong>mutually independent</strong>.</li>
+</ol>
+<p><strong>Proof.</strong> Let <span class="math inline">\(B_j\)</span> be the number of balls in bin <span class="math inline">\(j\)</span>, and let <span class="math inline">\(\mathbf{B} = (B_1, \ldots, B_m)\)</span>. We compute the joint PMF.</p>
+<p>Fix counts <span class="math inline">\((k_1, k_2, \ldots, k_m)\)</span> with <span class="math inline">\(k_1 + \cdots + k_m = N\)</span> for some <span class="math inline">\(N \geq 0\)</span>. Conditioning on <span class="math inline">\(K = N\)</span>:</p>
+<p><span class="math display">\[\Pr[B_1 = k_1, \ldots, B_m = k_m \mid K = N] = \frac{N!}{k_1!\cdots k_m!}\cdot\frac{1}{m^N}.\]</span></p>
+<p>The unconditional joint PMF is</p>
+<p><span class="math display">\[\Pr[B_1 = k_1, \ldots, B_m = k_m] = \sum_{N=0}^{\infty}\Pr[K = N]\cdot \mathbf{1}\!\left[\sum_j k_j = N\right]\cdot\frac{N!}{k_1!\cdots k_m!}\cdot\frac{1}{m^N}.\]</span></p>
+<p>Since the indicator forces <span class="math inline">\(N = \sum_j k_j\)</span>, setting <span class="math inline">\(N = k_1 + \cdots + k_m\)</span>:</p>
+<p><span class="math display">\[= e^{-n}\frac{n^N}{N!}\cdot\frac{N!}{k_1!\cdots k_m!}\cdot\frac{1}{m^N} = e^{-n}\prod_{j=1}^{m}\frac{(n/m)^{k_j}}{k_j!}.\]</span></p>
+<p>Recognizing <span class="math inline">\(e^{-n} = e^{-n/m \cdot m} = \prod_{j=1}^{m}e^{-n/m}\)</span>:</p>
+<p><span class="math display">\[\Pr[B_1 = k_1, \ldots, B_m = k_m] = \prod_{j=1}^{m}\left(e^{-n/m}\frac{(n/m)^{k_j}}{k_j!}\right).\]</span></p>
+<p>This is the product of <span class="math inline">\(m\)</span> independent <span class="math inline">\(\text{Poi}(n/m)\)</span> PMFs, completing the proof. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Why Independence is the Key Gift
+In the fixed-<span class="math inline">\(n\)</span> model, the loads <span class="math inline">\((B_1, \ldots, B_m)\)</span> are <em>negatively correlated</em>: if one bin has many balls, others must have fewer. This dependence makes union bounds and second-moment arguments delicate. Poissonization breaks this coupling exactly, at the cost of introducing randomness in <span class="math inline">\(n\)</span> itself — which is then removed by a <em>de-Poissonization</em> argument.</p>
+</div>
+<div class="callout callout-warning">
+<p> De-Poissonization
+Results proved under <span class="math inline">\(K \sim \text{Poi}(n)\)</span> typically transfer to the fixed-<span class="math inline">\(n\)</span> model via a <em>continuity argument</em>: the Poisson variable <span class="math inline">\(K\)</span> concentrates near <span class="math inline">\(n\)</span> (with standard deviation <span class="math inline">\(\sqrt{n}\)</span>), so events with high probability under Poisson remain likely under fixed <span class="math inline">\(n\)</span>, up to lower-order adjustments. This is made precise in the Coupon Collector exact limit below.</p>
+</div>
+<hr />
+<p><em>Exercise 3 is placed in <a href="../../../../notes/#5.-exercises%7Csection-5/">#5. Exercises|Section 5</a>.</em></p>
+<h3 id="application-coupon-collector-exact-limit">3.3 Application: Coupon Collector Exact Limit</h3>
+<p>Poissonization yields a strikingly precise distributional result for the Coupon Collector problem.</p>
+<p><strong>Proposition 4 (Coupon Collector Limit).</strong> Let <span class="math inline">\(T\)</span> be the number of balls needed to cover all <span class="math inline">\(n\)</span> bins. For any constant <span class="math inline">\(c \in \mathbb{R}\)</span>,</p>
+<p><span class="math display">\[\Pr[T \geq n\ln n + cn] \xrightarrow{n\to\infty} 1 - e^{-e^{-c}}.\]</span></p>
+<p><strong>Proof (via Poissonization).</strong> Work in the Poisson model with <span class="math inline">\(K \sim \text{Poi}(n\ln n + cn)\)</span> balls. By Theorem 1, each bin load is <span class="math inline">\(\text{Poi}(\ln n + c)\)</span>, independently. The probability that any fixed bin is empty is</p>
+<p><span class="math display">\[\Pr[L_j = 0] = e^{-(\ln n + c)} = \frac{e^{-c}}{n}.\]</span></p>
+<p>Let <span class="math inline">\(Z\)</span> = number of empty bins. Since the <span class="math inline">\(L_j\)</span> are independent,</p>
+<p><span class="math display">\[Z = \sum_{j=1}^{n}\mathbf{1}[L_j = 0]\]</span></p>
+<p>and these indicators are independent. Thus <span class="math inline">\(Z \sim \text{Bin}(n, e^{-c}/n)\)</span>, which converges in distribution to <span class="math inline">\(\text{Poi}(e^{-c})\)</span> as <span class="math inline">\(n \to \infty\)</span>.</p>
+<p>Coverage fails if and only if <span class="math inline">\(Z \geq 1\)</span>:</p>
+<p><span class="math display">\[\Pr[\text{some bin empty}] = \Pr[Z \geq 1] \to 1 - \Pr[\text{Poi}(e^{-c}) = 0] = 1 - e^{-e^{-c}}.\]</span></p>
+<p>To transfer back from the Poisson model (<span class="math inline">\(K\)</span> random) to the fixed-<span class="math inline">\(n\ln n + cn\)</span> model: since <span class="math inline">\(K\)</span> concentrates within <span class="math inline">\(O(\sqrt{n\ln n})\)</span> of its mean, and <span class="math inline">\(T\)</span> is monotone in the number of balls, a coupling argument shows <span class="math inline">\(\Pr[T \geq n\ln n + cn]\)</span> differs from the Poisson quantity by <span class="math inline">\(o(1)\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Interpretation
+Setting <span class="math inline">\(c \to -\infty\)</span> gives <span class="math inline">\(\Pr[T \geq n\ln n + cn] \to 1\)</span>: with <span class="math inline">\(o(n\ln n)\)</span> balls, coverage fails whp. Setting <span class="math inline">\(c \to +\infty\)</span> gives probability <span class="math inline">\(\to 0\)</span>: with <span class="math inline">\(n\ln n + \omega(n)\)</span> balls, coverage succeeds whp. The window of uncertainty has width <span class="math inline">\(O(n)\)</span> around <span class="math inline">\(n\ln n\)</span>.</p>
+</div>
+<hr />
+<h3 id="lower-bound-via-poissonization">3.4 Lower Bound via Poissonization</h3>
+<p><strong>Proof of Proposition 5.</strong> Set <span class="math inline">\(k = \lfloor (1/2)\ln n / \ln\ln n \rfloor\)</span> and use the Poisson model with <span class="math inline">\(K \sim \text{Poi}(n)\)</span>. By Theorem 1, each bin load <span class="math inline">\(L_j \sim \text{Poi}(1)\)</span> independently.</p>
+<p>The probability that a single bin has load at least <span class="math inline">\(k\)</span> is</p>
+<p><span class="math display">\[\Pr[L_j \geq k] = \sum_{\ell=k}^{\infty}e^{-1}\frac{1}{\ell!} \geq e^{-1}\frac{1}{k!}.\]</span></p>
+<p>By Stirling, <span class="math inline">\(1/k! \geq (e/k)^k / \sqrt{2\pi k}\)</span>, so</p>
+<p><span class="math display">\[\Pr[L_j \geq k] \geq \frac{1}{e}\cdot\frac{1}{\sqrt{2\pi k}}\left(\frac{e}{k}\right)^k.\]</span></p>
+<p>Taking logs: <span class="math inline">\(k\ln(e/k) = k(1-\ln k)\)</span>. With <span class="math inline">\(k = \ln n / (2\ln\ln n)\)</span>:</p>
+<p><span class="math display">\[k\ln k = \frac{\ln n}{2\ln\ln n}\cdot\ln\!\left(\frac{\ln n}{2\ln\ln n}\right) = \frac{\ln n}{2\ln\ln n}\cdot(\ln\ln n - O(\ln\ln\ln n)) = \frac{\ln n}{2} - o(\ln n).\]</span></p>
+<p>Therefore <span class="math inline">\(k(1-\ln k) = k - k\ln k \leq \ln n/(2\ln\ln n) - \ln n/2 + o(\ln n) = -\ln n/2 + o(\ln n)\)</span>, giving</p>
+<p><span class="math display">\[\Pr[L_j \geq k] \geq n^{-1/2 + o(1)}.\]</span></p>
+<p>Since the loads are independent (Theorem 1), the expected number of bins with load <span class="math inline">\(\geq k\)</span> is</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\sum_j \mathbf{1}[L_j \geq k]\right] = n \cdot \Pr[L_1 \geq k] \geq n^{1/2 + o(1)} \to \infty.\]</span></p>
+<p>By a second-moment argument (or the Lovász Local Lemma), the max load is at least <span class="math inline">\(k = \Omega(\ln n / \ln\ln n)\)</span> with high probability. De-Poissonizing completes the proof. <span class="math inline">\(\square\)</span></p>
+<p><strong>Key conclusion: The max load when <span class="math inline">\(n\)</span> balls are thrown into <span class="math inline">\(n\)</span> bins is <span class="math inline">\(\Theta(\ln n / \ln\ln n)\)</span> with high probability.</strong></p>
+<hr />
+<h2 id="the-power-of-two-choices">4. The Power of Two Choices ⚡</h2>
+<h3 id="setup-and-theorem">4.1 Setup and Theorem</h3>
+<p>Uniform hashing gives max load <span class="math inline">\(\Theta(\ln n / \ln\ln n)\)</span>. Can we do dramatically better with a tiny amount of coordination?</p>
+<p><strong>The protocol:</strong> Each ball independently and uniformly samples <em>two</em> bins. It is placed in the less full of the two (breaking ties arbitrarily).</p>
+<p><strong>Theorem 2 (Power of Two Choices).</strong> When <span class="math inline">\(n\)</span> balls are placed using the two-choice protocol into <span class="math inline">\(n\)</span> bins, the maximum bin load is at most <span class="math inline">\(\log_2 \log_2 n + O(1)\)</span> with high probability.</p>
+<p>This is an exponential improvement over the <span class="math inline">\(\Theta(\log n / \log\log n)\)</span> bound for uniform hashing — all from one additional random sample per ball.</p>
+<div class="callout callout-info">
+<p> Why This Matters
+In load balancing for server farms or distributed hash tables, this protocol requires only two probes per request and reduces the worst-case server load from logarithmic to doubly-logarithmic. The improvement is sometimes called the <em>supermarket model</em> (each customer joins the shorter of two queues).</p>
+</div>
+<hr />
+<h3 id="proof-via-load-level-recursion">4.2 Proof via Load-Level Recursion</h3>
+<p><strong>Proof of Theorem 2.</strong> Define <span class="math inline">\(B_i\)</span> = number of bins with load <em>at least</em> <span class="math inline">\(i\)</span> after all <span class="math inline">\(n\)</span> balls have been placed. We track these <em>load-level counts</em> and show they decay doubly exponentially.</p>
+<p><strong>Base case.</strong> Trivially, <span class="math inline">\(B_1 \leq n\)</span> (at most <span class="math inline">\(n\)</span> bins have load <span class="math inline">\(\geq 1\)</span>). We claim <span class="math inline">\(B_2 \leq n/2\)</span> with high probability.</p>
+<p>Each ball is placed in a bin with load <span class="math inline">\(\geq 2\)</span> only if <em>both</em> sampled bins already have load <span class="math inline">\(\geq 1\)</span>. Since <span class="math inline">\(B_1 \leq n\)</span>, the probability that a single ball increases the load of an already-loaded bin is at most <span class="math inline">\((B_1/n)^2 \leq 1\)</span>. But in fact, for <span class="math inline">\(B_2\)</span> to be large, many balls must both land in bins already having <span class="math inline">\(\geq 1\)</span> ball. A careful analysis using linearity of expectation gives <span class="math inline">\(\mathbb{E}[B_2] \leq n/2\)</span>, and concentration then gives <span class="math inline">\(B_2 \leq n/2\)</span> whp.</p>
+<p><strong>Inductive step.</strong> Suppose <span class="math inline">\(B_i \leq n / \beta^{2^{i-2}}\)</span> for some base <span class="math inline">\(\beta &gt; 0\)</span> to be determined. A ball contributes to <span class="math inline">\(B_{i+1}\)</span> — i.e., becomes the <span class="math inline">\((i+1)\)</span>-th ball in some bin — only if <em>both</em> sampled bins already have load <span class="math inline">\(\geq i\)</span>. The probability of this event for a given ball is at most</p>
+<p><span class="math display">\[\left(\frac{B_i}{n}\right)^2 \leq \frac{1}{\beta^{2^{i-1}}}.\]</span></p>
+<p>By linearity of expectation, the expected number of balls placed into bins of load <span class="math inline">\(\geq i+1\)</span> is</p>
+<p><span class="math display">\[\mathbb{E}[B_{i+1}] \leq n \cdot \left(\frac{B_i}{n}\right)^2 = \frac{B_i^2}{n}.\]</span></p>
+<p>This gives the recursion</p>
+<p><span class="math display">\[B_{i+1} \approx \frac{B_i^2}{n}.\]</span></p>
+<p><strong>Solving the recursion.</strong> Write <span class="math inline">\(B_i = n / f_i\)</span>. Then:</p>
+<p><span class="math display">\[\frac{n}{f_{i+1}} \approx \frac{(n/f_i)^2}{n} = \frac{n}{f_i^2} \implies f_{i+1} \approx f_i^2.\]</span></p>
+<p>Starting from <span class="math inline">\(f_2 = 2\)</span> (i.e., <span class="math inline">\(B_2 \leq n/2\)</span>):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Level <span class="math inline">\(i\)</span></th>
+<th><span class="math inline">\(f_i\)</span></th>
+<th><span class="math inline">\(B_i\)</span> bound</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td><span class="math inline">\(2\)</span></td>
+<td><span class="math inline">\(n/2\)</span></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><span class="math inline">\(4\)</span></td>
+<td><span class="math inline">\(n/4\)</span></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td><span class="math inline">\(16\)</span></td>
+<td><span class="math inline">\(n/16\)</span></td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td><span class="math inline">\(256\)</span></td>
+<td><span class="math inline">\(n/256\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(i\)</span></td>
+<td><span class="math inline">\(2^{2^{i-2}}\)</span></td>
+<td><span class="math inline">\(n/2^{2^{i-2}}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The maximum load is reached at the first <span class="math inline">\(i^*\)</span> for which <span class="math inline">\(B_{i^*} &lt; 1\)</span>, i.e., <span class="math inline">\(2^{2^{i^*-2}} &gt; n\)</span>:</p>
+<p><span class="math display">\[2^{i^*-2} &gt; \log_2 n \implies i^* &gt; 2 + \log_2\log_2 n.\]</span></p>
+<p><strong>Therefore the maximum load is at most <span class="math inline">\(\log_2\log_2 n + O(1)\)</span> with high probability.</strong> <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Dependency Issue
+The key step <span class="math inline">\(B_{i+1} \approx B_i^2/n\)</span> treats the events “both samples land in bins of load <span class="math inline">\(\geq i\)</span>” as independent across balls. This is not literally true — the loads depend on all previous placements. The formal argument uses a <em>stochastic dominance</em> lemma (Lemma 6) described in the next section.</p>
+</div>
+<p>The recursion is illustrated by the following diagram:</p>
+<pre class="mermaid"><code>graph TD
+    B2[&quot;B_2 ≤ n/2&quot;] --&gt;|&quot;B_{i+1} ≈ B_i^2/n&quot;| B3[&quot;B_3 ≤ n/4&quot;]
+    B3 --&gt;|&quot;B_{i+1} ≈ B_i^2/n&quot;| B4[&quot;B_4 ≤ n/16&quot;]
+    B4 --&gt;|&quot;B_{i+1} ≈ B_i^2/n&quot;| B5[&quot;B_5 ≤ n/256&quot;]
+    B5 --&gt;|&quot;B_{i+1} ≈ B_i^2/n&quot;| Bstar[&quot;B_{i*} lt 1&quot;]
+    Bstar --&gt; Done[&quot;Max load ≤ log2 log2 n + O(1)&quot;]</code></pre>
+<hr />
+<h3 id="stochastic-dominance-and-formal-justification">4.3 Stochastic Dominance and Formal Justification</h3>
+<p>To make the above argument rigorous, we need to handle the dependency between ball placements.</p>
+<p><strong>Lemma 6 (Stochastic Dominance).</strong> Let <span class="math inline">\(X_1, \ldots, X_n\)</span> be Bernoulli random variables (not necessarily independent) where <span class="math inline">\(X_j = 1\)</span> if the <span class="math inline">\(j\)</span>-th ball lands in a bin of load <span class="math inline">\(\geq i+1\)</span>. Suppose that for each <span class="math inline">\(j\)</span> and any history of the first <span class="math inline">\(j-1\)</span> placements,</p>
+<p><span class="math display">\[\Pr[X_j = 1 \mid X_1, \ldots, X_{j-1}] \leq p.\]</span></p>
+<p>Then <span class="math inline">\(B_{i+1} = \sum_j X_j\)</span> is stochastically dominated by <span class="math inline">\(\text{Bin}(n, p)\)</span>.</p>
+<p><em>In other words, even though the <span class="math inline">\(X_j\)</span> are dependent, an upper bound <span class="math inline">\(p\)</span> on each conditional probability suffices to apply Chernoff bounds.</em></p>
+<p><strong>Applying the lemma.</strong> Given the history of placements, if currently <span class="math inline">\(B_i\)</span> bins have load <span class="math inline">\(\geq i\)</span>, then the probability the next ball increases some bin’s load from <span class="math inline">\(i\)</span> to <span class="math inline">\(i+1\)</span> is at most <span class="math inline">\((B_i/n)^2\)</span>. As long as <span class="math inline">\(B_i \leq n/\beta^{2^{i-2}}\)</span> (an event we condition on), Lemma 6 allows us to bound <span class="math inline">\(B_{i+1}\)</span> by a binomial, and then apply Chernoff to show <span class="math inline">\(B_{i+1}\)</span> is concentrated near its expectation <span class="math inline">\(n \cdot (B_i/n)^2 = B_i^2/n\)</span>.</p>
+<p>A union bound over all <span class="math inline">\(O(\log\log n)\)</span> levels completes the proof.</p>
+<div class="callout callout-note">
+<p> The Formal Argument
+The rigorous proof proceeds by induction: at each level <span class="math inline">\(i\)</span>, we condition on the event <span class="math inline">\(\mathcal{E}_i = \{B_i \leq n/2^{2^{i-2}}\}\)</span> and show <span class="math inline">\(\Pr[\mathcal{E}_{i+1}^c \mid \mathcal{E}_i]\)</span> is polynomially small. The union bound over levels then bounds <span class="math inline">\(\Pr[\exists i: \mathcal{E}_i^c]\)</span> by <span class="math inline">\(O(\log\log n / n^c) = o(1)\)</span>.</p>
+</div>
+<hr />
+<h3 id="extension-to-d-choices">4.4 Extension to d Choices</h3>
+<p>The two-choice result generalizes naturally.</p>
+<p><strong>Theorem 3 (d Choices).</strong> When each ball samples <span class="math inline">\(d \geq 2\)</span> bins uniformly at random and is placed in the least-loaded bin, the maximum load satisfies</p>
+<p><span class="math display">\[\max_j \text{load}(j) \leq \frac{\ln\ln n}{\ln d} + O(1)\]</span></p>
+<p>with high probability.</p>
+<p><strong>Proof sketch.</strong> The load-level recursion becomes <span class="math inline">\(B_{i+1} \approx B_i^d / n^{d-1}\)</span>. Writing <span class="math inline">\(B_i = n/f_i\)</span> gives <span class="math inline">\(f_{i+1} \approx f_i^d\)</span>, so <span class="math inline">\(f_i \approx d^{d^{i-2}}\)</span> (a tower with base <span class="math inline">\(d\)</span>). The max level <span class="math inline">\(i^*\)</span> satisfies <span class="math inline">\(d^{d^{i^*-2}} \approx n\)</span>, giving <span class="math inline">\(d^{i^*-2} \approx \log_d n\)</span>, so <span class="math inline">\(i^* \approx 2 + \log_d \log_d n = \ln\ln n / \ln d + O(1)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Key conclusion: Each additional choice reduces the exponent of the iterated logarithm by a factor of <span class="math inline">\(\ln d\)</span>. Even <span class="math inline">\(d = 2\)</span> gives a superexponential speedup over <span class="math inline">\(d = 1\)</span> (uniform hashing).</strong></p>
+<div class="callout callout-question">
+<p> Optimal d?
+For practical purposes, <span class="math inline">\(d = 2\)</span> captures almost all the benefit. Increasing <span class="math inline">\(d\)</span> further reduces the max load by only a constant factor (from <span class="math inline">\(\log_2\log_2 n\)</span> to <span class="math inline">\(\log_d\log_d n\)</span>), while increasing the cost of each placement linearly in <span class="math inline">\(d\)</span>. The “sweet spot” depends on the cost model.</p>
+</div>
+<hr />
+<h2 id="exercises">5. Exercises 📝</h2>
+<div class="callout callout-info">
+<p> Exercise 1</p>
+<p><em>This exercise develops the birthday paradox threshold more precisely by computing the exact crossover point.</em></p>
+<p>Show that <span class="math inline">\(\Pr[\text{collision after } n \text{ tosses into } m \text{ bins}] \geq 1/2\)</span> if and only if <span class="math inline">\(n \geq n^*\)</span> where <span class="math inline">\(n^* \sim \sqrt{2m\ln 2}\)</span> as <span class="math inline">\(m \to \infty\)</span>. Specifically:</p>
+<ol type="a">
+<li><p>Show <span class="math inline">\(\Pr[\text{no collision}] = \prod_{i=0}^{n-1}(1-i/m)\)</span>.</p></li>
+<li><p>Using <span class="math inline">\(\ln(1-x) \geq -x - x^2\)</span> for <span class="math inline">\(x \in [0,1/2]\)</span>, derive a matching lower bound showing <span class="math inline">\(\Pr[\text{no collision}] \geq \exp(-n(n-1)/(2m) - n^2/(2m^2) \cdot n)\)</span> for appropriate range of <span class="math inline">\(n\)</span>.</p></li>
+<li><p>Conclude that the threshold <span class="math inline">\(n^*\)</span> satisfies <span class="math inline">\(n^* = \sqrt{2m\ln 2}(1 + O(m^{-1/2}))\)</span>.</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#1.2-the-birthday-paradox%7Csection-1.2-(birthday-paradox)/">#1.2 The Birthday Paradox|Section 1.2 (Birthday Paradox)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 1
+<strong>Key insight:</strong> The upper and lower bounds on <span class="math inline">\(\ln(1-x)\)</span> bracket <span class="math inline">\(\Pr[\text{no collision}]\)</span> tightly enough to locate the threshold up to lower-order terms.</p>
+<p><strong>Sketch:</strong>
+(a) The first ball has no collision with probability 1; the <span class="math inline">\(i\)</span>-th ball avoids the <span class="math inline">\(i-1\)</span> occupied bins with probability <span class="math inline">\((m-(i-1))/m = 1 - (i-1)/m\)</span>. Multiplying gives the product formula.</p>
+<ol start="2" type="a">
+<li><p>Use <span class="math inline">\(\ln(1-x) \geq -x/(1-x) \geq -x - x^2\)</span> for <span class="math inline">\(x \leq 1/2\)</span> to get <span class="math inline">\(\sum_{i=0}^{n-1}\ln(1-i/m) \geq -n(n-1)/(2m) - O(n^3/m^2)\)</span>.</p></li>
+<li><p>Setting <span class="math inline">\(\exp(-n(n-1)/(2m)) = 1/2\)</span> gives <span class="math inline">\(n(n-1) = 2m\ln 2\)</span>, so <span class="math inline">\(n \approx \sqrt{2m\ln 2}\)</span>. The correction terms from part (b) are <span class="math inline">\(O(m^{-1/2})\)</span> relative, establishing the asymptotic.</p></li>
+</ol>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 2</p>
+<p><em>This exercise derives the moment generating function of the Poisson distribution and uses it to prove the tail bound stated in Section 3.1.</em></p>
+<p>Let <span class="math inline">\(X \sim \text{Poi}(\lambda)\)</span>.</p>
+<ol type="a">
+<li><p>Compute <span class="math inline">\(\mathbb{E}[e^{tX}]\)</span> for all <span class="math inline">\(t \in \mathbb{R}\)</span>.</p></li>
+<li><p>Using the Chernoff method (optimize over <span class="math inline">\(t &gt; 0\)</span>), show <span class="math inline">\(\Pr[X \geq \lambda + c] \leq e^{-c^2/(2(\lambda+c))}\)</span> for all <span class="math inline">\(c &gt; 0\)</span>.</p></li>
+<li><p>By symmetry or a direct calculation, show <span class="math inline">\(\Pr[X \leq \lambda - c] \leq e^{-c^2/(2\lambda)}\)</span> for <span class="math inline">\(0 &lt; c &lt; \lambda\)</span>.</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.1-the-poisson-distribution%7Csection-3.1-(poisson-distribution)/">#3.1 The Poisson Distribution|Section 3.1 (Poisson Distribution)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 2
+<strong>Key insight:</strong> The Poisson MGF <span class="math inline">\(e^{\lambda(e^t-1)}\)</span> is a clean exponential, making the Chernoff optimization straightforward.</p>
+<p><strong>Sketch:</strong>
+(a) <span class="math inline">\(\mathbb{E}[e^{tX}] = \sum_{k\geq 0} e^{tk}e^{-\lambda}\lambda^k/k! = e^{-\lambda}e^{\lambda e^t} = e^{\lambda(e^t-1)}\)</span>.</p>
+<ol start="2" type="a">
+<li><p>By Markov on <span class="math inline">\(e^{tX}\)</span>: <span class="math inline">\(\Pr[X \geq \lambda+c] \leq e^{-t(\lambda+c)}\mathbb{E}[e^{tX}] = e^{\lambda(e^t-1) - t(\lambda+c)}\)</span>. Setting <span class="math inline">\(e^t = 1 + c/\lambda\)</span> (approximately; exact optimization gives <span class="math inline">\(t = \ln(1+c/\lambda)\)</span>) and using <span class="math inline">\(e^t - 1 \leq t + t^2/2\)</span> yields <span class="math inline">\(e^{-c^2/(2(\lambda+c))}\)</span> after simplification.</p></li>
+<li><p>For the lower tail, use <span class="math inline">\(t &lt; 0\)</span> and optimize: <span class="math inline">\(t = \ln(1 - c/\lambda)\)</span>, yielding <span class="math inline">\(e^{-c^2/(2\lambda)}\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 3</p>
+<p><em>This exercise proves the key step in Theorem 1: that Poissonization makes bin loads independent by an explicit factorization of the joint PMF.</em></p>
+<p>Verify the algebraic identity used in the proof of Theorem 1: show that</p>
+<p><span class="math display">\[e^{-n}\frac{n^N}{N!}\cdot\frac{N!}{k_1!\cdots k_m!}\cdot\frac{1}{m^N} = \prod_{j=1}^{m}\left(e^{-n/m}\frac{(n/m)^{k_j}}{k_j!}\right)\]</span></p>
+<p>where <span class="math inline">\(N = k_1 + \cdots + k_m\)</span>. Then explain precisely why this implies the <span class="math inline">\(B_j\)</span> are mutually independent, each <span class="math inline">\(\text{Poi}(n/m)\)</span>.</p>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.2-the-poissonization-theorem%7Csection-3.2-(poissonization-theorem)/">#3.2 The Poissonization Theorem|Section 3.2 (Poissonization Theorem)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 3
+<strong>Key insight:</strong> The factorization of the joint PMF into a product indexed by <span class="math inline">\(j\)</span> is both necessary and sufficient for mutual independence.</p>
+<p><strong>Sketch:</strong>
+LHS <span class="math inline">\(= e^{-n} \cdot n^N / (k_1!\cdots k_m! \cdot m^N) = e^{-n}\prod_j (n/m)^{k_j}/k_j!\)</span>.</p>
+<p>Write <span class="math inline">\(e^{-n} = e^{-n/m \cdot m} = \prod_j e^{-n/m}\)</span>. Then LHS <span class="math inline">\(= \prod_j [e^{-n/m}(n/m)^{k_j}/k_j!] =\)</span> RHS. Each factor <span class="math inline">\(e^{-n/m}(n/m)^{k_j}/k_j!\)</span> is the <span class="math inline">\(\text{Poi}(n/m)\)</span> PMF evaluated at <span class="math inline">\(k_j\)</span>.</p>
+<p>Since the joint PMF factors as a product <span class="math inline">\(\prod_j f_j(k_j)\)</span> where <span class="math inline">\(f_j\)</span> is the marginal PMF of <span class="math inline">\(B_j\)</span>, the variables <span class="math inline">\(B_1,\ldots,B_m\)</span> are mutually independent (this is the standard characterization of independence via joint PMF factorization).</p>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 4</p>
+<p><em>This exercise makes the upper bound proof quantitatively precise and shows the threshold is tight up to the constant <span class="math inline">\(c\)</span>.</em></p>
+<ol type="a">
+<li><p>Show that for <span class="math inline">\(k = c\ln n / \ln\ln n\)</span> and <span class="math inline">\(n\)</span> large, <span class="math inline">\(k! \geq n^{c - \epsilon}\)</span> for any <span class="math inline">\(\epsilon &gt; 0\)</span> (with <span class="math inline">\(n\)</span> large enough depending on <span class="math inline">\(\epsilon\)</span>). Conclude <span class="math inline">\(\Pr[\text{load}(1) \geq k] \leq n^{-c+\epsilon}\)</span>.</p></li>
+<li><p>Explain why the union bound over <span class="math inline">\(n\)</span> bins then gives <span class="math inline">\(\Pr[\max \text{ load} \geq k] \leq n^{-c+1+\epsilon}\)</span>, which is <span class="math inline">\(o(1)\)</span> for <span class="math inline">\(c &gt; 1 + \epsilon\)</span>.</p></li>
+<li><p>What goes wrong if you try to set <span class="math inline">\(k = c\ln n\)</span> (without the <span class="math inline">\(\ln\ln n\)</span> denominator)? Specifically, what bound do you get on <span class="math inline">\(1/k!\)</span>?</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#2.1-upper-bound%7Csection-2.1-(upper-bound)/">#2.1 Upper Bound|Section 2.1 (Upper Bound)</a>, <a href="../../../../notes/#3.1-the-poisson-distribution%7Csection-3.1-(tail-bound)/">#3.1 The Poisson Distribution|Section 3.1 (Tail Bound)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 4
+<strong>Key insight:</strong> The <span class="math inline">\(\ln\ln n\)</span> denominator is chosen precisely to make <span class="math inline">\((e/k)^k \approx 1/n^c\)</span>; without it, the bound is much weaker.</p>
+<p><strong>Sketch:</strong>
+(a) Use Stirling: <span class="math inline">\(\ln(k!) \geq k\ln k - k = k(\ln k - 1)\)</span>. With <span class="math inline">\(k = c\ln n/\ln\ln n\)</span>, <span class="math inline">\(\ln k = \ln\ln n - \ln\ln\ln n + O(1) = \ln\ln n(1-o(1))\)</span>. So <span class="math inline">\(k(\ln k - 1) \geq (c\ln n/\ln\ln n)(\ln\ln n - O(1)) = c\ln n - O(\ln n/\ln\ln n) \geq (c-\epsilon)\ln n\)</span> for large <span class="math inline">\(n\)</span>.</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\(\Pr[\max \geq k] \leq n \cdot n^{-(c-\epsilon)} = n^{-(c-1-\epsilon)} = o(1)\)</span> for <span class="math inline">\(c &gt; 1+\epsilon\)</span>.</p></li>
+<li><p>With <span class="math inline">\(k = c\ln n\)</span>, <span class="math inline">\(\ln(k!) \approx k\ln k = c\ln n \cdot \ln(c\ln n) = c\ln n(\ln\ln n + \ln c)\)</span>, so <span class="math inline">\(1/k! \leq n^{-c\ln\ln n(1+o(1))}\)</span>. The union bound gives <span class="math inline">\(n^{1-c\ln\ln n}\)</span>, which is also <span class="math inline">\(o(1)\)</span> — but the threshold shifts. More importantly, the max load would then be <span class="math inline">\(O(\ln n)\)</span> instead of <span class="math inline">\(O(\ln n/\ln\ln n)\)</span>, a weaker and non-tight bound.</p></li>
+</ol>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 5</p>
+<p><em>This exercise analyzes the load-level recursion for the power of two choices and shows the doubly-exponential decay is exact.</em></p>
+<p>Define the sequence <span class="math inline">\(a_i = B_i/n\)</span> (the fraction of bins with load <span class="math inline">\(\geq i\)</span>) and suppose <span class="math inline">\(a_2 = 1/2\)</span>.</p>
+<ol type="a">
+<li><p>If <span class="math inline">\(a_{i+1} = a_i^2\)</span>, solve the recursion exactly and show <span class="math inline">\(a_i = 2^{-2^{i-2}}\)</span> for <span class="math inline">\(i \geq 2\)</span>.</p></li>
+<li><p>Find the smallest <span class="math inline">\(i^*\)</span> such that <span class="math inline">\(a_{i^*} &lt; 1/n\)</span> (meaning fewer than 1 bin has load <span class="math inline">\(\geq i^*\)</span> in expectation). Show <span class="math inline">\(i^* = \lfloor \log_2\log_2 n \rfloor + 3\)</span>.</p></li>
+<li><p>Generalize: for <span class="math inline">\(d\)</span> choices, the recursion is <span class="math inline">\(a_{i+1} = a_i^d / 1 = a_i^d\)</span> (appropriately normalized). Solve this and find the corresponding <span class="math inline">\(i^*\)</span>.</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.2-proof-via-load-level-recursion%7Csection-4.2-(load-level-recursion)/">#4.2 Proof via Load-Level Recursion|Section 4.2 (Load-Level Recursion)</a>, <a href="../../../../notes/#4.4-extension-to-d-choices%7Csection-4.4-(d-choices)/">#4.4 Extension to d Choices|Section 4.4 (d Choices)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 5
+<strong>Key insight:</strong> The recursion <span class="math inline">\(a_{i+1} = a_i^2\)</span> produces a tower of exponentials, which is exactly what gives doubly-logarithmic depth.</p>
+<p><strong>Sketch:</strong>
+(a) Let <span class="math inline">\(b_i = -\log_2 a_i\)</span>, so <span class="math inline">\(b_2 = 1\)</span>. Then <span class="math inline">\(b_{i+1} = 2b_i\)</span> (since <span class="math inline">\(a_{i+1} = a_i^2 \Rightarrow -\log_2 a_{i+1} = 2(-\log_2 a_i)\)</span>). Solution: <span class="math inline">\(b_i = 2^{i-2}\)</span>, so <span class="math inline">\(a_i = 2^{-2^{i-2}}\)</span>.</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\(a_{i^*} &lt; 1/n\)</span> iff <span class="math inline">\(2^{i^*-2} &gt; \log_2 n\)</span> iff <span class="math inline">\(i^* - 2 &gt; \log_2\log_2 n\)</span> iff <span class="math inline">\(i^* \geq \lfloor\log_2\log_2 n\rfloor + 3\)</span>.</p></li>
+<li><p>For <span class="math inline">\(d\)</span> choices: <span class="math inline">\(b_{i+1} = d \cdot b_i\)</span>, so <span class="math inline">\(b_i = d^{i-2}\)</span> (with <span class="math inline">\(b_2 = 1\)</span>). Then <span class="math inline">\(a_{i^*} &lt; 1/n\)</span> iff <span class="math inline">\(d^{i^*-2} &gt; \log_d n\)</span> iff <span class="math inline">\(i^* \geq \log_d\log_d n + 3 = \ln\ln n/\ln d + O(1)\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 6</p>
+<p><em>This exercise verifies the Coupon Collector limit theorem by computing the limiting distribution of empty bins under Poissonization.</em></p>
+<p>Fix a constant <span class="math inline">\(c \in \mathbb{R}\)</span>. Let <span class="math inline">\(K \sim \text{Poi}(n\ln n + cn)\)</span> balls be placed into <span class="math inline">\(n\)</span> bins.</p>
+<ol type="a">
+<li><p>Show each bin is empty with probability <span class="math inline">\(e^{-c}/n + o(1/n)\)</span>.</p></li>
+<li><p>Letting <span class="math inline">\(Z_j = \mathbf{1}[\text{bin } j \text{ is empty}]\)</span>, show that <span class="math inline">\(Z_1, \ldots, Z_n\)</span> are independent under the Poissonized model.</p></li>
+<li><p>Show <span class="math inline">\(Z = \sum_j Z_j\)</span> converges in distribution to <span class="math inline">\(\text{Poi}(e^{-c})\)</span> and conclude <span class="math inline">\(\Pr[Z = 0] \to e^{-e^{-c}}\)</span>.</p></li>
+<li><p>Explain the de-Poissonization step: why does the result for fixed <span class="math inline">\(n\ln n + cn\)</span> balls follow from the Poisson result?</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#3.3-application:-coupon-collector-exact-limit%7Csection-3.3-(coupon-collector-limit)/">#3.3 Application: Coupon Collector Exact Limit|Section 3.3 (Coupon Collector Limit)</a>, <a href="../../../../notes/#3.2-the-poissonization-theorem%7Csection-3.2-(poissonization-theorem)/">#3.2 The Poissonization Theorem|Section 3.2 (Poissonization Theorem)</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 6
+<strong>Key insight:</strong> The convergence <span class="math inline">\(\text{Bin}(n,p) \to \text{Poi}(np)\)</span> when <span class="math inline">\(np \to \lambda\)</span> is the core of the calculation; Poissonization provides the independence needed to apply it.</p>
+<p><strong>Sketch:</strong>
+(a) Under <span class="math inline">\(K \sim \text{Poi}(n\ln n + cn)\)</span>, bin <span class="math inline">\(j\)</span> has load <span class="math inline">\(\text{Poi}(\ln n + c)\)</span>. So <span class="math inline">\(\Pr[Z_j = 1] = e^{-(\ln n + c)} = e^{-c}/n\)</span>.</p>
+<ol start="2" type="a">
+<li><p>By Theorem 1, the bin loads are independent, so the indicators <span class="math inline">\(Z_j\)</span> (functions of individual loads) are also independent.</p></li>
+<li><p><span class="math inline">\(Z = \sum_j Z_j\)</span> with independent Bernoullis each of probability <span class="math inline">\(e^{-c}/n\)</span>, so <span class="math inline">\(Z \sim \text{Bin}(n, e^{-c}/n) \to \text{Poi}(e^{-c})\)</span>. Then <span class="math inline">\(\Pr[Z=0] \to e^{-e^{-c}}\)</span>.</p></li>
+<li><p>For de-Poissonization: <span class="math inline">\(K \sim \text{Poi}(n\ln n + cn)\)</span> satisfies <span class="math inline">\(\Pr[|K - (n\ln n+cn)| &gt; n^{2/3}] = o(1)\)</span> by Chernoff. Since <span class="math inline">\(T\)</span> (coverage time) is monotone decreasing in the number of balls, <span class="math inline">\(\Pr[T \geq n\ln n + cn]\)</span> in the fixed-ball model is sandwiched between the Poisson probabilities at <span class="math inline">\(n\ln n + cn \pm n^{2/3}\)</span>, both of which converge to <span class="math inline">\(1 - e^{-e^{-c}}\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<div class="callout callout-info">
+<p> Exercise 7</p>
+<p><em>This exercise proves the stochastic dominance lemma and explains why the formal power-of-two-choices argument goes through despite dependencies.</em></p>
+<p>Let <span class="math inline">\(X_1, \ldots, X_n\)</span> be <span class="math inline">\(\{0,1\}\)</span>-valued random variables such that <span class="math inline">\(\Pr[X_j = 1 \mid X_1, \ldots, X_{j-1}] \leq p\)</span> almost surely for each <span class="math inline">\(j\)</span>.</p>
+<ol type="a">
+<li><p>Show by induction on <span class="math inline">\(n\)</span> that <span class="math inline">\(\Pr[X_1 = x_1, \ldots, X_n = x_n] \leq p^{\sum x_i}(1-p)^{n - \sum x_i}\)</span> for all <span class="math inline">\((x_1,\ldots,x_n) \in \{0,1\}^n\)</span>.</p></li>
+<li><p>Conclude that <span class="math inline">\(S = \sum_j X_j\)</span> is stochastically dominated by <span class="math inline">\(\text{Bin}(n,p)\)</span>: <span class="math inline">\(\Pr[S \geq k] \leq \Pr[Y \geq k]\)</span> where <span class="math inline">\(Y \sim \text{Bin}(n,p)\)</span>.</p></li>
+<li><p>Apply this with <span class="math inline">\(p = (B_i/n)^2\)</span> and <span class="math inline">\(n\)</span> balls to bound <span class="math inline">\(\mathbb{E}[B_{i+1}]\)</span> and <span class="math inline">\(\Pr[B_{i+1} &gt; 2n(B_i/n)^2]\)</span> via a Chernoff bound on <span class="math inline">\(\text{Bin}(n,p)\)</span>.</p></li>
+</ol>
+<blockquote>
+<p><strong>Prerequisites:</strong> <a href="../../../../notes/#4.3-stochastic-dominance-and-formal-justification%7Csection-4.3-(stochastic-dominance)/">#4.3 Stochastic Dominance and Formal Justification|Section 4.3 (Stochastic Dominance)</a>, <a href="../../../../notes/#4.2-proof-via-load-level-recursion%7Csection-4.2/">#4.2 Proof via Load-Level Recursion|Section 4.2</a></p>
+</blockquote>
+<p>[!TIP]- Solution to Exercise 7
+<strong>Key insight:</strong> The conditional probability bound <span class="math inline">\(\Pr[X_j=1|\text{history}] \leq p\)</span> is exactly what’s needed to dominate by an i.i.d. sequence; the inductive factorization of joint probabilities makes this precise.</p>
+<p><strong>Sketch:</strong>
+(a) Base: <span class="math inline">\(\Pr[X_1 = 1] \leq p\)</span> and <span class="math inline">\(\Pr[X_1 = 0] \leq 1 = (1-p)^0\)</span> — wait, more carefully: <span class="math inline">\(\Pr[X_1=0]=1-\Pr[X_1=1] \geq 1-p\)</span>. For the inductive step, <span class="math inline">\(\Pr[X_1=x_1,\ldots,X_n=x_n] = \Pr[X_n=x_n|X_1,\ldots,X_{n-1}]\cdot\Pr[X_1=x_1,\ldots,X_{n-1}=x_{n-1}] \leq p^{x_n}(1-p)^{1-x_n}\cdot p^{\sum_{i&lt;n}x_i}(1-p)^{n-1-\sum_{i&lt;n}x_i}\)</span>.</p>
+<ol start="2" type="a">
+<li><p><span class="math inline">\(\Pr[S \geq k] = \sum_{(x_1,\ldots,x_n):\sum x_i \geq k}\Pr[\mathbf{X}=\mathbf{x}] \leq \sum_{\mathbf{x}:\sum x_i \geq k}p^{\sum x_i}(1-p)^{n-\sum x_i} = \Pr[Y \geq k]\)</span>.</p></li>
+<li><p>With <span class="math inline">\(p=(B_i/n)^2\)</span>, <span class="math inline">\(\mathbb{E}[B_{i+1}] \leq np = B_i^2/n\)</span>. Chernoff on <span class="math inline">\(\text{Bin}(n,p)\)</span> gives <span class="math inline">\(\Pr[\text{Bin}(n,p) &gt; 2np] \leq e^{-np/3} = e^{-B_i^2/(3n)}\)</span>, which is polynomially small when <span class="math inline">\(B_i \geq n^{1/2+\epsilon}\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mitzenmacher &amp; Upfal, <em>Probability and Computing</em></td>
+<td>Textbook covering balls-in-bins, Poisson approximation, and the power of two choices in depth</td>
+<td><a href="https://www.cambridge.org/us/universitypress/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/probability-and-computing-randomization-and-probabilistic-techniques-algorithms-and-data-analysis-2nd-edition">Cambridge UP</a></td>
+</tr>
+<tr class="even">
+<td>Mitzenmacher, “The Power of Two Choices in Randomized Load Balancing” (1996 thesis)</td>
+<td>Original analysis of the two-choice protocol with full proofs</td>
+<td><a href="http://www.eecs.harvard.edu/~michaelm/postscripts/tpds2001.pdf">Harvard TR</a></td>
+</tr>
+<tr class="odd">
+<td>Azar, Broder, Karlin, Upfal, “Balanced Allocations” (STOC 1994)</td>
+<td>Seminal paper proving the <span class="math inline">\(\log_2\log_2 n + O(1)\)</span> bound for two choices</td>
+<td><a href="https://dl.acm.org/doi/10.1145/195058.195412">ACM DL</a></td>
+</tr>
+<tr class="even">
+<td>Flajolet &amp; Sedgewick, <em>Analytic Combinatorics</em></td>
+<td>Rigorous treatment of Poissonization and de-Poissonization methods</td>
+<td><a href="https://www.cambridge.org/core/books/analytic-combinatorics/DBE5B9B3965CAD8C97BD26A3BF7C0E76">Cambridge UP</a></td>
+</tr>
+<tr class="odd">
+<td>Valiant &amp; Wootters, CS 265 Lecture Notes (Stanford, 2020)</td>
+<td>Primary source for the presentation and proof structure in this note</td>
+<td>Course website</td>
+</tr>
+<tr class="even">
+<td>Raab &amp; Steger, “Balls into Bins — A Simple and Tight Analysis” (RANDOM 1998)</td>
+<td>Clean tight analysis of the max load upper and lower bounds</td>
+<td><a href="https://link.springer.com/chapter/10.1007/3-540-49543-6_13">Springer</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

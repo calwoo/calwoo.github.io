@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>polarquant - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>polarquant</h1>
+            <article>
+    <section>
+        <p><strong>Insu Han, Praneeth Kacham, Vahab Mirrokni, Amin Karbasi, Amir Zandieh</strong> — arXiv:2502.02617 [cs.LG], February 2025</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 27%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quantization space</td>
+<td>Cartesian coordinates; requires per-block normalization (min/max) stored in FP16</td>
+<td>Polar coordinates after random preconditioning; angle distribution is known analytically</td>
+<td>No stored normalization constants</td>
+</tr>
+<tr class="even">
+<td>Angle distribution</td>
+<td>Unknown / data-dependent</td>
+<td>After random rotation, each level-<span class="math inline">\(\ell\)</span> angle independently follows <span class="math inline">\(\propto \sin^{2^{\ell-1}-1}(2\psi)\)</span> with <span class="math inline">\(\text{Var}(\psi) = O(1/\sqrt{d})\)</span></td>
+<td>Enables offline optimal codebook design</td>
+</tr>
+<tr class="odd">
+<td>Compression</td>
+<td>KIVI 3 bits, KVQuant 4.3 bits</td>
+<td>3.875 bits per coordinate (4+2+2+2 bit levels + 1 stored radius)</td>
+<td>&gt;4.2× compression vs. FP16</td>
+</tr>
+<tr class="even">
+<td>Long-context recall</td>
+<td>KIVI NIAH score 0.984; SnapKV 0.858</td>
+<td>PolarQuant NIAH score <strong>0.991</strong></td>
+<td>Best quality on needle-in-haystack at 104K context</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a> (random preconditioning idea; same research group)
+<strong>Extended by:</strong> <a href="../../../../notes/papers/kv-cache-quantization/turboquant%7Cturboquant/">papers/kv-cache-quantization/turboquant|TurboQuant</a> <em>(similar random-rotation paradigm)</em>
+<strong>Concepts used:</strong> <a href="../../../../notes/concepts/randomized-algorithms/metric-geometry-and-dimension-reduction%7Cjl-transform-and-metric-dimension-reduction/">concepts/randomized-algorithms/metric-geometry-and-dimension-reduction|JL Transform and Metric Dimension Reduction</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation:-why-polar-coordinates?%7C1.-motivation:-why-polar-coordinates?/">#1. Motivation: Why Polar Coordinates?|1. Motivation: Why Polar Coordinates?</a></li>
+<li><a href="../../../../notes/#2.-random-preconditioning-and-angle-distributions%7C2.-random-preconditioning-and-angle-distributions/">#2. Random Preconditioning and Angle Distributions|2. Random Preconditioning and Angle Distributions</a>
+<ul>
+<li><a href="../../../../notes/#2.1-isotropic-gaussian-after-preconditioning%7C2.1-isotropic-gaussian-after-preconditioning/">#2.1 Isotropic Gaussian After Preconditioning|2.1 Isotropic Gaussian After Preconditioning</a></li>
+<li><a href="../../../../notes/#2.2-angle-distribution-in-2d-(lemma-1)%7C2.2-angle-distribution-in-2d-(lemma-1)/">#2.2 Angle Distribution in 2D (Lemma 1)|2.2 Angle Distribution in 2D (Lemma 1)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-recursive-polar-transformation%7C3.-recursive-polar-transformation/">#3. Recursive Polar Transformation|3. Recursive Polar Transformation</a>
+<ul>
+<li><a href="../../../../notes/#3.1-definition%7C3.1-definition/">#3.1 Definition|3.1 Definition</a></li>
+<li><a href="../../../../notes/#3.2-distribution-of-all-angles-(lemma-2)%7C3.2-distribution-of-all-angles-(lemma-2)/">#3.2 Distribution of All Angles (Lemma 2)|3.2 Distribution of All Angles (Lemma 2)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-polarquant-algorithm%7C4.-polarquant-algorithm/">#4. PolarQuant Algorithm|4. PolarQuant Algorithm</a>
+<ul>
+<li><a href="../../../../notes/#4.1-codebook-construction%7C4.1-codebook-construction/">#4.1 Codebook Construction|4.1 Codebook Construction</a></li>
+<li><a href="../../../../notes/#4.2-main-error-bound-(theorem-1)%7C4.2-main-error-bound-(theorem-1)/">#4.2 Main Error Bound (Theorem 1)|4.2 Main Error Bound (Theorem 1)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-kv-cache-application%7C5.-kv-cache-application/">#5. KV Cache Application|5. KV Cache Application</a></li>
+<li><a href="../../../../notes/#6.-experiments%7C6.-experiments/">#6. Experiments|6. Experiments</a></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-why-polar-coordinates">1. Motivation: Why Polar Coordinates?</h2>
+<p>📐 Classical block quantization of Cartesian coordinates requires storing a <em>scale</em> and <em>zero-point</em> per block because the range of coordinates is data-dependent. The overhead is unavoidable without knowing the distribution in advance.</p>
+<p>The key insight of PolarQuant: <strong>after a random rotation, the distribution of each embedding vector becomes (approximately) isotropic Gaussian regardless of the original data</strong>. A Gaussian vector’s polar representation — its angles — then has a known, analytically-computable distribution. This means we can design optimal quantization codebooks <em>offline</em> and store them as constants, eliminating all per-vector normalization overhead.</p>
+<div class="callout callout-note">
+<p> Contrast with QJL
+<a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a> also applies a random projection as a preprocessing step, but quantizes in the Cartesian (sign-bit) domain. PolarQuant instead converts to polar coordinates and quantizes the angles, yielding a different trade-off: richer quantization at the cost of a more complex encoding/decoding algorithm.</p>
+</div>
+<hr />
+<h2 id="random-preconditioning-and-angle-distributions">2. Random Preconditioning and Angle Distributions</h2>
+<h3 id="isotropic-gaussian-after-preconditioning">2.1 Isotropic Gaussian After Preconditioning</h3>
+<p><strong>Fact (Preconditioning induces Gaussianity).</strong> For any fixed <span class="math inline">\(x \in \mathbb{R}^d\)</span>, if <span class="math inline">\(S \in \mathbb{R}^{d \times d}\)</span> has i.i.d. entries <span class="math inline">\(S_{ij} \sim \mathcal{N}(0,1)\)</span>, then</p>
+<p><span class="math display">\[S \cdot x \sim \mathcal{N}(0, \|x\|_2^2 \cdot I_d).\]</span></p>
+<p>The resulting vector is <em>isotropic</em> up to scaling by <span class="math inline">\(\|x\|_2\)</span>. Any two coordinates <span class="math inline">\(i \neq j\)</span> of <span class="math inline">\(Sx\)</span> are independent zero-mean Gaussians with the same variance. This isotropy is what makes the angle distribution analytically tractable.</p>
+<div class="callout callout-info">
+<p> Practical implementation uses a random rotation matrix
+In practice, PolarQuant uses a random <em>rotation</em> matrix <span class="math inline">\(S\)</span> satisfying <span class="math inline">\(S^\top S = I\)</span> rather than an i.i.d. Gaussian matrix. This preserves norms and inner products <em>exactly</em>, whereas an i.i.d. Gaussian matrix preserves them only approximately (up to JL distortion). The independence property used in the analysis is slightly weaker for rotation matrices but the empirical behavior is similar.</p>
+</div>
+<h3 id="angle-distribution-in-2d-lemma-1">2.2 Angle Distribution in 2D (Lemma 1)</h3>
+<p><strong>Lemma 1.</strong> Let <span class="math inline">\(x, y \geq 0\)</span> be i.i.d. samples from the generalized Gamma distribution with PDF</p>
+<p><span class="math display">\[f_Z(z) = \frac{2}{2^{d/2} \Gamma(d/2)}\, z^{d-1} e^{-z^2/2}.\]</span></p>
+<p>Define the polar angle <span class="math inline">\(\theta := \tan^{-1}(y/x) \in [0, \pi/2]\)</span>. Then</p>
+<p><span class="math display">\[f_\Theta(\theta) = \frac{\Gamma(d)}{2^{d-2}\,\Gamma(d/2)^2}\,\sin^{d-1}(2\theta),\]</span></p>
+<p>with <span class="math inline">\(\mathbb{E}[\Theta] = \pi/4\)</span> and <span class="math inline">\(\text{Var}(\Theta) = O(1/\sqrt{d})\)</span>.</p>
+<p>📐 <em>Interpretation:</em> The angle concentrates near <span class="math inline">\(\pi/4\)</span> (equal contributions from both coordinates) and its variance <em>shrinks</em> as <span class="math inline">\(d\)</span> grows. For large <span class="math inline">\(d\)</span>, the angle is nearly a point mass at <span class="math inline">\(\pi/4\)</span>. This concentration is what allows very few bits to represent these angles accurately — there is simply not much variability to encode.</p>
+<div class="callout callout-example">
+<p> Concentration of angles
+At <span class="math inline">\(d = 128\)</span> (typical LLM embedding dim), <span class="math inline">\(\text{Var}(\theta) \approx O(d^{-1/2}) \approx 0.09\)</span> radians, meaning angles deviate from <span class="math inline">\(\pi/4\)</span> by about <span class="math inline">\(\pm 17°\)</span> on average. A uniform 3-bit quantizer over <span class="math inline">\([0, \pi/2]\)</span> already achieves low error. PolarQuant’s <em>optimal</em> (Lloyd-Max) quantizer does even better.</p>
+</div>
+<hr />
+<h2 id="recursive-polar-transformation">3. Recursive Polar Transformation</h2>
+<h3 id="definition">3.1 Definition</h3>
+<p>🔑 <strong>Definition 1 (Cartesian to Polar Transformation).</strong> For <span class="math inline">\(d = 2^J\)</span> (a power of two), define a <em>tree-structured</em> polar transform of <span class="math inline">\(x \in \mathbb{R}^d\)</span> with <span class="math inline">\(\log_2 d\)</span> levels. At level <span class="math inline">\(\ell \in \{1, \ldots, \log_2 d\}\)</span>, there are <span class="math inline">\(d/2^\ell\)</span> angles:</p>
+<p><span class="math display">\[\psi_j^{(\ell)} := \tan^{-1}\!\left(\frac{\|r^{(\ell-1)}_{(j-1/2) \cdot 2 + 1 : j \cdot 2}\|_2}{\|r^{(\ell-1)}_{(j-1) \cdot 2 + 1 : (j-1/2) \cdot 2}\|_2}\right), \quad j \in [d/2^\ell],\]</span></p>
+<p>where <span class="math inline">\(r^{(0)} = x\)</span> and <span class="math inline">\(r_j^{(\ell)} = \|r^{(\ell-1)}_{2j-1:2j}\|_2\)</span> are the Euclidean norms of successive pairs.</p>
+<p>The transform produces <span class="math inline">\(d - 1\)</span> angles across <span class="math inline">\(\log_2 d\)</span> levels (level 1 has <span class="math inline">\(d/2\)</span> angles in <span class="math inline">\([0, 2\pi)\)</span>; levels <span class="math inline">\(\ell \geq 2\)</span> have <span class="math inline">\(d/2^\ell\)</span> angles each in <span class="math inline">\([0, \pi/2]\)</span>) plus a single final radius <span class="math inline">\(r^{(\log_2 d)} = \|x\|_2\)</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polar_transform(x):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Tree-structured Cartesian-to-polar transform. d must be power of 2.&quot;&quot;&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> <span class="bu">len</span>(x)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> x.copy()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    angles <span class="op">=</span> []</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> level <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(np.log2(d))):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        new_r <span class="op">=</span> []</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        level_angles <span class="op">=</span> []</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(r) <span class="op">//</span> <span class="dv">2</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            a, b <span class="op">=</span> r[<span class="dv">2</span><span class="op">*</span>j], r[<span class="dv">2</span><span class="op">*</span>j<span class="op">+</span><span class="dv">1</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            level_angles.append(np.arctan2(b, a))  <span class="co"># angle in [0, 2pi) for level 0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            new_r.append(np.hypot(a, b))            <span class="co"># norm of pair</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        angles.append(np.array(level_angles))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> np.array(new_r)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> r[<span class="dv">0</span>], angles  <span class="co"># (scalar radius, list of angle vectors)</span></span></code></pre></div>
+<p><img src="figures/polarquant/polarquant-fig1-recursive-polar-transform.png" alt="Figure 1 from Han et al. (2025): overview of the recursive polar transformation procedure" />
+<em>Figure 1 (Han et al., 2025): The tree-structured polar transformation applied to a <span class="math inline">\(d\)</span>-dimensional input (shown in blue, left). At each level, successive coordinate pairs are replaced by their Euclidean norm (propagated upward, shown in red) and their arctangent angle (stored as output). After <span class="math inline">\(\log_2 d\)</span> levels, the representation consists of <span class="math inline">\(d-1\)</span> angles at varying levels plus a single scalar radius.</em></p>
+<div class="callout callout-info">
+<p> Information content of the representation
+The <span class="math inline">\(d-1\)</span> angles plus 1 radius together encode the full <span class="math inline">\(d\)</span>-dimensional vector. The radius <span class="math inline">\(\|x\|_2\)</span> is stored in FP16 (16 bits). The angles are quantized with varying bit widths per level, as described in Section 4.</p>
+</div>
+<h3 id="distribution-of-all-angles-lemma-2">3.2 Distribution of All Angles (Lemma 2)</h3>
+<p><strong>Lemma 2 (Distribution of Gaussian vector under polar transformation).</strong> For <span class="math inline">\(x \sim \mathcal{N}(0, I_d)\)</span>, the joint PDF of the radius <span class="math inline">\(r = \|x\|_2\)</span> and all angles <span class="math inline">\(\psi^{(1)}, \ldots, \psi^{(\log_2 d)}\)</span> <strong>factorizes</strong>:</p>
+<p><span class="math display">\[f_{R, \Psi_d}(r, \psi_d(x)) = f_R(r) \cdot \prod_{\ell=1}^{\log_2 d} f_{\Psi^{(\ell)}}(\psi^{(\ell)}),\]</span></p>
+<p>where level-<span class="math inline">\(\ell\)</span> angles are i.i.d. with PDF</p>
+<p><span class="math display">\[f_\ell(\psi) = \frac{\Gamma(2^{\ell-1})}{2^{2^{\ell-1}-2}\,\Gamma(2^{\ell-2})^2}\,\sin^{2^{\ell-1}-1}(2\psi).\]</span></p>
+<p><em>Proof.</em> By induction on <span class="math inline">\(d\)</span>. Base case <span class="math inline">\(d=2\)</span>: the Jacobian of the polar change of variables for <span class="math inline">\((y_1, y_2) \mapsto (r, \theta)\)</span> is <span class="math inline">\(r\)</span>, giving <span class="math inline">\(f_{R,\Theta} = (1/2\pi) \cdot r e^{-r^2/2}\)</span>, which factors. Inductive step: writing <span class="math inline">\(x = (x_{1:d/2}, x_{d/2+1:d})\)</span> with <span class="math inline">\(r_1 = \|x_{1:d/2}\|_2\)</span>, <span class="math inline">\(r_2 = \|x_{d/2+1:d}\|_2\)</span>, and <span class="math inline">\(\theta = \tan^{-1}(r_2/r_1)\)</span>, the joint density factors into contributions from each half (since <span class="math inline">\(x_{1:d/2} \perp x_{d/2+1:d}\)</span> under the Gaussian), applying the inductive hypothesis to each half. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Key implication: angles at different levels are independent
+The factored form means each angle can be quantized <em>independently</em> to minimize the total MSE. There is no benefit from joint coding, so the algorithm quantizes each angle separately with a 1D Lloyd-Max quantizer tuned to <span class="math inline">\(f_\ell\)</span>.</p>
+</div>
+<p><strong>Concentration across levels.</strong> The density <span class="math inline">\(\sin^{2^{\ell-1}-1}(2\psi)\)</span> becomes <em>more concentrated</em> around <span class="math inline">\(\pi/4\)</span> as <span class="math inline">\(\ell\)</span> increases (larger exponent → tighter peak). This means higher-level angles require <em>fewer bits</em> to quantize accurately. PolarQuant exploits this by using more bits at level 1 and fewer at deeper levels.</p>
+<hr />
+<h2 id="polarquant-algorithm">4. PolarQuant Algorithm</h2>
+<h3 id="codebook-construction">4.1 Codebook Construction</h3>
+<p>For each level <span class="math inline">\(\ell\)</span>, the quantization problem is a continuous 1D <span class="math inline">\(k\)</span>-means: partition <span class="math inline">\([0, \pi/2]\)</span> into <span class="math inline">\(2^b\)</span> intervals and find centroids <span class="math inline">\(\theta_1, \ldots, \theta_{2^b}\)</span> minimizing</p>
+<p><span class="math display">\[\mathbb{E}_{\psi \sim f_\ell}\!\left[\min_j (\psi - \theta_j)^2\right].\]</span></p>
+<p>Since <span class="math inline">\(f_\ell\)</span> is known analytically, this can be solved offline by the <em>Lloyd-Max algorithm</em> (iterative 1D <span class="math inline">\(k\)</span>-means). The resulting codebooks are precomputed constants — they do not depend on the data.</p>
+<div class="callout callout-tip">
+<p> Bit allocation per level
+Practical implementation uses 4 levels (<span class="math inline">\(L = 4\)</span>), giving blocks of 16 coordinates. Bit allocation:
+- Level 1: <strong>4 bits</strong> (range <span class="math inline">\([0, 2\pi)\)</span>, 4× wider than other levels)
+- Levels 2–4: <strong>2 bits each</strong>
+- Plus 1 FP16 radius per block of 16 coordinates</p>
+<p>Total: <span class="math inline">\((16 + 32 + 8 + 4 + 2)/16 = 62/16 = \mathbf{3.875}\)</span> bits/coordinate.</p>
+</div>
+<h3 id="main-error-bound-theorem-1">4.2 Main Error Bound (Theorem 1)</h3>
+<p><strong>Theorem 1.</strong> For <span class="math inline">\(x \sim \mathcal{N}(0, I_d)\)</span>, the PolarQuant scheme using <span class="math inline">\(O(\log 1/\varepsilon)\)</span> bits per coordinate reconstructs <span class="math inline">\(x'\)</span> satisfying</p>
+<p><span class="math display">\[\mathbb{E}\!\left[\|x - x'\|_2^2\right] = \varepsilon \cdot \|x\|_2^2.\]</span></p>
+<p>This matches the optimal ε-net construction (which rounds <span class="math inline">\(x/\|x\|_2\)</span> to the nearest point in an ε-net of <span class="math inline">\(S^{d-1}\)</span> of size <span class="math inline">\((1/\varepsilon)^d\)</span>) without the impractical codebook storage of size <span class="math inline">\((1/\varepsilon)^d\)</span>.</p>
+<div class="callout callout-warning">
+<p> Gaussian assumption
+Theorem 1 is stated for a Gaussian input; after random preconditioning, any fixed vector can be treated as approximately Gaussian (Fact 3), so the theorem applies. <em>Strictly speaking</em>, the result requires the random preconditioning matrix to have i.i.d. Gaussian entries, not just a rotation. The practical rotation-matrix implementation is justified empirically.</p>
+</div>
+<hr />
+<h2 id="kv-cache-application">5. KV Cache Application</h2>
+<p>Given a stream of queries, keys, and values <span class="math inline">\((q_i, k_i, v_i) \in \mathbb{R}^d\)</span>, the attention output is</p>
+<p><span class="math display">\[\text{softmax}\!\left(\frac{K_{:i} q_i^\top}{\sqrt{d}}\right) V_{:i}.\]</span></p>
+<p>PolarQuant applies Algorithm 1 to each <span class="math inline">\(k_i\)</span> and <span class="math inline">\(v_i\)</span> before caching. At query time, the <em>dequantized</em> keys <span class="math inline">\(\hat{k}_i\)</span> are used directly in the inner product computation. The angle codebooks are precomputed offline or via lightweight online <span class="math inline">\(k\)</span>-means during the prefill phase (online variant has slightly better quality).</p>
+<p>Memory analysis for Llama-3.1-8B-Instruct (<span class="math inline">\(d = 128\)</span>, FP16):
+<span class="math display">\[\text{Naive: } d \cdot 16 = 2048 \text{ bits}. \qquad \text{PolarQuant: } 16 + (127 \cdot 3.875) \approx 508 \text{ bits} \approx 4 \times \text{ compression.}\]</span></p>
+<hr />
+<h2 id="experiments">6. Experiments</h2>
+<p>All experiments on a single RTX A6000 GPU (48 GB). Benchmarks: LongBench (long-context QA), RULER (synthetic long-range recall), and Needle-In-A-Haystack (NIAH).</p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>~Bits/Coord</th>
+<th>NIAH Score (Llama-3.1-8B, 4K–104K)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FP16 (exact)</td>
+<td>16</td>
+<td>0.995</td>
+</tr>
+<tr class="even">
+<td>SnapKV</td>
+<td>—</td>
+<td>0.858</td>
+</tr>
+<tr class="odd">
+<td>PyramidKV</td>
+<td>—</td>
+<td>0.891</td>
+</tr>
+<tr class="even">
+<td>KIVI</td>
+<td>~3</td>
+<td>0.984</td>
+</tr>
+<tr class="odd">
+<td><strong>PolarQuant</strong></td>
+<td><strong>~3.875</strong></td>
+<td><strong>0.991</strong></td>
+</tr>
+<tr class="even">
+<td>PolarQuant-R (random codebook)</td>
+<td>~3.875</td>
+<td>0.990</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/polarquant/polarquant-fig3-niah-exact.png" alt="Figure 3 (FP16 exact) from Han et al. (2025): NIAH heatmap for FP16 baseline" />
+<em>Figure 3, FP16 Exact (Han et al., 2025): Needle-In-A-Haystack recall heatmap for the unquantized FP16 baseline on Llama-3.1-8B-Instruct. Sequence lengths range from 4K to 104K (x-axis) and needle depth from 0–100% (y-axis). Near-perfect recall (solid green) across all depths and lengths, with only a single orange cell at the very long context boundary — the ceiling reference.</em></p>
+<p><img src="figures/polarquant/polarquant-fig3-niah-kivi.png" alt="Figure 3 (KIVI) from Han et al. (2025): NIAH heatmap for KIVI 3-bit quantization" />
+<em>Figure 3, KIVI (Han et al., 2025): NIAH recall under KIVI 3-bit Cartesian quantization. Yellow and light-green patches appear at longer contexts (20K–65K) and certain depths, indicating recall failures from quantization errors on outlier key coordinates.</em></p>
+<p><img src="figures/polarquant/polarquant-fig3-niah-adapkvqrndrot.png" alt="Figure 3 (PolarQuant) from Han et al. (2025): NIAH heatmap for PolarQuant at ~3.875 bits/coord" />
+<em>Figure 3, PolarQuant (Han et al., 2025): NIAH recall for PolarQuant (~3.875 bits/coord) with random preconditioning. The heatmap closely matches the FP16 baseline — almost entirely solid green — demonstrating that the polar quantization scheme with preconditioning preserves long-context retrieval fidelity with greater than 4× compression over FP16.</em></p>
+<p><em>Surprising result:</em> PolarQuant’s random-preconditioning eliminates the outlier problem that plagues KIVI and requires special handling in QJL. As shown in Figure 2 of the paper, preconditioning “flattens” the angle distribution and removes outliers, allowing a single codebook to work well for all tokens across all layers.</p>
+<p><img src="figures/polarquant/polarquant-fig2a-angle-dist-no-precond.png" alt="Figure 2a from Han et al. (2025): angle distributions at each polar transform level without random preconditioning" />
+<em>Figure 2a (Han et al., 2025): Angle distributions at levels 1–4 of the polar transform <strong>without</strong> random preconditioning, measured on real key embeddings. Level-1 angles are multimodal with pronounced spikes near <span class="math inline">\(\pm\pi\)</span>, reflecting the non-isotropic structure of raw key vectors. A single offline codebook tuned to the theoretical <span class="math inline">\(\sin^{d-1}(2\psi)\)</span> density would perform poorly here.</em></p>
+<p><img src="figures/polarquant/polarquant-fig2b-angle-dist-with-precond.png" alt="Figure 2b from Han et al. (2025): angle distributions at each polar transform level with random preconditioning" />
+<em>Figure 2b (Han et al., 2025): The same angle distributions <strong>after</strong> random preconditioning. Level-1 angles are now nearly uniform over <span class="math inline">\([-\pi, \pi]\)</span>, and levels 2–4 are well-concentrated bell-shaped distributions centered at <span class="math inline">\(\pi/4\)</span>, closely matching the theoretical prediction of Lemma 2. The offline codebook is now optimal for the actual data distribution.</em></p>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 46%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Han et al. (PolarQuant, 2025)</td>
+<td>This paper</td>
+<td><a href="https://arxiv.org/abs/2502.02617">arXiv:2502.02617</a></td>
+</tr>
+<tr class="even">
+<td>Zandieh et al. (QJL, 2024)</td>
+<td>1-bit sign-based KV cache quantization</td>
+<td><a href="https://arxiv.org/abs/2406.03482">arXiv:2406.03482</a></td>
+</tr>
+<tr class="odd">
+<td>Dasgupta &amp; Gupta (JL, 2003)</td>
+<td>Elementary JL proof</td>
+<td><a href="https://onlinelibrary.wiley.com/doi/10.1002/rsa.10073">Paper</a></td>
+</tr>
+<tr class="even">
+<td>Touvron et al. (Llama-2, 2023)</td>
+<td>Open-source LLM used in experiments</td>
+<td><a href="https://arxiv.org/abs/2307.09288">arXiv:2307.09288</a></td>
+</tr>
+<tr class="odd">
+<td>Liu et al. (KIVI, 2024)</td>
+<td>Asymmetric 2-bit KV cache quantization</td>
+<td><a href="https://arxiv.org/abs/2402.02750">arXiv:2402.02750</a></td>
+</tr>
+<tr class="even">
+<td>Bai et al. (LongBench, 2023)</td>
+<td>Long-context bilingual benchmark</td>
+<td><a href="https://arxiv.org/abs/2308.14508">arXiv:2308.14508</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

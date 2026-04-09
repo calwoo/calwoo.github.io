@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>johnson-lindenstrauss - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>johnson-lindenstrauss</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-setup-and-motivation%7C1.-setup-and-motivation/">#1. Setup and Motivation|1. Setup and Motivation</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-curse-of-dimensionality%7C1.1-the-curse-of-dimensionality/">#1.1 The Curse of Dimensionality|1.1 The Curse of Dimensionality</a></li>
+<li><a href="../../../../notes/#1.2-notation-and-problem-statement%7C1.2-notation-and-problem-statement/">#1.2 Notation and Problem Statement|1.2 Notation and Problem Statement</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-the-johnson-lindenstrauss-lemma%7C2.-the-johnson-lindenstrauss-lemma/">#2. The Johnson-Lindenstrauss Lemma|2. The Johnson-Lindenstrauss Lemma</a>
+<ul>
+<li><a href="../../../../notes/#2.1-formal-statement%7C2.1-formal-statement/">#2.1 Formal Statement|2.1 Formal Statement</a></li>
+<li><a href="../../../../notes/#2.2-the-distributional-jl-lemma%7C2.2-the-distributional-jl-lemma/">#2.2 The Distributional JL Lemma|2.2 The Distributional JL Lemma</a></li>
+<li><a href="../../../../notes/#2.3-the-core-probabilistic-lemma%7C2.3-the-core-probabilistic-lemma/">#2.3 The Core Probabilistic Lemma|2.3 The Core Probabilistic Lemma</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-proof-via-gaussian-projection%7C3.-proof-via-gaussian-projection/">#3. Proof via Gaussian Projection|3. Proof via Gaussian Projection</a>
+<ul>
+<li><a href="../../../../notes/#3.1-construction-of-the-random-map%7C3.1-construction-of-the-random-map/">#3.1 Construction of the Random Map|3.1 Construction of the Random Map</a></li>
+<li><a href="../../../../notes/#3.2-chi-squared-concentration-via-mgf%7C3.2-chi-squared-concentration-via-mgf/">#3.2 Chi-Squared Concentration via MGF|3.2 Chi-Squared Concentration via MGF</a></li>
+<li><a href="../../../../notes/#3.3-completing-the-proof-by-union-bound%7C3.3-completing-the-proof-by-union-bound/">#3.3 Completing the Proof by Union Bound|3.3 Completing the Proof by Union Bound</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-inner-product-preservation%7C4.-inner-product-preservation/">#4. Inner Product Preservation|4. Inner Product Preservation</a></li>
+<li><a href="../../../../notes/#5.-matrix-constructions%7C5.-matrix-constructions/">#5. Matrix Constructions|5. Matrix Constructions</a>
+<ul>
+<li><a href="../../../../notes/#5.1-gaussian-matrices%7C5.1-gaussian-matrices/">#5.1 Gaussian Matrices|5.1 Gaussian Matrices</a></li>
+<li><a href="../../../../notes/#5.2-rademacher-and-sparse-matrices-(achlioptas-2003)%7C5.2-rademacher-and-sparse-matrices-(achlioptas-2003)/">#5.2 Rademacher and Sparse Matrices (Achlioptas 2003)|5.2 Rademacher and Sparse Matrices (Achlioptas 2003)</a></li>
+<li><a href="../../../../notes/#5.3-the-fast-jl-transform-(ailon-chazelle-2009)%7C5.3-the-fast-jl-transform-(ailon-chazelle-2009)/">#5.3 The Fast JL Transform (Ailon-Chazelle 2009)|5.3 The Fast JL Transform (Ailon-Chazelle 2009)</a></li>
+<li><a href="../../../../notes/#5.4-optimal-sparsity-(kane-nelson-2014)%7C5.4-optimal-sparsity-(kane-nelson-2014)/">#5.4 Optimal Sparsity (Kane-Nelson 2014)|5.4 Optimal Sparsity (Kane-Nelson 2014)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-lower-bounds%7C6.-lower-bounds/">#6. Lower Bounds|6. Lower Bounds</a>
+<ul>
+<li><a href="../../../../notes/#6.1-dimension-lower-bound-(larsen-nelson-2017)%7C6.1-dimension-lower-bound-(larsen-nelson-2017)/">#6.1 Dimension Lower Bound (Larsen-Nelson 2017)|6.1 Dimension Lower Bound (Larsen-Nelson 2017)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-applications%7C7.-applications/">#7. Applications|7. Applications</a>
+<ul>
+<li><a href="../../../../notes/#7.1-k-means-clustering%7C7.1-k-means-clustering/">#7.1 k-Means Clustering|7.1 k-Means Clustering</a></li>
+<li><a href="../../../../notes/#7.2-approximate-nearest-neighbors%7C7.2-approximate-nearest-neighbors/">#7.2 Approximate Nearest Neighbors|7.2 Approximate Nearest Neighbors</a></li>
+<li><a href="../../../../notes/#7.3-compressed-sensing-and-rip%7C7.3-compressed-sensing-and-rip/">#7.3 Compressed Sensing and RIP|7.3 Compressed Sensing and RIP</a></li>
+<li><a href="../../../../notes/#7.4-machine-learning%7C7.4-machine-learning/">#7.4 Machine Learning|7.4 Machine Learning</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ul>
+<hr />
+<h2 id="setup-and-motivation">1. Setup and Motivation 📐</h2>
+<h3 id="the-curse-of-dimensionality">1.1 The Curse of Dimensionality</h3>
+<p>Many computational tasks — nearest-neighbor search, clustering, regression — degrade severely as ambient dimension <span class="math inline">\(d\)</span> grows. Storage costs scale as <span class="math inline">\(O(nd)\)</span>, distance computations take <span class="math inline">\(O(d)\)</span> time, and geometric structures that hold in low dimensions (e.g., ball coverings with few centers) require exponentially many pieces in high dimensions. A central question in computational geometry and learning theory is: <strong>when can we reduce dimension without paying an unacceptable price in geometric fidelity?</strong></p>
+<p>The <em>Johnson-Lindenstrauss lemma</em> (JL lemma) gives a sharp, constructive answer for Euclidean geometry: any <span class="math inline">\(n\)</span>-point cloud in <span class="math inline">\(\mathbb{R}^d\)</span> can be linearly embedded into <span class="math inline">\(\mathbb{R}^k\)</span> with <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> while distorting every pairwise distance by at most a factor of <span class="math inline">\((1 \pm \varepsilon)\)</span>. <em>Crucially, the target dimension <span class="math inline">\(k\)</span> is independent of the original dimension <span class="math inline">\(d\)</span>.</em> 🔑</p>
+<p>The two plots below make the bound concrete. The first shows that <span class="math inline">\(k\)</span> grows only <em>logarithmically</em> in <span class="math inline">\(n\)</span>: even for <span class="math inline">\(n = 10^9\)</span> observations with <span class="math inline">\(\varepsilon = 0.1\)</span>, fewer than <span class="math inline">\(10^4\)</span> dimensions suffice. The second shows how rapidly <span class="math inline">\(k\)</span> decreases as the allowed distortion <span class="math inline">\(\varepsilon\)</span> grows — a factor-of-2 relaxation (from <span class="math inline">\(\varepsilon = 0.1\)</span> to <span class="math inline">\(\varepsilon = 0.3\)</span>) roughly halves the required dimension.</p>
+<p><img src="figures/johnson-lindenstrauss/sklearn-jl-fig1-nsamples-vs-ncomponents.png" alt="JL bound: minimum number of dimensions k as a function of number of samples n, for several values of epsilon" />
+<em>The JL bound <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> plotted on log-log axes. Each curve corresponds to a fixed distortion tolerance <span class="math inline">\(\varepsilon\)</span>. The logarithmic growth in <span class="math inline">\(n\)</span> is the central miracle: one million data points require only ~500 dimensions at <span class="math inline">\(\varepsilon = 0.5\)</span>. (Reproduced from <a href="https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_johnson_lindenstrauss_bound.html">scikit-learn JL bounds example</a>.)</em></p>
+<p><img src="figures/johnson-lindenstrauss/sklearn-jl-fig2-ncomponents-vs-eps.png" alt="JL bound: minimum number of dimensions k as a function of distortion epsilon, for several dataset sizes" />
+<em>The same bound viewed as <span class="math inline">\(k\)</span> versus <span class="math inline">\(\varepsilon\)</span> on a semi-log scale. The steep drop near <span class="math inline">\(\varepsilon = 0\)</span> reflects the <span class="math inline">\(\varepsilon^{-2}\)</span> factor; beyond <span class="math inline">\(\varepsilon \approx 0.3\)</span> the curves flatten. (Reproduced from <a href="https://scikit-learn.org/stable/auto_examples/miscellaneous/plot_johnson_lindenstrauss_bound.html">scikit-learn JL bounds example</a>.)</em></p>
+<h3 id="notation-and-problem-statement">1.2 Notation and Problem Statement</h3>
+<p>Let <span class="math inline">\(\|\cdot\|\)</span> denote the Euclidean norm on <span class="math inline">\(\mathbb{R}^d\)</span>. For a map <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^k\)</span> and a set <span class="math inline">\(\mathcal{P} \subset \mathbb{R}^d\)</span> with <span class="math inline">\(|\mathcal{P}| = n\)</span>, we say <span class="math inline">\(f\)</span> is an <em><span class="math inline">\((1 \pm \varepsilon)\)</span>-isometric embedding</em> of <span class="math inline">\(\mathcal{P}\)</span> if</p>
+<p><span class="math display">\[
+(1 - \varepsilon)\|u - v\|^2 \leq \|f(u) - f(v)\|^2 \leq (1 + \varepsilon)\|u - v\|^2
+\quad \text{for all } u, v \in \mathcal{P}.
+\]</span></p>
+<p>We work with squared norms throughout since that is what Gaussian projections directly control; the <span class="math inline">\((1 \pm \varepsilon)\)</span> bound on squared distances implies a <span class="math inline">\((1 \pm \varepsilon)\)</span>-bound on distances to first order.</p>
+<div class="callout callout-note">
+<p> Reduction to a single vector
+Because <span class="math inline">\(f\)</span> is linear, <span class="math inline">\(\|f(u) - f(v)\|^2 = \|f(u - v)\|^2\)</span>. It therefore suffices to prove that a single fixed unit vector <span class="math inline">\(x \in \mathbb{R}^d\)</span> satisfies <span class="math inline">\((1-\varepsilon)\|x\|^2 \le \|f(x)\|^2 \le (1+\varepsilon)\|x\|^2\)</span> with high enough probability; we then union-bound over all <span class="math inline">\(\binom{n}{2}\)</span> pairs.</p>
+</div>
+<hr />
+<h2 id="the-johnson-lindenstrauss-lemma">2. The Johnson-Lindenstrauss Lemma 🔑</h2>
+<h3 id="formal-statement">2.1 Formal Statement</h3>
+<p><strong>Theorem (Johnson-Lindenstrauss, 1984).</strong> Let <span class="math inline">\(\varepsilon \in (0, 1)\)</span> and let <span class="math inline">\(\mathcal{P} \subset \mathbb{R}^d\)</span> be a finite set of <span class="math inline">\(n\)</span> points. Set</p>
+<p><span class="math display">\[
+k \geq \frac{4 \ln n}{\varepsilon^2 / 2 - \varepsilon^3 / 3}.
+\]</span></p>
+<p>Then there exists a linear map <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^k\)</span> such that <span class="math inline">\(f\)</span> is a <span class="math inline">\((1 \pm \varepsilon)\)</span>-isometric embedding of <span class="math inline">\(\mathcal{P}\)</span>. Moreover, a random Gaussian projection achieves this with positive probability (in fact, with probability at least <span class="math inline">\(1 - 1/n\)</span>).</p>
+<p>The denominator simplifies: for small <span class="math inline">\(\varepsilon\)</span>, <span class="math inline">\(\varepsilon^2/2 - \varepsilon^3/3 \approx \varepsilon^2/2\)</span>, giving the cleaner sufficient condition <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span>.</p>
+<div class="callout callout-info">
+<p> Historical note
+The original 1984 paper by Johnson and Lindenstrauss used a non-constructive argument (via measure theory on the sphere) to show that a random orthogonal projection works. The explicit chi-squared analysis presented here is from Dasgupta and Gupta (2003), which gave the first <em>elementary</em> proof.</p>
+</div>
+<h3 id="the-distributional-jl-lemma">2.2 The Distributional JL Lemma</h3>
+<p>The statement above guarantees existence of a good embedding; in practice we want to <em>sample</em> the embedding without seeing the data. The distributional form captures this.</p>
+<p><strong>Lemma (Distributional JL Lemma).</strong> For every <span class="math inline">\(d \in \mathbb{N}\)</span>, <span class="math inline">\(\varepsilon, \delta \in (0,1)\)</span>, there exists a distribution <span class="math inline">\(\mathcal{F}\)</span> over linear maps <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^k\)</span> with <span class="math inline">\(k = \Theta(\varepsilon^{-2} \log(1/\delta))\)</span> such that for every fixed <span class="math inline">\(x \in \mathbb{R}^d\)</span>:</p>
+<p><span class="math display">\[\Pr_{f \sim \mathcal{F}}\!\left[\bigl|\|f(x)\|^2 - \|x\|^2\bigr| \leq \varepsilon\|x\|^2\right] \geq 1 - \delta.\]</span></p>
+<p>The JL theorem (Lemma 2.1) follows from the distributional version by setting <span class="math inline">\(\delta = 1/n^2\)</span> and union-bounding over all <span class="math inline">\(\binom{n}{2}\)</span> pairs of difference vectors.</p>
+<div class="callout callout-note">
+<p> Data-obliviousness
+The distribution <span class="math inline">\(\mathcal{F}\)</span> depends only on <span class="math inline">\(d\)</span>, <span class="math inline">\(\varepsilon\)</span>, and <span class="math inline">\(\delta\)</span> — <em>not</em> on the input vectors. This means we can sample <span class="math inline">\(f\)</span> before seeing the data, compute the sketch in one pass over a stream, or distribute the computation across machines that each hold part of the dataset. The Gaussian JL matrix is an explicit witness to <span class="math inline">\(\mathcal{F}\)</span>.</p>
+</div>
+<h3 id="the-core-probabilistic-lemma">2.3 The Core Probabilistic Lemma</h3>
+<p>The proof reduces to establishing the following one-vector concentration result.</p>
+<p><strong>Lemma (JL Concentration).</strong> Let <span class="math inline">\(x \in \mathbb{R}^d\)</span> with <span class="math inline">\(\|x\| = 1\)</span>. Let <span class="math inline">\(A \in \mathbb{R}^{k \times d}\)</span> have i.i.d. <span class="math inline">\(\mathcal{N}(0, 1)\)</span> entries, and set <span class="math inline">\(f(x) = \frac{1}{\sqrt{k}} A x\)</span>. Then for any <span class="math inline">\(\varepsilon \in (0, 1)\)</span>:</p>
+<p><span class="math display">\[
+\Pr\!\left[\left|\,\|f(x)\|^2 - 1\,\right| &gt; \varepsilon\right] \leq 2 e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}.
+\]</span></p>
+<p>The JL theorem then follows by taking <span class="math inline">\(k\)</span> large enough that this failure probability is at most <span class="math inline">\(1/n^2\)</span>, and applying a union bound over the <span class="math inline">\(\binom{n}{2} &lt; n^2/2\)</span> pairs.</p>
+<hr />
+<h2 id="proof-via-gaussian-projection">3. Proof via Gaussian Projection 📐</h2>
+<h3 id="construction-of-the-random-map">3.1 Construction of the Random Map</h3>
+<p>Fix a unit vector <span class="math inline">\(x \in \mathbb{R}^d\)</span>. Let <span class="math inline">\(g_1, \ldots, g_k \sim \mathcal{N}(0, I_d)\)</span> be independent standard Gaussian vectors. Define</p>
+<p><span class="math display">\[
+Y_i = \langle g_i, x \rangle, \qquad i = 1, \ldots, k.
+\]</span></p>
+<p>Since <span class="math inline">\(x\)</span> is a fixed unit vector and <span class="math inline">\(g_i\)</span> is an isotropic Gaussian, <span class="math inline">\(Y_i = g_i^\top x \sim \mathcal{N}(0, \|x\|^2) = \mathcal{N}(0, 1)\)</span>. The <span class="math inline">\(Y_i\)</span> are i.i.d.</p>
+<p>Setting <span class="math inline">\(Z = \sum_{i=1}^{k} Y_i^2\)</span>, we have <span class="math inline">\(Z \sim \chi^2(k)\)</span>, a <em>chi-squared distribution</em> with <span class="math inline">\(k\)</span> degrees of freedom. The map <span class="math inline">\(f(x) = \frac{1}{\sqrt{k}}(Y_1, \ldots, Y_k)\)</span> satisfies</p>
+<p><span class="math display">\[
+\|f(x)\|^2 = \frac{1}{k} \sum_{i=1}^{k} Y_i^2 = \frac{Z}{k}.
+\]</span></p>
+<p>We need to show <span class="math inline">\(Z/k\)</span> concentrates near <span class="math inline">\(1 = \mathbb{E}[Z/k]\)</span>.</p>
+<h3 id="chi-squared-concentration-via-mgf">3.2 Chi-Squared Concentration via MGF</h3>
+<p>We bound both tails using the <em>moment generating function</em> (MGF) technique — the same Chernoff method used for sums of Bernoullis, adapted to chi-squared random variables.</p>
+<p><strong>Step 1: MGF of a chi-squared.</strong> For <span class="math inline">\(Y \sim \mathcal{N}(0,1)\)</span> and <span class="math inline">\(t &lt; 1/2\)</span>,</p>
+<p><span class="math display">\[
+M_{Y^2}(t) = \mathbb{E}[e^{t Y^2}] = \int_{-\infty}^{\infty} e^{ty^2} \frac{e^{-y^2/2}}{\sqrt{2\pi}} \, dy = \frac{1}{\sqrt{1 - 2t}},
+\]</span></p>
+<p>obtained by completing the exponent <span class="math inline">\(ty^2 - y^2/2 = -\frac{1-2t}{2}y^2\)</span> and recognizing a Gaussian integral. Since <span class="math inline">\(Y_1, \ldots, Y_k\)</span> are independent,</p>
+<p><span class="math display">\[
+M_Z(t) = \mathbb{E}[e^{tZ}] = \prod_{i=1}^{k} M_{Y_i^2}(t) = (1 - 2t)^{-k/2}, \qquad t &lt; \tfrac{1}{2}.
+\]</span></p>
+<p><strong>Step 2: Upper tail.</strong> We want <span class="math inline">\(\Pr[Z \geq (1 + \varepsilon)k]\)</span>. Markov on the MGF gives, for any <span class="math inline">\(t &gt; 0\)</span>:</p>
+<p><span class="math display">\[
+\Pr[Z \geq (1+\varepsilon)k] = \Pr[e^{tZ} \geq e^{t(1+\varepsilon)k}] \leq \frac{M_Z(t)}{e^{t(1+\varepsilon)k}} = \frac{e^{-t(1+\varepsilon)k}}{(1-2t)^{k/2}}.
+\]</span></p>
+<p>Taking the logarithm, we minimize over <span class="math inline">\(t \in (0, 1/2)\)</span>:</p>
+<p><span class="math display">\[
+\ln \Pr[\cdots] \leq -t(1+\varepsilon)k - \tfrac{k}{2}\ln(1-2t).
+\]</span></p>
+<p>Setting the derivative with respect to <span class="math inline">\(t\)</span> to zero yields the optimal <span class="math inline">\(t^* = \varepsilon / (2(1+\varepsilon))\)</span>. Substituting and using <span class="math inline">\(\ln(1-u) \leq -u - u^2/2\)</span> for <span class="math inline">\(u \in (0,1)\)</span> gives the bound</p>
+<p><span class="math display">\[
+\Pr[Z \geq (1+\varepsilon)k] \leq \left((1+\varepsilon)e^{-\varepsilon}\right)^{k/2}.
+\]</span></p>
+<p>Using <span class="math inline">\(\ln(1+\varepsilon) \leq \varepsilon - \varepsilon^2/2 + \varepsilon^3/3\)</span> one obtains</p>
+<p><span class="math display">\[
+\Pr[Z \geq (1+\varepsilon)k] \leq e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}.
+\]</span></p>
+<p><strong>Step 3: Lower tail.</strong> The argument is symmetric. We want <span class="math inline">\(\Pr[Z \leq (1-\varepsilon)k]\)</span>, which uses the MGF at negative <span class="math inline">\(t\)</span>. An analogous optimization yields</p>
+<p><span class="math display">\[
+\Pr[Z \leq (1-\varepsilon)k] \leq \left((1-\varepsilon)e^{\varepsilon}\right)^{k/2} \leq e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}.
+\]</span></p>
+<div class="callout callout-note">
+<p> Symmetry of the two tails
+The upper and lower tail bounds have identical exponents — a consequence of the chi-squared distribution being a sum of i.i.d. squared Gaussians, so both tails are controlled by the same MGF argument.</p>
+</div>
+<p><strong>Step 4: Combining.</strong> By the union bound,</p>
+<p><span class="math display">\[
+\Pr\!\left[\left|\frac{Z}{k} - 1\right| &gt; \varepsilon\right] \leq 2e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}.
+\]</span></p>
+<p>This completes the proof of the JL Concentration Lemma.</p>
+<h3 id="completing-the-proof-by-union-bound">3.3 Completing the Proof by Union Bound</h3>
+<p>There are <span class="math inline">\(\binom{n}{2}\)</span> pairs <span class="math inline">\((u, v) \in \mathcal{P}^2\)</span> with <span class="math inline">\(u \neq v\)</span>. Apply the lemma to each difference vector <span class="math inline">\(x = (u-v)/\|u-v\|\)</span>. The probability that <em>any</em> pair fails is at most</p>
+<p><span class="math display">\[
+\binom{n}{2} \cdot 2 e^{-k(\varepsilon^2/2 - \varepsilon^3/3)} &lt; n^2 e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}.
+\]</span></p>
+<p>Setting this to be at most <span class="math inline">\(\delta\)</span> requires</p>
+<p><span class="math display">\[
+k \geq \frac{2\ln(n^2/\delta)}{\varepsilon^2/2 - \varepsilon^3/3} = \frac{4\ln(n/\sqrt{\delta})}{\varepsilon^2/2 - \varepsilon^3/3}.
+\]</span></p>
+<p>With <span class="math inline">\(\delta = 1/n\)</span> (so the embedding succeeds with probability <span class="math inline">\(\geq 1 - 1/n\)</span>):</p>
+<p><span class="math display">\[
+\boxed{k = O\!\left(\frac{\log n}{\varepsilon^2}\right).}
+\]</span></p>
+<p><strong>The target dimension <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> suffices regardless of the original dimension <span class="math inline">\(d\)</span>.</strong></p>
+<div class="callout callout-warning">
+<p> The <span class="math inline">\(\varepsilon^3/3\)</span> correction matters at large <span class="math inline">\(\varepsilon\)</span>
+The bound <span class="math inline">\(e^{-k(\varepsilon^2/2 - \varepsilon^3/3)}\)</span> requires <span class="math inline">\(\varepsilon &lt; 1\)</span> for the exponent to be negative. For <span class="math inline">\(\varepsilon\)</span> close to <span class="math inline">\(1\)</span> the cubic correction is non-negligible and one must track it carefully to get the precise constant in <span class="math inline">\(k\)</span>.</p>
+</div>
+<hr />
+<h2 id="inner-product-preservation">4. Inner Product Preservation</h2>
+<p>💡 A JL embedding is linear, so it also (approximately) preserves inner products — not just distances. This is the key property exploited in <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a> for KV cache quantization.</p>
+<p><strong>Corollary (Inner Product Preservation).</strong> Let <span class="math inline">\(f\)</span> be a linear <span class="math inline">\((1 \pm \varepsilon)\)</span>-JLT of a set <span class="math inline">\(\mathcal{P}\)</span> with <span class="math inline">\(-y \in \mathcal{P}\)</span> whenever <span class="math inline">\(y \in \mathcal{P}\)</span>. Then for every <span class="math inline">\(x, y \in \mathcal{P}\)</span>:</p>
+<p><span class="math display">\[|\langle f(x), f(y)\rangle - \langle x, y\rangle| \leq \varepsilon \|x\|_2 \|y\|_2.\]</span></p>
+<p>📐 <em>Proof.</em> Assume WLOG both are unit vectors (the general case follows by rescaling). By the <em>polarization identity</em>,</p>
+<p><span class="math display">\[4\langle u, v\rangle = \|u+v\|^2 - \|u-v\|^2,\]</span></p>
+<p>so</p>
+<p><span class="math display">\[4|\langle f(x), f(y)\rangle - \langle x, y\rangle| = \bigl|\|f(x+y)\|^2 - \|f(x-y)\|^2 - 4\langle x, y\rangle\bigr|\]</span></p>
+<p><span class="math display">\[\leq \bigl|(1+\varepsilon)\|x+y\|^2 - (1-\varepsilon)\|x-y\|^2 - 4\langle x,y\rangle\bigr|\]</span></p>
+<p><span class="math display">\[= \bigl|4\langle x,y\rangle + \varepsilon(\|x+y\|^2 + \|x-y\|^2) - 4\langle x,y\rangle\bigr| = \varepsilon(2\|x\|^2 + 2\|y\|^2) = 4\varepsilon. \quad\square\]</span></p>
+<p>The condition <span class="math inline">\(-y \in \mathcal{P}\)</span> ensures both <span class="math inline">\(x+y\)</span> and <span class="math inline">\(x-y\)</span> are difference vectors covered by the JLT guarantee.</p>
+<div class="callout callout-tip">
+<p> Application to attention scores
+In transformers, the attention score between query <span class="math inline">\(q\)</span> and key <span class="math inline">\(k\)</span> is <span class="math inline">\(\langle q, k\rangle/\sqrt{d}\)</span>. Inner product preservation means a JLT-based quantization (like <a href="../../../../notes/papers/kv-cache-quantization/qjl%7Cqjl/">papers/kv-cache-quantization/qjl|QJL</a>) approximately preserves all attention scores simultaneously. <a href="../../../../notes/papers/kv-cache-quantization/turboquant%7Cturboquant/">papers/kv-cache-quantization/turboquant|TurboQuant</a> exploits this by composing an MSE-optimal quantizer with a QJL residual correction to achieve an <em>unbiased</em> inner product estimator.</p>
+</div>
+<hr />
+<h2 id="matrix-constructions">5. Matrix Constructions</h2>
+<p>The Gaussian proof establishes <em>existence</em> of a good embedding, but the computational cost of applying a dense <span class="math inline">\(k \times d\)</span> Gaussian matrix is <span class="math inline">\(O(kd)\)</span> per point. A rich line of work constructs alternative random matrices that are cheaper to store or apply.</p>
+<h3 id="gaussian-matrices">5.1 Gaussian Matrices</h3>
+<p><strong>Definition (Gaussian JL Matrix).</strong> The <em>Gaussian JL map</em> is <span class="math inline">\(f(x) = \frac{1}{\sqrt{k}} A x\)</span> where <span class="math inline">\(A \in \mathbb{R}^{k \times d}\)</span> has i.i.d. <span class="math inline">\(\mathcal{N}(0,1)\)</span> entries.</p>
+<p>Properties:
+- Application cost: <span class="math inline">\(O(kd)\)</span> multiplications per point.
+- Storage: <span class="math inline">\(O(kd)\)</span> reals.
+- Rotation-invariant: the distribution of <span class="math inline">\(Ax\)</span> depends on <span class="math inline">\(x\)</span> only through <span class="math inline">\(\|x\|\)</span>.</p>
+<h3 id="rademacher-and-sparse-matrices-achlioptas-2003">5.2 Rademacher and Sparse Matrices (Achlioptas 2003)</h3>
+<p>Achlioptas showed that Gaussian entries can be replaced by much simpler distributions without losing the JL property. Define the <em>Achlioptas distribution</em> as</p>
+<p><span class="math display">\[
+A_{ij} = \begin{cases} +1 &amp; \text{with probability } 1/2, \\ -1 &amp; \text{with probability } 1/2, \end{cases}
+\]</span></p>
+<p>or the sparser variant</p>
+<p><span class="math display">\[
+A_{ij} = \begin{cases} +\sqrt{3} &amp; \text{with probability } 1/6, \\ 0 &amp; \text{with probability } 2/3, \\ -\sqrt{3} &amp; \text{with probability } 1/6. \end{cases}
+\]</span></p>
+<p><strong>Theorem (Achlioptas 2003).</strong> Both constructions satisfy the JL lemma with the same target dimension <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span>. The sparse variant has only <span class="math inline">\(1/3\)</span> non-zero entries on average, reducing matrix-vector product time by a factor of <span class="math inline">\(3\)</span>.</p>
+<div class="callout callout-tip">
+<p> Why do ±1 entries work?
+The key property used in the proof is that <span class="math inline">\(\mathbb{E}[A_{ij}] = 0\)</span> and <span class="math inline">\(\mathbb{E}[A_{ij}^2] = 1\)</span>. The chi-squared concentration argument extends to any distribution on <span class="math inline">\(A_{ij}\)</span> that is sub-Gaussian (i.e., has all higher cumulants bounded). Both the Gaussian and Rademacher distributions are sub-Gaussian with variance proxy <span class="math inline">\(\sigma^2 = 1\)</span>.</p>
+</div>
+<h3 id="the-fast-jl-transform-ailon-chazelle-2009">5.3 The Fast JL Transform (Ailon-Chazelle 2009)</h3>
+<p>The dense matrix multiplication bottleneck (<span class="math inline">\(O(kd)\)</span> per point) is expensive when <span class="math inline">\(d\)</span> is large and <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> is small. The <em>Fast Johnson-Lindenstrauss Transform</em> (FJLT) achieves a substantially lower per-point cost.</p>
+<p><strong>Definition (FJLT).</strong> Let:
+- <span class="math inline">\(D \in \mathbb{R}^{d \times d}\)</span> be a random diagonal matrix with i.i.d. Rademacher <span class="math inline">\((\pm 1)\)</span> diagonal entries.
+- <span class="math inline">\(H \in \mathbb{R}^{d \times d}\)</span> be the normalized Walsh-Hadamard transform, <span class="math inline">\(H_{jl} = d^{-1/2}(-1)^{\langle j-1, l-1 \rangle}\)</span> where <span class="math inline">\(\langle \cdot, \cdot \rangle\)</span> denotes the inner product of bit representations.
+- <span class="math inline">\(P \in \mathbb{R}^{k \times d}\)</span> be a sparse random projection matrix (a subsampled Gaussian).</p>
+<p>The FJLT map is</p>
+<p><span class="math display">\[
+f_{\text{FJLT}}(x) = P H D x.
+\]</span></p>
+<p>The product <span class="math inline">\(HDx\)</span> <em>scrambles</em> the energy of <span class="math inline">\(x\)</span> across all coordinates: <span class="math inline">\(D\)</span> randomizes signs, <span class="math inline">\(H\)</span> spreads energy uniformly via the Hadamard transform. After scrambling, <span class="math inline">\(P\)</span> can be very sparse while still preserving distances.</p>
+<p><strong>Theorem (Ailon-Chazelle 2009).</strong> The FJLT achieves <span class="math inline">\((1 \pm \varepsilon)\)</span>-distortion for <span class="math inline">\(n\)</span> points with target dimension <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span>. The cost per point embedding is</p>
+<p><span class="math display">\[
+O(d \log d + k \log^2 n)
+\]</span></p>
+<p>compared to <span class="math inline">\(O(kd)\)</span> for naive Gaussian multiplication. <em>For <span class="math inline">\(k \ll d / \log d\)</span> this is a genuine speedup.</em></p>
+<div class="callout callout-info">
+<p> Heisenberg principle intuition
+The Hadamard matrix <span class="math inline">\(H\)</span> is the Walsh analog of the Fourier transform. Ailon and Chazelle exploit its <em>local-global duality</em>: a vector that is concentrated in the spatial domain (few large coordinates) becomes spread out in the Hadamard domain, and vice versa. This duality — sometimes called the Heisenberg principle of the Fourier transform — is precisely what allows <span class="math inline">\(P\)</span> to be sparse without suffering large distortion on “peaky” input vectors.</p>
+</div>
+<h3 id="optimal-sparsity-kane-nelson-2014">5.4 Optimal Sparsity (Kane-Nelson 2014)</h3>
+<p>A natural goal is to push sparsity as far as possible: how many non-zeros per column of <span class="math inline">\(A\)</span> are truly necessary?</p>
+<p><strong>Theorem (Kane-Nelson 2014).</strong> There exist JL matrices with <span class="math inline">\(s = O(\varepsilon^{-1} \log n)\)</span> non-zeros per column that achieve <span class="math inline">\((1 \pm \varepsilon)\)</span>-distortion for <span class="math inline">\(n\)</span> points in <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> dimensions. This sparsity is asymptotically optimal among all oblivious distributions.</p>
+<p>The construction uses a column-sparse matrix where each column has exactly <span class="math inline">\(s\)</span> non-zero entries placed at random positions, with signs drawn uniformly from <span class="math inline">\(\{+1, -1\}\)</span>. The proof that this works is significantly more involved than the Gaussian argument, relying on <em>sparse recovery</em> tools and careful tail bounds for heavy-tailed distributions.</p>
+<p>The figure below illustrates the <em>block construction</em> variant of the Kane-Nelson sparse JL matrix. The top row is a <span class="math inline">\(d\)</span>-dimensional source vector; the bottom row is the <span class="math inline">\(k\)</span>-dimensional target. Each source coordinate hashes to exactly one slot in each of the <span class="math inline">\(s\)</span> contiguous blocks of width <span class="math inline">\(k/s\)</span>, guaranteeing exactly <span class="math inline">\(s\)</span> non-zeros per column with no block containing two entries from the same column.</p>
+<p><img src="figures/johnson-lindenstrauss/kane-nelson-fig3-block-construction.png" alt="Kane-Nelson block construction: a d-dimensional source vector (top) with arrows pointing to one slot each within s contiguous blocks of width k/s in the k-dimensional target (bottom)" />
+<em>Figure 1(c) from Kane and Nelson (2014): the block construction for optimal sparse JL matrices. Each source coordinate contributes exactly one non-zero to each of <span class="math inline">\(s\)</span> blocks of size <span class="math inline">\(k/s\)</span> in the target, achieving <span class="math inline">\(s = O(\varepsilon^{-1} \log n)\)</span> non-zeros per column — the information-theoretic minimum.</em></p>
+<div class="callout callout-question">
+<p> Open problem: constants
+While the asymptotic <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> and <span class="math inline">\(s = O(\varepsilon^{-1} \log n)\)</span> bounds are known to be tight, the precise leading constants in both bounds remain an active area. Practical implementations often tune these empirically.</p>
+</div>
+<hr />
+<h2 id="lower-bounds">6. Lower Bounds</h2>
+<h3 id="dimension-lower-bound-larsen-nelson-2017">6.1 Dimension Lower Bound (Larsen-Nelson 2017)</h3>
+<p>The JL lemma is tight: no approach, linear or nonlinear, can do better in general.</p>
+<p><strong>Theorem (Larsen-Nelson 2017).</strong> For any <span class="math inline">\(\varepsilon \in (n^{-0.4999}, 1)\)</span> and <span class="math inline">\(n\)</span> sufficiently large, any map <span class="math inline">\(f : \mathbb{R}^d \to \mathbb{R}^k\)</span> (not necessarily linear) that is a <span class="math inline">\((1 \pm \varepsilon)\)</span>-isometric embedding of some <span class="math inline">\(n\)</span>-point set must satisfy</p>
+<p><span class="math display">\[
+k = \Omega\!\left(\frac{\log n}{\varepsilon^2}\right).
+\]</span></p>
+<p>This is a <em>worst-case</em> lower bound over the choice of point set; it holds even for embeddings allowed to depend on the specific input.</p>
+<div class="callout callout-info">
+<p> History of the lower bound
+Earlier work (Alon 2003, Jayram-Woodruff 2013) established <span class="math inline">\(k = \Omega(\varepsilon^{-2} \log n / \log(1/\varepsilon))\)</span>, which was weaker for small <span class="math inline">\(\varepsilon\)</span>. Larsen-Nelson closed the gap by removing the <span class="math inline">\(\log(1/\varepsilon)\)</span> factor, matching the upper bound to a constant for all interesting <span class="math inline">\(\varepsilon\)</span>.</p>
+</div>
+<p>The proof uses a coding theory argument: if <span class="math inline">\(k &lt; c \varepsilon^{-2} \log n\)</span> then the image of the embedding must have too few distinct “shells” to accommodate <span class="math inline">\(n\)</span> well-separated points, yielding a contradiction via packing bounds in <span class="math inline">\(\mathbb{R}^k\)</span>.</p>
+<p><strong>The JL dimension <span class="math inline">\(k = \Theta(\varepsilon^{-2} \log n)\)</span> is optimal, up to a constant factor.</strong> 🔑</p>
+<hr />
+<h2 id="applications">7. Applications</h2>
+<h3 id="k-means-clustering">7.1 k-Means Clustering</h3>
+<p>A key application is speeding up <span class="math inline">\(k\)</span>-means clustering without sacrificing approximation quality (see <a href="../../../../notes/concepts/randomized-algorithms/hashing-and-load-balancing%7Chashing-and-load-balancing/">concepts/randomized-algorithms/hashing-and-load-balancing|Hashing and Load Balancing</a> for the balls-in-bins context).</p>
+<p><strong>Lemma (Cluster cost as pairwise distances).</strong> For any partition <span class="math inline">\(X_1, \ldots, X_k\)</span> of <span class="math inline">\(X \subset \mathbb{R}^d\)</span> with cluster means <span class="math inline">\(\mu_i = \frac{1}{|X_i|}\sum_{x \in X_i} x\)</span>:</p>
+<p><span class="math display">\[\sum_{i=1}^{k} \sum_{x \in X_i} \|x - \mu_i\|^2 = \sum_{i=1}^{k} \frac{1}{|X_i|} \sum_{x, y \in X_i} \|x - y\|^2.\]</span></p>
+<p><em>Proof.</em> <span class="math inline">\(\sum_{x \in X_i}\|x - \mu_i\|^2 = \sum_x \|x\|^2 - |X_i|\|\mu_i\|^2 = \frac{1}{|X_i|}\sum_{x,y \in X_i}\|x-y\|^2\)</span> by expanding.</p>
+<p>Since the cluster cost is a sum of pairwise squared distances, and a JLT distorts every pairwise distance by <span class="math inline">\((1 \pm \varepsilon)\)</span>, the cluster cost in the embedded space approximates the cluster cost in the original space.</p>
+<p><strong>Proposition (Cohen et al. 2015).</strong> Let <span class="math inline">\(f\)</span> be a JLT of <span class="math inline">\(X\)</span> into <span class="math inline">\(\mathbb{R}^k\)</span>. Any partition achieving <span class="math inline">\((1+\gamma)\)</span>-approximate <span class="math inline">\(k\)</span>-means cost in the embedded space achieves <span class="math inline">\((1 + 4\varepsilon)(1 + \gamma)\)</span>-approximate cost in the original space. With <span class="math inline">\(k = \Theta(\varepsilon^{-2} \log n)\)</span>, this gives <span class="math inline">\((1 + O(\varepsilon))\)</span>-approximation.</p>
+<div class="callout callout-info">
+<p> Tighter bound for small k
+For the special case of <span class="math inline">\(k\)</span>-means with <span class="math inline">\(k\)</span> clusters, the required target dimension is only <span class="math inline">\(m = O(\varepsilon^{-2} \log k)\)</span> for a <span class="math inline">\((1+\varepsilon)\)</span> approximation (Cohen et al. 2015). The key insight: the cost only depends on the projections of cluster means, not all <span class="math inline">\(n\)</span> points individually.</p>
+</div>
+<h3 id="approximate-nearest-neighbors">7.2 Approximate Nearest Neighbors</h3>
+<p><em>Approximate nearest neighbor</em> (ANN) search asks: given a query <span class="math inline">\(q\)</span>, find a point <span class="math inline">\(p \in \mathcal{P}\)</span> with <span class="math inline">\(\|q - p\| \leq (1 + \delta) \min_{p' \in \mathcal{P}} \|q - p'\|\)</span>.</p>
+<p>Applying the JL lemma reduces the ambient dimension from <span class="math inline">\(d\)</span> to <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span>, converting a hard high-dimensional problem into a more tractable low-dimensional one. <em>Surprisingly,</em> the <span class="math inline">\(O(\log n)\)</span> target dimension is often smaller than the intrinsic dimensionality of many real datasets, making JL practically effective even beyond the worst-case guarantee.</p>
+<p>In the Ailon-Chazelle paper, the FJLT is combined with a bucketing structure to give an ANN data structure with query time <span class="math inline">\(O(d \log d + n^{\rho} \log n)\)</span> for <span class="math inline">\(\rho &lt; 1\)</span>.</p>
+<h3 id="compressed-sensing-and-rip">7.3 Compressed Sensing and RIP</h3>
+<p>The <em>Restricted Isometry Property</em> (RIP) generalizes the JL guarantee from point sets to <em>sparse vectors</em>. A matrix <span class="math inline">\(A \in \mathbb{R}^{k \times d}\)</span> satisfies the <span class="math inline">\(s\)</span>-RIP with parameter <span class="math inline">\(\delta\)</span> if</p>
+<p><span class="math display">\[
+(1 - \delta)\|x\|^2 \leq \|Ax\|^2 \leq (1 + \delta)\|x\|^2
+\quad \text{for all $s$-sparse } x \in \mathbb{R}^d.
+\]</span></p>
+<p>A random Gaussian <span class="math inline">\(A\)</span> satisfies <span class="math inline">\(s\)</span>-RIP with <span class="math inline">\(k = O(s \log(d/s))\)</span> rows. This is essentially the JL lemma applied to the <span class="math inline">\(\binom{d}{s}\)</span> sparse vectors; the log factor is the price of covering all <span class="math inline">\(s\)</span>-sparse supports. RIP is the key tool guaranteeing that <span class="math inline">\(\ell_1\)</span>-minimization recovers sparse signals from compressed measurements.</p>
+<div class="callout callout-note">
+<p> JL vs. RIP
+JL controls distances between <span class="math inline">\(n\)</span> <em>fixed</em> points; RIP controls distances from a <span class="math inline">\(k \times d\)</span> matrix over a <em>continuous family</em> (all <span class="math inline">\(s\)</span>-sparse vectors). RIP requires more rows because the family is infinite, but the same Gaussian construction works for both.</p>
+</div>
+<h3 id="machine-learning">7.4 Machine Learning</h3>
+<p>JL embeddings are used pervasively in ML to reduce the cost of algorithms with quadratic or higher complexity in <span class="math inline">\(d\)</span>:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Application</th>
+<th>Original cost</th>
+<th>Post-JL cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kernel SVM with RBF kernel</td>
+<td><span class="math inline">\(O(n^2 d)\)</span> Gram matrix</td>
+<td><span class="math inline">\(O(n^2 k)\)</span>, <span class="math inline">\(k \ll d\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(k\)</span>-means clustering</td>
+<td><span class="math inline">\(O(ndk)\)</span> per iteration</td>
+<td><span class="math inline">\(O(nk^2)\)</span> per iteration</td>
+</tr>
+<tr class="odd">
+<td>Dimensionality reduction preprocessing</td>
+<td>—</td>
+<td><span class="math inline">\(O(nd)\)</span> one-time projection cost</td>
+</tr>
+<tr class="even">
+<td>Gradient sketching (training)</td>
+<td><span class="math inline">\(O(d)\)</span> per gradient step</td>
+<td><span class="math inline">\(O(k)\)</span> sketched gradients</td>
+</tr>
+</tbody>
+</table>
+<p><em>In practice</em>, random projections are often used as a preprocessing step for linear classifiers in text mining and natural language processing, where feature vectors can have <span class="math inline">\(d = O(10^6)\)</span> or more dimensions but <span class="math inline">\(n = O(10^5)\)</span> training examples.</p>
+<div class="callout callout-tip">
+<p> Choosing k in practice
+The theoretical bound <span class="math inline">\(k = O(\varepsilon^{-2} \log n)\)</span> is often pessimistic. In practice, <span class="math inline">\(k = 200\)</span>–<span class="math inline">\(500\)</span> suffices for many datasets with <span class="math inline">\(n = 10^5\)</span> points, even for <span class="math inline">\(\varepsilon = 0.1\)</span>. The correct heuristic is to treat <span class="math inline">\(k\)</span> as a hyperparameter and validate empirically.</p>
+</div>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="http://stanford.edu/class/cs114/readings/JL-Johnson.pdf">Johnson and Lindenstrauss (1984), “Extensions of Lipschitz Mappings into a Hilbert Space”</a></td>
+<td>The founding paper</td>
+<td><a href="http://stanford.edu/class/cs114/readings/JL-Johnson.pdf">PDF via Stanford</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://cseweb.ucsd.edu/~dasgupta/papers/jl.pdf">Dasgupta and Gupta (2003), “An Elementary Proof of a Theorem of Johnson and Lindenstrauss”</a></td>
+<td>Clean chi-squared proof</td>
+<td><a href="https://cseweb.ucsd.edu/~dasgupta/papers/jl.pdf">UCSD PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://cgi.di.uoa.gr/~optas/papers/jl.pdf">Achlioptas (2003), “Database-Friendly Random Projections”</a></td>
+<td>±1 sparse JL matrices</td>
+<td><a href="https://cgi.di.uoa.gr/~optas/papers/jl.pdf">Author PDF</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.cs.princeton.edu/~chazelle/pubs/FJLT-sicomp09.pdf">Ailon and Chazelle (2009), “The Fast Johnson-Lindenstrauss Transform”</a></td>
+<td>FJLT = PHDx, O(d log d) time</td>
+<td><a href="https://www.cs.princeton.edu/~chazelle/pubs/FJLT-sicomp09.pdf">Princeton PDF</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1012.1577">Kane and Nelson (2014), “Sparser Johnson-Lindenstrauss Transforms”</a></td>
+<td>Optimal sparsity s = O(ε⁻¹ log n)</td>
+<td><a href="https://arxiv.org/abs/1012.1577">arXiv:1012.1577</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1609.02094">Larsen and Nelson (2017), “Optimality of the Johnson-Lindenstrauss Lemma”</a></td>
+<td>m = Ω(ε⁻² log n) lower bound</td>
+<td><a href="https://arxiv.org/abs/1609.02094">arXiv:1609.02094</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://bookstore.ams.org/dimacs-65">Vempala (2004), “The Random Projection Method”</a></td>
+<td>Graduate monograph</td>
+<td><a href="https://bookstore.ams.org/dimacs-65">AMS bookstore</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1411.4357">Woodruff (2014), “Sketching as a Tool for Numerical Linear Algebra”</a></td>
+<td>Sketching survey</td>
+<td><a href="https://arxiv.org/abs/1411.4357">arXiv:1411.4357</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2103.00564">Freksen (2021), “An Introduction to Johnson-Lindenstrauss Transforms”</a></td>
+<td>Self-contained survey</td>
+<td><a href="https://arxiv.org/abs/2103.00564">arXiv:2103.00564</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

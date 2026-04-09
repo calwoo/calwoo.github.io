@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>systems - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>systems</h1>
+            <article>
+    <section>
+        <p><em>See also <a href="../../../../notes/note%7Cgenerative-recommender-systems/">note|Generative Recommender Systems</a> for the algorithmic foundations this note builds upon.</em></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-the-systems-challenge%7C1.-the-systems-challenge/">#1. The Systems Challenge|1. The Systems Challenge</a></li>
+<li><a href="../../../../notes/#2.-distributed-training%7C2.-distributed-training/">#2. Distributed Training|2. Distributed Training</a>
+<ul>
+<li><a href="../../../../notes/#2.1-heterogeneous-parallelism:-embeddings-vs.-dense-layers%7C2.1-heterogeneous-parallelism:-embeddings-vs.-dense-layers/">#2.1 Heterogeneous Parallelism: Embeddings vs. Dense Layers|2.1 Heterogeneous Parallelism: Embeddings vs. Dense Layers</a></li>
+<li><a href="../../../../notes/#2.2-ragged-attention-kernels%7C2.2-ragged-attention-kernels/">#2.2 Ragged Attention Kernels|2.2 Ragged Attention Kernels</a></li>
+<li><a href="../../../../notes/#2.3-sparse-embedding-gradients%7C2.3-sparse-embedding-gradients/">#2.3 Sparse Embedding Gradients|2.3 Sparse Embedding Gradients</a></li>
+<li><a href="../../../../notes/#2.4-incremental-checkpointing%7C2.4-incremental-checkpointing/">#2.4 Incremental Checkpointing|2.4 Incremental Checkpointing</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-inference-serving%7C3.-inference-serving/">#3. Inference Serving|3. Inference Serving</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-prefill-and-decode-asymmetry%7C3.1-the-prefill-and-decode-asymmetry/">#3.1 The Prefill and Decode Asymmetry|3.1 The Prefill and Decode Asymmetry</a></li>
+<li><a href="../../../../notes/#3.2-kv-cache-reuse-for-returning-users%7C3.2-kv-cache-reuse-for-returning-users/">#3.2 KV Cache Reuse for Returning Users|3.2 KV Cache Reuse for Returning Users</a></li>
+<li><a href="../../../../notes/#3.3-m-falcon-and-candidate-amortization%7C3.3-m-falcon-and-candidate-amortization/">#3.3 M-FALCON and Candidate Amortization|3.3 M-FALCON and Candidate Amortization</a></li>
+<li><a href="../../../../notes/#3.4-semantic-id-beam-search:-the-hourglass-problem%7C3.4-semantic-id-beam-search:-the-hourglass-problem/">#3.4 Semantic ID Beam Search: The Hourglass Problem|3.4 Semantic ID Beam Search: The Hourglass Problem</a></li>
+<li><a href="../../../../notes/#3.5-long-history-compression:-vista%7C3.5-long-history-compression:-vista/">#3.5 Long-History Compression: VISTA|3.5 Long-History Compression: VISTA</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-embedding-infrastructure%7C4.-embedding-infrastructure/">#4. Embedding Infrastructure|4. Embedding Infrastructure</a>
+<ul>
+<li><a href="../../../../notes/#4.1-memory-hierarchy-for-embedding-tables%7C4.1-memory-hierarchy-for-embedding-tables/">#4.1 Memory Hierarchy for Embedding Tables|4.1 Memory Hierarchy for Embedding Tables</a></li>
+<li><a href="../../../../notes/#4.2-dynamic-vocabulary-management%7C4.2-dynamic-vocabulary-management/">#4.2 Dynamic Vocabulary Management|4.2 Dynamic Vocabulary Management</a></li>
+<li><a href="../../../../notes/#4.3-rq-vae-codebook-lifecycle%7C4.3-rq-vae-codebook-lifecycle/">#4.3 RQ-VAE Codebook Lifecycle|4.3 RQ-VAE Codebook Lifecycle</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-online-learning-and-model-freshness%7C5.-online-learning-and-model-freshness/">#5. Online Learning and Model Freshness|5. Online Learning and Model Freshness</a>
+<ul>
+<li><a href="../../../../notes/#5.1-the-freshness-hierarchy%7C5.1-the-freshness-hierarchy/">#5.1 The Freshness Hierarchy|5.1 The Freshness Hierarchy</a></li>
+<li><a href="../../../../notes/#5.2-parameter-efficient-daily-updates%7C5.2-parameter-efficient-daily-updates/">#5.2 Parameter-Efficient Daily Updates|5.2 Parameter-Efficient Daily Updates</a></li>
+<li><a href="../../../../notes/#5.3-continual-learning-without-catastrophic-forgetting%7C5.3-continual-learning-without-catastrophic-forgetting/">#5.3 Continual Learning Without Catastrophic Forgetting|5.3 Continual Learning Without Catastrophic Forgetting</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-references%7C6.-references/">#6. References|6. References</a></li>
+</ul>
+<hr />
+<h2 id="the-systems-challenge">1. The Systems Challenge</h2>
+<p>The algorithmic design of generative recommenders (covered in <a href="../../../../notes/note%7Cnote.md/">note|note.md</a>) creates a distinct set of infrastructure problems that do not arise in either standard DLRM training or LLM serving. Three structural properties drive the difficulty:</p>
+<p><strong>Heterogeneous computation.</strong> A generative recommender combines two qualitatively different components: a massive <em>embedding layer</em> (parameter count proportional to item inventory, <span class="math inline">\(|\mathcal{I}| \sim 10^9\)</span>, dominated by memory bandwidth) and a <em>Transformer backbone</em> (compute-intensive, amenable to tensor parallelism). Standard 3D parallelism for LLMs assumes uniform computation per layer and fails on this heterogeneous workload.</p>
+<p><strong>Ragged sequences.</strong> User interaction histories follow a power-law length distribution — most users have tens of interactions, a small fraction have millions. Padding all sequences to uniform length wastes <span class="math inline">\(O(L_{\max}^2)\)</span> attention compute when <span class="math inline">\(L_{\max} \gg\)</span> the typical length. Efficient training requires native support for variable-length (ragged) tensor operations.</p>
+<p><strong>Non-stationary item vocabulary.</strong> New items appear daily; old items expire. The item embedding table must grow and the retrieval index must be rebuilt without full model retraining. Serving infrastructure must handle zero-shot embedding of new items and frequent index refresh while maintaining sub-10ms P99 latency.</p>
+<hr />
+<h2 id="distributed-training">2. Distributed Training</h2>
+<h3 id="heterogeneous-parallelism-embeddings-vs.-dense-layers">2.1 Heterogeneous Parallelism: Embeddings vs. Dense Layers</h3>
+<p><strong>The fundamental mismatch.</strong> In LLM training, all layers have the same parameter type (dense weight matrices) and similar compute profiles. Standard 3D parallelism (tensor × pipeline × data) assumes this uniformity. Recommendation models violate it:</p>
+<ul>
+<li><em>Embedding layers</em>: <span class="math inline">\(|\mathcal{I}| \times d\)</span> parameters, each accessed only for items present in the current batch. Gradients are structured-sparse: in a batch of <span class="math inline">\(B\)</span> users each seeing <span class="math inline">\(k\)</span> items, at most <span class="math inline">\(Bk\)</span> of the <span class="math inline">\(|\mathcal{I}|\)</span> embedding rows receive non-zero gradient. AllReduce — which forces dense gradient tensors — wastes bandwidth proportional to <span class="math inline">\(|\mathcal{I}| / (Bk)\)</span> on zero-gradient rows.</li>
+<li><em>Dense Transformer layers</em>: fully dense gradients, uniform compute, well-served by standard AllReduce with NCCL.</li>
+</ul>
+<p><strong>The hybrid parallelism solution.</strong> Production systems (ZionEX, Meta 2021; Monolith, ByteDance 2022) adopt a <em>hybrid</em> strategy that treats the two components differently:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Parallelism</th>
+<th>Communication</th>
+<th>Update schedule</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Embedding tables</td>
+<td>Row-wise model parallel sharding</td>
+<td>AlltoAll (butterfly pattern)</td>
+<td>Async or sync</td>
+</tr>
+<tr class="even">
+<td>Transformer backbone</td>
+<td>Data parallel replicas</td>
+<td>AllReduce (NCCL)</td>
+<td>Synchronous</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sharding.</strong> With <span class="math inline">\(D\)</span> devices, device <span class="math inline">\(k\)</span> owns embedding rows <span class="math inline">\(\{i : i \bmod D = k\}\)</span>. During the forward pass, each worker sends its batch’s embedding lookup indices to the owning device and receives the corresponding embeddings — a <em>personalized AlltoAll</em> with communication volume proportional to the number of distinct items in the batch, not <span class="math inline">\(|\mathcal{I}|\)</span>.</p>
+<p><strong>ZionEX</strong> (Meta, arXiv:2104.05158) eliminates the parameter server entirely by making embedding AlltoAll synchronous, achieving <strong>40× speedup</strong> over parameter-server-based baselines on 12-trillion-parameter models using custom RDMA/RoCE networking between nodes.</p>
+<p><strong>Monolith</strong> (ByteDance, arXiv:2209.07663) takes the opposite direction for online training: maintain a <em>hash set of touched embedding keys</em> per training step and synchronize only updated rows at minute intervals, decoupling the dense parameter update cadence from the embedding update cadence for real-time streaming scenarios.</p>
+<h3 id="ragged-attention-kernels">2.2 Ragged Attention Kernels</h3>
+<p><strong>The padding waste.</strong> In a batch of users with sequence lengths <span class="math inline">\(n_1, n_2, \ldots, n_B\)</span>, padding all to <span class="math inline">\(N = \max_i n_i\)</span> wastes:</p>
+<p><span class="math display">\[\text{wasted FLOPs} = O\!\left(B N^2 d - \sum_i n_i^2 d\right)\]</span></p>
+<p>Under a power-law length distribution, <span class="math inline">\(\sum_i n_i^2 \ll B N^2\)</span>, so wasted compute can dominate.</p>
+<p><strong>Ragged (jagged) tensor format.</strong> Sequences are stored as a single flat concatenated tensor with an auxiliary offsets array:</p>
+<p><span class="math display">\[\mathbf{X}_{\text{flat}} = [\mathbf{x}^{(1)}_1, \ldots, \mathbf{x}^{(1)}_{n_1},\ \mathbf{x}^{(2)}_1, \ldots, \mathbf{x}^{(2)}_{n_2},\ \ldots], \quad \text{offsets} = [0, n_1, n_1 + n_2, \ldots, \sum_i n_i]\]</span></p>
+<p>Custom CUDA kernels use the offsets to mask attention computations so queries cannot attend across sequence boundaries. Memory complexity reduces from <span class="math inline">\(O(B N^2 d)\)</span> to <span class="math inline">\(O(\sum_i n_i^2 d)\)</span> — proportional to actual sequence lengths.</p>
+<p><strong>Jagged Flash Attention</strong> (arXiv:2409.15373) integrates this ragged format with FlashAttention’s IO-aware tiling strategy. On variable-length recommendation batches it achieves up to <strong>9× memory reduction</strong> and <strong>3× throughput improvement</strong> over dense FlashAttention-2. HSTU’s production implementation achieves <strong>5.3–15.2× speedup</strong> over FlashAttention-2-based Transformers at sequence length 8,192 through this combination of ragged kernels and stochastic length sparsity.</p>
+<p><strong>Context Parallelism for ragged sequences</strong> (arXiv:2508.04711) extends sequence-length parallelism — already used in LLM training — to jagged tensors, further splitting each user’s sequence across GPUs. This enables training on sequences <strong>5.3× longer</strong> than single-GPU memory allows, with a <strong>1.55× scaling factor</strong> when composed with data parallelism.</p>
+<h3 id="sparse-embedding-gradients">2.3 Sparse Embedding Gradients</h3>
+<p>In a batch, only embeddings for items actually seen receive non-zero gradients. For a catalog of <span class="math inline">\(|\mathcal{I}| = 10^9\)</span> items and a batch touching <span class="math inline">\(B k \sim 10^6\)</span> distinct items, the gradient is 0.1% dense. This sparsity has critical implications for distributed training.</p>
+<p><strong>Why AllReduce fails.</strong> AllReduce operates on dense tensors — NCCL’s ring-allreduce has no sparse mode. Using it for embedding gradients forces <span class="math inline">\(O(|\mathcal{I}| d)\)</span> communication volume regardless of batch sparsity. For a <span class="math inline">\(10^9 \times 128\)</span>-dim embedding table in float16, this is 256GB per step across all workers.</p>
+<p><strong>HET</strong> (arXiv:2112.07221) exploits the power-law popularity distribution of items: a small fraction of items account for most gradient updates. HET maintains a <em>distributed embedding cache</em> for hot items (updated in-place locally) and synchronizes only cold embeddings via AlltoAll. This achieves <strong>88% communication reduction</strong> and <strong>20.68× throughput improvement</strong> over baseline distributed embedding training.</p>
+<p><strong>The EmbRace hybrid</strong> (arXiv:2110.09132) combines AlltoAll (for sparse embedding communication) with model-parallel scheduling to overlap embedding communication with dense layer computation, achieving a further <strong>2.41× speedup</strong> over state-of-the-art.</p>
+<h3 id="incremental-checkpointing">2.4 Incremental Checkpointing</h3>
+<p>At 1.5T parameters, writing a full checkpoint costs hundreds of gigabytes and significant I/O bandwidth. Since most embedding rows are unchanged between checkpoints (sparse gradient updates), full checkpoints are wasteful.</p>
+<p><strong>Check-N-Run</strong> (Facebook, arXiv:2010.08679) maintains a <em>dirty bit</em> per embedding row: only rows that received a gradient update in the current training window are written to the checkpoint. Combined with quantization of stored embedding values, this achieves <strong>6–17× write bandwidth reduction</strong> and <strong>2.5–8× checkpoint size reduction</strong> in production Facebook recommendation models.</p>
+<hr />
+<h2 id="inference-serving">3. Inference Serving</h2>
+<h3 id="the-prefill-and-decode-asymmetry">3.1 The Prefill and Decode Asymmetry</h3>
+<p>A request to a generative recommender has two computationally distinct phases:</p>
+<p><strong>Prefill:</strong> Process the user’s full interaction history <span class="math inline">\((x_0, a_0, \ldots, x_{n-1}, a_{n-1})\)</span> to produce the hidden state <span class="math inline">\(u_{n-1} \in \mathbb{R}^d\)</span>. This is a batch matrix multiply — highly parallel, compute-bound, near-peak FLOP utilization on modern GPUs.</p>
+<p><strong>Decode:</strong> Generate the recommendation (a semantic ID token sequence, or a scored candidate list). For generative retrieval this is sequential beam search; for ranking it is a single scored forward pass per candidate. The bottleneck is GPU <em>memory bandwidth</em> (loading KV cache weights), not arithmetic throughput.</p>
+<p>These profiles are incompatible: mixing prefill and decode requests in the same batch causes prefill to stall on decode’s memory-bandwidth bottleneck and decode to wait for prefill’s large compute kernel. <strong>Disaggregated prefill-decode</strong> separates them onto dedicated GPU clusters:</p>
+<ul>
+<li><em>Prefill workers</em>: large batch size, high throughput, optimized for matrix multiply</li>
+<li><em>Decode workers</em>: low batch size, low latency, optimized for memory bandwidth</li>
+</ul>
+<p>Disaggregated serving achieves up to <strong>4.48× goodput improvement</strong> or <strong>10.2× tighter latency SLO</strong> vs. mixed batching. <strong>PRISM</strong> (NSDI 2025) demonstrates this architecture at production scale for DLRM-class recommendation models on GPU clusters.</p>
+<h3 id="kv-cache-reuse-for-returning-users">3.2 KV Cache Reuse for Returning Users</h3>
+<p><strong>The repeated prefill problem.</strong> A returning user whose history has not changed since their last request would have their history encoded identically every time. The prefill cost <span class="math inline">\(O(n^2 d)\)</span> is paid in full on every request even when the user’s sequence is unchanged.</p>
+<p><strong>Persistent KV cache.</strong> The attention key-value tensors <span class="math inline">\((\mathbf{K}, \mathbf{V}) \in \mathbb{R}^{n \times d}\)</span> produced during prefill are stored in a distributed cache (Redis/Memcached tier) keyed by user ID and sequence hash. On a cache hit, the prefill step is skipped entirely and the cached tensors are loaded directly into GPU SRAM.</p>
+<p>The cache invalidation policy is straightforward: when the user has a new interaction (new item in history), the cached KV tensors are stale and must be recomputed. In practice, the sequence changes with every new interaction, but the <em>prefix</em> of the sequence may be unchanged — <em>prefix caching</em> stores the KV cache for a common prefix (e.g., the user’s history from 7 days ago) and only recomputes the recent suffix.</p>
+<p>On systems with high user return rates, persistent KV caching achieves approximately <strong>2× reduction in time-to-first-token (TTFT)</strong> for returning users.</p>
+<h3 id="m-falcon-and-candidate-amortization">3.3 M-FALCON and Candidate Amortization</h3>
+<p>The HSTU paper introduces <em>M-FALCON</em> (Microbatch FALCON) to amortize the user history encoding cost across multiple ranking candidates. This is covered in <a href="../../../../notes/note#4.3-m-falcon:-inference-amortization%7Cthe-algorithmic-note/">note#4.3 M-FALCON: Inference Amortization|the algorithmic note</a>; the systems perspective is:</p>
+<ul>
+<li>User history KV cache computed once: <span class="math inline">\(O(n^2 d)\)</span></li>
+<li>Each candidate <span class="math inline">\(x_c\)</span> appended to sequence and scored: <span class="math inline">\(O(nd)\)</span> incremental cost</li>
+<li>Total for <span class="math inline">\(b_m\)</span> candidates: <span class="math inline">\(O(n^2 d + b_m n d)\)</span></li>
+</ul>
+<p>Despite HSTU being <strong>285× more computationally complex</strong> than the DLRM baseline, M-FALCON achieves <strong>1.5–2.99× higher QPS</strong> when scoring 1,024–16,384 candidates per request by amortizing the <span class="math inline">\(O(n^2 d)\)</span> prefix computation. Combined with persistent KV caching, the <span class="math inline">\(O(n^2 d)\)</span> term can be eliminated entirely for returning users.</p>
+<h3 id="semantic-id-beam-search-the-hourglass-problem">3.4 Semantic ID Beam Search: The Hourglass Problem</h3>
+<p>Generative retrieval (TIGER, COBRA) decodes the next item’s semantic ID <span class="math inline">\((c_1, c_2, \ldots, c_K)\)</span> autoregressively via beam search over the RQ-VAE code tree. An underappreciated pathology appears in this decoding process.</p>
+<p><strong>Definition (Hourglass Phenomenon).</strong> In residual quantization, the intermediate codebook levels (<span class="math inline">\(k = 2, \ldots, K-1\)</span>) receive residuals <span class="math inline">\(\mathbf{r}_k\)</span> that are increasingly concentrated — the first level captures most of the variance, leaving residuals with low magnitude. Codes at intermediate levels cluster around a small region of the codebook, causing severe <em>hourglass narrowing</em>: beam diversity collapses at intermediate levels even when beams diverge at level 1. The recovered candidate set after <span class="math inline">\(K\)</span> decode steps is far smaller than the beam width suggests.</p>
+<p><strong>Mitigation strategies:</strong></p>
+<ol type="1">
+<li><p><em>Constrained beam search via trie.</em> Build a prefix trie over all valid item codes. At each decode step, restrict the vocabulary to valid next codewords — those leading to at least one real item. This prevents wasted beam slots on invalid code prefixes and ensures all <span class="math inline">\(B\)</span> beams yield retrievable items.</p></li>
+<li><p><em>Parallel semantic ID generation</em> (arXiv:2506.05781). Train the decoder with a multi-token prediction objective so that multiple ID tokens are generated in a single forward pass rather than sequentially. Reduces the number of autoregressive steps from <span class="math inline">\(K\)</span> to 1–2, trading sequential latency for parallel compute.</p></li>
+<li><p><em>Random Last Level</em> (Liang et al., GR2 2026). As discussed in <a href="../../../../notes/note#4.1-semantic-ids-via-rq-vae:-tiger%7Cthe-algorithmic-note/">note#4.1 Semantic IDs via RQ-VAE: TIGER|the algorithmic note</a>, assigning the final quantization level randomly recovers uniqueness at the cost of fine-grained reconstruction fidelity.</p></li>
+</ol>
+<h3 id="long-history-compression-vista">3.5 Long-History Compression: VISTA</h3>
+<p>For users with histories of <span class="math inline">\(10^5\)</span>–<span class="math inline">\(10^6\)</span> interactions, even <span class="math inline">\(O(n^2 d)\)</span> with <span class="math inline">\(n = 10^5\)</span> is infeasible at serving time (a single forward pass would require <span class="math inline">\(10^{10}\)</span> operations). HSTU’s stochastic length truncation addresses this during <em>training</em> but not necessarily inference.</p>
+<p><strong>VISTA</strong> (arXiv:2510.22049) addresses inference scalability via <em>two-stage target attention</em>:</p>
+<ol type="1">
+<li><em>History summarization.</em> Compress the full interaction history of length <span class="math inline">\(n\)</span> into a fixed-size summary <span class="math inline">\(\mathbf{S} \in \mathbb{R}^{m \times d}\)</span> with <span class="math inline">\(m \ll n\)</span> via learnable pooling. Cost: <span class="math inline">\(O(nm d)\)</span>, once per user.</li>
+<li><em>Candidate attention over summary.</em> Each candidate item <span class="math inline">\(x_c\)</span> attends only over <span class="math inline">\(\mathbf{S}\)</span>, not the full history. Cost: <span class="math inline">\(O(m d)\)</span> per candidate — constant in <span class="math inline">\(n\)</span>.</li>
+</ol>
+<p>Total serving cost: <span class="math inline">\(O(nm d + b_m m d)\)</span>, independent of history length after the one-time summarization. Deployed in production at billion-user scale with significant offline and online metric improvements.</p>
+<p><strong>GEMs</strong> (arXiv:2602.13631) proposes a complementary <em>multi-stream decoder</em> that decomposes the user history into parallel behavioral streams (e.g., by action type: clicks, watches, purchases) and processes each stream independently before fusing. This reduces the effective attention sequence length and allows longer histories without quadratic cost.</p>
+<hr />
+<h2 id="embedding-infrastructure">4. Embedding Infrastructure</h2>
+<h3 id="memory-hierarchy-for-embedding-tables">4.1 Memory Hierarchy for Embedding Tables</h3>
+<p>A <span class="math inline">\(10^9 \times 128\)</span>-dimensional float16 embedding table requires 256GB — far exceeding GPU HBM capacity (80GB on H100). Production systems tier embedding storage across the memory hierarchy:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Capacity</th>
+<th>Bandwidth</th>
+<th>Access latency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GPU HBM</td>
+<td>40–80 GB</td>
+<td>~3 TB/s</td>
+<td>~10 ns</td>
+</tr>
+<tr class="even">
+<td>CPU DRAM</td>
+<td>1–8 TB</td>
+<td>~200 GB/s</td>
+<td>~100 ns</td>
+</tr>
+<tr class="odd">
+<td>NVMe SSD</td>
+<td>10–100 TB</td>
+<td>~10 GB/s</td>
+<td>~100 μs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TorchRec 2D embedding parallelism</strong> (Meta) provides <em>table-wise, row-wise, and column-wise</em> sharding options with automatic selection of the optimal strategy per table based on access patterns and device topology. The <em>Table Batched Embedding (TBE)</em> operator batches all embedding lookups in a forward pass into a single CUDA kernel call, amortizing kernel launch overhead and improving memory access locality.</p>
+<p><strong>GPU Memory Tiering (GMT)</strong> (2024) enables GPUs to orchestrate their own multi-tier memory via <em>GPUDirect Storage</em>, bypassing CPU in the data path. Hot embeddings reside in HBM; warm embeddings in CPU DRAM; cold embeddings on NVMe SSD. Async prefetching pipelines storage latency behind GPU computation. Empirically: <strong>3.9× latency reduction</strong> and <strong>68% throughput improvement</strong> for cold-embedding workloads.</p>
+<p><strong>Frequency-aware caching.</strong> Since item popularity follows a power law, the top-1% of items account for the majority of embedding accesses. Static frequency-aware caches keep hot embeddings in HBM; cold embeddings are fetched from lower tiers on demand. HET (Section 2.3) extends this principle to the distributed setting.</p>
+<h3 id="dynamic-vocabulary-management">4.2 Dynamic Vocabulary Management</h3>
+<p>On creator-economy platforms, <span class="math inline">\(O(10^6)\)</span> new items are created daily and a comparable number expire. This creates two problems: (1) new items have no trained embedding, and (2) the embedding table must grow without triggering full retraining.</p>
+<p><strong>Hash-backed dynamic tables.</strong> Rather than a dense pre-allocated table, use a hash map keyed by item ID. New items are inserted on-demand; expired items are evicted by a TTL policy. <em>Monolith</em> implements this as a <em>cuckoo hash map</em> with collision-free guarantees: each item has a unique slot, eliminating the embedding collision problem that plagues fixed-size hash tables. <em>Expirable embeddings</em> allow automatic eviction of items not seen in recent training batches, keeping the table from growing unboundedly.</p>
+<p><strong>Cold-start warm-starting.</strong> New items have no interaction history to learn from. Embedding initialization strategies in increasing order of sophistication:</p>
+<ol type="1">
+<li><em>Random initialization</em>: simplest; the embedding converges only once the item accumulates interactions.</li>
+<li><em>Average pooling of similar items</em>: initialize the new item’s embedding as the mean of embeddings of semantically similar items (by content features or category).</li>
+<li><em>Content-feature bridging</em>: train a separate encoder <span class="math inline">\(f_{\text{content}} : \text{text/image features} \to \mathbb{R}^d\)</span> and initialize <span class="math inline">\(\mathbf{e}_{\text{new}} = f_{\text{content}}(\text{attributes}_{\text{new}})\)</span>. Meta Scaling and Shifting Networks (arXiv:2105.04790) learn item-specific affine transformations of a shared content embedding to produce task-specific item representations without interaction history.</li>
+</ol>
+<h3 id="rq-vae-codebook-lifecycle">4.3 RQ-VAE Codebook Lifecycle</h3>
+<p>The RQ-VAE tokenizer (Section 4.1 of <a href="../../../../notes/note%7Cnote.md/">note|note.md</a>) maps items to semantic IDs. As new items arrive, two questions arise: (1) can a trained codebook generalize to new items, and (2) how often must the codebook be retrained?</p>
+<p><strong>Codebook generalization.</strong> YouTube/Google (arXiv:2306.08121) froze an RQ-VAE trained on older data and evaluated it on items created subsequently. Performance was comparable to using a fresh codebook — <em>frozen codebooks generalize without retraining</em>. The intuition: the codebook encodes semantic clustering structure (which items are similar) that remains stable even as specific items enter and leave. New items are mapped to the nearest existing code cluster, which is semantically appropriate.</p>
+<p><strong>Codebook retraining.</strong> When the item distribution shifts substantially (new content categories, major platform changes), the codebook should be retrained. <strong>SOLID</strong> (2024) proposes <em>dynamic semantic codebook learning</em> that jointly optimizes the codebook with the recommendation model, continuously updating code assignments as user-item interaction patterns evolve. <strong>RQ-Kmeans</strong> (OneRec v2, Kuaishou 2025) incorporates collaborative signals — co-interacted item pairs — directly into codebook construction, ensuring semantically similar items in the embedding space also receive similar codes.</p>
+<hr />
+<h2 id="online-learning-and-model-freshness">5. Online Learning and Model Freshness</h2>
+<h3 id="the-freshness-hierarchy">5.1 The Freshness Hierarchy</h3>
+<p>Generative recommender models degrade rapidly after their training cutoff: GR2 (arXiv:2602.07774) documents significant quality degradation within <strong>24 hours</strong> of training cutoff. A 1.5T parameter model cannot be fully retrained daily — the compute cost is prohibitive. The solution is a <em>freshness hierarchy</em> that matches the refresh mechanism to the timescale of the underlying distribution shift:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>What it captures</th>
+<th>Refresh frequency</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Real-time features</td>
+<td>Platform-wide trends (CTR last hour, velocity, seasonal)</td>
+<td>Minutes</td>
+<td>Streaming feature computation; no model update</td>
+</tr>
+<tr class="even">
+<td>Retrieval index</td>
+<td>New item embeddings and ANN structure</td>
+<td>Daily to 4× daily</td>
+<td>Candidate tower inference + index rebuild</td>
+</tr>
+<tr class="odd">
+<td>LoRA adapters</td>
+<td>Recent user preference drift, new item interactions</td>
+<td>Daily</td>
+<td>Fine-tune only low-rank adapter matrices</td>
+</tr>
+<tr class="even">
+<td>Base model</td>
+<td>Long-range behavioral patterns, item co-occurrence</td>
+<td>Weekly to monthly</td>
+<td>Full retraining with warm-start</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The feature vs. model freshness insight.</strong> GenRank (arXiv:2505.04180) finds that <em>real-time statistical features</em> — sliding-window CTR by category, trending scores, item velocity — provide significant AUC improvement even in a generative model that was not designed around them. These features capture what is trending <em>right now</em> on the platform, independent of the model’s training-time knowledge. <em>This means a stale base model can be partially compensated by fresh features</em>, buying more time between full retraining cycles.</p>
+<h3 id="parameter-efficient-daily-updates">5.2 Parameter-Efficient Daily Updates</h3>
+<p><strong>LoRA</strong> (arXiv:2106.09685) provides the most practical mechanism for daily model updates. Rather than retraining all parameters, inject trainable <em>rank-<span class="math inline">\(r\)</span> decomposition matrices</em> into each Transformer layer:</p>
+<p><span class="math display">\[W_{\text{updated}} = W_{\text{frozen}} + \Delta W, \quad \Delta W = W_{\uparrow} W_{\downarrow}\]</span></p>
+<p>where <span class="math inline">\(W_{\uparrow} \in \mathbb{R}^{d \times r}\)</span>, <span class="math inline">\(W_{\downarrow} \in \mathbb{R}^{r \times d}\)</span>, and <span class="math inline">\(r \ll d\)</span>. For a 1.5T model with <span class="math inline">\(d = 768\)</span> and <span class="math inline">\(r = 8\)</span>, the trainable parameter count reduces by <strong>10,000×</strong>. Daily LoRA training requires a fraction of the GPU resources needed for full retraining; the resulting adapter can be merged with the frozen base weights at serving time with zero inference overhead.</p>
+<p><strong>Prompt-based Continual Learning (PCL)</strong> (arXiv:2502.19628) takes the freeze further: the base model weights are entirely frozen and per-task <em>learnable prompt vectors</em> are prepended to the input sequence. Each task (click prediction, watch-time prediction, purchase prediction) gets its own prompt; the model reads the prompt and adapts its behavior without weight updates. This is compatible with any frozen large model and requires only the prompt parameters to be stored and updated per day.</p>
+<p><strong>Warm-starting and knowledge distillation.</strong> Naive warm-start from the previous checkpoint can cause the model to overfit to outdated patterns. <em>Adaptive Knowledge Distillation (AdaKD)</em> blends new and old supervision:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{AdaKD}} = \alpha\, \mathcal{L}_{\text{new}} + (1 - \alpha)\, D_{\text{KL}}\!\left(\pi_{\text{new}}(\cdot) \,\|\, \pi_{\text{old}}(\cdot)\right)\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> is scheduled from 0 (trust the old model) to 1 (trust only new data) over the update window. This prevents catastrophic forgetting of well-learned patterns while adapting to the new distribution.</p>
+<h3 id="continual-learning-without-catastrophic-forgetting">5.3 Continual Learning Without Catastrophic Forgetting</h3>
+<p>When LoRA or full retraining is applied to new data, the model may forget patterns learned on older data — the <em>catastrophic forgetting</em> problem.</p>
+<p><strong>Elastic Weight Consolidation (EWC)</strong> (arXiv:1612.00796) adds a regularization penalty to the loss function:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{EWC}} = \mathcal{L}_{\text{new}}(\theta) + \frac{\lambda}{2} \sum_i F_i \left(\theta_i - \theta^*_i\right)^2\]</span></p>
+<p>where <span class="math inline">\(F_i\)</span> is the diagonal of the <em>Fisher Information Matrix</em> — a measure of how important parameter <span class="math inline">\(\theta_i\)</span> is to the previous task. Parameters with high <span class="math inline">\(F_i\)</span> are constrained to stay close to their previous values <span class="math inline">\(\theta^*_i\)</span>; parameters with low <span class="math inline">\(F_i\)</span> can drift freely. In knowledge graph continual learning settings, EWC reduces catastrophic forgetting from 12.62% to 6.85%.</p>
+<p><em>Limitation</em>: Computing <span class="math inline">\(F_i\)</span> requires access to old task data or a full backward pass over historical interactions — expensive at recommendation scale.</p>
+<p><strong>Experience replay.</strong> Maintain a buffer of historical (user, item, label) triples sampled from past training windows. At each training step, mix replay samples with fresh data:</p>
+<p><span class="math display">\[\mathcal{L} = \mathcal{L}_{\text{fresh}} + \beta\, \mathcal{L}_{\text{replay}}\]</span></p>
+<p>The buffer acts as a compressed representation of the old data distribution, preventing the model from drifting too far from learned historical patterns. <em>Adaptive Experience Replay (AdaER)</em> prioritizes replay of examples that caused the most interference in recent training steps, directing the rehearsal budget toward the most forgotten patterns.</p>
+<p><strong>Distribution drift detection.</strong> <em>ADWIN</em> (Adaptive WINdowing) maintains a dynamic sliding window of recent model errors. If the error distribution in a recent sub-window deviates significantly from the full window, a drift alarm is triggered, prompting a faster model update or learning rate reset. Applied to recommendation systems, ADWIN-triggered updates improved accuracy by <strong>15%</strong> in e-commerce settings (compared to fixed-schedule updates) by detecting distribution shifts earlier.</p>
+<hr />
+<h2 id="references">6. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ZionEX: Software-Hardware Co-design for Fast and Scalable Training (Meta, 2021)</td>
+<td>Synchronous hybrid parallelism for 12T-param DLRM; eliminates parameter server; 40× speedup</td>
+<td>https://arxiv.org/abs/2104.05158</td>
+</tr>
+<tr class="even">
+<td>Monolith: Real Time Recommendation System with Collisionless Embedding Table (ByteDance, 2022)</td>
+<td>Cuckoo hash for collision-free online embeddings; sparse synchronization of touched keys; expirable embeddings</td>
+<td>https://arxiv.org/abs/2209.07663</td>
+</tr>
+<tr class="odd">
+<td>Jagged Flash Attention (arXiv:2409.15373, 2024)</td>
+<td>Custom CUDA kernels for ragged/variable-length attention; 9× memory reduction, 3× throughput over dense FlashAttention-2</td>
+<td>https://arxiv.org/abs/2409.15373</td>
+</tr>
+<tr class="even">
+<td>Scaling Generative Recommendations with Context Parallelism on HSTU (Meta, 2025)</td>
+<td>Extends sequence-length parallelism to ragged tensors; 5.3× longer sequences, 1.55× scaling with DDP</td>
+<td>https://arxiv.org/abs/2508.04711</td>
+</tr>
+<tr class="odd">
+<td>HET: Scaling out Huge Embedding Model Training (2021)</td>
+<td>Power-law-aware distributed embedding cache; 88% communication reduction, 20.68× throughput improvement</td>
+<td>https://arxiv.org/abs/2112.07221</td>
+</tr>
+<tr class="even">
+<td>EmbRace: Accelerating Sparse Communication for Distributed Training (2021)</td>
+<td>Sparsity-aware hybrid AlltoAll + model-parallel scheduling; 2.41× speedup over SOTA</td>
+<td>https://arxiv.org/abs/2110.09132</td>
+</tr>
+<tr class="odd">
+<td>Check-N-Run: Checkpointing for Deep Learning Recommendation Models (Facebook, 2020)</td>
+<td>Dirty-bit incremental checkpointing; 6–17× write bandwidth reduction, 2.5–8× size reduction</td>
+<td>https://arxiv.org/abs/2010.08679</td>
+</tr>
+<tr class="even">
+<td>PRISM: GPU-Disaggregated Serving for Deep Learning Recommendation (NSDI 2025)</td>
+<td>GPU-disaggregated prefill/decode architecture for production DLRM serving</td>
+<td>https://www.lingyunyang.com/assets/files/prism-nsdi25.pdf</td>
+</tr>
+<tr class="odd">
+<td>Massive Memorization with VISTA (arXiv:2510.22049, 2024)</td>
+<td>Two-stage target attention for lifelong histories; fixed-size summary enables O(1) candidate scoring in history length</td>
+<td>https://arxiv.org/abs/2510.22049</td>
+</tr>
+<tr class="even">
+<td>GEMs: Multi-Stream Decoder for Long-Sequence Recommendation (arXiv:2602.13631, 2026)</td>
+<td>Decomposes history into parallel behavioral streams; reduces effective attention sequence length</td>
+<td>https://arxiv.org/abs/2602.13631</td>
+</tr>
+<tr class="odd">
+<td>Breaking the Hourglass Phenomenon in Residual Quantization (arXiv:2407.21488, 2024)</td>
+<td>Identifies and mitigates codebook concentration in intermediate RQ-VAE levels during beam search</td>
+<td>https://arxiv.org/abs/2407.21488</td>
+</tr>
+<tr class="even">
+<td>Generating Long Semantic IDs in Parallel (arXiv:2506.05781, 2025)</td>
+<td>Multi-token prediction for parallel semantic ID decoding; reduces sequential beam search steps</td>
+<td>https://arxiv.org/abs/2506.05781</td>
+</tr>
+<tr class="odd">
+<td>Better Generalization with Semantic IDs (Google/YouTube, arXiv:2306.08121, 2023)</td>
+<td>Demonstrates frozen RQ-VAE codebooks generalize to new items without retraining</td>
+<td>https://arxiv.org/abs/2306.08121</td>
+</tr>
+<tr class="even">
+<td>GMT: GPU Orchestrated Memory Tiering (2024)</td>
+<td>GPU-direct 3-tier HBM/DRAM/NVMe hierarchy for embedding tables; 3.9× latency reduction</td>
+<td>https://dl.acm.org/doi/10.1145/3620666.3651353</td>
+</tr>
+<tr class="odd">
+<td>Learning to Warm Up Cold Item Embeddings (arXiv:2105.04790, 2021)</td>
+<td>Meta Scaling and Shifting Networks for zero-interaction item embedding initialization</td>
+<td>https://arxiv.org/abs/2105.04790</td>
+</tr>
+<tr class="even">
+<td>LoRA: Low-Rank Adaptation of Large Language Models (arXiv:2106.09685, 2021)</td>
+<td>10,000× parameter reduction for fine-tuning; zero inference overhead via weight merging</td>
+<td>https://arxiv.org/abs/2106.09685</td>
+</tr>
+<tr class="odd">
+<td>PCL: Prompt-based Continual Learning for User Modeling (arXiv:2502.19628, 2025)</td>
+<td>Freezes base model; learns per-task prompt vectors as external memory for daily updates</td>
+<td>https://arxiv.org/abs/2502.19628</td>
+</tr>
+<tr class="even">
+<td>Elastic Weight Consolidation (arXiv:1612.00796, 2017)</td>
+<td>Fisher Information Matrix regularization to prevent catastrophic forgetting during continual learning</td>
+<td>https://arxiv.org/abs/1612.00796</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

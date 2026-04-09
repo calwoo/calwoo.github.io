@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>03-limits-colimits - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../../">Home</a>
+                <a href="../../../../../about.html">About</a>
+                <a href="../../../../../contact.html">Contact</a>
+                <a href="../../../../../archive.html">Archive</a>
+                <a href="../../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>03-limits-colimits</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../../notes/#1.-diagrams-and-cones%7C1.-diagrams-and-cones/">#1. Diagrams and Cones|1. Diagrams and Cones</a>
+<ul>
+<li><a href="../../../../../notes/#1.1-the-shape-category%7C1.1-the-shape-category/">#1.1 The Shape Category|1.1 The Shape Category</a></li>
+<li><a href="../../../../../notes/#1.2-cones-and-cocones%7C1.2-cones-and-cocones/">#1.2 Cones and Cocones|1.2 Cones and Cocones</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#2.-limits-and-colimits%7C2.-limits-and-colimits/">#2. Limits and Colimits|2. Limits and Colimits</a>
+<ul>
+<li><a href="../../../../../notes/#2.1-the-universal-property%7C2.1-the-universal-property/">#2.1 The Universal Property|2.1 The Universal Property</a></li>
+<li><a href="../../../../../notes/#2.2-uniqueness-up-to-unique-isomorphism%7C2.2-uniqueness-up-to-unique-isomorphism/">#2.2 Uniqueness Up to Unique Isomorphism|2.2 Uniqueness Up to Unique Isomorphism</a></li>
+<li><a href="../../../../../notes/#2.3-special-cases%7C2.3-special-cases/">#2.3 Special Cases|2.3 Special Cases</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#3.-limits-in-set%7C3.-limits-in-set/">#3. Limits in Set|3. Limits in Set</a>
+<ul>
+<li><a href="../../../../../notes/#3.1-explicit-description-of-the-limit%7C3.1-explicit-description-of-the-limit/">#3.1 Explicit Description of the Limit|3.1 Explicit Description of the Limit</a></li>
+<li><a href="../../../../../notes/#3.2-explicit-description-of-the-colimit%7C3.2-explicit-description-of-the-colimit/">#3.2 Explicit Description of the Colimit|3.2 Explicit Description of the Colimit</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#4.-products-and-exponentials%7C4.-products-and-exponentials/">#4. Products and Exponentials|4. Products and Exponentials</a></li>
+<li><a href="../../../../../notes/#5.-preservation,-reflection,-and-creation-of-limits%7C5.-preservation,-reflection,-and-creation-of-limits/">#5. Preservation, Reflection, and Creation of Limits|5. Preservation, Reflection, and Creation of Limits</a>
+<ul>
+<li><a href="../../../../../notes/#5.1-definitions%7C5.1-definitions/">#5.1 Definitions|5.1 Definitions</a></li>
+<li><a href="../../../../../notes/#5.2-the-creation-theorem%7C5.2-the-creation-theorem/">#5.2 The Creation Theorem|5.2 The Creation Theorem</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#6.-projective-and-injective-objects%7C6.-projective-and-injective-objects/">#6. Projective and Injective Objects|6. Projective and Injective Objects</a>
+<ul>
+<li><a href="../../../../../notes/#6.1-projective-objects%7C6.1-projective-objects/">#6.1 Projective Objects|6.1 Projective Objects</a></li>
+<li><a href="../../../../../notes/#6.2-injective-objects%7C6.2-injective-objects/">#6.2 Injective Objects|6.2 Injective Objects</a></li>
+<li><a href="../../../../../notes/#6.3-regular-injective-objects%7C6.3-regular-injective-objects/">#6.3 Regular Injective Objects|6.3 Regular Injective Objects</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#7.-limits-as-colimits:-formal-power-series%7C7.-limits-as-colimits:-formal-power-series/">#7. Limits as Colimits: Formal Power Series|7. Limits as Colimits: Formal Power Series</a></li>
+<li><a href="../../../../../notes/#8.-regular-monics-and-epics%7C8.-regular-monics-and-epics/">#8. Regular Monics and Epics|8. Regular Monics and Epics</a>
+<ul>
+<li><a href="../../../../../notes/#8.1-definitions-and-hierarchy%7C8.1-definitions-and-hierarchy/">#8.1 Definitions and Hierarchy|8.1 Definitions and Hierarchy</a></li>
+<li><a href="../../../../../notes/#8.2-characterizations-and-examples%7C8.2-characterizations-and-examples/">#8.2 Characterizations and Examples|8.2 Characterizations and Examples</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#9.-building-limits-from-products-and-equalizers%7C9.-building-limits-from-products-and-equalizers/">#9. Building Limits from Products and Equalizers|9. Building Limits from Products and Equalizers</a></li>
+<li><a href="../../../../../notes/#10.-algebraic-categories:-widget-and-chad%7C10.-algebraic-categories:-widget-and-chad/">#10. Algebraic Categories: Widget and Chad|10. Algebraic Categories: Widget and Chad</a></li>
+<li><a href="../../../../../notes/#11.-limits-as-right-adjoints-to-the-diagonal%7C11.-limits-as-right-adjoints-to-the-diagonal/">#11. Limits as Right Adjoints to the Diagonal|11. Limits as Right Adjoints to the Diagonal</a></li>
+<li><a href="../../../../../notes/#12.-limits-in-functor-categories%7C12.-limits-in-functor-categories/">#12. Limits in Functor Categories|12. Limits in Functor Categories</a></li>
+<li><a href="../../../../../notes/#13.-representable-functors-preserve-limits%7C13.-representable-functors-preserve-limits/">#13. Representable Functors Preserve Limits|13. Representable Functors Preserve Limits</a></li>
+<li><a href="../../../../../notes/#14.-adjoints-and-limit-preservation%7C14.-adjoints-and-limit-preservation/">#14. Adjoints and Limit Preservation|14. Adjoints and Limit Preservation</a></li>
+<li><a href="../../../../../notes/#15.-the-density-theorem-and-cartesian-closed-categories%7C15.-the-density-theorem-and-cartesian-closed-categories/">#15. The Density Theorem and Cartesian Closed Categories|15. The Density Theorem and Cartesian Closed Categories</a>
+<ul>
+<li><a href="../../../../../notes/#15.1-the-density-theorem%7C15.1-the-density-theorem/">#15.1 The Density Theorem|15.1 The Density Theorem</a></li>
+<li><a href="../../../../../notes/#15.2-cartesian-closed-categories%7C15.2-cartesian-closed-categories/">#15.2 Cartesian Closed Categories|15.2 Cartesian Closed Categories</a></li>
+</ul></li>
+<li><a href="../../../../../notes/#16.-stability-of-morphism-classes%7C16.-stability-of-morphism-classes/">#16. Stability of Morphism Classes|16. Stability of Morphism Classes</a></li>
+<li><a href="../../../../../notes/#17.-optional:-homological-algebra-via-category-theory%7C17.-optional:-homological-algebra-via-category-theory/">#17. Optional: Homological Algebra via Category Theory|17. Optional: Homological Algebra via Category Theory</a></li>
+<li><a href="../../../../../notes/#18.-the-art-of-the-diagram-chase%7C18.-the-art-of-the-diagram-chase-🧩/">#18. The Art of the Diagram Chase|18. The Art of the Diagram Chase 🧩</a></li>
+<li><a href="../../../../../notes/#19.-complete-and-cocomplete-categories%7C19.-complete-and-cocomplete-categories-🌐/">#19. Complete and Cocomplete Categories|19. Complete and Cocomplete Categories 🌐</a></li>
+<li><a href="../../../../../notes/#20.-functoriality-of-limits%7C20.-functoriality-of-limits-⚙️/">#20. Functoriality of Limits|20. Functoriality of Limits ⚙️</a></li>
+<li><a href="../../../../../notes/#21.-interactions-between-limits-and-colimits%7C21.-interactions-between-limits-and-colimits-🔄/">#21. Interactions between Limits and Colimits|21. Interactions between Limits and Colimits 🔄</a></li>
+<li><a href="../../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<div class="callout callout-info">
+<p> Prerequisites
+This note is File 3 of 4 in a category theory series following Tom Leinster’s Part III Cambridge course (2000). File 1 covers categories, functors, and natural transformations. File 2 covers adjoint functors and representable functors. Familiarity with those concepts — in particular the Yoneda lemma and the definition of an adjunction — is assumed throughout.</p>
+</div>
+<hr />
+<h2 id="diagrams-and-cones">1. Diagrams and Cones 🗺️</h2>
+<div class="callout callout-info">
+<p> Leinster’s approach to limits (Chapter 5)
+Leinster opens Chapter 5 of <em>Basic Category Theory</em> by defining limits as “the most general kind of limit” and motivating them via three examples: products (a discrete diagram), equalizers (a parallel pair), and pullbacks (a cospan). He then gives the general definition and proves the key results: limits in <span class="math inline">\(\mathbf{Set}\)</span> are explicit, limits are representable, and right adjoints preserve them. He also emphasises the <em>duality principle</em>: every result about limits has a dual result about colimits, obtained by reversing all arrows.</p>
+<p>Leinster’s notation: he writes <span class="math inline">\(\lim D\)</span> for a limit of the diagram <span class="math inline">\(D\)</span> and <span class="math inline">\(\varprojlim D\)</span> for an inverse limit when the index category is a poset; he uses <span class="math inline">\(\varinjlim D\)</span> for a direct/colimit. These notes follow this convention.</p>
+</div>
+<h3 id="the-shape-category">1.1 The Shape Category</h3>
+<p>A <em>diagram</em> in a category <span class="math inline">\(\mathcal{C}\)</span> is simply a functor <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>, where <span class="math inline">\(\mathcal{I}\)</span> is a small category called the <em>index category</em> or <em>shape</em>. The objects of <span class="math inline">\(\mathcal{I}\)</span> label the vertices of the diagram, and the morphisms of <span class="math inline">\(\mathcal{I}\)</span> label the arrows between them.</p>
+<p><strong>Definition (Diagram).</strong> Let <span class="math inline">\(\mathcal{C}\)</span> be a category and <span class="math inline">\(\mathcal{I}\)</span> a small category. A <em>diagram of shape <span class="math inline">\(\mathcal{I}\)</span> in <span class="math inline">\(\mathcal{C}\)</span></em> is a functor <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>.</p>
+<div class="callout callout-example">
+<p> Familiar shapes
+- <span class="math inline">\(\mathcal{I} = \bullet \rightrightarrows \bullet\)</span> (the <em>parallel pair</em> shape): a diagram <span class="math inline">\(D\)</span> picks out two objects and two morphisms <span class="math inline">\(f, g : A \rightrightarrows B\)</span>.
+- <span class="math inline">\(\mathcal{I} = \bullet \leftarrow \bullet \rightarrow \bullet\)</span> (the <em>span</em> shape): a diagram picks out <span class="math inline">\(A \xleftarrow{f} C \xrightarrow{g} B\)</span>.
+- <span class="math inline">\(\mathcal{I} = \bullet \rightarrow \bullet \leftarrow \bullet\)</span> (the <em>cospan</em> shape): picks out <span class="math inline">\(A \xrightarrow{f} C \xleftarrow{g} B\)</span>.
+- <span class="math inline">\(\mathcal{I} = \emptyset\)</span> (the empty category): the unique diagram is the empty diagram.
+- <span class="math inline">\(\mathcal{I}\)</span> discrete on <span class="math inline">\(n\)</span> objects: a diagram is an <span class="math inline">\(n\)</span>-tuple of objects in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+</div>
+<h3 id="cones-and-cocones">1.2 Cones and Cocones</h3>
+<p><strong>Definition (Cone).</strong> Let <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> be a diagram. A <em>cone over <span class="math inline">\(D\)</span></em> is a pair <span class="math inline">\((N, (\pi_i)_{i \in \mathcal{I}})\)</span> where <span class="math inline">\(N \in \mathcal{C}\)</span> is an object (the <em>apex</em>) and <span class="math inline">\(\pi_i : N \to Di\)</span> is a morphism for each object <span class="math inline">\(i \in \mathcal{I}\)</span>, subject to the <em>commutativity condition</em>: for every morphism <span class="math inline">\(u : i \to j\)</span> in <span class="math inline">\(\mathcal{I}\)</span>,
+<span class="math display">\[D(u) \circ \pi_i = \pi_j.\]</span></p>
+<p>Equivalently, in terms of the <em>constant functor</em> <span class="math inline">\(\Delta_N : \mathcal{I} \to \mathcal{C}\)</span> (which sends every object to <span class="math inline">\(N\)</span> and every morphism to <span class="math inline">\(\mathrm{id}_N\)</span>), a cone <span class="math inline">\((N, (\pi_i))\)</span> is precisely a natural transformation <span class="math inline">\(\pi : \Delta_N \Rightarrow D\)</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>&amp; N <span class="fu">\arrow</span>[dl, &quot;<span class="fu">\pi</span>_i&quot;'] <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\pi</span>_j&quot;] &amp; <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Di <span class="fu">\arrow</span>[rr, &quot;D(u)&quot;'] &amp; &amp; Dj</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Definition (Cocone).</strong> A <em>cocone under <span class="math inline">\(D\)</span></em> is a pair <span class="math inline">\((N, (\iota_i)_{i \in \mathcal{I}})\)</span> where <span class="math inline">\(\iota_i : Di \to N\)</span> for each <span class="math inline">\(i \in \mathcal{I}\)</span>, subject to the <em>cocommutativity condition</em>: for every <span class="math inline">\(u : i \to j\)</span> in <span class="math inline">\(\mathcal{I}\)</span>,
+<span class="math display">\[\iota_j \circ D(u) = \iota_i.\]</span></p>
+<p>Equivalently, a cocone is a natural transformation <span class="math inline">\(\iota : D \Rightarrow \Delta_N\)</span>.</p>
+<div class="callout callout-note">
+<p> Notation
+We write <span class="math inline">\(\mathrm{Cone}(N, D)\)</span> for the set of cones with apex <span class="math inline">\(N\)</span> over <span class="math inline">\(D\)</span>, and <span class="math inline">\(\mathrm{Cocone}(D, N)\)</span> for the set of cocones under <span class="math inline">\(D\)</span> with nadir <span class="math inline">\(N\)</span>. Both are functorial in <span class="math inline">\(N\)</span>.</p>
+</div>
+<hr />
+<h2 id="limits-and-colimits">2. Limits and Colimits 🎯</h2>
+<h3 id="the-universal-property">2.1 The Universal Property</h3>
+<p><strong>Definition (Limit).</strong> A <em>limit of <span class="math inline">\(D\)</span></em> is a cone <span class="math inline">\((L, (\pi_i)_{i \in \mathcal{I}})\)</span> over <span class="math inline">\(D\)</span> that is <em>terminal</em> in the category of cones over <span class="math inline">\(D\)</span>: for every cone <span class="math inline">\((N, (\phi_i)_{i \in \mathcal{I}})\)</span> over <span class="math inline">\(D\)</span>, there exists a unique morphism <span class="math inline">\(! : N \to L\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that
+<span class="math display">\[\pi_i \circ \, ! \;= \phi_i \quad \text{for all } i \in \mathcal{I}.\]</span></p>
+<p>We denote the apex <span class="math inline">\(L\)</span> by <span class="math inline">\(\varprojlim D\)</span> or <span class="math inline">\(\lim_{\mathcal{I}} D\)</span> or simply <span class="math inline">\(\lim D\)</span>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>N <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\varphi</span>_i&quot;'] <span class="fu">\arrow</span>[r, &quot;!&quot;, dashed] &amp; {L = <span class="fu">\lim</span> D} <span class="fu">\arrow</span>[d, &quot;<span class="fu">\pi</span>_i&quot;] <span class="fu">\\</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>&amp; Di</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Definition (Colimit).</strong> A <em>colimit of <span class="math inline">\(D\)</span></em> is a cocone <span class="math inline">\((L, (\iota_i)_{i \in \mathcal{I}})\)</span> under <span class="math inline">\(D\)</span> that is <em>initial</em> among cocones: for every cocone <span class="math inline">\((N, (\psi_i)_{i \in \mathcal{I}})\)</span> under <span class="math inline">\(D\)</span>, there exists a unique morphism <span class="math inline">\(! : L \to N\)</span> such that
+<span class="math display">\[! \circ \iota_i = \psi_i \quad \text{for all } i \in \mathcal{I}.\]</span></p>
+<p>We denote the nadir <span class="math inline">\(L\)</span> by <span class="math inline">\(\varinjlim D\)</span> or <span class="math inline">\(\mathrm{colim}_{\mathcal{I}} D\)</span> or simply <span class="math inline">\(\mathrm{colim}\, D\)</span>.</p>
+<div class="callout callout-note">
+<p> Duality
+The definition of colimit is precisely the definition of limit applied in the <em>opposite</em> category <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span>: a colimit of <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> is a limit of <span class="math inline">\(D^{\mathrm{op}} : \mathcal{I}^{\mathrm{op}} \to \mathcal{C}^{\mathrm{op}}\)</span>.</p>
+</div>
+<h3 id="uniqueness-up-to-unique-isomorphism">2.2 Uniqueness Up to Unique Isomorphism</h3>
+<p><strong>Proposition (Uniqueness of limits).</strong> If <span class="math inline">\((L, (\pi_i))\)</span> and <span class="math inline">\((L', (\pi'_i))\)</span> are both limits of <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>, then there is a unique isomorphism <span class="math inline">\(\phi : L \xrightarrow{\sim} L'\)</span> compatible with the projections: <span class="math inline">\(\pi'_i \circ \phi = \pi_i\)</span> for all <span class="math inline">\(i\)</span>.</p>
+<p><em>Proof sketch.</em> By the universal property applied to <span class="math inline">\((L, (\pi_i))\)</span> as a cone over <span class="math inline">\(D\)</span>, there is a unique <span class="math inline">\(\phi : L \to L'\)</span> with <span class="math inline">\(\pi'_i \circ \phi = \pi_i\)</span>. Similarly there is a unique <span class="math inline">\(\psi : L' \to L\)</span> with <span class="math inline">\(\pi_i \circ \psi = \pi'_i\)</span>. Then <span class="math inline">\(\psi \circ \phi\)</span> and <span class="math inline">\(\mathrm{id}_L\)</span> are both morphisms <span class="math inline">\(L \to L\)</span> compatible with <span class="math inline">\((\pi_i)\)</span>; by uniqueness <span class="math inline">\(\psi \circ \phi = \mathrm{id}_L\)</span>. Similarly <span class="math inline">\(\phi \circ \psi = \mathrm{id}_{L'}\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>This uniqueness justifies speaking of “the” limit of a diagram.</strong></p>
+<h3 id="special-cases">2.3 Special Cases</h3>
+<p>The following table catalogues the most important special instances of limits and colimits, obtained by varying the shape <span class="math inline">\(\mathcal{I}\)</span>.</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 32%" />
+<col style="width: 27%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Shape <span class="math inline">\(\mathcal{I}\)</span></th>
+<th>Limit / Colimit</th>
+<th>Universal property</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Terminal object</em></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td>Limit</td>
+<td>Unique morphism into <span class="math inline">\(1\)</span> from any object</td>
+</tr>
+<tr class="even">
+<td><em>Initial object</em></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td>Colimit</td>
+<td>Unique morphism from <span class="math inline">\(0\)</span> to any object</td>
+</tr>
+<tr class="odd">
+<td><em>Product</em> <span class="math inline">\(A \times B\)</span></td>
+<td><span class="math inline">\(\bullet \quad \bullet\)</span> (discrete, 2 objects)</td>
+<td>Limit</td>
+<td>Projections <span class="math inline">\(\pi_1, \pi_2\)</span>; unique factoring</td>
+</tr>
+<tr class="even">
+<td><em>Coproduct</em> <span class="math inline">\(A \sqcup B\)</span></td>
+<td><span class="math inline">\(\bullet \quad \bullet\)</span> (discrete, 2 objects)</td>
+<td>Colimit</td>
+<td>Injections <span class="math inline">\(\iota_1, \iota_2\)</span>; unique factoring</td>
+</tr>
+<tr class="odd">
+<td><em>Equalizer</em></td>
+<td><span class="math inline">\(\bullet \rightrightarrows \bullet\)</span></td>
+<td>Limit</td>
+<td>The subobject equalizing <span class="math inline">\(f, g : A \rightrightarrows B\)</span></td>
+</tr>
+<tr class="even">
+<td><em>Coequalizer</em></td>
+<td><span class="math inline">\(\bullet \rightrightarrows \bullet\)</span></td>
+<td>Colimit</td>
+<td>The quotient coequalization</td>
+</tr>
+<tr class="odd">
+<td><em>Pullback</em></td>
+<td><span class="math inline">\(\bullet \to \bullet \leftarrow \bullet\)</span></td>
+<td>Limit</td>
+<td>Fiber product over a common target</td>
+</tr>
+<tr class="even">
+<td><em>Pushout</em></td>
+<td><span class="math inline">\(\bullet \leftarrow \bullet \to \bullet\)</span></td>
+<td>Colimit</td>
+<td>Amalgamated sum over a common source</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!EXAMPLE]- Pullbacks in concrete categories
+💡 The <em>pullback</em> of a cospan <span class="math inline">\(A \xrightarrow{f} C \xleftarrow{g} B\)</span> is the limit of the diagram of shape <span class="math inline">\(\bullet \to \bullet \leftarrow \bullet\)</span>. It is the object <span class="math inline">\(A \times_C B\)</span> with projections to <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, such that the square commutes and is universal with this property.</p>
+<p>In <span class="math inline">\(\mathbf{Set}\)</span>: <span class="math inline">\(A \times_C B = \{(a, b) \in A \times B \mid f(a) = g(b)\}\)</span> — the “fibered product” over <span class="math inline">\(C\)</span>.</p>
+<p>In <span class="math inline">\(\mathbf{Top}\)</span>: the pullback of continuous maps <span class="math inline">\(f : A \to C\)</span> and <span class="math inline">\(g : B \to C\)</span> is <span class="math inline">\(\{(a,b) \in A \times B : f(a) = g(b)\}\)</span> with the subspace topology.</p>
+<p>In <span class="math inline">\(\mathbf{Grp}\)</span>: the pullback is the fiber product <span class="math inline">\(\{(a, b) \in A \times B : f(a) = g(b)\}\)</span> with componentwise group structure.</p>
+<p>The dual construction — the <em>pushout</em> of a span <span class="math inline">\(A \xleftarrow{f} C \xrightarrow{g} B\)</span> — is <span class="math inline">\(A \sqcup_C B\)</span> (the amalgamated sum). In <span class="math inline">\(\mathbf{Set}\)</span>: the pushout is <span class="math inline">\((A \sqcup B)/{\sim}\)</span> where <span class="math inline">\(f(c) \sim g(c)\)</span> for all <span class="math inline">\(c \in C\)</span>. In <span class="math inline">\(\mathbf{Grp}\)</span>: the pushout is the free product with amalgamation <span class="math inline">\(A *_C B\)</span>.</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Equalizers and kernel pairs
+The <em>equalizer</em> of <span class="math inline">\(f, g \colon A \rightrightarrows B\)</span> is the limit of the parallel pair diagram. In <span class="math inline">\(\mathbf{Set}\)</span>: <span class="math inline">\(\mathrm{eq}(f,g) = \{a \in A \mid f(a) = g(a)\} \hookrightarrow A\)</span>.</p>
+<p>In <span class="math inline">\(\mathbf{Grp}\)</span>: the equalizer of <span class="math inline">\(f, g \colon G \rightrightarrows H\)</span> is the subgroup <span class="math inline">\(\{x \in G \mid f(x) = g(x)\}\)</span> with the inclusion homomorphism.</p>
+<p>The <em>kernel pair</em> of a morphism <span class="math inline">\(f \colon A \to B\)</span> is the pullback of <span class="math inline">\(f\)</span> along itself: the object <span class="math inline">\(A \times_B A\)</span> with two projection morphisms <span class="math inline">\(p_1, p_2 \colon A \times_B A \rightrightarrows A\)</span>. In <span class="math inline">\(\mathbf{Set}\)</span>, this is the equivalence relation <span class="math inline">\(\{(a, a') \mid f(a) = f(a')\}\)</span>. Kernel pairs are fundamental to the theory of regular categories.</p>
+</blockquote>
+<div class="callout callout-info">
+<p> Leinster on limits as “the same idea in many guises”
+Leinster (§5.1) observes that products, equalizers, and pullbacks are all “the same idea in different guises.” All three are instances of the same universal property: a terminal cone over a diagram. The unifying language of limits and diagrams shows that these seemingly disparate constructions are manifestations of a single concept. This is a prime example of the “bird’s eye view” that category theory provides.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 1
+<strong>Exercise 1.</strong> Define “limit” and “colimit” of a diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> in a category <span class="math inline">\(\mathcal{C}\)</span>. Discuss uniqueness. Give three examples of each in specific categories not discussed in lectures.</p>
+</div>
+<hr />
+<h2 id="limits-in-set">3. Limits in Set 🔢</h2>
+<div class="callout callout-info">
+<p> Leinster on limits in Set (§5.1 of Basic Category Theory)
+Leinster proves that limits in <span class="math inline">\(\mathbf{Set}\)</span> can be computed explicitly as the “matching families” formula below. He uses this as the foundation for a general existence theorem: any category with products and equalizers has all limits (§9 of these notes), and these exist in <span class="math inline">\(\mathbf{Set}\)</span> (products are Cartesian products; equalizers are subsets). Leinster then proves that the limit in <span class="math inline">\(\mathbf{Set}\)</span> has the claimed universal property by a direct verification, rather than citing abstract theorems.</p>
+</div>
+<h3 id="explicit-description-of-the-limit">3.1 Explicit Description of the Limit</h3>
+<p>For a small diagram <span class="math inline">\(D : \mathcal{I} \to \mathbf{Set}\)</span>, the limit has an entirely explicit description as a subset of a product.</p>
+<p><strong>Theorem (Limits in Set).</strong> The limit of <span class="math inline">\(D : \mathcal{I} \to \mathbf{Set}\)</span> is
+<span class="math display">\[\varprojlim D \;=\; \left\{\; (x_i)_{i \in \mathcal{I}} \in \prod_{i \in \mathcal{I}} D(i) \;\Big|\; D(u)(x_i) = x_j \text{ for all } u : i \to j \text{ in } \mathcal{I} \;\right\},\]</span>
+with projections <span class="math inline">\(\pi_j : \varprojlim D \to D(j)\)</span> given by <span class="math inline">\((x_i)_{i \in \mathcal{I}} \mapsto x_j\)</span>.</p>
+<p><em>Proof sketch.</em> One verifies that the given set with projections satisfies the universal property of a limit cone. Given any cone <span class="math inline">\((N, (\phi_i))\)</span>, define <span class="math inline">\(! : N \to \varprojlim D\)</span> by <span class="math inline">\(!(n) = (\phi_i(n))_{i \in \mathcal{I}}\)</span>. This is the unique map with <span class="math inline">\(\pi_i \circ \, ! = \phi_i\)</span>, and it lands in the equalizing subset by the cone condition <span class="math inline">\(D(u) \circ \phi_i = \phi_j\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> Equalizer in Set
+For the parallel pair <span class="math inline">\(f, g : A \rightrightarrows B\)</span>, the diagram has shape <span class="math inline">\(\mathcal{I} = \{s, t\}\)</span> with <span class="math inline">\(D(s) = A\)</span>, <span class="math inline">\(D(t) = B\)</span>, and <span class="math inline">\(D(f) = f\)</span>, <span class="math inline">\(D(g) = g\)</span>. The limit formula gives the equalizer <span class="math inline">\(\{a \in A \mid f(a) = g(a)\}\)</span>, with inclusion <span class="math inline">\(e : \{a \mid f(a) = g(a)\} \hookrightarrow A\)</span>.</p>
+</div>
+<h3 id="explicit-description-of-the-colimit">3.2 Explicit Description of the Colimit</h3>
+<p><strong>Theorem (Colimits in Set).</strong> The colimit of <span class="math inline">\(D : \mathcal{I} \to \mathbf{Set}\)</span> is
+<span class="math display">\[\varinjlim D \;=\; \left(\bigsqcup_{i \in \mathcal{I}} D(i)\right) \Big/ {\sim},\]</span>
+where <span class="math inline">\(\sim\)</span> is the equivalence relation generated by: <span class="math inline">\(x_i \sim x_j\)</span> whenever there exists <span class="math inline">\(u : i \to j\)</span> in <span class="math inline">\(\mathcal{I}\)</span> with <span class="math inline">\(D(u)(x_i) = x_j\)</span>. The structure maps are <span class="math inline">\(\iota_i : D(i) \to \varinjlim D\)</span>, sending <span class="math inline">\(x\)</span> to its equivalence class <span class="math inline">\([x]\)</span>.</p>
+<p><em>Proof sketch.</em> Given any cocone <span class="math inline">\((N, (\psi_i))\)</span>, define <span class="math inline">\(! : \varinjlim D \to N\)</span> by <span class="math inline">\(!([x_i]) = \psi_i(x_i)\)</span>. This is well-defined because the cocone condition <span class="math inline">\(\psi_j \circ D(u) = \psi_i\)</span> ensures that equivalent elements map to the same element of <span class="math inline">\(N\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 2
+<strong>Exercise 2.</strong> For a small diagram <span class="math inline">\(D : \mathcal{I} \to \mathbf{Set}\)</span>, describe explicitly the limit cone and the colimit cocone.</p>
+</div>
+<hr />
+<h2 id="products-and-exponentials">4. Products and Exponentials 🧮</h2>
+<p>Let <span class="math inline">\(\mathcal{C}\)</span> be a category with finite products. For fixed <span class="math inline">\(B \in \mathcal{C}\)</span>, the <em>product functor</em> <span class="math inline">\(- \times B : \mathcal{C} \to \mathcal{C}\)</span> sends <span class="math inline">\(A \mapsto A \times B\)</span> and <span class="math inline">\((f : A \to A') \mapsto (f \times \mathrm{id}_B : A \times B \to A' \times B)\)</span>.</p>
+<p><strong>Proposition.</strong> There is a natural isomorphism
+<span class="math display">\[\mathcal{C}(A, B \times C) \;\cong\; \mathcal{C}(A, B) \times \mathcal{C}(A, C)\]</span>
+naturally in <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, and <span class="math inline">\(C\)</span>.</p>
+<p><em>Proof sketch.</em> The bijection sends <span class="math inline">\(f : A \to B \times C\)</span> to the pair <span class="math inline">\((\pi_1 \circ f, \pi_2 \circ f)\)</span>. The inverse sends <span class="math inline">\((g, h)\)</span> to the unique <span class="math inline">\(\langle g, h \rangle : A \to B \times C\)</span> given by the universal property of the product. Naturality in each variable follows by functoriality of composition. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 3
+<strong>Exercise 3.</strong> Let <span class="math inline">\(\mathcal{C}\)</span> be a category with finite products. Show directly (without using the fact that right adjoints preserve limits) that <span class="math inline">\(\mathcal{C}(A, B \times C) \cong \mathcal{C}(A, B) \times \mathcal{C}(A, C)\)</span> naturally in <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(C \in \mathcal{C}\)</span>.</p>
+</div>
+<div class="callout callout-tip">
+<p> Connection to representability
+This isomorphism shows that <span class="math inline">\(\mathcal{C}(A, -)\)</span> converts products in <span class="math inline">\(\mathcal{C}\)</span> to products in <span class="math inline">\(\mathbf{Set}\)</span>. It is a special case of the fact (proved in §13) that representable functors preserve all limits.</p>
+</div>
+<hr />
+<h2 id="preservation-reflection-and-creation-of-limits">5. Preservation, Reflection, and Creation of Limits ⚙️</h2>
+<h3 id="definitions">5.1 Definitions</h3>
+<p>Let <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> be a functor and <span class="math inline">\(\mathcal{I}\)</span> a small category.</p>
+<p><strong>Definition (Preservation).</strong> <span class="math inline">\(F\)</span> <em>preserves limits of shape <span class="math inline">\(\mathcal{I}\)</span></em> if, for every diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> and every limit cone <span class="math inline">\((L, (\pi_i))\)</span> over <span class="math inline">\(D\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, the cone <span class="math inline">\((FL, (F\pi_i))\)</span> is a limit of <span class="math inline">\(FD : \mathcal{I} \to \mathcal{D}\)</span>.</p>
+<p><strong>Definition (Reflection).</strong> <span class="math inline">\(F\)</span> <em>reflects limits of shape <span class="math inline">\(\mathcal{I}\)</span></em> if, for every diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> and every cone <span class="math inline">\((L, (\pi_i))\)</span> over <span class="math inline">\(D\)</span>: if <span class="math inline">\((FL, (F\pi_i))\)</span> is a limit of <span class="math inline">\(FD\)</span> in <span class="math inline">\(\mathcal{D}\)</span>, then <span class="math inline">\((L, (\pi_i))\)</span> is already a limit of <span class="math inline">\(D\)</span> in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p><strong>Definition (Creation).</strong> <span class="math inline">\(F\)</span> <em>creates limits of shape <span class="math inline">\(\mathcal{I}\)</span></em> if <span class="math inline">\(F\)</span> reflects limits of shape <span class="math inline">\(\mathcal{I}\)</span>, and moreover: for every diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> such that <span class="math inline">\(FD\)</span> has a limit <span class="math inline">\((M, (\mu_i))\)</span> in <span class="math inline">\(\mathcal{D}\)</span>, there exists a unique cone <span class="math inline">\((L, (\pi_i))\)</span> over <span class="math inline">\(D\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that <span class="math inline">\((FL, (F\pi_i)) = (M, (\mu_i))\)</span>, and this unique cone is a limit cone.</p>
+<div class="callout callout-warning">
+<p> Creation is strictly stronger
+Creation implies reflection and (given existence of the limit in <span class="math inline">\(\mathcal{D}\)</span>) implies preservation. But a functor may preserve and reflect without creating — see Exercise 4.</p>
+</div>
+<div class="callout callout-example">
+<p> Forgetful functors
+The forgetful functor <span class="math inline">\(U : \mathbf{Grp} \to \mathbf{Set}\)</span> creates all limits. Concretely: a cone over a diagram of groups in <span class="math inline">\(\mathbf{Set}\)</span>, whose apex and legs are given by the explicit limit formula, carries a unique group structure making it a cone in <span class="math inline">\(\mathbf{Grp}\)</span>.</p>
+</div>
+<h3 id="the-creation-theorem">5.2 The Creation Theorem</h3>
+<p><strong>Theorem.</strong> If <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> creates limits of shape <span class="math inline">\(\mathcal{I}\)</span>, and <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> is a diagram such that <span class="math inline">\(FD\)</span> has a limit in <span class="math inline">\(\mathcal{D}\)</span>, then:
+1. <span class="math inline">\(D\)</span> has a limit in <span class="math inline">\(\mathcal{C}\)</span>.
+2. <span class="math inline">\(F\)</span> preserves this limit.</p>
+<p><em>Proof.</em> Since <span class="math inline">\(F\)</span> creates limits, the existence of a limit of <span class="math inline">\(FD\)</span> implies the existence of a unique lift <span class="math inline">\((L, (\pi_i))\)</span> over <span class="math inline">\(D\)</span> that maps to it, and this lift is a limit cone. This gives (1). For (2): since <span class="math inline">\(F\)</span> maps the limit cone <span class="math inline">\((L, (\pi_i))\)</span> to the limit cone <span class="math inline">\((FL, (F\pi_i)) = (M, (\mu_i))\)</span> of <span class="math inline">\(FD\)</span>, <span class="math inline">\(F\)</span> preserves this limit. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 4
+<strong>Exercise 4.</strong> Define when a functor <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> “preserves,” “reflects,” or “creates” limits. Give examples of:
+(a) A functor that preserves but does not reflect limits.
+(b) A functor that reflects but does not create limits.</p>
+<p>Prove: if <span class="math inline">\(F\)</span> creates limits of shape <span class="math inline">\(\mathcal{I}\)</span> and <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> has the property that <span class="math inline">\(FD\)</span> has a limit in <span class="math inline">\(\mathcal{D}\)</span>, then <span class="math inline">\(D\)</span> has a limit in <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(F\)</span> preserves it.</p>
+</div>
+<hr />
+<h2 id="projective-and-injective-objects">6. Projective and Injective Objects 🔩</h2>
+<h3 id="projective-objects">6.1 Projective Objects</h3>
+<p><strong>Definition (Projective object).</strong> An object <span class="math inline">\(P \in \mathcal{C}\)</span> is <em>projective</em> if the representable functor <span class="math inline">\(\mathcal{C}(P, -) : \mathcal{C} \to \mathbf{Set}\)</span> preserves epimorphisms: for every epimorphism <span class="math inline">\(e : A \twoheadrightarrow B\)</span> and every morphism <span class="math inline">\(f : P \to B\)</span>, there exists a morphism <span class="math inline">\(g : P \to A\)</span> with <span class="math inline">\(e \circ g = f\)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>&amp; P <span class="fu">\arrow</span>[d, &quot;f&quot;] <span class="fu">\arrow</span>[dl, dashed, &quot;<span class="fu">\exists</span> g&quot;'] <span class="fu">\\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>A <span class="fu">\arrow</span>[r, &quot;e&quot;', two heads] &amp; B</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<div class="callout callout-example">
+<p> Free modules are projective
+In <span class="math inline">\(\mathbf{Ab}\)</span> (or any category of <span class="math inline">\(R\)</span>-modules), free abelian groups <span class="math inline">\(\mathbb{Z}^{\oplus S}\)</span> are projective. The element <span class="math inline">\(e_s \in \mathbb{Z}^{\oplus S}\)</span> must lift via <span class="math inline">\(e\)</span> to some preimage, and the universal property of the free abelian group then determines the lift.</p>
+</div>
+<div class="callout callout-example">
+<p> Non-projective object in Ab
+<span class="math inline">\(\mathbb{Z}/2\mathbb{Z}\)</span> is not projective in <span class="math inline">\(\mathbf{Ab}\)</span>. Consider the epimorphism <span class="math inline">\(e : \mathbb{Z} \twoheadrightarrow \mathbb{Z}/2\mathbb{Z}\)</span> and the identity <span class="math inline">\(\mathrm{id} : \mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}/2\mathbb{Z}\)</span>. A lift would be a group homomorphism <span class="math inline">\(g : \mathbb{Z}/2\mathbb{Z} \to \mathbb{Z}\)</span>, but <span class="math inline">\(\mathbb{Z}\)</span> is torsion-free, so <span class="math inline">\(g(1) = 0\)</span> and <span class="math inline">\(e \circ g\)</span> is zero, not the identity.</p>
+</div>
+<h3 id="injective-objects">6.2 Injective Objects</h3>
+<p><strong>Definition (Injective object).</strong> An object <span class="math inline">\(I \in \mathcal{C}\)</span> is <em>injective</em> if the contravariant representable <span class="math inline">\(\mathcal{C}(-, I) : \mathcal{C}^{\mathrm{op}} \to \mathbf{Set}\)</span> sends monomorphisms to surjections: for every monomorphism <span class="math inline">\(m : A \hookrightarrow B\)</span> and every morphism <span class="math inline">\(f : A \to I\)</span>, there exists <span class="math inline">\(g : B \to I\)</span> with <span class="math inline">\(g \circ m = f\)</span>.</p>
+<div class="callout callout-example">
+<p> Injective abelian groups: divisible groups
+An abelian group <span class="math inline">\(J\)</span> is injective in <span class="math inline">\(\mathbf{Ab}\)</span> if and only if <span class="math inline">\(J\)</span> is <em>divisible</em>: for every <span class="math inline">\(x \in J\)</span> and <span class="math inline">\(n \geq 1\)</span>, there exists <span class="math inline">\(y \in J\)</span> with <span class="math inline">\(ny = x\)</span>. Examples: <span class="math inline">\(\mathbb{Q}\)</span>, <span class="math inline">\(\mathbb{R}\)</span>, <span class="math inline">\(\mathbb{Q}/\mathbb{Z}\)</span>, <span class="math inline">\(\mathbb{Z}[p^{-1}]/\mathbb{Z}\)</span> (Prüfer groups). The group <span class="math inline">\(\mathbb{Z}/n\mathbb{Z}\)</span> is not divisible (and hence not injective): in <span class="math inline">\(\mathbb{Z}/2\mathbb{Z}\)</span>, there is no <span class="math inline">\(y\)</span> with <span class="math inline">\(2y = 1\)</span>.</p>
+</div>
+<div class="callout callout-example">
+<p> All objects in Vect_k are injective
+In the category <span class="math inline">\(\mathbf{Vect}_k\)</span> of <span class="math inline">\(k\)</span>-vector spaces, every object is both projective and injective. For injectivity: given <span class="math inline">\(m : U \hookrightarrow V\)</span> (which is split by a choice of basis extension) and <span class="math inline">\(f : U \to W\)</span>, extend <span class="math inline">\(f\)</span> by zero on a complement. For projectivity: every surjection of vector spaces splits.</p>
+</div>
+<h3 id="regular-injective-objects">6.3 Regular Injective Objects</h3>
+<p><strong>Definition (Regular injective).</strong> An object <span class="math inline">\(I \in \mathcal{C}\)</span> is <em>regular injective</em> if it has the extension property only with respect to <em>regular monomorphisms</em> (i.e., equalizer embeddings) rather than all monomorphisms.</p>
+<div class="callout callout-example">
+<p> Real numbers as regular injective in NVS
+Let <span class="math inline">\(\mathbf{NVS}\)</span> denote the category of normed vector spaces with morphisms being bounded linear maps of norm <span class="math inline">\(\leq 1\)</span>. The regular monomorphisms are isometric embeddings (inclusions that preserve norm). The claim is that <span class="math inline">\(\mathbb{R}\)</span> is regular injective in <span class="math inline">\(\mathbf{NVS}\)</span>: given an isometric embedding <span class="math inline">\(m : U \hookrightarrow V\)</span> and a bounded linear functional <span class="math inline">\(f : U \to \mathbb{R}\)</span> of norm <span class="math inline">\(\leq 1\)</span>, the <em>Hahn–Banach theorem</em> guarantees an extension <span class="math inline">\(g : V \to \mathbb{R}\)</span> with <span class="math inline">\(g \circ m = f\)</span> and <span class="math inline">\(\|g\| \leq 1\)</span>. Note that <span class="math inline">\(\mathbb{R}\)</span> need not be injective with respect to all monomorphisms in <span class="math inline">\(\mathbf{NVS}\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 5
+<strong>Exercise 5.</strong>
+(i) Define “projective object” <span class="math inline">\(P\)</span> as one where <span class="math inline">\(\mathcal{C}(P, -)\)</span> preserves epics. Show: if <span class="math inline">\(U : F \dashv \mathcal{C}\)</span> is an adjunction (with <span class="math inline">\(F : \mathbf{Set} \to \mathcal{C}\)</span>) and <span class="math inline">\(U\)</span> preserves epics, then <span class="math inline">\(F(S)\)</span> is projective for any set <span class="math inline">\(S\)</span>. Find a non-projective object in <span class="math inline">\(\mathbf{Ab}\)</span>.
+(ii) Define “injective object.” Show all objects in <span class="math inline">\(\mathbf{Vect}_k\)</span> are injective. Find a non-injective object in <span class="math inline">\(\mathbf{Ab}\)</span>.
+(iii) Define “regular injective object.” Let <span class="math inline">\(\mathbf{NVS}\)</span> be the category of normed vector spaces with morphisms being bounded linear maps of norm <span class="math inline">\(\leq 1\)</span>. Show that <span class="math inline">\(\mathbb{R}\)</span> is regular injective in <span class="math inline">\(\mathbf{NVS}\)</span>.</p>
+</div>
+<hr />
+<h2 id="limits-as-colimits-formal-power-series">7. Limits as Colimits: Formal Power Series 🌀</h2>
+<p>This section illustrates how limits arise in classical algebra through a categorical lens.</p>
+<p>Let <span class="math inline">\(k\)</span> be a field. For each <span class="math inline">\(n \geq 0\)</span>, consider the <em>truncated polynomial ring</em> <span class="math inline">\(k[X]/(X^n)\)</span>. For <span class="math inline">\(m \geq n\)</span>, there is a canonical surjective ring homomorphism
+<span class="math display">\[\rho_{m,n} : k[X]/(X^m) \twoheadrightarrow k[X]/(X^n), \qquad [f(X)] \mapsto [f(X) \mod X^n],\]</span>
+and these satisfy the coherence condition <span class="math inline">\(\rho_{n,p} \circ \rho_{m,n} = \rho_{m,p}\)</span> for <span class="math inline">\(m \geq n \geq p \geq 0\)</span>. Thus the rings <span class="math inline">\(\{k[X]/(X^n)\}_{n \geq 0}\)</span> together with the maps <span class="math inline">\(\rho_{m,n}\)</span> form an <em>inverse system</em> (a diagram indexed by the poset <span class="math inline">\((\mathbb{N}, \leq)^{\mathrm{op}}\)</span>).</p>
+<p><strong>Proposition.</strong> The ring of formal power series <span class="math inline">\(k\llbracket X \rrbracket\)</span> is (isomorphic to) the limit of this inverse system in the category <span class="math inline">\(\mathbf{Ring}\)</span>:
+<span class="math display">\[k\llbracket X \rrbracket \;\cong\; \varprojlim_{n \in \mathbb{N}} k[X]/(X^n).\]</span></p>
+<p><em>Proof sketch.</em> The limit is computed by the explicit formula from §3.1 (applied in the enriched sense for rings, or equivalently using the underlying sets): an element of <span class="math inline">\(\varprojlim k[X]/(X^n)\)</span> is a compatible sequence <span class="math inline">\((a_n)_{n \geq 0}\)</span> with <span class="math inline">\(a_n \in k[X]/(X^n)\)</span> and <span class="math inline">\(\rho_{m,n}(a_m) = a_n\)</span>. Such a sequence is precisely determined by its coefficients <span class="math inline">\(c_0, c_1, c_2, \ldots \in k\)</span> (the coefficients of a formal power series), via <span class="math inline">\(a_n = c_0 + c_1 X + \cdots + c_{n-1}X^{n-1}\)</span> in <span class="math inline">\(k[X]/(X^n)\)</span>. The ring operations on the limit match those of <span class="math inline">\(k\llbracket X \rrbracket\)</span> because truncation is a ring homomorphism. <span class="math inline">\(\square\)</span></p>
+<p>The <em><span class="math inline">\(k\)</span>-linear dual</em> <span class="math inline">\(k[X]^* = \mathrm{Hom}_k(k[X], k)\)</span> also has a canonical identification with <span class="math inline">\(k\llbracket X \rrbracket\)</span>: a <span class="math inline">\(k\)</span>-linear functional <span class="math inline">\(\phi : k[X] \to k\)</span> is determined by its values on the basis <span class="math inline">\(\{1, X, X^2, \ldots\}\)</span>, i.e., by a sequence <span class="math inline">\((c_n)_{n \geq 0} = (\phi(X^n))\)</span>, and this is exactly a formal power series <span class="math inline">\(\sum c_n X^n\)</span>.</p>
+<p><strong>Key categorical point.</strong> <span class="math inline">\(k\llbracket X \rrbracket = \varprojlim_n k[X]/(X^n)\)</span> is the <em>completion</em> of <span class="math inline">\(k[X]\)</span> at the maximal ideal <span class="math inline">\((X)\)</span>, i.e., the limit (= colimit of the inverse system = limit in the category-theoretic sense) of the diagram of finite approximations. The dual identification <span class="math inline">\(k[X]^* \cong k\llbracket X \rrbracket\)</span> then follows from the fact that linear functionals on a filtered colimit correspond to compatible sequences of functionals on the finite stages.</p>
+<div class="callout callout-note">
+<p> Exercise 6
+<strong>Exercise 6.</strong> Let <span class="math inline">\(k[X]\)</span> be the polynomial ring and <span class="math inline">\(k\llbracket X \rrbracket\)</span> the formal power series ring over a field <span class="math inline">\(k\)</span>. Explain categorically (in terms of limits or colimits and universal properties) why <span class="math inline">\(k[X]^* \cong k\llbracket X \rrbracket\)</span>, where <span class="math inline">\((-)^*\)</span> denotes the <span class="math inline">\(k\)</span>-linear dual.</p>
+</div>
+<hr />
+<h2 id="regular-monics-and-epics">8. Regular Monics and Epics 🔱</h2>
+<h3 id="definitions-and-hierarchy">8.1 Definitions and Hierarchy</h3>
+<p><strong>Definition (Regular monic).</strong> A morphism <span class="math inline">\(m : A \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span> is a <em>regular monomorphism</em> if it arises as an equalizer: there exist morphisms <span class="math inline">\(f, g : B \rightrightarrows C\)</span> such that <span class="math inline">\((A, m)\)</span> is the equalizer of <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>.</p>
+<p><strong>Definition (Split monic).</strong> A morphism <span class="math inline">\(m : A \to B\)</span> is a <em>split monomorphism</em> (or <em>section</em>) if there exists <span class="math inline">\(r : B \to A\)</span> (a <em>retraction</em>) with <span class="math inline">\(r \circ m = \mathrm{id}_A\)</span>.</p>
+<p>The following chain of implications holds in any category:</p>
+<p><span class="math display">\[\text{split monic} \implies \text{regular monic} \implies \text{monic}\]</span></p>
+<p><em>Proof of first implication.</em> If <span class="math inline">\(r \circ m = \mathrm{id}_A\)</span>, then <span class="math inline">\(m\)</span> is the equalizer of <span class="math inline">\(m \circ r : B \to B\)</span> and <span class="math inline">\(\mathrm{id}_B\)</span>: indeed, <span class="math inline">\(m \circ r \circ m = m = \mathrm{id}_B \circ m\)</span>, so <span class="math inline">\(m\)</span> factors through this equalizer; conversely, if <span class="math inline">\(f : X \to B\)</span> satisfies <span class="math inline">\((m \circ r) \circ f = f\)</span>, then <span class="math inline">\(r \circ f : X \to A\)</span> is the unique factoring since <span class="math inline">\(m \circ (r \circ f) = f\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Proof of second implication.</em> If <span class="math inline">\(m\)</span> is the equalizer of <span class="math inline">\(f, g : B \rightrightarrows C\)</span>, suppose <span class="math inline">\(m \circ h = m \circ k\)</span>. Then <span class="math inline">\(f \circ m \circ h = g \circ m \circ h\)</span>, i.e., <span class="math inline">\(f \circ m \circ h = g \circ m \circ k\)</span>. Since <span class="math inline">\(m\)</span> is an equalizer, <span class="math inline">\(h = k\)</span> by the universal property. <span class="math inline">\(\square\)</span></p>
+<p>The dual hierarchy for epimorphisms:
+<span class="math display">\[\text{split epic} \implies \text{regular epic} \implies \text{epic}\]</span></p>
+<p><strong>Definition (Regular epic).</strong> A morphism <span class="math inline">\(e : A \to B\)</span> is a <em>regular epimorphism</em> if it arises as a coequalizer of some parallel pair <span class="math inline">\(f, g : C \rightrightarrows A\)</span>.</p>
+<p><strong>Definition (Split epic).</strong> A morphism <span class="math inline">\(e : A \to B\)</span> is a <em>split epimorphism</em> if there exists <span class="math inline">\(s : B \to A\)</span> with <span class="math inline">\(e \circ s = \mathrm{id}_B\)</span>.</p>
+<h3 id="characterizations-and-examples">8.2 Characterizations and Examples</h3>
+<p><strong>Proposition (Isomorphisms from epic + regular monic).</strong> A morphism <span class="math inline">\(f : A \to B\)</span> is an isomorphism if and only if it is both an epimorphism and a regular monomorphism.</p>
+<p><em>Proof sketch.</em> (<span class="math inline">\(\Rightarrow\)</span>) Isomorphisms are both epic and (split, hence regular) monic. (<span class="math inline">\(\Leftarrow\)</span>) Suppose <span class="math inline">\(f\)</span> is the equalizer of <span class="math inline">\(g, h : B \rightrightarrows C\)</span> and is also epic. From <span class="math inline">\(g \circ f = h \circ f\)</span> and <span class="math inline">\(f\)</span> being epic, <span class="math inline">\(g = h\)</span>. Then the equalizer of <span class="math inline">\(g = h\)</span> is the identity <span class="math inline">\(\mathrm{id}_B\)</span>, so <span class="math inline">\(f\)</span> is isomorphic to the identity, hence an isomorphism. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-example">
+<p> Monics and epics in Ab
+In <span class="math inline">\(\mathbf{Ab}\)</span>, every monomorphism is regular (it is the equalizer of the two maps <span class="math inline">\(B \rightrightarrows B/\mathrm{im}(m)\)</span>, i.e., the quotient map and <span class="math inline">\(0\)</span>). However, not every monic is split: <span class="math inline">\(\iota : \mathbb{Z} \hookrightarrow \mathbb{Q}\)</span> is monic (and regular) but has no retraction <span class="math inline">\(r : \mathbb{Q} \to \mathbb{Z}\)</span> (since <span class="math inline">\(\mathbb{Z}\)</span> is not divisible). The map <span class="math inline">\(\mathbb{Z} \to \mathbb{Z}/n\mathbb{Z}\)</span> is a regular epimorphism (a coequalizer) but is not split in general (there is no group homomorphism <span class="math inline">\(\mathbb{Z}/n\mathbb{Z} \to \mathbb{Z}\)</span> since <span class="math inline">\(\mathbb{Z}\)</span> is torsion-free).</p>
+</div>
+<div class="callout callout-example">
+<p> Epic and monic but not iso
+In <span class="math inline">\(\mathbf{Ring}\)</span>, the inclusion <span class="math inline">\(\iota : \mathbb{Z} \hookrightarrow \mathbb{Q}\)</span> is both monic and epic (any ring map <span class="math inline">\(\mathbb{Q} \to R\)</span> is determined by where <span class="math inline">\(1\)</span> goes, i.e., by the image of <span class="math inline">\(\mathbb{Z}\)</span>), yet it is not an isomorphism. This is consistent because <span class="math inline">\(\iota\)</span> is not a <em>regular</em> monomorphism in <span class="math inline">\(\mathbf{Ring}\)</span> — it cannot be expressed as an equalizer of ring homomorphisms.</p>
+</div>
+<div class="callout callout-info">
+<p> Monics in Top
+In <span class="math inline">\(\mathbf{Top}\)</span>, the monomorphisms are precisely the injective continuous maps. The regular monomorphisms are the <em>topological embeddings</em> (homeomorphisms onto their image with the subspace topology). An injective continuous map need not be an embedding: e.g., <span class="math inline">\([0,1) \to S^1\)</span> by <span class="math inline">\(t \mapsto e^{2\pi i t}\)</span> is injective and continuous but not a homeomorphism onto its image.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 7
+<strong>Exercise 7.</strong> Define “regular monic” as arising as an equalizer, and “split monic” as a morphism with a left inverse. Define regular and split epics dually.
+(i) Show: split monic <span class="math inline">\(\Rightarrow\)</span> regular monic <span class="math inline">\(\Rightarrow\)</span> monic.
+(ii) In <span class="math inline">\(\mathbf{Ab}\)</span>, all monics are regular, but not all monics are split. Give an example.
+(iii) Characterize regular monics in <span class="math inline">\(\mathbf{Top}\)</span>. Find a monic in <span class="math inline">\(\mathbf{Top}\)</span> that is not regular.
+(iv) Show: a morphism is an isomorphism iff it is both epic and a regular monic. Give an example of a morphism in some category that is both monic and epic but not an isomorphism.
+(v) In <span class="math inline">\(\mathbf{Set}\)</span> (assuming the axiom of choice), show that every epimorphism is split.</p>
+</div>
+<hr />
+<h2 id="building-limits-from-products-and-equalizers">9. Building Limits from Products and Equalizers 🏗️</h2>
+<div class="callout callout-info">
+<p> Leinster’s coverage of this theorem (Theorem 5.1.5)
+Leinster proves the construction of all finite limits from products and equalizers in Theorem 5.1.5 of <em>Basic Category Theory</em>. His proof is constructive: given a finite diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>, he explicitly writes down the product <span class="math inline">\(P = \prod_{i} Di\)</span> over all objects and <span class="math inline">\(Q = \prod_{u: i \to j} Dj\)</span> over all morphisms, then defines two maps <span class="math inline">\(s, t : P \to Q\)</span> and takes the equalizer. He also proves the reduction from pullbacks to products and equalizers (pullbacks are a special case of finite limits), and notes that pullbacks together with a terminal object already suffice.</p>
+</div>
+<p>The following theorem shows that one need not check all limit shapes separately: a small number of “primitive” limit types suffice to generate all finite limits.</p>
+<p><strong>Theorem (Finite limits from products and equalizers).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> has all finite limits if and only if it has:
+1. A terminal object (limit of the empty diagram),
+2. Binary products,
+3. Equalizers of parallel pairs.</p>
+<p><em>Proof sketch.</em> The “only if” direction is trivial. For the “if” direction, let <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> be a finite diagram. Construct the limit as an equalizer of two maps between products, as follows. Form the products
+<span class="math display">\[P = \prod_{i \in \mathrm{ob}(\mathcal{I})} Di, \qquad Q = \prod_{u : i \to j \text{ in } \mathcal{I}} Dj.\]</span>
+Define two maps <span class="math inline">\(s, t : P \to Q\)</span>: the <span class="math inline">\(u\)</span>-component of <span class="math inline">\(s\)</span> is <span class="math inline">\(\pi_j : P \to Dj\)</span>, and the <span class="math inline">\(u\)</span>-component of <span class="math inline">\(t\)</span> is <span class="math inline">\(D(u) \circ \pi_i : P \to Dj\)</span>. Then <span class="math inline">\(\mathrm{eq}(s, t)\)</span> is (canonically isomorphic to) <span class="math inline">\(\lim D\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary.</strong> A category with a terminal object and all pullbacks has all finite limits.</p>
+<p><em>Proof.</em> Equalizers can be built from pullbacks: the equalizer of <span class="math inline">\(f, g : A \rightrightarrows B\)</span> is the pullback of <span class="math inline">\(\langle f, g \rangle : A \to B \times B\)</span> along the diagonal <span class="math inline">\(\Delta : B \to B \times B\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>A <span class="fu">\arrow</span>[dr, &quot;<span class="fu">\langle</span> f{,}g<span class="fu">\rangle</span>&quot;] &amp; <span class="fu">\\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>B <span class="fu">\arrow</span>[r, &quot;<span class="fu">\Delta</span>&quot;'] &amp; B <span class="fu">\times</span> B</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>The equalizer of <span class="math inline">\(f, g\)</span> is the pullback of this cospan. In particular, categories with terminal objects and pullbacks have all finite limits.</p>
+<p><strong>Dual statement.</strong> A category has all finite colimits if and only if it has an initial object, binary coproducts, and coequalizers.</p>
+<p><strong>Proposition (Pushouts preserve epics).</strong> In a category <span class="math inline">\(\mathcal{C}\)</span>, if <span class="math inline">\(e : A \twoheadrightarrow B\)</span> is a regular epimorphism and
+<span class="math display">\[\begin{array}{ccc} A &amp; \xrightarrow{f} &amp; C \\ {\scriptstyle e}\downarrow &amp; &amp; \downarrow{\scriptstyle e'} \\ B &amp; \xrightarrow{g} &amp; D \end{array}\]</span>
+is a pushout square, then <span class="math inline">\(e' : C \twoheadrightarrow D\)</span> is also a regular epimorphism.</p>
+<div class="callout callout-note">
+<p> Exercise 8
+<strong>Exercise 8.</strong>
+(i) Show that a category with a terminal object, binary products, and equalizers has all finite limits.
+(ii) Deduce: a category with a terminal object and all pullbacks has all finite limits.
+(iii) Let <span class="math inline">\(\mathcal{C}\)</span> have all finite colimits and <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> preserve pushouts and the initial object. Show <span class="math inline">\(F\)</span> preserves all finite colimits.
+(iv) Show that a functor preserving pushouts also preserves epimorphisms.</p>
+</div>
+<hr />
+<h2 id="algebraic-categories-widget-and-chad">10. Algebraic Categories: Widget and Chad 🔧</h2>
+<p>A <em>widget</em> is a set <span class="math inline">\(W\)</span> equipped with:
+- Distinguished elements <span class="math inline">\(0, 1 \in W\)</span>,
+- A ternary operation <span class="math inline">\([-,-,-] : W^3 \to W\)</span>,
+- Unary operations <span class="math inline">\(\tilde{r} : W \to W\)</span> for each <span class="math inline">\(r \in \mathbb{Q}\)</span>,</p>
+<p>satisfying the axioms, for all <span class="math inline">\(a, b, c, d \in W\)</span>:
+1. <span class="math inline">\([a, b, b] = a\)</span>,
+2. <span class="math inline">\([a, a, b] = b\)</span>,
+3. <span class="math inline">\([a, [a, b, c], d] = [a, b, d]\)</span>,
+4. <span class="math inline">\(\tilde{r}([a, b, c]) = [\tilde{r}(a), \tilde{r}(b), \tilde{r}(c)]\)</span>.</p>
+<div class="callout callout-info">
+<p> What is a widget?
+Widgets arise from Leinster’s Cambridge course as a model of an <em>algebraic theory</em> — a set-based structure defined by operations and equational axioms. The definition resembles an affine space with <span class="math inline">\(\mathbb{Q}\)</span>-scaling; the ternary operation <span class="math inline">\([a, b, c]\)</span> plays the role of “the point dividing the segment <span class="math inline">\(bc\)</span> in ratio determined by <span class="math inline">\(a\)</span>.”</p>
+</div>
+<p>The category <span class="math inline">\(\mathbf{Widget}\)</span> has widgets as objects and functions preserving <span class="math inline">\(0\)</span>, <span class="math inline">\(1\)</span>, <span class="math inline">\([-,-,-]\)</span>, and all <span class="math inline">\(\tilde{r}\)</span> as morphisms. There is a forgetful functor <span class="math inline">\(U : \mathbf{Widget} \to \mathbf{Set}\)</span>.</p>
+<p><strong>Theorem.</strong> The forgetful functor <span class="math inline">\(U : \mathbf{Widget} \to \mathbf{Set}\)</span> creates all limits.</p>
+<p><em>Proof sketch.</em> Given a diagram <span class="math inline">\(D : \mathcal{I} \to \mathbf{Widget}\)</span>, the limit of <span class="math inline">\(UD : \mathcal{I} \to \mathbf{Set}\)</span> is the set
+<span class="math display">\[L = \left\{(w_i)_{i \in \mathcal{I}} \in \prod_{i} W_i \;\middle|\; D(u)(w_i) = w_j \text{ for all } u : i \to j \right\}.\]</span>
+Define widget structure on <span class="math inline">\(L\)</span> pointwise: <span class="math inline">\(0_L = (0_{W_i})_i\)</span>, <span class="math inline">\(1_L = (1_{W_i})_i\)</span>, <span class="math inline">\([(a_i), (b_i), (c_i)] = ([a_i, b_i, c_i])_i\)</span>, and <span class="math inline">\(\tilde{r}((a_i)_i) = (\tilde{r}(a_i))_i\)</span>. The closure of <span class="math inline">\(L\)</span> under these operations follows from the fact that all structure maps <span class="math inline">\(D(u)\)</span> are widget homomorphisms (they commute with the operations). The resulting cone is the unique lift of the limit cone of <span class="math inline">\(UD\)</span> to <span class="math inline">\(\mathbf{Widget}\)</span>, and it satisfies the universal property. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary.</strong> <span class="math inline">\(\mathbf{Widget}\)</span> has all limits, and <span class="math inline">\(U\)</span> preserves them (by the creation theorem from §5.2).</p>
+<p>A <em>chad</em> is a simplified version of a widget with fewer operations (e.g., omitting some of the <span class="math inline">\(\tilde{r}\)</span> or the distinguished elements). The forgetful functor <span class="math inline">\(\mathbf{Widget} \to \mathbf{Chad}\)</span> similarly creates all limits, by an entirely analogous pointwise argument.</p>
+<div class="callout callout-note">
+<p> Exercise 9
+<strong>Exercise 9.</strong>
+(i) Define a “widget” as above. Show that the forgetful functor <span class="math inline">\(\mathbf{Widget} \to \mathbf{Set}\)</span> creates all limits; deduce that <span class="math inline">\(\mathbf{Widget}\)</span> has all limits and the forgetful functor preserves them.
+(ii) Define a “chad” (a simplified widget with fewer operations). Show the forgetful functor <span class="math inline">\(\mathbf{Widget} \to \mathbf{Chad}\)</span> preserves and creates limits.</p>
+</div>
+<hr />
+<h2 id="limits-as-right-adjoints-to-the-diagonal">11. Limits as Right Adjoints to the Diagonal 🔄</h2>
+<p><strong>Definition (Diagonal functor).</strong> For a small category <span class="math inline">\(\mathcal{I}\)</span> and a category <span class="math inline">\(\mathcal{C}\)</span>, the <em>diagonal functor</em> <span class="math inline">\(\Delta : \mathcal{C} \to [\mathcal{I}, \mathcal{C}]\)</span> sends each object <span class="math inline">\(c \in \mathcal{C}\)</span> to the <em>constant diagram</em> <span class="math inline">\(\Delta_c : \mathcal{I} \to \mathcal{C}\)</span> (with <span class="math inline">\(\Delta_c(i) = c\)</span> for all <span class="math inline">\(i\)</span> and <span class="math inline">\(\Delta_c(u) = \mathrm{id}_c\)</span> for all <span class="math inline">\(u\)</span>), and each morphism <span class="math inline">\(f : c \to c'\)</span> to the natural transformation <span class="math inline">\(\Delta_f : \Delta_c \Rightarrow \Delta_{c'}\)</span> with all components equal to <span class="math inline">\(f\)</span>.</p>
+<p><strong>Theorem.</strong> <span class="math inline">\(\mathcal{C}\)</span> has all limits of shape <span class="math inline">\(\mathcal{I}\)</span> if and only if <span class="math inline">\(\Delta : \mathcal{C} \to [\mathcal{I}, \mathcal{C}]\)</span> has a right adjoint <span class="math inline">\(\lim_{\mathcal{I}} : [\mathcal{I}, \mathcal{C}] \to \mathcal{C}\)</span>.</p>
+<p><em>Proof.</em> The adjunction <span class="math inline">\(\Delta \dashv \lim_{\mathcal{I}}\)</span> means there is a natural bijection
+<span class="math display">\[[\mathcal{I}, \mathcal{C}]({\Delta_c, D}) \;\cong\; \mathcal{C}(c, \lim_{\mathcal{I}} D).\]</span>
+The left side is exactly <span class="math inline">\(\mathrm{Cone}(c, D)\)</span> (natural transformations from the constant functor at <span class="math inline">\(c\)</span> to <span class="math inline">\(D\)</span>, i.e., cones over <span class="math inline">\(D\)</span> with apex <span class="math inline">\(c\)</span>). A right adjoint to <span class="math inline">\(\Delta\)</span> thus assigns to each diagram <span class="math inline">\(D\)</span> an object <span class="math inline">\(\lim D\)</span> representing the functor <span class="math inline">\(c \mapsto \mathrm{Cone}(c, D)\)</span>, which is precisely the universal property of the limit. <span class="math inline">\(\square\)</span></p>
+<p><strong>Dually.</strong> <span class="math inline">\(\mathcal{C}\)</span> has all colimits of shape <span class="math inline">\(\mathcal{I}\)</span> if and only if <span class="math inline">\(\Delta : \mathcal{C} \to [\mathcal{I}, \mathcal{C}]\)</span> has a left adjoint <span class="math inline">\(\mathrm{colim}_{\mathcal{I}} : [\mathcal{I}, \mathcal{C}] \to \mathcal{C}\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 10
+<strong>Exercise 10.</strong> Show that a small category <span class="math inline">\(\mathcal{C}\)</span> has all colimits of shape <span class="math inline">\(\mathcal{I}\)</span> iff the diagonal functor <span class="math inline">\(\Delta : \mathcal{C} \to [\mathcal{I}, \mathcal{C}]\)</span> has a left adjoint. State the analogous result for limits.</p>
+</div>
+<hr />
+<h2 id="limits-in-functor-categories">12. Limits in Functor Categories 🗂️</h2>
+<p>Let <span class="math inline">\(\mathcal{C}\)</span> be a small category and <span class="math inline">\(\mathcal{D}\)</span> a category with all limits of shape <span class="math inline">\(\mathcal{I}\)</span>.</p>
+<p><strong>Theorem (Pointwise limits in functor categories).</strong> The functor category <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span> has all limits of shape <span class="math inline">\(\mathcal{I}\)</span>, computed <em>pointwise</em>: for a diagram <span class="math inline">\(\mathbf{F} : \mathcal{I} \to [\mathcal{C}, \mathcal{D}]\)</span> (i.e., a family of functors <span class="math inline">\(F_i : \mathcal{C} \to \mathcal{D}\)</span> with natural transformations <span class="math inline">\(\mathbf{F}(u) : F_i \Rightarrow F_j\)</span> for <span class="math inline">\(u : i \to j\)</span>), the limit functor <span class="math inline">\(\lim_{\mathcal{I}} \mathbf{F} : \mathcal{C} \to \mathcal{D}\)</span> is defined by
+<span class="math display">\[(\lim_{\mathcal{I}} \mathbf{F})(c) \;=\; \lim_{\mathcal{I}} (F_-(c)) \;=\; \lim_{\mathcal{I}}(i \mapsto F_i(c)).\]</span></p>
+<p><em>Proof sketch.</em> For each <span class="math inline">\(c \in \mathcal{C}\)</span>, the evaluation functor <span class="math inline">\(\mathrm{ev}_c : [\mathcal{C}, \mathcal{D}] \to \mathcal{D}\)</span> sends <span class="math inline">\(\mathbf{F}\)</span> to <span class="math inline">\(F_i(c)\)</span> and the maps to the corresponding natural transformation components. Since <span class="math inline">\(\mathcal{D}\)</span> has limits, <span class="math inline">\(\lim_{\mathcal{I}}(F_-(c))\)</span> exists for each <span class="math inline">\(c\)</span>. One checks that this assignment is functorial in <span class="math inline">\(c\)</span> (using the fact that limit cones are natural) and satisfies the universal property in <span class="math inline">\([\mathcal{C}, \mathcal{D}]\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p> Colimits in presheaf categories are also pointwise
+For <span class="math inline">\(\mathcal{D} = \mathbf{Set}\)</span>, both limits and colimits in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> are computed pointwise. However, in a general functor category, colimits may fail to be pointwise if <span class="math inline">\(\mathcal{D}\)</span> lacks colimits.</p>
+</div>
+<p><strong>Monics in presheaf categories.</strong> A natural transformation <span class="math inline">\(\alpha : F \Rightarrow G\)</span> in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is a monomorphism if and only if each component <span class="math inline">\(\alpha_c : F(c) \to G(c)\)</span> is injective (a monomorphism in <span class="math inline">\(\mathbf{Set}\)</span>).</p>
+<p><em>Proof.</em> If all <span class="math inline">\(\alpha_c\)</span> are injective, then for any natural transformations <span class="math inline">\(\beta, \gamma : H \Rightarrow F\)</span> with <span class="math inline">\(\alpha \circ \beta = \alpha \circ \gamma\)</span>, we get <span class="math inline">\(\alpha_c \circ \beta_c = \alpha_c \circ \gamma_c\)</span> for all <span class="math inline">\(c\)</span>, and injectivity gives <span class="math inline">\(\beta_c = \gamma_c\)</span> for all <span class="math inline">\(c\)</span>, so <span class="math inline">\(\beta = \gamma\)</span>. Conversely, if some <span class="math inline">\(\alpha_c\)</span> is not injective, one can construct <span class="math inline">\(\beta \neq \gamma\)</span> with <span class="math inline">\(\alpha \circ \beta = \alpha \circ \gamma\)</span> by precomposing <span class="math inline">\(\alpha_c\)</span> with two distinct maps into <span class="math inline">\(F(c)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Epics are subtler.</em> Epimorphisms in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> need not be pointwise surjective. <em>Surprisingly,</em> a natural transformation can be epic without all its components being surjective — see e.g. the inclusion of a non-surjective dense subfunctor.</p>
+<div class="callout callout-note">
+<p> Exercise 11
+<strong>Exercise 11.</strong>
+(i) Let <span class="math inline">\(\mathcal{C}\)</span> be small. Define “pointwise” computation of limits in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span>. Prove that limits exist and are computed pointwise.
+(ii) Characterize monics in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span>. Attempt to characterize epics (try without using (i)).</p>
+</div>
+<hr />
+<h2 id="representable-functors-preserve-limits">13. Representable Functors Preserve Limits 🔍</h2>
+<p><strong>Theorem.</strong> For any object <span class="math inline">\(A \in \mathcal{C}\)</span>, the representable functor <span class="math inline">\(H_A = \mathcal{C}(A, -) : \mathcal{C} \to \mathbf{Set}\)</span> preserves all limits that exist in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<p><em>Proof.</em> Let <span class="math inline">\((L, (\pi_i))\)</span> be a limit of <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>. We must show <span class="math inline">\((H_A(L), (H_A(\pi_i)))\)</span> is a limit of <span class="math inline">\(H_A \circ D\)</span> in <span class="math inline">\(\mathbf{Set}\)</span>, i.e., that the canonical map
+<span class="math display">\[\mathcal{C}(A, L) \xrightarrow{\sim} \varprojlim_{i \in \mathcal{I}} \mathcal{C}(A, Di)\]</span>
+is a bijection. But this is immediate: a morphism <span class="math inline">\(f : A \to L\)</span> determines a compatible family <span class="math inline">\(({\pi_i \circ f : A \to Di})_{i \in \mathcal{I}}\)</span> (a cone over <span class="math inline">\(D\)</span> from <span class="math inline">\(A\)</span>), and by the universal property of <span class="math inline">\(L\)</span>, every such family arises from a unique <span class="math inline">\(f\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Theorem (Yoneda embedding preserves limits).</strong> The Yoneda embedding <span class="math inline">\(H^- : \mathcal{C} \to [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span>, defined by <span class="math inline">\(A \mapsto H^A = \mathcal{C}(-, A)\)</span>, preserves all limits.</p>
+<p><em>Proof.</em> By the pointwise description of limits in presheaf categories (§12), a limit of a diagram in <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is computed pointwise. For a limit <span class="math inline">\((L, (\pi_i))\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, the cone <span class="math inline">\((H^L, (H^{\pi_i}))\)</span> has components
+<span class="math display">\[(H^L)(B) = \mathcal{C}(B, L), \quad (H^{\pi_i})(B) = \mathcal{C}(B, \pi_i).\]</span>
+At each <span class="math inline">\(B\)</span>, this is a limit cone in <span class="math inline">\(\mathbf{Set}\)</span> by the previous theorem (applied to <span class="math inline">\(\mathcal{C}(B, -)\)</span>). Since pointwise limit cones are limit cones in the functor category, <span class="math inline">\(H^-\)</span> preserves limits. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 12
+<strong>Exercise 12.</strong>
+(i) Let <span class="math inline">\(\mathcal{C}\)</span> be small. Show that for any <span class="math inline">\(A \in \mathcal{C}\)</span>, the representable functor <span class="math inline">\(H_A = \mathcal{C}(A, -) : \mathcal{C} \to \mathbf{Set}\)</span> preserves all limits.
+(ii) Show that the Yoneda embedding <span class="math inline">\(H^- : \mathcal{C} \to [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> preserves all limits.</p>
+</div>
+<hr />
+<h2 id="adjoints-and-limit-preservation">14. Adjoints and Limit Preservation 🔗</h2>
+<p>This is one of the most important theorems in category theory.</p>
+<p><strong>Theorem (Right adjoints preserve limits; left adjoints preserve colimits).</strong> Let <span class="math inline">\(F \dashv G : \mathcal{C} \rightleftharpoons \mathcal{D}\)</span> be an adjunction.
+- <span class="math inline">\(G\)</span> (the right adjoint) preserves all limits that exist in <span class="math inline">\(\mathcal{D}\)</span>.
+- <span class="math inline">\(F\)</span> (the left adjoint) preserves all colimits that exist in <span class="math inline">\(\mathcal{C}\)</span>.</p>
+<div class="callout callout-info">
+<p> Leinster’s proof strategy
+Leinster (Theorem 5.2.5 in <em>Basic Category Theory</em>) gives an elegant proof via representability. The key insight is: to check that a cone is a limit cone, it suffices to check that the associated map on hom-sets is a bijection. Combining this with the adjunction bijection and the fact that representable functors preserve limits (§13) gives the result in just a few lines. Leinster calls this proof strategy “the representability criterion for limits.”</p>
+</div>
+<p><em>Proof (right adjoints preserve limits).</em> Let <span class="math inline">\((L, (\pi_i)_{i \in \mathcal{I}})\)</span> be a limit of <span class="math inline">\(D : \mathcal{I} \to \mathcal{D}\)</span>. We must show that <span class="math inline">\((GL, (G\pi_i)_{i \in \mathcal{I}})\)</span> is a limit of <span class="math inline">\(GD : \mathcal{I} \to \mathcal{C}\)</span>.</p>
+<p>By the representability criterion (§13 applied to <span class="math inline">\(\mathcal{C}(A, -)\)</span>), it suffices to show that for every <span class="math inline">\(A \in \mathcal{C}\)</span>, the canonical map
+<span class="math display">\[\mathcal{C}(A, GL) \xrightarrow{\;(G\pi_i \circ -)_i\;} \varprojlim_{i \in \mathcal{I}} \mathcal{C}(A, GDi)\]</span>
+is a bijection. Using the adjunction bijection <span class="math inline">\(\mathcal{C}(A, GX) \cong \mathcal{D}(FA, X)\)</span> (natural in <span class="math inline">\(X \in \mathcal{D}\)</span>), this map is naturally identified with:
+<span class="math display">\[\mathcal{D}(FA, L) \xrightarrow{\;(\pi_i \circ -)_i\;} \varprojlim_{i \in \mathcal{I}} \mathcal{D}(FA, Di).\]</span>
+This is a bijection because <span class="math inline">\(\mathcal{D}(FA, -)\)</span> is a representable functor, hence preserves all limits by §13. Since the bijection is natural in <span class="math inline">\(A\)</span>, we conclude that <span class="math inline">\((GL, (G\pi_i))\)</span> is a limit of <span class="math inline">\(GD\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Proof (left adjoints preserve colimits).</em> By duality: a left adjoint <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> is a right adjoint in the opposite categories, <span class="math inline">\(F^{\mathrm{op}} : \mathcal{C}^{\mathrm{op}} \to \mathcal{D}^{\mathrm{op}}\)</span> is right adjoint to <span class="math inline">\(G^{\mathrm{op}}\)</span>. Limits in <span class="math inline">\(\mathcal{C}^{\mathrm{op}}\)</span> are colimits in <span class="math inline">\(\mathcal{C}\)</span>, so the result follows by applying the previous proof to the opposite adjunction. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-tip">
+<p> Slogan and applications
+<strong>“RAPL”: Right Adjoints Preserve Limits. “LAPC”: Left Adjoints Preserve Colimits.</strong></p>
+<p>Applications:
+- The forgetful functor <span class="math inline">\(\mathbf{Grp} \to \mathbf{Set}\)</span> (right adjoint to the free group functor) preserves all limits: the underlying set of a product of groups is the product of the underlying sets, the equalizer of group homomorphisms is the set-theoretic equalizer, etc.
+- The free abelian group functor <span class="math inline">\(\mathbf{Set} \to \mathbf{Ab}\)</span> (left adjoint to the forgetful functor) preserves all colimits: the free abelian group on a coproduct <span class="math inline">\(S \sqcup T\)</span> is <span class="math inline">\(\mathbb{Z}^{\oplus S} \oplus \mathbb{Z}^{\oplus T}\)</span>.
+- The tensor product functor <span class="math inline">\(M \otimes_R - : \mathbf{Mod}_R \to \mathbf{Mod}_R\)</span> (left adjoint to <span class="math inline">\(\mathrm{Hom}_R(M, -)\)</span>) is <em>right exact</em>: it preserves all colimits, hence in particular coequalizers — this is the categorical proof of right exactness of tensor.
+- The inverse image functor <span class="math inline">\(f^{-1}\)</span> for a continuous map <span class="math inline">\(f\)</span> (left adjoint to <span class="math inline">\(f_*\)</span>) preserves all colimits of sheaves.</p>
+</div>
+<div class="callout callout-example">
+<p> Forgetful functor from Grp to Set
+The forgetful functor <span class="math inline">\(U : \mathbf{Grp} \to \mathbf{Set}\)</span> has a left adjoint (the free group functor <span class="math inline">\(F : \mathbf{Set} \to \mathbf{Grp}\)</span>). Therefore <span class="math inline">\(U\)</span> preserves all limits. In particular, the underlying set of a product of groups is the product of the underlying sets.</p>
+<p>To show <span class="math inline">\(U\)</span> has <em>no right adjoint</em>: by the adjoint functor theorem (File 4), a right adjoint would require <span class="math inline">\(U\)</span> to preserve all colimits. But <span class="math inline">\(U\)</span> does not preserve all coequalizers: the coequalizer in <span class="math inline">\(\mathbf{Grp}\)</span> of <span class="math inline">\(f, g : H \rightrightarrows G\)</span> is the quotient group <span class="math inline">\(G / \langle\!\langle \{f(h) g(h)^{-1}\}\rangle\!\rangle\)</span>, whose underlying set is generally not the coequalizer in <span class="math inline">\(\mathbf{Set}\)</span>.</p>
+</div>
+<div class="callout callout-note">
+<p> Exercise 13
+<strong>Exercise 13.</strong>
+(i) For an adjunction <span class="math inline">\(F \dashv G : \mathcal{C} \rightleftharpoons \mathcal{D}\)</span>, show that <span class="math inline">\(F\)</span> preserves all existing colimits in <span class="math inline">\(\mathcal{C}\)</span> and <span class="math inline">\(G\)</span> preserves all existing limits in <span class="math inline">\(\mathcal{D}\)</span>.
+(ii) Deduce that the forgetful functor <span class="math inline">\(\mathbf{Grp} \to \mathbf{Set}\)</span> has no right adjoint.
+(iii) Given the chain of adjoints: free group <span class="math inline">\(\dashv\)</span> forgetful <span class="math inline">\((\mathbf{Grp} \to \mathbf{Set})\)</span>, and using that the free-abelianization functor <span class="math inline">\(\mathbf{Grp} \to \mathbf{Ab}\)</span> is left adjoint to the inclusion <span class="math inline">\(\mathbf{Ab} \hookrightarrow \mathbf{Grp}\)</span>, show the chain of adjoints extends no further right.</p>
+</div>
+<hr />
+<h2 id="the-density-theorem-and-cartesian-closed-categories">15. The Density Theorem and Cartesian Closed Categories 🌐</h2>
+<h3 id="the-density-theorem">15.1 The Density Theorem</h3>
+<p>The <em>category of elements</em> of a presheaf <span class="math inline">\(X \in [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is the category <span class="math inline">\(\int X\)</span> (also written <span class="math inline">\(\mathbf{el}(X)\)</span>) defined as follows:
+- Objects: pairs <span class="math inline">\((A, x)\)</span> with <span class="math inline">\(A \in \mathcal{C}\)</span> and <span class="math inline">\(x \in X(A)\)</span>.
+- Morphisms <span class="math inline">\((A, x) \to (B, y)\)</span>: morphisms <span class="math inline">\(f : A \to B\)</span> in <span class="math inline">\(\mathcal{C}\)</span> such that <span class="math inline">\(X(f)(y) = x\)</span> (i.e., <span class="math inline">\(f^*(y) = x\)</span>).
+- There is a forgetful functor <span class="math inline">\(\pi : \int X \to \mathcal{C}\)</span> sending <span class="math inline">\((A, x) \mapsto A\)</span>.</p>
+<p><strong>Theorem (Density / co-Yoneda Lemma).</strong> Every presheaf <span class="math inline">\(X \in [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is a canonical colimit of representable presheaves. Specifically,
+<span class="math display">\[X \;\cong\; \mathrm{colim}_{(A, x) \in \int X} \mathcal{C}(-, A).\]</span>
+The colimit is indexed by <span class="math inline">\((\int X)^{\mathrm{op}}\)</span>, with the cocone component at <span class="math inline">\((A, x)\)</span> being the natural transformation <span class="math inline">\(\mathcal{C}(-, A) \Rightarrow X\)</span> corresponding (via Yoneda) to <span class="math inline">\(x \in X(A)\)</span>.</p>
+<p><em>Proof.</em> We must show that <span class="math inline">\(X\)</span> represents the functor <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](\mathrm{colim}\, \mathcal{C}(-, A), -) \cong \varprojlim_{(A,x) \in \int X} [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](\mathcal{C}(-, A), -)\)</span>. By the Yoneda lemma, <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](\mathcal{C}(-, A), Y) \cong Y(A)\)</span> naturally. So the limit becomes <span class="math inline">\(\varprojlim_{(A, x) \in \int X} Y(A)\)</span>. One verifies that this limit is naturally isomorphic to <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](X, Y)\)</span> via the Yoneda correspondence — a natural transformation <span class="math inline">\(X \Rightarrow Y\)</span> assigns to each <span class="math inline">\((A, x)\)</span> an element <span class="math inline">\(\alpha_A(x) \in Y(A)\)</span>, which is precisely a compatible family indexed by <span class="math inline">\(\int X\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-tip">
+<p> Intuition
+The density theorem says: every presheaf is “glued together” from representable pieces. This is the presheaf analogue of every set being a disjoint union of singletons, or every module being a quotient of a free module.</p>
+</div>
+<h3 id="cartesian-closed-categories">15.2 Cartesian Closed Categories</h3>
+<p><strong>Definition (Cartesian closed category).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>cartesian closed</em> (a CCC) if:
+1. <span class="math inline">\(\mathcal{C}\)</span> has finite products (including a terminal object <span class="math inline">\(1\)</span>),
+2. For each pair of objects <span class="math inline">\(A, B \in \mathcal{C}\)</span>, there exists an <em>exponential object</em> <span class="math inline">\(B^A\)</span> (also written <span class="math inline">\([A, B]\)</span>) together with an <em>evaluation morphism</em> <span class="math inline">\(\mathrm{ev} : B^A \times A \to B\)</span>, such that for every <span class="math inline">\(C \in \mathcal{C}\)</span>, the function
+<span class="math display">\[\mathcal{C}(C \times A, B) \xrightarrow{\sim} \mathcal{C}(C, B^A), \qquad f \mapsto \lambda f,\]</span>
+is a bijection, natural in <span class="math inline">\(C\)</span>. Here <span class="math inline">\(\lambda f\)</span> is the unique morphism with <span class="math inline">\(\mathrm{ev} \circ (\lambda f \times \mathrm{id}_A) = f\)</span>.</p>
+<p>Equivalently: for each <span class="math inline">\(A\)</span>, the functor <span class="math inline">\(- \times A : \mathcal{C} \to \mathcal{C}\)</span> has a right adjoint <span class="math inline">\((-)^A : \mathcal{C} \to \mathcal{C}\)</span>:
+<span class="math display">\[- \times A \;\dashv\; (-)^A.\]</span></p>
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 51%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Exponential <span class="math inline">\(B^A\)</span></th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Set}\)</span></td>
+<td>Function set <span class="math inline">\(\{f : A \to B\}\)</span></td>
+<td>The prototypical example</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Cat}\)</span></td>
+<td>Functor category <span class="math inline">\([A, B]\)</span></td>
+<td>Objects are functors, morphisms are natural transformations</td>
+</tr>
+<tr class="odd">
+<td>Any topos</td>
+<td>Exists by definition</td>
+<td>Every elementary topos is a CCC</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span></td>
+<td>See below</td>
+<td>Computed via Yoneda</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Presheaf categories are cartesian closed.</strong> For <span class="math inline">\(F, G \in [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span>, the exponential <span class="math inline">\(G^F\)</span> is defined by
+<span class="math display">\[G^F(A) = [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](\mathcal{C}(-, A) \times F, G) \;\cong\; [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}](F, G^{\mathcal{C}(-, A)}),\]</span>
+or equivalently, by the Yoneda lemma:
+<span class="math display">\[G^F(A) = \mathrm{Nat}(\mathcal{C}(-, A) \times F, G).\]</span>
+When <span class="math inline">\(F = \mathcal{C}(-, B)\)</span> is representable, the Yoneda lemma gives <span class="math inline">\(G^F(A) \cong G(A)^{F(A)}\)</span>… wait, more precisely: <span class="math inline">\(G^{\mathcal{C}(-, B)}(A) \cong \mathrm{Nat}(\mathcal{C}(-, A) \times \mathcal{C}(-, B), G) \cong G(A \times B)\)</span> (when <span class="math inline">\(\mathcal{C}\)</span> has products).</p>
+<p><strong>Proposition.</strong> If <span class="math inline">\(\mathcal{C}\)</span> is a cartesian closed category, then the Yoneda embedding <span class="math inline">\(H^- : \mathcal{C} \to [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> preserves finite products and exponentials.</p>
+<p><em>Proof sketch.</em> Preservation of products: <span class="math inline">\(H^{A \times B}(C) = \mathcal{C}(C, A \times B) \cong \mathcal{C}(C, A) \times \mathcal{C}(C, B) = (H^A \times H^B)(C)\)</span> naturally in <span class="math inline">\(C\)</span>. Preservation of exponentials: <span class="math inline">\(H^{B^A}(C) = \mathcal{C}(C, B^A) \cong \mathcal{C}(C \times A, B)\)</span>, and <span class="math inline">\((H^B)^{H^A}(C) = \mathrm{Nat}(\mathcal{C}(-, C) \times \mathcal{C}(-, A), \mathcal{C}(-, B)) \cong \mathcal{C}(C \times A, B)\)</span> by Yoneda. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Exercise 14
+<strong>Exercise 14.</strong>
+(i) Prove that any presheaf <span class="math inline">\(X \in [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is a colimit of representable presheaves.
+(ii) Define “cartesian closed category.” Show that <span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> is cartesian closed.
+(iii) If <span class="math inline">\(\mathcal{C}\)</span> is a cartesian closed category, prove that the Yoneda embedding <span class="math inline">\(H^- : \mathcal{C} \to [\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span> preserves finite products and exponentials.</p>
+</div>
+<hr />
+<h2 id="stability-of-morphism-classes">16. Stability of Morphism Classes 📊</h2>
+<p>For the six classes of morphisms — monics, regular monics, split monics, epics, regular epics, split epics — we ask two questions:
+- (C) Is the class <em>closed under composition</em>?
+- (P) Is the class <em>stable under pullback</em> (i.e., if <span class="math inline">\(f\)</span> is in the class, is its pullback along any map also in the class)?</p>
+<p>The following table summarizes the answers:</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 36%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class</th>
+<th>Composition (C)</th>
+<th>Pullback stable (P)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Monics</td>
+<td>Yes, in all categories</td>
+<td>Yes, in all categories</td>
+</tr>
+<tr class="even">
+<td>Regular monics</td>
+<td>Not in general; yes in regular categories</td>
+<td>Yes, in all categories</td>
+</tr>
+<tr class="odd">
+<td>Split monics</td>
+<td>Yes, in all categories</td>
+<td>Yes, in all categories</td>
+</tr>
+<tr class="even">
+<td>Epics</td>
+<td>Yes, in all categories</td>
+<td>No, not even in Set</td>
+</tr>
+<tr class="odd">
+<td>Regular epics</td>
+<td>Not in general</td>
+<td>Yes in regular categories; no in general</td>
+</tr>
+<tr class="even">
+<td>Split epics</td>
+<td>Yes, in all categories</td>
+<td>Yes, in all categories</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Justifications (selected):</strong></p>
+<p><em>Monics are closed under composition.</em> If <span class="math inline">\(f, g\)</span> are monic and <span class="math inline">\(f \circ g \circ h = f \circ g \circ k\)</span>, then <span class="math inline">\(g \circ h = g \circ k\)</span> (by <span class="math inline">\(f\)</span> monic), then <span class="math inline">\(h = k\)</span> (by <span class="math inline">\(g\)</span> monic).</p>
+<p><em>Monics are stable under pullback.</em> If <span class="math inline">\(m : A \to B\)</span> is monic and the square
+<span class="math display">\[\begin{array}{ccc} A' &amp; \xrightarrow{m'} &amp; B' \\ \downarrow &amp; &amp; \downarrow \\ A &amp; \xrightarrow{m} &amp; B \end{array}\]</span>
+is a pullback, then <span class="math inline">\(m'\)</span> is monic: if <span class="math inline">\(m' \circ h = m' \circ k\)</span>, then both <span class="math inline">\((h, k)\)</span> induce the same morphism into the pullback corner, so they agree.</p>
+<p><em>Epics are not pullback stable, even in Set.</em> Let <span class="math inline">\(e : \{a, b\} \twoheadrightarrow \{*\}\)</span> be the unique surjection (an epic/split epic in <span class="math inline">\(\mathbf{Set}\)</span>). Pull it back along <span class="math inline">\(s : \{*\} \to \{*\}\)</span> (say the identity): the pullback is <span class="math inline">\(\{a, b\} \to \{*\}\)</span>, which is still surjective. <em>However</em>, consider a non-surjective map <span class="math inline">\(i : \emptyset \to \{*\}\)</span>: the pullback of <span class="math inline">\(e\)</span> along <span class="math inline">\(i\)</span> is <span class="math inline">\(\emptyset \to \emptyset\)</span>, which is vacuously surjective. More interesting: in <span class="math inline">\(\mathbf{Top}\)</span>, the quotient map <span class="math inline">\([0,1] \twoheadrightarrow S^1\)</span> is a regular epic; its pullback along the inclusion of a point <span class="math inline">\(\{p\} \hookrightarrow S^1\)</span> is a single fiber, which need not be surjective.</p>
+<p><em>Split monics are closed under composition.</em> If <span class="math inline">\(r \circ m = \mathrm{id}\)</span> and <span class="math inline">\(s \circ n = \mathrm{id}\)</span>, then <span class="math inline">\((m \circ s) \circ (n \circ r) = m \circ (s \circ n) \circ r = m \circ r = \mathrm{id}\)</span>… wait: <span class="math inline">\((r \circ s) \circ (n \circ m) = r \circ (s \circ n) \circ m = r \circ m = \mathrm{id}\)</span>. So <span class="math inline">\(n \circ m\)</span> is split monic with retraction <span class="math inline">\(r \circ s\)</span>.</p>
+<div class="callout callout-note">
+<p> Exercise 15
+<strong>Exercise 15.</strong> For each of the following six classes of morphisms — monics, regular monics, split monics, epics, regular epics, split epics — determine:
+(a) Whether morphisms of that class are closed under composition.
+(b) Whether the class is stable under pullback.</p>
+<p>For each of the 12 combinations, answer “yes in all categories,” “yes in <span class="math inline">\(\mathbf{Set}\)</span> but not all categories,” or “no, not even in <span class="math inline">\(\mathbf{Set}\)</span>.”</p>
+</div>
+<hr />
+<h2 id="optional-homological-algebra-via-category-theory">17. Optional: Homological Algebra via Category Theory 🧬</h2>
+<p>This section sketches how the categorical machinery of limits, colimits, projective and injective objects organizes the foundations of homological algebra.</p>
+<p>An <em>abelian category</em> is an additive category in which every morphism has a kernel and cokernel, every monic is a kernel, and every epic is a cokernel. Examples: <span class="math inline">\(\mathbf{Ab}\)</span>, <span class="math inline">\(R\text{-}\mathbf{Mod}\)</span>, <span class="math inline">\(\mathrm{QCoh}(X)\)</span>.</p>
+<p>In an abelian category <span class="math inline">\(\mathcal{A}\)</span>, a <em>chain complex</em> <span class="math inline">\((C_\bullet, \partial)\)</span> is a sequence
+<span class="math display">\[\cdots \to C_{n+1} \xrightarrow{\partial_{n+1}} C_n \xrightarrow{\partial_n} C_{n-1} \to \cdots\]</span>
+with <span class="math inline">\(\partial_n \circ \partial_{n+1} = 0\)</span>. The <em><span class="math inline">\(n\)</span>-th homology</em> is <span class="math inline">\(H_n(C_\bullet) = \ker \partial_n / \mathrm{im}\, \partial_{n+1}\)</span>, which is well-defined in any abelian category.</p>
+<p><strong>Projective resolutions.</strong> A <em>projective resolution</em> of <span class="math inline">\(A \in \mathcal{A}\)</span> is an exact sequence
+<span class="math display">\[\cdots \to P_2 \to P_1 \to P_0 \to A \to 0\]</span>
+with each <span class="math inline">\(P_n\)</span> projective. Such resolutions exist whenever <span class="math inline">\(\mathcal{A}\)</span> has <em>enough projectives</em> (every object admits an epic from a projective).</p>
+<p><strong>Derived functors.</strong> Let <span class="math inline">\(T : \mathcal{A} \to \mathcal{B}\)</span> be a right-exact additive functor. The <em>left derived functors</em> <span class="math inline">\(L_n T\)</span> are defined by: choose a projective resolution <span class="math inline">\(P_\bullet \to A\)</span>, apply <span class="math inline">\(T\)</span> to get a complex <span class="math inline">\(T(P_\bullet)\)</span>, then <span class="math inline">\(L_n T(A) = H_n(T(P_\bullet))\)</span>. The key fact is that this is independent of the choice of projective resolution.</p>
+<p><strong>Ext and Tor.</strong> For <span class="math inline">\(A \in \mathcal{A}\)</span>, the functors <span class="math inline">\(\mathrm{Ext}^n(A, -)\)</span> are the right derived functors of <span class="math inline">\(\mathcal{A}(A, -) : \mathcal{A} \to \mathbf{Ab}\)</span>:
+<span class="math display">\[\mathrm{Ext}^n(A, B) = R^n \mathcal{A}(A, -)(B) = H^n(\mathcal{A}(P_\bullet, B)),\]</span>
+where <span class="math inline">\(P_\bullet \to A\)</span> is a projective resolution of <span class="math inline">\(A\)</span>. For <span class="math inline">\(R\)</span>-modules, <span class="math inline">\(\mathrm{Tor}_n(A, -)\)</span> is the <span class="math inline">\(n\)</span>-th left derived functor of <span class="math inline">\(A \otimes_R -\)</span>.</p>
+<p><strong>Computation.</strong> In <span class="math inline">\(\mathbf{Ab}\)</span>, the projective resolution of <span class="math inline">\(\mathbb{Z}/n\mathbb{Z}\)</span> is
+<span class="math display">\[0 \to \mathbb{Z} \xrightarrow{\times n} \mathbb{Z} \to \mathbb{Z}/n\mathbb{Z} \to 0.\]</span>
+Applying <span class="math inline">\(\mathrm{Hom}(-, \mathbb{Z})\)</span> gives
+<span class="math display">\[0 \to \mathbb{Z} \xrightarrow{\times n} \mathbb{Z} \to 0,\]</span>
+from which <span class="math inline">\(\mathrm{Ext}^0(\mathbb{Z}/n\mathbb{Z}, \mathbb{Z}) = 0\)</span> (since <span class="math inline">\(\mathbb{Z}/n\mathbb{Z}\)</span> has no maps to <span class="math inline">\(\mathbb{Z}\)</span>) and <strong><span class="math inline">\(\mathrm{Ext}^1(\mathbb{Z}/n\mathbb{Z}, \mathbb{Z}) \cong \mathbb{Z}/n\mathbb{Z}\)</span></strong> (the cokernel of <span class="math inline">\(\times n : \mathbb{Z} \to \mathbb{Z}\)</span>).</p>
+<div class="callout callout-note">
+<p> Exercise 16
+<strong>Exercise 16 (Optional/Further).</strong> Develop the basic theory of projective and injective resolutions in an abelian category <span class="math inline">\(\mathcal{A}\)</span>. Define the derived functors <span class="math inline">\(\mathrm{Ext}^n(A, -)\)</span> and <span class="math inline">\(\mathrm{Tor}_n(A, -)\)</span> and describe their universal properties. Show that in <span class="math inline">\(\mathbf{Ab}\)</span>, <span class="math inline">\(\mathrm{Ext}^1(\mathbb{Z}/n\mathbb{Z}, \mathbb{Z}) \cong \mathbb{Z}/n\mathbb{Z}\)</span>.</p>
+</div>
+<hr />
+<h2 id="the-art-of-the-diagram-chase">18. The Art of the Diagram Chase 🧩</h2>
+<p>A <em>diagram chase</em> is a proof technique in which one establishes a result by following elements through a commutative diagram, using commutativity and exactness conditions to derive the conclusion. The technique is most powerful in <em>abelian categories</em>, where kernels, cokernels, and exact sequences are available, but it generalizes to any <em>regular category</em> via generalized elements.</p>
+<div class="callout callout-info">
+<p> Historical context
+The term “diagram chasing” became standard after MacLane systematized it in the 1950s. Eilenberg and Steenrod used the technique extensively in their foundational work on algebraic topology. The Snake Lemma famously appears in the film <em>It’s My Turn</em> (1980), where Jill Clayburgh’s character proves it on a blackboard — making it perhaps the most cinematic theorem in mathematics.</p>
+</div>
+<h3 id="the-five-lemma">The Five Lemma</h3>
+<p>Consider a commutative diagram of abelian groups with exact rows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>A_1 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\alpha</span>_1&quot;] <span class="fu">\arrow</span>[d, &quot;f_1&quot;'] &amp; A_2 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\alpha</span>_2&quot;] <span class="fu">\arrow</span>[d, &quot;f_2&quot;'] &amp; A_3 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\alpha</span>_3&quot;] <span class="fu">\arrow</span>[d, &quot;f_3&quot;'] &amp; A_4 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\alpha</span>_4&quot;] <span class="fu">\arrow</span>[d, &quot;f_4&quot;'] &amp; A_5 <span class="fu">\arrow</span>[d, &quot;f_5&quot;'] <span class="fu">\\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>B_1 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\beta</span>_1&quot;'] &amp; B_2 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\beta</span>_2&quot;'] &amp; B_3 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\beta</span>_3&quot;'] &amp; B_4 <span class="fu">\arrow</span>[r, &quot;<span class="fu">\beta</span>_4&quot;'] &amp; B_5</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><strong>Theorem (Five Lemma).</strong> In the diagram above with exact rows:
+- If <span class="math inline">\(f_1\)</span> is epic and <span class="math inline">\(f_2, f_4\)</span> are isomorphisms, then <span class="math inline">\(f_3\)</span> is monic.
+- If <span class="math inline">\(f_5\)</span> is monic and <span class="math inline">\(f_2, f_4\)</span> are isomorphisms, then <span class="math inline">\(f_3\)</span> is epic.
+- Hence if <span class="math inline">\(f_1, f_2, f_4, f_5\)</span> are all isomorphisms, then <span class="math inline">\(f_3\)</span> is an isomorphism.</p>
+<p><em>Proof (injectivity of <span class="math inline">\(f_3\)</span>).</em> Suppose <span class="math inline">\(a_3 \in A_3\)</span> with <span class="math inline">\(f_3(a_3) = 0\)</span>. Apply <span class="math inline">\(\beta_3 \circ f_3 = f_4 \circ \alpha_3\)</span> to get <span class="math inline">\(f_4(\alpha_3(a_3)) = 0\)</span>. Since <span class="math inline">\(f_4\)</span> is injective, <span class="math inline">\(\alpha_3(a_3) = 0\)</span>. By exactness of the top row at <span class="math inline">\(A_3\)</span>, there exists <span class="math inline">\(a_2 \in A_2\)</span> with <span class="math inline">\(\alpha_2(a_2) = a_3\)</span>. Now <span class="math inline">\(\beta_2(f_2(a_2)) = f_3(\alpha_2(a_2)) = f_3(a_3) = 0\)</span>. By exactness of the bottom row at <span class="math inline">\(B_2\)</span>, there exists <span class="math inline">\(b_1 \in B_1\)</span> with <span class="math inline">\(\beta_1(b_1) = f_2(a_2)\)</span>. Since <span class="math inline">\(f_1\)</span> is surjective, there exists <span class="math inline">\(a_1 \in A_1\)</span> with <span class="math inline">\(f_1(a_1) = b_1\)</span>. Then <span class="math inline">\(f_2(\alpha_1(a_1)) = \beta_1(f_1(a_1)) = \beta_1(b_1) = f_2(a_2)\)</span>. Since <span class="math inline">\(f_2\)</span> is injective, <span class="math inline">\(\alpha_1(a_1) = a_2\)</span>. By exactness at <span class="math inline">\(A_2\)</span>, <span class="math inline">\(a_3 = \alpha_2(a_2) = \alpha_2(\alpha_1(a_1)) = 0\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Proof (surjectivity of <span class="math inline">\(f_3\)</span>).</em> Let <span class="math inline">\(b_3 \in B_3\)</span>. Apply <span class="math inline">\(\beta_3\)</span> to get <span class="math inline">\(\beta_3(b_3) \in B_4\)</span>. Since <span class="math inline">\(f_4\)</span> is surjective, write <span class="math inline">\(\beta_3(b_3) = f_4(a_4)\)</span> for some <span class="math inline">\(a_4 \in A_4\)</span>. Then <span class="math inline">\(f_5(\alpha_4(a_4)) = \beta_4(f_4(a_4)) = \beta_4(\beta_3(b_3)) = 0\)</span> (by exactness at <span class="math inline">\(B_4\)</span>). Since <span class="math inline">\(f_5\)</span> is injective, <span class="math inline">\(\alpha_4(a_4) = 0\)</span>, so <span class="math inline">\(a_4 \in \ker \alpha_4 = \mathrm{im}\, \alpha_3\)</span>. Write <span class="math inline">\(a_4 = \alpha_3(a_3)\)</span>. Then <span class="math inline">\(\beta_3(f_3(a_3)) = f_4(\alpha_3(a_3)) = f_4(a_4) = \beta_3(b_3)\)</span>, so <span class="math inline">\(b_3 - f_3(a_3) \in \ker \beta_3 = \mathrm{im}\, \beta_2\)</span>. Write <span class="math inline">\(b_3 - f_3(a_3) = \beta_2(b_2)\)</span>. Since <span class="math inline">\(f_2\)</span> is surjective, <span class="math inline">\(b_2 = f_2(a_2)\)</span>. Then <span class="math inline">\(f_3(a_3 + \alpha_2(a_2)) = f_3(a_3) + f_3(\alpha_2(a_2)) = f_3(a_3) + \beta_2(f_2(a_2)) = f_3(a_3) + (b_3 - f_3(a_3)) = b_3\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="the-short-five-lemma">The Short Five Lemma</h3>
+<p><strong>Theorem (Short Five Lemma).</strong> Consider a commutative diagram with exact rows:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>0 <span class="fu">\arrow</span>[r] &amp; A <span class="fu">\arrow</span>[r, &quot;i&quot;] <span class="fu">\arrow</span>[d, &quot;f&quot;'] &amp; B <span class="fu">\arrow</span>[r, &quot;p&quot;] <span class="fu">\arrow</span>[d, &quot;g&quot;'] &amp; C <span class="fu">\arrow</span>[r] <span class="fu">\arrow</span>[d, &quot;h&quot;'] &amp; 0 <span class="fu">\\</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>0 <span class="fu">\arrow</span>[r] &amp; A' <span class="fu">\arrow</span>[r, &quot;i'&quot;'] &amp; B' <span class="fu">\arrow</span>[r, &quot;p'&quot;'] &amp; C' <span class="fu">\arrow</span>[r] &amp; 0</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>If <span class="math inline">\(f\)</span> and <span class="math inline">\(h\)</span> are isomorphisms, then <span class="math inline">\(g\)</span> is an isomorphism.</p>
+<p><em>Proof sketch.</em> This is a special case of the Five Lemma with <span class="math inline">\(A_1 = B_1 = 0\)</span> and <span class="math inline">\(A_5 = B_5 = 0\)</span>. Alternatively: for injectivity of <span class="math inline">\(g\)</span>, suppose <span class="math inline">\(g(b) = 0\)</span>. Then <span class="math inline">\(h(p(b)) = p'(g(b)) = 0\)</span>, so <span class="math inline">\(p(b) = 0\)</span> (since <span class="math inline">\(h\)</span> is monic), thus <span class="math inline">\(b = i(a)\)</span> for some <span class="math inline">\(a\)</span>. Then <span class="math inline">\(i'(f(a)) = g(i(a)) = g(b) = 0\)</span>, so <span class="math inline">\(f(a) = 0\)</span> (since <span class="math inline">\(i'\)</span> is monic), so <span class="math inline">\(a = 0\)</span> and <span class="math inline">\(b = 0\)</span>. For surjectivity: given <span class="math inline">\(b' \in B'\)</span>, map <span class="math inline">\(p'(b') \in C'\)</span>; since <span class="math inline">\(h\)</span> is surjective, <span class="math inline">\(p'(b') = h(c)\)</span> for some <span class="math inline">\(c \in C\)</span>; choose a preimage <span class="math inline">\(b \in B\)</span> with <span class="math inline">\(p(b) = c\)</span> (using surjectivity of <span class="math inline">\(p\)</span>); then <span class="math inline">\(p'(b' - g(b)) = 0\)</span>, so <span class="math inline">\(b' - g(b) = i'(a')\)</span> for some <span class="math inline">\(a'\)</span>; since <span class="math inline">\(f\)</span> is surjective, <span class="math inline">\(a' = f(a)\)</span>, giving <span class="math inline">\(b' = g(b) + i'(f(a)) = g(b + i(a)) = g(b + i(a))\)</span>. <span class="math inline">\(\square\)</span></p>
+<h3 id="the-snake-lemma">The Snake Lemma</h3>
+<p>The <em>Snake Lemma</em> is the engine of connecting homomorphisms in long exact sequences of homology.</p>
+<p><strong>Theorem (Snake Lemma).</strong> Given a commutative diagram of abelian groups with exact rows:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>&amp; A <span class="fu">\arrow</span>[r, &quot;f&quot;] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\alpha</span>&quot;'] &amp; B <span class="fu">\arrow</span>[r, &quot;g&quot;] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\beta</span>&quot;'] &amp; C <span class="fu">\arrow</span>[r] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\gamma</span>&quot;'] &amp; 0 <span class="fu">\\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>0 <span class="fu">\arrow</span>[r] &amp; A' <span class="fu">\arrow</span>[r, &quot;f'&quot;'] &amp; B' <span class="fu">\arrow</span>[r, &quot;g'&quot;'] &amp; C'</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>there is an exact sequence
+<span class="math display">\[\ker \alpha \xrightarrow{\bar f} \ker \beta \xrightarrow{\bar g} \ker \gamma \xrightarrow{\;\delta\;} \mathrm{coker}\, \alpha \xrightarrow{\bar f'} \mathrm{coker}\, \beta \xrightarrow{\bar g'} \mathrm{coker}\, \gamma,\]</span>
+where <span class="math inline">\(\delta\)</span> is the <em>connecting homomorphism</em> defined by the diagram chase: given <span class="math inline">\(c \in \ker \gamma\)</span>, choose <span class="math inline">\(b \in B\)</span> with <span class="math inline">\(g(b) = c\)</span>; then <span class="math inline">\(g'(\beta(b)) = \gamma(g(b)) = \gamma(c) = 0\)</span>, so <span class="math inline">\(\beta(b) \in \ker g' = \mathrm{im}\, f'\)</span>; write <span class="math inline">\(\beta(b) = f'(a')\)</span> and set <span class="math inline">\(\delta(c) = [a'] \in A'/\mathrm{im}\, \alpha\)</span>.</p>
+<div class="callout callout-warning">
+<p> Well-definedness requires checking
+The definition of <span class="math inline">\(\delta(c)\)</span> involves two choices: the preimage <span class="math inline">\(b\)</span> of <span class="math inline">\(c\)</span> under <span class="math inline">\(g\)</span>, and the preimage <span class="math inline">\(a'\)</span> of <span class="math inline">\(\beta(b)\)</span> under <span class="math inline">\(f'\)</span>. Independence of <span class="math inline">\(a'\)</span> follows from injectivity of <span class="math inline">\(f'\)</span>. Independence of <span class="math inline">\(b\)</span>: if <span class="math inline">\(b_1, b_2\)</span> both map to <span class="math inline">\(c\)</span>, then <span class="math inline">\(b_1 - b_2 \in \ker g = \mathrm{im}\, f\)</span>, so <span class="math inline">\(b_1 - b_2 = f(a)\)</span> for some <span class="math inline">\(a \in A\)</span>, and <span class="math inline">\(\beta(b_1) - \beta(b_2) = \beta(f(a)) = f'(\alpha(a)) \in \mathrm{im}\, f' \circ \alpha = f'(\mathrm{im}\, \alpha)\)</span>. Thus <span class="math inline">\(\delta\)</span> is well-defined modulo <span class="math inline">\(\mathrm{im}\, \alpha\)</span>. <span class="math inline">\(\square\)</span></p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- Snake Lemma applied: long exact sequence of homology
+The Snake Lemma is the key tool in proving that a short exact sequence of chain complexes <span class="math inline">\(0 \to A_\bullet \to B_\bullet \to C_\bullet \to 0\)</span> gives a long exact sequence in homology:
+<span class="math display">\[\cdots \to H_n(A) \to H_n(B) \to H_n(C) \xrightarrow{\delta} H_{n-1}(A) \to \cdots\]</span>
+The connecting homomorphism <span class="math inline">\(\delta\)</span> is defined by applying the Snake Lemma to the short exact sequence <span class="math inline">\(0 \to Z_n(A) \to Z_n(B) \to Z_n(C)\)</span> and <span class="math inline">\(B_{n-1}(A) \to B_{n-1}(B) \to B_{n-1}(C) \to 0\)</span>, where <span class="math inline">\(Z_n, B_n\)</span> denote cycles and boundaries.</p>
+</blockquote>
+<h3 id="diagram-chasing-in-general-categories">Diagram Chasing in General Categories</h3>
+<p>In non-abelian settings, one cannot refer to elements of objects. Instead, one works with <em>generalized elements</em>: a morphism <span class="math inline">\(x : T \to A\)</span> is a “<span class="math inline">\(T\)</span>-shaped element of <span class="math inline">\(A\)</span>.” Commutativity <span class="math inline">\(f \circ x = g \circ x\)</span> for all <span class="math inline">\(T\)</span>-elements (all <span class="math inline">\(T\)</span> and all <span class="math inline">\(x : T \to A\)</span>) implies <span class="math inline">\(f = g\)</span> — this is precisely the Yoneda lemma applied to the natural bijection <span class="math inline">\(\mathcal{C}(T, A) \cong \mathcal{C}(T, A)\)</span>.</p>
+<p><strong>Definition (Generalized element).</strong> A <em>generalized element</em> of <span class="math inline">\(A \in \mathcal{C}\)</span> of <em>stage</em> <span class="math inline">\(T\)</span> is a morphism <span class="math inline">\(x : T \to A\)</span>.</p>
+<p>💡 <em>In this language, a cone <span class="math inline">\((L, (\pi_i))\)</span> is a compatible family of generalized elements <span class="math inline">\(\pi_i : L \to Di\)</span>, and the universal property of the limit says that any other such compatible family factors uniquely through <span class="math inline">\(L\)</span>.</em></p>
+<p>This formalism allows diagram chasing in any category, though the arguments become more subtle without exact sequences.</p>
+<h3 id="the-salamander-lemma-brief-mention">The Salamander Lemma (Brief Mention)</h3>
+<p>The <em>Salamander Lemma</em> (due to Bergman) is a powerful generalization: for any commutative diagram of abelian groups, the <em>cohomology at any spot</em> (the quotient of the kernel by the image of incoming maps) fits into exact sequences relating it to the cohomology of adjacent spots. Riehl (§1.6) gives a clean treatment. The Snake and Five Lemmas become immediate corollaries.</p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Diagram Chasing
+(i) Prove the Short Five Lemma: in a commutative diagram with exact rows
+<span class="math inline">\(0 \to A \to B \to C \to 0\)</span> over <span class="math inline">\(0 \to A' \to B' \to C' \to 0\)</span>,
+if both <span class="math inline">\(A \to A'\)</span> and <span class="math inline">\(C \to C'\)</span> are isomorphisms, then <span class="math inline">\(B \to B'\)</span> is an isomorphism.</p>
+<ol start="2" type="i">
+<li><p>State and prove the 3×3 lemma (nine lemma): given a commutative 3×3 diagram of abelian groups where all columns are exact and two of the three rows are exact, the third row is also exact.</p></li>
+<li><p>Define what it means for a sequence <span class="math inline">\(A \xrightarrow{f} B \xrightarrow{g} C\)</span> to be exact at <span class="math inline">\(B\)</span> in terms of equalizers and coequalizers (without referring to elements). Show this recovers the usual notion in <span class="math inline">\(\mathbf{Ab}\)</span>.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="complete-and-cocomplete-categories">19. Complete and Cocomplete Categories 🌐</h2>
+<p><strong>Definition (Complete and cocomplete).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is <em>complete</em> if it has all small limits — limits of diagrams <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> where <span class="math inline">\(\mathcal{I}\)</span> is a small category. <span class="math inline">\(\mathcal{C}\)</span> is <em>cocomplete</em> if it has all small colimits.</p>
+<div class="callout callout-note">
+<p> Size matters
+“Small” here means the index category <span class="math inline">\(\mathcal{I}\)</span> is a set-sized category (its objects and morphisms form sets, not proper classes). Without this restriction, limits over proper classes may fail to exist even in <span class="math inline">\(\mathbf{Set}\)</span>, due to Russell-type paradoxes.</p>
+</div>
+<h3 id="the-completeness-theorem">The Completeness Theorem</h3>
+<p><strong>Theorem (Completeness from products and equalizers).</strong> A category <span class="math inline">\(\mathcal{C}\)</span> is complete if and only if it has all small products and all equalizers. Dually, <span class="math inline">\(\mathcal{C}\)</span> is cocomplete if and only if it has all small coproducts and all coequalizers.</p>
+<p><em>Proof sketch.</em> The “only if” direction is trivial. For “if”: given any small diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span>, the limit is constructed as an equalizer of two maps between products, exactly as in the finite case (§9), but now using small (possibly infinite) products. Specifically, form
+<span class="math display">\[P = \prod_{i \in \mathrm{ob}(\mathcal{I})} Di, \qquad Q = \prod_{u : i \to j \text{ in } \mathcal{I}} Dj,\]</span>
+define <span class="math inline">\(s, t : P \to Q\)</span> by <span class="math inline">\(s_u = \pi_j\)</span> and <span class="math inline">\(t_u = D(u) \circ \pi_i\)</span>, then <span class="math inline">\(\lim D = \mathrm{eq}(s, t)\)</span>. The small product and equalizer exist by hypothesis. <span class="math inline">\(\square\)</span></p>
+<p><strong>This shows that the “generating” limit shapes are products (discrete diagrams) and equalizers (parallel pairs).</strong></p>
+<h3 id="examples">Examples</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 30%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Complete</th>
+<th>Cocomplete</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Set}\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Products are Cartesian products; coproducts are disjoint unions</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Grp}\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Limits created by forgetful functor; colimits via presentations</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Ab}\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Products are direct products; coproducts are direct sums</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Top}\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Products have product topology; coproducts have disjoint union topology</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Vect}_k\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Products and coproducts both available (differ for infinite index)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{Ring}\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Products are Cartesian; coproducts are tensor products (for commutative rings)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\([\mathcal{C}^{\mathrm{op}}, \mathbf{Set}]\)</span></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>All limits and colimits computed pointwise (§12)</td>
+</tr>
+<tr class="even">
+<td>Any Grothendieck topos</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>By Giraud’s theorem</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\mathbf{Field}\)</span></td>
+<td>No</td>
+<td>No</td>
+<td>No terminal object (no field maps to every field); no initial object</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mathbf{FinSet}\)</span></td>
+<td>Fin. Yes</td>
+<td>Fin. Yes</td>
+<td>Has all finite limits/colimits; fails for countably infinite products</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-danger">
+<p> Fields are not complete
+The category <span class="math inline">\(\mathbf{Field}\)</span> has neither a terminal nor an initial object in the usual sense: a terminal object would be a field receiving a unique map from every field, but there is no field mapping to <span class="math inline">\(\mathbb{Q}\)</span> and <span class="math inline">\(\mathbb{F}_p\)</span> simultaneously (they have different characteristics). <em>This failure is categorical, not a size issue.</em></p>
+</div>
+<h3 id="completeness-via-generating-limit-shapes">Completeness via Generating Limit Shapes</h3>
+<p>The theorem above shows that one can reduce all small limits to products and equalizers. A refinement: a category has all <em>finite</em> limits iff it has a terminal object, binary products, and equalizers (§9). The “small” version replaces binary products with small products.</p>
+<p><strong>Proposition.</strong> The following are equivalent for a category <span class="math inline">\(\mathcal{C}\)</span>:
+1. <span class="math inline">\(\mathcal{C}\)</span> is complete.
+2. <span class="math inline">\(\mathcal{C}\)</span> has all small products and all equalizers.
+3. <span class="math inline">\(\mathcal{C}\)</span> has all small products, a terminal object, and all pullbacks.</p>
+<h3 id="preservation-of-completeness">Preservation of Completeness</h3>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span>.
+- If <span class="math inline">\(F\)</span> creates limits and <span class="math inline">\(\mathcal{C}\)</span> is complete, then <span class="math inline">\(\mathcal{D}\)</span> is complete.
+- If <span class="math inline">\(\mathcal{D}\)</span> is a <em>reflective subcategory</em> of <span class="math inline">\(\mathcal{C}\)</span> (inclusion has a left adjoint) and <span class="math inline">\(\mathcal{C}\)</span> is complete, then <span class="math inline">\(\mathcal{D}\)</span> is complete.
+- If <span class="math inline">\(\mathcal{C}\)</span> is complete, then <span class="math inline">\([\mathcal{J}, \mathcal{C}]\)</span> is complete for any small <span class="math inline">\(\mathcal{J}\)</span> (by pointwise limits, §12).</p>
+<div class="callout callout-tip">
+<p> Practical criterion
+To show an algebraic category (groups, rings, modules, etc.) is complete and cocomplete: (1) the forgetful functor to <span class="math inline">\(\mathbf{Set}\)</span> creates limits, so completeness follows from completeness of <span class="math inline">\(\mathbf{Set}\)</span>; (2) colimits exist because free algebras exist and coequalizers are quotient algebras.</p>
+</div>
+<div class="callout callout-note">
+<p> Riehl Exercise: Completeness
+(i) Show that a category with all small products and equalizers has all small limits. (Hint: construct <span class="math inline">\(\lim D\)</span> as an equalizer of a product, generalizing the finite case in §9.)</p>
+<ol start="2" type="i">
+<li><p>Show that <span class="math inline">\(\mathbf{Ab}\)</span> is both complete and cocomplete by verifying: (a) it has all small products (direct products) and equalizers (kernels of difference maps); (b) it has all small coproducts (direct sums) and coequalizers (cokernels of difference maps).</p></li>
+<li><p>A <em>complete lattice</em> is a poset with all small meets (infima) and joins (suprema). Show that a complete lattice, viewed as a category, is both complete and cocomplete. Give an example of a poset that is complete but not a complete lattice.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="functoriality-of-limits">20. Functoriality of Limits ⚙️</h2>
+<h3 id="limits-as-functors">Limits as Functors</h3>
+<p>When <span class="math inline">\(\mathcal{C}\)</span> has all limits of shape <span class="math inline">\(\mathcal{I}\)</span>, the assignment <span class="math inline">\(D \mapsto \lim D\)</span> defines a functor
+<span class="math display">\[\lim_{\mathcal{I}} : [\mathcal{I}, \mathcal{C}] \to \mathcal{C}.\]</span>
+This is the <em>right adjoint</em> to the diagonal functor <span class="math inline">\(\Delta : \mathcal{C} \to [\mathcal{I}, \mathcal{C}]\)</span> (established in §11). Functoriality means: given a natural transformation <span class="math inline">\(\alpha : D \Rightarrow D'\)</span> in <span class="math inline">\([\mathcal{I}, \mathcal{C}]\)</span>, there is an induced map
+<span class="math display">\[\lim \alpha : \lim D \to \lim D',\]</span>
+the unique morphism such that <span class="math inline">\(\pi'_i \circ (\lim \alpha) = \alpha_i \circ \pi_i\)</span> for each <span class="math inline">\(i \in \mathcal{I}\)</span>, where <span class="math inline">\(\pi, \pi'\)</span> are the respective limit projections. This is obtained by applying the universal property of <span class="math inline">\(\lim D'\)</span> to the cone <span class="math inline">\((\lim D,\; (\alpha_i \circ \pi_i)_{i \in \mathcal{I}})\)</span> over <span class="math inline">\(D'\)</span>.</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph &quot;Functor category [I, C]&quot;
+        D[&quot;D (diagram)&quot;]
+        D2[&quot;D' (diagram)&quot;]
+        D -- &quot;α (nat. trans.)&quot; --&gt; D2
+    end
+    subgraph &quot;Base category C&quot;
+        limD[&quot;lim D&quot;]
+        limD2[&quot;lim D'&quot;]
+        limD -- &quot;lim α&quot; --&gt; limD2
+    end
+    D -- &quot;lim_I (right adjoint to Δ)&quot; --&gt; limD
+    D2 --&gt; limD2</code></pre>
+<h3 id="morphisms-of-diagrams-and-naturality">Morphisms of Diagrams and Naturality</h3>
+<p><strong>Proposition.</strong> The induced map <span class="math inline">\(\lim \alpha : \lim D \to \lim D'\)</span> satisfies
+<span class="math display">\[\pi'_i \circ (\lim \alpha) = \alpha_i \circ \pi_i \quad \text{for each } i \in \mathcal{I}.\]</span>
+Moreover, <span class="math inline">\(\lim(-)\)</span> is functorial: <span class="math inline">\(\lim(\beta \circ \alpha) = (\lim \beta) \circ (\lim \alpha)\)</span> and <span class="math inline">\(\lim(\mathrm{id}_D) = \mathrm{id}_{\lim D}\)</span>.</p>
+<p><em>Proof.</em> By the universal property of <span class="math inline">\(\lim D'\)</span> applied to the cone over <span class="math inline">\(D'\)</span> with apex <span class="math inline">\(\lim D\)</span> and legs <span class="math inline">\(\alpha_i \circ \pi_i\)</span>. The cone condition holds: for <span class="math inline">\(u : i \to j\)</span> in <span class="math inline">\(\mathcal{I}\)</span>, <span class="math inline">\(D'(u) \circ (\alpha_i \circ \pi_i) = \alpha_j \circ D(u) \circ \pi_i = \alpha_j \circ \pi_j\)</span> (using naturality of <span class="math inline">\(\alpha\)</span> and the cone condition for <span class="math inline">\(\pi\)</span>). Uniqueness gives functoriality. <span class="math inline">\(\square\)</span></p>
+<h3 id="the-limit-functor-preserves-limits">The Limit Functor Preserves Limits</h3>
+<p><strong>Theorem.</strong> The limit functor <span class="math inline">\(\lim_{\mathcal{I}} : [\mathcal{I}, \mathcal{C}] \to \mathcal{C}\)</span> is a right adjoint (to <span class="math inline">\(\Delta\)</span>), hence by RAPL (§14) it preserves all limits that exist in <span class="math inline">\([\mathcal{I}, \mathcal{C}]\)</span>.</p>
+<p><strong>Corollary (“Fubini for limits”).</strong> <em>A limit of limits is a limit.</em> More precisely, if <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathcal{C}\)</span> is a bifunctor and <span class="math inline">\(\mathcal{C}\)</span> has all limits of shapes <span class="math inline">\(\mathcal{I}\)</span>, <span class="math inline">\(\mathcal{J}\)</span>, and <span class="math inline">\(\mathcal{I} \times \mathcal{J}\)</span>, then there is a natural isomorphism
+<span class="math display">\[\lim_{\mathcal{I}} \lim_{\mathcal{J}} D(-,-) \;\cong\; \lim_{\mathcal{I} \times \mathcal{J}} D \;\cong\; \lim_{\mathcal{J}} \lim_{\mathcal{I}} D(-,-).\]</span></p>
+<blockquote>
+<p>[!EXAMPLE]- Fubini for products
+The Fubini isomorphism for products says <span class="math inline">\(\prod_{i \in \mathcal{I}} \prod_{j \in \mathcal{J}} D_{ij} \cong \prod_{(i,j) \in \mathcal{I} \times \mathcal{J}} D_{ij} \cong \prod_{j \in \mathcal{J}} \prod_{i \in \mathcal{I}} D_{ij}\)</span>, which is the familiar commutativity and associativity of Cartesian products of sets.</p>
+</blockquote>
+<h3 id="continuity-of-hom-functors">Continuity of Hom-Functors</h3>
+<p><strong>Theorem.</strong> For any <span class="math inline">\(A \in \mathcal{C}\)</span>, the hom-functor <span class="math inline">\(\mathcal{C}(A, -) : \mathcal{C} \to \mathbf{Set}\)</span> <em>preserves all limits</em>:
+<span class="math display">\[\mathcal{C}(A, \lim_{\mathcal{I}} D) \;\cong\; \lim_{\mathcal{I}} \mathcal{C}(A, D(-)).\]</span></p>
+<p>This was already proved in §13. The functoriality of limits strengthens it: the isomorphism is <em>natural in both <span class="math inline">\(A\)</span> and <span class="math inline">\(D\)</span></em>, making <span class="math inline">\(\mathcal{C}(-, -)\)</span> a <em>continuous bifunctor</em> (contravariant in the first argument, covariant in the second).</p>
+<p><strong>Definition (Continuous functor).</strong> A functor <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> is <em>continuous</em> if it preserves all small limits. Equivalently: for every small diagram <span class="math inline">\(D : \mathcal{I} \to \mathcal{C}\)</span> and limit <span class="math inline">\((L, (\pi_i))\)</span> in <span class="math inline">\(\mathcal{C}\)</span>, the cone <span class="math inline">\((F(L), (F\pi_i))\)</span> is a limit of <span class="math inline">\(F \circ D\)</span> in <span class="math inline">\(\mathcal{D}\)</span>.</p>
+<p>📐 <em>Every right adjoint is continuous (RAPL). Every representable functor is continuous. The forgetful functor <span class="math inline">\(\mathbf{Grp} \to \mathbf{Set}\)</span> is continuous (it is a right adjoint to the free group functor).</em></p>
+<div class="callout callout-note">
+<p> Riehl Exercise: Functoriality of Limits
+(i) Show that the limit functor <span class="math inline">\(\lim_{\mathcal{I}} : [\mathcal{I}, \mathbf{Set}] \to \mathbf{Set}\)</span> is continuous (preserves all small limits). (Hint: use that it is a right adjoint.)</p>
+<ol start="2" type="i">
+<li><p>Let <span class="math inline">\(\mathcal{C}\)</span> have all limits of shapes <span class="math inline">\(\mathcal{I}\)</span> and <span class="math inline">\(\mathcal{J}\)</span>. Show that there is a natural isomorphism <span class="math inline">\(\lim_{\mathcal{I}} (\lim_{\mathcal{J}} D) \cong \lim_{\mathcal{I} \times \mathcal{J}} D\)</span> for any diagram <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathcal{C}\)</span>. (This is “Fubini for limits.”)</p></li>
+<li><p>A functor <span class="math inline">\(F : \mathcal{C} \to \mathcal{D}\)</span> is continuous if it preserves all small limits. Show that every representable functor <span class="math inline">\(\mathcal{C}(A, -) : \mathcal{C} \to \mathbf{Set}\)</span> is continuous. Show that the forgetful functor <span class="math inline">\(\mathbf{Grp} \to \mathbf{Set}\)</span> is continuous.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="interactions-between-limits-and-colimits">21. Interactions between Limits and Colimits 🔄</h2>
+<h3 id="limits-and-colimits-do-not-generally-commute">Limits and Colimits Do Not Generally Commute</h3>
+<p>The canonical comparison map
+<span class="math display">\[\mathrm{colim}_{j \in \mathcal{J}}\, \lim_{i \in \mathcal{I}} D(i, j) \;\longrightarrow\; \lim_{i \in \mathcal{I}}\, \mathrm{colim}_{j \in \mathcal{J}} D(i, j)\]</span>
+exists for any bifunctor <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathcal{C}\)</span>, but it is <em>rarely an isomorphism</em> in general. The direction of this map (colim of lim maps to lim of colim) reflects the fact that limits “commute past” colimits in this canonical direction.</p>
+<blockquote>
+<p>[!EXAMPLE]- Counterexample in Set
+Let <span class="math inline">\(\mathcal{J} = \{0, 1\}\)</span> (discrete, two objects) and <span class="math inline">\(\mathcal{I} = \{0 \to 1\}\)</span> (the walking arrow). Consider the diagram <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathbf{Set}\)</span> given by:
+- <span class="math inline">\(D(0, 0) = \{a\}\)</span>, <span class="math inline">\(D(0, 1) = \{b\}\)</span> (disjoint singletons)
+- <span class="math inline">\(D(1, 0) = D(1, 1) = \{*\}\)</span> (one-point set)
+- Maps <span class="math inline">\(D(0,j) \to D(1,j)\)</span> are the unique maps.</p>
+<p>Then <span class="math inline">\(\lim_{\mathcal{I}} D(-,0) = \{a\}\)</span> and <span class="math inline">\(\lim_{\mathcal{I}} D(-,1) = \{b\}\)</span>, so <span class="math inline">\(\mathrm{colim}_{\mathcal{J}} \lim_{\mathcal{I}} D = \{a, b\}\)</span> (a two-element set).</p>
+<p>On the other hand, <span class="math inline">\(\mathrm{colim}_{\mathcal{J}} D(0,-) = \{a, b\}\)</span> and <span class="math inline">\(\mathrm{colim}_{\mathcal{J}} D(1,-) = \{*\}\)</span>, so <span class="math inline">\(\lim_{\mathcal{I}} \mathrm{colim}_{\mathcal{J}} D = \{*\}\)</span> (the limit of the map <span class="math inline">\(\{a,b\} \to \{*\}\)</span>, which is <span class="math inline">\(\{*\}\)</span>).</p>
+<p>Thus <span class="math inline">\(\mathrm{colim}\, \lim = \{a,b\} \not\cong \{*\} = \lim\, \mathrm{colim}\)</span>, and the canonical map <span class="math inline">\(\{a,b\} \to \{*\}\)</span> is not an isomorphism.</p>
+</blockquote>
+<h3 id="filtered-colimits">Filtered Colimits</h3>
+<p><strong>Definition (Filtered category).</strong> A category <span class="math inline">\(\mathcal{J}\)</span> is <em>filtered</em> if:
+1. <span class="math inline">\(\mathcal{J}\)</span> is non-empty,
+2. Any two objects <span class="math inline">\(i, j \in \mathcal{J}\)</span> have a common <em>upper bound</em>: there exists <span class="math inline">\(k\)</span> with morphisms <span class="math inline">\(i \to k\)</span> and <span class="math inline">\(j \to k\)</span>,
+3. Any two parallel morphisms <span class="math inline">\(f, g : i \rightrightarrows j\)</span> have a common <em>coequalization</em>: there exists <span class="math inline">\(k\)</span> and <span class="math inline">\(h : j \to k\)</span> with <span class="math inline">\(h \circ f = h \circ g\)</span>.</p>
+<p><em>Filtered colimits</em> generalize directed colimits (colimits over directed posets, which satisfy conditions 1 and 2 but not necessarily 3).</p>
+<div class="callout callout-example">
+<p> The canonical filtered category
+The category <span class="math inline">\(\boldsymbol{\omega} = (0 \to 1 \to 2 \to \cdots)\)</span> of natural numbers is filtered (conditions 1, 2, and 3 are all easy to verify). A colimit over <span class="math inline">\(\boldsymbol{\omega}\)</span> in <span class="math inline">\(\mathbf{Set}\)</span> is a <em>sequential union</em>: <span class="math inline">\(\varinjlim X_n = \bigcup_{n} X_n\)</span> (where the union is taken with respect to the inclusion maps <span class="math inline">\(X_n \to X_{n+1}\)</span>), with <span class="math inline">\(x \in X_m\)</span> and <span class="math inline">\(y \in X_n\)</span> identified iff they agree in some <span class="math inline">\(X_k\)</span> with <span class="math inline">\(k \geq m, n\)</span>.</p>
+</div>
+<h3 id="filtered-colimits-commute-with-finite-limits-in-set">Filtered Colimits Commute with Finite Limits in Set</h3>
+<p><strong>Theorem (Filtered colimits commute with finite limits).</strong> In <span class="math inline">\(\mathbf{Set}\)</span>, if <span class="math inline">\(\mathcal{J}\)</span> is filtered and <span class="math inline">\(\mathcal{I}\)</span> is finite, then the canonical comparison map
+<span class="math display">\[\mathrm{colim}_{j \in \mathcal{J}}\, \lim_{i \in \mathcal{I}} D(i,j) \;\xrightarrow{\;\sim\;}\; \lim_{i \in \mathcal{I}}\, \mathrm{colim}_{j \in \mathcal{J}} D(i,j)\]</span>
+is an isomorphism for any <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathbf{Set}\)</span>.</p>
+<p><em>Proof sketch (for binary products, <span class="math inline">\(\mathcal{I} = \{0, 1\}\)</span>).</em> An element of <span class="math inline">\(\mathrm{colim}_{j} (D(0,j) \times D(1,j))\)</span> is an equivalence class <span class="math inline">\([(j, x, y)]\)</span> with <span class="math inline">\(x \in D(0,j)\)</span> and <span class="math inline">\(y \in D(1,j)\)</span>. An element of <span class="math inline">\(\mathrm{colim}_{j} D(0,j) \times \mathrm{colim}_{j} D(1,j)\)</span> is a pair <span class="math inline">\(([(j_1, x)], [(j_2, y)])\)</span> with <span class="math inline">\(x \in D(0,j_1)\)</span> and <span class="math inline">\(y \in D(1,j_2)\)</span>. Since <span class="math inline">\(\mathcal{J}\)</span> is filtered, there exists <span class="math inline">\(k\)</span> with morphisms <span class="math inline">\(j_1 \to k\)</span> and <span class="math inline">\(j_2 \to k\)</span>; pushing forward, we can represent both <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> at stage <span class="math inline">\(k\)</span>, giving <span class="math inline">\([(k, x', y')]\)</span>. This defines the inverse map. <span class="math inline">\(\square\)</span></p>
+<p><em>Proof sketch (for equalizers).</em> Given <span class="math inline">\([(j, b)]\)</span> in <span class="math inline">\(\mathrm{colim}_j \mathrm{eq}(f_j, g_j)\)</span>, one shows the image in <span class="math inline">\(\mathrm{colim}_j D(j)\)</span> lies in the equalizer of the colimit maps, using the filteredness to coequalize the witnesses.</p>
+<p><strong>🔑 This theorem is the key to understanding the structure of algebraic categories.</strong></p>
+<h3 id="algebraic-importance">Algebraic Importance</h3>
+<p><strong>Proposition (Algebras are filtered colimits of finitely presented ones).</strong> Every group (ring, module, algebra over a theory <span class="math inline">\(\mathbb{T}\)</span>, …) is a <em>filtered colimit</em> of finitely presented ones. Specifically, given a group <span class="math inline">\(G\)</span>, its finitely generated subgroups form a directed system (ordered by inclusion), and <span class="math inline">\(G = \varinjlim_{H \subseteq G,\, H \text{ f.g.}} H\)</span>.</p>
+<p>A <em>finitely presented algebra</em> is one with finitely many generators and finitely many relations. The class of all <span class="math inline">\(\mathbb{T}\)</span>-algebras that are finitely presented is essentially the “compact objects” of the category.</p>
+<div class="callout callout-info">
+<p> Locally presentable categories
+A category is <em>locally presentable</em> if it is cocomplete and every object is a filtered colimit of “small” (presentable) objects. Examples: <span class="math inline">\(\mathbf{Set}\)</span>, <span class="math inline">\(\mathbf{Grp}\)</span>, <span class="math inline">\(\mathbf{Ab}\)</span>, <span class="math inline">\(R\)</span>-<span class="math inline">\(\mathbf{Mod}\)</span>, <span class="math inline">\(\mathbf{Top}\)</span> (with the right morphisms), any category of algebras for an accessible monad. Locally presentable categories have excellent exactness properties, and the adjoint functor theorem has a particularly clean form for them.</p>
+</div>
+<h3 id="sifted-colimits">Sifted Colimits</h3>
+<p><strong>Definition (Sifted colimit).</strong> A colimit is <em>sifted</em> if the index category <span class="math inline">\(\mathcal{J}\)</span> has the property that the diagonal <span class="math inline">\(\mathcal{J} \to \mathcal{J} \times \mathcal{J}\)</span> is <em>final</em> (cofinal). Equivalently, <span class="math inline">\(\mathcal{J}\)</span> is sifted iff <span class="math inline">\(\mathrm{colim}_{\mathcal{J}}\)</span> commutes with finite products in <span class="math inline">\(\mathbf{Set}\)</span>.</p>
+<p>Filtered colimits and <em>reflexive coequalizers</em> (coequalizers of parallel pairs that have a common section) are both sifted. The class of sifted colimits characterizes algebraic categories: a functor <span class="math inline">\(\mathbf{Set}^{\mathrm{op}} \to \mathbf{Set}\)</span> is representable by an algebraic theory iff it preserves sifted colimits.</p>
+<h3 id="summary-when-limits-and-colimits-commute">Summary: When Limits and Colimits Commute</h3>
+<table>
+<colgroup>
+<col style="width: 57%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Finite limits vs. filtered colimits</td>
+<td>Commute in <span class="math inline">\(\mathbf{Set}\)</span> (and any algebraic/Grothendieck topos)</td>
+</tr>
+<tr class="even">
+<td>Finite products vs. sifted colimits</td>
+<td>Commute in <span class="math inline">\(\mathbf{Set}\)</span> (by definition of sifted)</td>
+</tr>
+<tr class="odd">
+<td>Finite limits vs. filtered colimits in any topos</td>
+<td>Commute (by definition of topos + exactness)</td>
+</tr>
+<tr class="even">
+<td>Left adjoint vs. all colimits</td>
+<td>Left adjoints <em>preserve</em> colimits (LAPC, §14)</td>
+</tr>
+<tr class="odd">
+<td>Finite limits vs. finite colimits</td>
+<td>Do not commute in general</td>
+</tr>
+<tr class="even">
+<td>All limits vs. all colimits</td>
+<td>Do not commute in general</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note">
+<p> Riehl Exercise: Filtered Colimits
+(i) Show that the category <span class="math inline">\(\boldsymbol{\omega} = (0 \to 1 \to 2 \to \cdots)\)</span> of natural numbers is filtered. Describe what a colimit over <span class="math inline">\(\boldsymbol{\omega}\)</span> in <span class="math inline">\(\mathbf{Set}\)</span> looks like — show it is a sequential union <span class="math inline">\(\bigcup_n X_n\)</span>.</p>
+<ol start="2" type="i">
+<li><p>Give an explicit example showing that a non-filtered colimit fails to commute with a finite limit in <span class="math inline">\(\mathbf{Set}\)</span>: find a bifunctor <span class="math inline">\(D : \mathcal{I} \times \mathcal{J} \to \mathbf{Set}\)</span> where <span class="math inline">\(\mathcal{J}\)</span> is discrete (hence not filtered) and the canonical comparison map <span class="math inline">\(\mathrm{colim}_{\mathcal{J}} \lim_{\mathcal{I}} D \to \lim_{\mathcal{I}} \mathrm{colim}_{\mathcal{J}} D\)</span> is not an isomorphism.</p></li>
+<li><p>Let <span class="math inline">\(A\)</span> be an abelian group. Show that <span class="math inline">\(A\)</span> is a filtered colimit (directed union) of its finitely generated subgroups. Conclude that any property preserved by filtered colimits and true for finitely generated abelian groups is true for all abelian groups.</p></li>
+</ol>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Leinster, Part III Category Theory (Cambridge, 2000)</td>
+<td>Original course notes and exercise sheets from which these exercises are drawn</td>
+<td><a href="https://webhomes.maths.ed.ac.uk/~tl/categories/index.html">Course page</a></td>
+</tr>
+<tr class="even">
+<td>Leinster, <em>Basic Category Theory</em> (2014)</td>
+<td>Self-contained introduction; Chapter 5 covers limits and colimits, §5.3 covers preservation/reflection/creation</td>
+<td><a href="https://arxiv.org/abs/1612.09375">arXiv:1612.09375</a></td>
+</tr>
+<tr class="odd">
+<td>Mac Lane, <em>Categories for the Working Mathematician</em> (2nd ed., 1998)</td>
+<td>The standard reference; Chapter V on limits and Chapter IX on adjoint functor theorems</td>
+<td><a href="https://link.springer.com/book/10.1007/978-1-4757-4721-8">Springer</a></td>
+</tr>
+<tr class="even">
+<td>Riehl, <em>Category Theory in Context</em> (2016)</td>
+<td>Modern treatment with excellent examples; Chapter 3 on limits and colimits, Chapter 4 on adjunctions and limits</td>
+<td><a href="https://math.jhu.edu/~eriehl/context.pdf">Author PDF</a></td>
+</tr>
+<tr class="odd">
+<td>Borceux, <em>Handbook of Categorical Algebra</em>, Vol. 1 (1994)</td>
+<td>Comprehensive reference for creation of limits, regular categories, projective/injective objects</td>
+<td><a href="https://www.cambridge.org/core/books/handbook-of-categorical-algebra/B53E16C2E80B1F9E0506CD4F51C11D76">Cambridge University Press</a></td>
+</tr>
+<tr class="even">
+<td>Wikipedia, <em>Limit (category theory)</em></td>
+<td>Accessible overview of cones, limits, colimits, and the main examples</td>
+<td><a href="https://en.wikipedia.org/wiki/Limit_(category_theory)">Wikipedia</a></td>
+</tr>
+<tr class="odd">
+<td>nLab, <em>Regular epimorphism</em></td>
+<td>Precise definition, stability properties, and examples including Ab and Top</td>
+<td><a href="https://ncatlab.org/nlab/show/regular+epimorphism">nLab</a></td>
+</tr>
+<tr class="even">
+<td>PlanetMath, <em>Formal power series as inverse limits</em></td>
+<td>Explicit construction of <span class="math inline">\(k\llbracket X \rrbracket = \varprojlim_n k[X]/(X^n)\)</span></td>
+<td><a href="https://planetmath.org/formalpowerseriesasinverselimits">PlanetMath</a></td>
+</tr>
+<tr class="odd">
+<td>Wikipedia, <em>Density theorem (category theory)</em></td>
+<td>Statement and proof sketch of the co-Yoneda / density theorem for presheaves</td>
+<td><a href="https://en.wikipedia.org/wiki/Density_theorem_(category_theory)">Wikipedia</a></td>
+</tr>
+<tr class="even">
+<td>Wikipedia, <em>Cartesian closed category</em></td>
+<td>Definition, examples, and the relationship to the simply typed lambda calculus</td>
+<td><a href="https://en.wikipedia.org/wiki/Cartesian_closed_category">Wikipedia</a></td>
+</tr>
+<tr class="odd">
+<td>Butz, <em>Regular Categories and Regular Logic</em> (BRICS, 1998)</td>
+<td>Technical reference on regular categories, pullback stability, and factorization systems</td>
+<td><a href="https://www.brics.dk/LS/98/2/BRICS-LS-98-2.pdf">BRICS LS-98-2</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

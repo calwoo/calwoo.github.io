@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>standard-attention - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>standard-attention</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-introduction-and-motivation%7C1.-introduction-and-motivation/">#1. Introduction and Motivation|1. Introduction and Motivation</a></li>
+<li><a href="../../../../notes/#2.-single-head-scaled-dot-product-attention%7C2.-single-head-scaled-dot-product-attention/">#2. Single-Head Scaled Dot-Product Attention|2. Single-Head Scaled Dot-Product Attention</a>
+<ul>
+<li><a href="../../../../notes/#2.1-query,-key,-value-projections%7C2.1-query,-key,-value-projections/">#2.1 Query, Key, Value Projections|2.1 Query, Key, Value Projections</a></li>
+<li><a href="../../../../notes/#2.2-attention-score-computation-and-causal-masking%7C2.2-attention-score-computation-and-causal-masking/">#2.2 Attention Score Computation and Causal Masking|2.2 Attention Score Computation and Causal Masking</a></li>
+<li><a href="../../../../notes/#2.3-softmax-normalization-and-weighted-aggregation%7C2.3-softmax-normalization-and-weighted-aggregation/">#2.3 Softmax Normalization and Weighted Aggregation|2.3 Softmax Normalization and Weighted Aggregation</a></li>
+<li><a href="../../../../notes/#2.4-output-projection-and-residual-connection%7C2.4-output-projection-and-residual-connection/">#2.4 Output Projection and Residual Connection|2.4 Output Projection and Residual Connection</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-matrix-form-of-attention%7C3.-matrix-form-of-attention/">#3. Matrix Form of Attention|3. Matrix Form of Attention</a></li>
+<li><a href="../../../../notes/#4.-multi-head-attention%7C4.-multi-head-attention/">#4. Multi-Head Attention|4. Multi-Head Attention</a></li>
+<li><a href="../../../../notes/#5.-kv-caching%7C5.-kv-caching/">#5. KV Caching|5. KV Caching</a>
+<ul>
+<li><a href="../../../../notes/#5.1-motivation:-avoiding-redundant-computation-during-decoding%7C5.1-motivation:-avoiding-redundant-computation-during-decoding/">#5.1 Motivation: Avoiding Redundant Computation During Decoding|5.1 Motivation: Avoiding Redundant Computation During Decoding</a></li>
+<li><a href="../../../../notes/#5.2-memory-growth-with-sequence-length%7C5.2-memory-growth-with-sequence-length/">#5.2 Memory Growth with Sequence Length|5.2 Memory Growth with Sequence Length</a></li>
+<li><a href="../../../../notes/#5.3-variants:-gqa,-mla,-and-sparse-attention%7C5.3-variants:-gqa,-mla,-and-sparse-attention/">#5.3 Variants: GQA, MLA, and Sparse Attention|5.3 Variants: GQA, MLA, and Sparse Attention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-memory-efficient-exact-attention%7C6.-memory-efficient-exact-attention/">#6. Memory-Efficient Exact Attention|6. Memory-Efficient Exact Attention</a>
+<ul>
+<li><a href="../../../../notes/#6.1-the-core-observation:-deferred-normalization%7C6.1-the-core-observation:-deferred-normalization/">#6.1 The Core Observation: Deferred Normalization|6.1 The Core Observation: Deferred Normalization</a></li>
+<li><a href="../../../../notes/#6.2-numerical-stability-via-online-softmax%7C6.2-numerical-stability-via-online-softmax/">#6.2 Numerical Stability via Online Softmax|6.2 Numerical Stability via Online Softmax</a></li>
+<li><a href="../../../../notes/#6.3-tiling-for-practical-o(sqrt-n)-memory%7C6.3-tiling-for-practical-o(sqrt-n)-memory/">#6.3 Tiling for Practical O(sqrt n) Memory|6.3 Tiling for Practical O(sqrt n) Memory</a></li>
+<li><a href="../../../../notes/#6.4-backpropagation-via-recomputation%7C6.4-backpropagation-via-recomputation/">#6.4 Backpropagation via Recomputation|6.4 Backpropagation via Recomputation</a></li>
+<li><a href="../../../../notes/#6.5-relation-to-flashattention%7C6.5-relation-to-flashattention/">#6.5 Relation to FlashAttention|6.5 Relation to FlashAttention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ul>
+<hr />
+<h2 id="introduction-and-motivation">1. Introduction and Motivation</h2>
+<p>Modern language models process text as a sequence of discrete tokens. After embedding, each token is represented as a vector in <span class="math inline">\(\mathbb{R}^D\)</span>. A central challenge is allowing each token to <em>selectively aggregate information</em> from other tokens in the sequence — a mechanism called <em>attention</em>.</p>
+<p>The key deficiency of earlier architectures (RNNs, LSTMs) was the <em>sequential bottleneck</em>: information from token <span class="math inline">\(i\)</span> must pass through all intermediate hidden states to influence token <span class="math inline">\(j \gg i\)</span>, creating vanishing gradient paths and preventing parallelism during training. The <em>self-attention</em> mechanism, introduced by Vaswani et al. (2017), resolves both problems by computing pairwise interactions between all tokens in <span class="math inline">\(O(1)\)</span> sequential steps, at the cost of <span class="math inline">\(O(T^2)\)</span> memory and compute per layer, where <span class="math inline">\(T\)</span> is the sequence length.</p>
+<p>This note develops standard softmax attention rigorously from first principles, building from the single-head case to multi-head attention and the key-value caching technique used during autoregressive inference. The companion note <code>linear-attention.md</code> covers the recurrent and linear attention reformulations that trade the <span class="math inline">\(O(T^2)\)</span> compute cost for a bounded-memory recurrence.</p>
+<p><strong>Notation.</strong> Throughout, scalars are lowercase italic (<span class="math inline">\(q\)</span>, <span class="math inline">\(k\)</span>, <span class="math inline">\(v\)</span>, <span class="math inline">\(d\)</span>), vectors are lowercase bold (<span class="math inline">\(\mathbf{q}\)</span>, <span class="math inline">\(\mathbf{k}\)</span>), and matrices are uppercase bold (<span class="math inline">\(\mathbf{W}\)</span>, <span class="math inline">\(\mathbf{Q}\)</span>, <span class="math inline">\(\mathbf{K}\)</span>, <span class="math inline">\(\mathbf{V}\)</span>). The sequence length is <span class="math inline">\(T\)</span>, the embedding dimension is <span class="math inline">\(D\)</span>, and the per-head key/query dimension is <span class="math inline">\(d_k\)</span> with value dimension <span class="math inline">\(d_v\)</span>.</p>
+<hr />
+<h2 id="single-head-scaled-dot-product-attention">2. Single-Head Scaled Dot-Product Attention</h2>
+<p>We develop single-head attention for an autoregressive (decoder-only) setting, where each token may only attend to itself and tokens that precede it in the sequence (<em>causal masking</em>).</p>
+<p>Let the input to the attention layer be <span class="math inline">\(T\)</span> vectors <span class="math inline">\(\mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_T \in \mathbb{R}^D\)</span>, one per token.</p>
+<h3 id="query-key-value-projections">2.1 Query, Key, Value Projections</h3>
+<p><strong>Definition (Q/K/V Projections).</strong> Given input embeddings <span class="math inline">\(\mathbf{x}_t \in \mathbb{R}^D\)</span>, the attention mechanism defines three learned linear maps:</p>
+<p><span class="math display">\[\mathbf{q}_t = \mathbf{W}_Q \mathbf{x}_t, \quad \mathbf{k}_t = \mathbf{W}_K \mathbf{x}_t, \quad \mathbf{v}_t = \mathbf{W}_V \mathbf{x}_t\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_Q, \mathbf{W}_K \in \mathbb{R}^{d_k \times D}\)</span> and <span class="math inline">\(\mathbf{W}_V \in \mathbb{R}^{d_v \times D}\)</span> are parameter matrices. The resulting vectors <span class="math inline">\(\mathbf{q}_t, \mathbf{k}_t \in \mathbb{R}^{d_k}\)</span> and <span class="math inline">\(\mathbf{v}_t \in \mathbb{R}^{d_v}\)</span> are the <em>query</em>, <em>key</em>, and <em>value</em> for token <span class="math inline">\(t\)</span>, respectively.</p>
+<p><strong>Intuition.</strong> The query <span class="math inline">\(\mathbf{q}_t\)</span> encodes “what information is token <span class="math inline">\(t\)</span> looking for?” The keys <span class="math inline">\(\mathbf{k}_j\)</span> encode “what information does token <span class="math inline">\(j\)</span> offer?” and the value <span class="math inline">\(\mathbf{v}_j\)</span> encodes “what content does token <span class="math inline">\(j\)</span> contribute if selected?” This phrasing is heuristic — the projections are jointly learned end-to-end and the division of roles emerges from training.</p>
+<p>In the original Transformer, <span class="math inline">\(d_k = d_v = D / H\)</span> where <span class="math inline">\(H\)</span> is the number of attention heads (see Section 4). For the single-head case take <span class="math inline">\(d_k = d_v = D\)</span>.</p>
+<h3 id="attention-score-computation-and-causal-masking">2.2 Attention Score Computation and Causal Masking</h3>
+<p><strong>Definition (Raw Attention Score).</strong> The raw attention score of token <span class="math inline">\(t\)</span> with respect to token <span class="math inline">\(j\)</span> is the inner product:</p>
+<p><span class="math display">\[e_{tj} = \mathbf{q}_t^\top \mathbf{k}_j \in \mathbb{R}\]</span></p>
+<p>This score measures the alignment between the query of token <span class="math inline">\(t\)</span> and the key of token <span class="math inline">\(j\)</span>.</p>
+<p><strong>Why does the dot product serve as a compatibility score?</strong> If <span class="math inline">\(\mathbf{W}_Q\)</span> and <span class="math inline">\(\mathbf{W}_K\)</span> learn to map semantically similar concepts to nearby directions, then <span class="math inline">\(\mathbf{q}_t^\top \mathbf{k}_j\)</span> is large when token <span class="math inline">\(j\)</span> is relevant to token <span class="math inline">\(t\)</span>, and small (or negative) otherwise. The softmax in the next step converts these raw scores into a probability distribution.</p>
+<p><strong>Scaling.</strong> A critical detail is that the dot product is scaled by <span class="math inline">\(1/\sqrt{d_k}\)</span> before the softmax. The motivation is as follows. Assume the components of <span class="math inline">\(\mathbf{q}_t\)</span> and <span class="math inline">\(\mathbf{k}_j\)</span> are i.i.d. with mean <span class="math inline">\(0\)</span> and variance <span class="math inline">\(1\)</span>. Then the dot product <span class="math inline">\(e_{tj} = \sum_{i=1}^{d_k} q_i k_i\)</span> has:</p>
+<p><span class="math display">\[\mathbb{E}[e_{tj}] = \sum_{i=1}^{d_k} \mathbb{E}[q_i]\,\mathbb{E}[k_i] = 0\]</span></p>
+<p><span class="math display">\[\operatorname{Var}(e_{tj}) = \sum_{i=1}^{d_k} \operatorname{Var}(q_i k_i) = \sum_{i=1}^{d_k} \mathbb{E}[q_i^2]\,\mathbb{E}[k_i^2] = d_k\]</span></p>
+<p>So the standard deviation of <span class="math inline">\(e_{tj}\)</span> grows as <span class="math inline">\(\sqrt{d_k}\)</span>. For large <span class="math inline">\(d_k\)</span>, the raw scores are large in magnitude, which drives the softmax into a near-one-hot regime where almost all weight concentrates on a single token. In this saturated regime, the softmax gradient becomes vanishingly small:</p>
+<p><span class="math display">\[\frac{\partial \text{softmax}(s)_j}{\partial s_j} = \text{softmax}(s)_j\,(1 - \text{softmax}(s)_j) \approx 0 \quad \text{when } \text{softmax}(s)_j \approx 1\]</span></p>
+<p><strong>The fix</strong> is to scale the scores: <span class="math inline">\(\tilde{e}_{tj} = e_{tj}/\sqrt{d_k}\)</span>. Under the same independence assumption, <span class="math inline">\(\operatorname{Var}(\tilde{e}_{tj}) = 1\)</span>, restoring the softmax inputs to a regime with healthy gradients regardless of <span class="math inline">\(d_k\)</span>.</p>
+<p><strong>Definition (Causal Mask).</strong> In autoregressive generation, token <span class="math inline">\(t\)</span> is not permitted to attend to tokens <span class="math inline">\(j &gt; t\)</span> (future tokens are not yet generated). The <em>causal mask</em> <span class="math inline">\(M \in \mathbb{R}^{T \times T}\)</span> encodes this constraint:</p>
+<p><span class="math display">\[M_{tj} = \begin{cases} 0 &amp; \text{if } j \leq t \\ -\infty &amp; \text{if } j &gt; t \end{cases}\]</span></p>
+<p>Adding <span class="math inline">\(M_{tj}\)</span> to the scaled score <span class="math inline">\(\tilde{e}_{tj}\)</span> before softmax sets the attention weight for all future tokens to <span class="math inline">\(\exp(-\infty) = 0\)</span>, exactly implementing the causal constraint.</p>
+<h3 id="softmax-normalization-and-weighted-aggregation">2.3 Softmax Normalization and Weighted Aggregation</h3>
+<p><strong>Definition (Attention Weights).</strong> The attention weight that token <span class="math inline">\(t\)</span> assigns to token <span class="math inline">\(j\)</span> is:</p>
+<p><span class="math display">\[\alpha_{tj} = \frac{\exp\!\left(\tilde{e}_{tj} + M_{tj}\right)}{\displaystyle\sum_{j'=1}^{T} \exp\!\left(\tilde{e}_{tj'} + M_{tj'}\right)}\]</span></p>
+<p>Due to the causal mask, this simplifies to:</p>
+<p><span class="math display">\[\alpha_{tj} = \frac{\exp\!\left(\mathbf{q}_t^\top \mathbf{k}_j / \sqrt{d_k}\right)}{\displaystyle\sum_{j'=1}^{t} \exp\!\left(\mathbf{q}_t^\top \mathbf{k}_{j'} / \sqrt{d_k}\right)}, \quad j \leq t, \quad \alpha_{tj} = 0 \text{ for } j &gt; t\]</span></p>
+<p>The weights <span class="math inline">\(\{\alpha_{tj}\}_{j=1}^{t}\)</span> form a valid probability distribution on the tokens up to and including <span class="math inline">\(t\)</span>.</p>
+<p><strong>Definition (Attention Output).</strong> The output of the attention computation for token <span class="math inline">\(t\)</span> is the weighted sum of value vectors over all tokens that <span class="math inline">\(t\)</span> is permitted to attend to:</p>
+<p><span class="math display">\[\mathbf{o}_t = \sum_{j=1}^{t} \alpha_{tj}\, \mathbf{v}_j \in \mathbb{R}^{d_v}\]</span></p>
+<p>This is a <em>convex combination</em> of value vectors. If the attention weights are nearly one-hot (concentrated on token <span class="math inline">\(j^*\)</span>), then <span class="math inline">\(\mathbf{o}_t \approx \mathbf{v}_{j^*}\)</span>, effectively “retrieving” the value associated with the most relevant key. When weights are diffuse, <span class="math inline">\(\mathbf{o}_t\)</span> is a soft blend of multiple value vectors.</p>
+<h3 id="output-projection-and-residual-connection">2.4 Output Projection and Residual Connection</h3>
+<p>The attention output <span class="math inline">\(\mathbf{o}_t \in \mathbb{R}^{d_v}\)</span> lives in the value space. To return to the embedding dimension <span class="math inline">\(D\)</span> (required for subsequent layers), a learned <em>output projection</em> <span class="math inline">\(\mathbf{W}_O \in \mathbb{R}^{D \times d_v}\)</span> is applied:</p>
+<p><span class="math display">\[\mathbf{z}_t = \mathbf{W}_O\, \mathbf{o}_t \in \mathbb{R}^D\]</span></p>
+<p>A <em>residual connection</em> then adds the original embedding back to the projected attention output:</p>
+<p><span class="math display">\[\hat{\mathbf{x}}_t = \mathbf{x}_t + \mathbf{z}_t\]</span></p>
+<p>The residual connection serves two purposes: (1) it gives the gradient a direct path from the loss back to earlier layers, alleviating vanishing gradients in deep networks; (2) it allows the attention sublayer to learn a <em>correction</em> or <em>update</em> to the existing representation rather than reconstructing it from scratch.</p>
+<p><em>In practice, layer normalization is applied either before (pre-norm) or after (post-norm) the attention sublayer, but we omit this detail as it does not affect the attention computation itself.</em></p>
+<p><img src="figures/vaswani2017-fig2left-scaled-dot-product-attention.png" alt="Figure 2 (left) from Vaswani et al. (2017): Scaled Dot-Product Attention diagram" />
+<em>Figure 2, left (Vaswani et al., 2017): The scaled dot-product attention computation. Queries Q and Keys K are multiplied (MatMul), scaled by <span class="math inline">\(1/\sqrt{d_k}\)</span>, optionally masked (the causal mask in decoder-only models), passed through Softmax to produce attention weights, then used to weight-sum the Values V via a final MatMul.</em></p>
+<p><img src="figures/vaswani2017-fig1-transformer-architecture.png" alt="Figure 1 from Vaswani et al. (2017): The full Transformer encoder-decoder architecture" />
+<em>Figure 1 (Vaswani et al., 2017): The original Transformer architecture. The left stack is the encoder (bidirectional multi-head attention followed by feed-forward sublayers); the right stack is the decoder (causal masked multi-head attention, cross-attention over encoder outputs, then feed-forward sublayers). Decoder-only language models retain only the right stack with causal masking, discarding the encoder and cross-attention.</em></p>
+<hr />
+<h2 id="matrix-form-of-attention">3. Matrix Form of Attention</h2>
+<p>The per-token description in Section 2 is pedagogically clear but computationally inconvenient. In practice, all tokens in the sequence are processed simultaneously via matrix operations.</p>
+<p><strong>Definition (Matrix Attention).</strong> Stack all queries, keys, and values into matrices:</p>
+<p><span class="math display">\[\mathbf{Q} = \begin{bmatrix} \mathbf{q}_1^\top \\ \vdots \\ \mathbf{q}_T^\top \end{bmatrix} \in \mathbb{R}^{T \times d_k}, \quad \mathbf{K} = \begin{bmatrix} \mathbf{k}_1^\top \\ \vdots \\ \mathbf{k}_T^\top \end{bmatrix} \in \mathbb{R}^{T \times d_k}, \quad \mathbf{V} = \begin{bmatrix} \mathbf{v}_1^\top \\ \vdots \\ \mathbf{v}_T^\top \end{bmatrix} \in \mathbb{R}^{T \times d_v}\]</span></p>
+<p>These are themselves computed from the input matrix <span class="math inline">\(\mathbf{X} = [\mathbf{x}_1, \ldots, \mathbf{x}_T]^\top \in \mathbb{R}^{T \times D}\)</span>:</p>
+<p><span class="math display">\[\mathbf{Q} = \mathbf{X}\mathbf{W}_Q^\top, \quad \mathbf{K} = \mathbf{X}\mathbf{W}_K^\top, \quad \mathbf{V} = \mathbf{X}\mathbf{W}_V^\top\]</span></p>
+<p>The <em>score matrix</em> <span class="math inline">\(\mathbf{S} \in \mathbb{R}^{T \times T}\)</span> collects all pairwise scaled dot products:</p>
+<p><span class="math display">\[\mathbf{S} = \frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\]</span></p>
+<p>where <span class="math inline">\(S_{tj} = \mathbf{q}_t^\top \mathbf{k}_j / \sqrt{d_k}\)</span> as desired.</p>
+<p><strong>Definition (Masked Scaled Dot-Product Attention).</strong> The full causal attention computation in matrix form is:</p>
+<p><span class="math display">\[\text{Attn}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\!\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}} + \mathbf{M}\right)\mathbf{V}\]</span></p>
+<p>where the softmax is applied row-wise, and <span class="math inline">\(\mathbf{M} \in \mathbb{R}^{T \times T}\)</span> is the causal mask with <span class="math inline">\(M_{tj} = 0\)</span> for <span class="math inline">\(j \leq t\)</span> and <span class="math inline">\(M_{tj} = -\infty\)</span> for <span class="math inline">\(j &gt; t\)</span>. In standard matrix notation, <span class="math inline">\(\mathbf{M}\)</span> is the <em>strictly upper-triangular</em> <span class="math inline">\(-\infty\)</span> mask (with zeros on and below the diagonal).</p>
+<p><strong>Remark (Complexity).</strong> The computation <span class="math inline">\(\mathbf{Q}\mathbf{K}^\top\)</span> requires <span class="math inline">\(O(T^2 d_k)\)</span> floating-point operations and produces a <span class="math inline">\(T \times T\)</span> matrix requiring <span class="math inline">\(O(T^2)\)</span> memory. <strong>This quadratic dependence on sequence length is the fundamental bottleneck of softmax attention.</strong> For a sequence of length <span class="math inline">\(T = 128{,}000\)</span> (a common modern context length), the attention matrix alone would require roughly <span class="math inline">\(128{,}000^2 \times 4\,\text{bytes} \approx 62\,\text{GB}\)</span> in float32 — far exceeding typical device memory. Techniques such as FlashAttention (Dao et al., 2022) avoid materializing this matrix explicitly by fusing the softmax and value aggregation into a single pass, but the asymptotic cost remains <span class="math inline">\(O(T^2)\)</span>.</p>
+<hr />
+<h2 id="multi-head-attention">4. Multi-Head Attention</h2>
+<p>A single attention head computes a single weighted combination of value vectors. <em>Multi-head attention</em> runs <span class="math inline">\(H\)</span> attention heads in parallel, each operating in a distinct <span class="math inline">\(d_k\)</span>-dimensional subspace of the embedding.</p>
+<p><strong>Definition (Multi-Head Attention).</strong> Let <span class="math inline">\(H\)</span> be the number of heads. For each head <span class="math inline">\(h \in \{1, \ldots, H\}\)</span>, introduce separate projection matrices:</p>
+<p><span class="math display">\[\mathbf{W}_Q^{(h)} \in \mathbb{R}^{d_k \times D}, \quad \mathbf{W}_K^{(h)} \in \mathbb{R}^{d_k \times D}, \quad \mathbf{W}_V^{(h)} \in \mathbb{R}^{d_v \times D}\]</span></p>
+<p>The <span class="math inline">\(h\)</span>-th head output is:</p>
+<p><span class="math display">\[\text{head}_h = \text{Attn}\!\left(\mathbf{X}\mathbf{W}_Q^{(h)\top},\, \mathbf{X}\mathbf{W}_K^{(h)\top},\, \mathbf{X}\mathbf{W}_V^{(h)\top}\right) \in \mathbb{R}^{T \times d_v}\]</span></p>
+<p>The <span class="math inline">\(H\)</span> head outputs are concatenated along the feature dimension:</p>
+<p><span class="math display">\[\text{MultiHead}(\mathbf{X}) = \left[\text{head}_1 \;\Big|\; \text{head}_2 \;\Big|\; \cdots \;\Big|\; \text{head}_H\right] \mathbf{W}_O\]</span></p>
+<p>where <span class="math inline">\([\cdot | \cdots | \cdot]\)</span> denotes column-wise concatenation producing a <span class="math inline">\(T \times (H d_v)\)</span> matrix, and <span class="math inline">\(\mathbf{W}_O \in \mathbb{R}^{H d_v \times D}\)</span> is the shared output projection that maps back to the embedding dimension <span class="math inline">\(D\)</span>.</p>
+<p><img src="figures/vaswani2017-fig2right-multi-head-attention.png" alt="Figure 2 (right) from Vaswani et al. (2017): Multi-Head Attention diagram" />
+<em>Figure 2, right (Vaswani et al., 2017): Multi-head attention. The inputs Q, K, V are each passed through <span class="math inline">\(h\)</span> separate learned linear projections (the stacked “Linear” boxes), then <span class="math inline">\(h\)</span> scaled dot-product attention computations run in parallel. Their outputs are concatenated and passed through a final linear projection (the “Linear” box at the top) to produce the multi-head output.</em></p>
+<p><strong>Standard dimensionality.</strong> In the original Transformer (Vaswani et al., 2017), <span class="math inline">\(d_k = d_v = D / H\)</span>, so each head projects down to a <span class="math inline">\(D/H\)</span>-dimensional space. The concatenated output has dimension <span class="math inline">\(H \cdot (D/H) = D\)</span>, so <span class="math inline">\(\mathbf{W}_O \in \mathbb{R}^{D \times D}\)</span>. The total parameter count for all projections is:</p>
+<p><span class="math display">\[H \cdot (d_k D + d_k D + d_v D) + D \cdot D = 3D^2 + D^2 = 4D^2\]</span></p>
+<p>which is the same as four <span class="math inline">\(D \times D\)</span> matrices — equal to the parameter count of a single-head attention with <span class="math inline">\(d_k = d_v = D\)</span>. <strong>Multi-head attention achieves representational diversity at no extra parameter cost relative to a single full-rank head.</strong></p>
+<p><strong>Why multiple heads?</strong> Each head learns a different linear projection of queries, keys, and values. The model can simultaneously attend to relationships at different positions and in different feature subspaces — for example, one head may capture syntactic dependencies while another captures semantic similarity. This is a structural inductive bias enabling richer representations, though the specific role of each head is not directly controlled during training.</p>
+<p><strong>Remark (Equivalence to a single large head).</strong> When <span class="math inline">\(H = 1\)</span> and <span class="math inline">\(d_k = d_v = D\)</span>, multi-head attention reduces exactly to single-head attention with <span class="math inline">\(\mathbf{W}_Q, \mathbf{W}_K, \mathbf{W}_V, \mathbf{W}_O \in \mathbb{R}^{D \times D}\)</span>.</p>
+<hr />
+<h2 id="kv-caching">5. KV Caching</h2>
+<h3 id="motivation-avoiding-redundant-computation-during-decoding">5.1 Motivation: Avoiding Redundant Computation During Decoding</h3>
+<p>Autoregressive generation proceeds token by token. At decode step <span class="math inline">\(t\)</span>, the model has already generated tokens <span class="math inline">\(1, \ldots, t-1\)</span> and must produce token <span class="math inline">\(t\)</span>. The attention computation at step <span class="math inline">\(t\)</span> requires the queries, keys, and values for all tokens <span class="math inline">\(1, \ldots, t\)</span>.</p>
+<p><strong>Without caching</strong>, one would recompute <span class="math inline">\(\mathbf{k}_j = \mathbf{W}_K \mathbf{x}_j\)</span> and <span class="math inline">\(\mathbf{v}_j = \mathbf{W}_V \mathbf{x}_j\)</span> for every past token <span class="math inline">\(j &lt; t\)</span> at every decode step. This is pure waste: the embeddings <span class="math inline">\(\mathbf{x}_j\)</span> for <span class="math inline">\(j &lt; t\)</span> are fixed (they were generated in prior steps), so their keys and values are also fixed.</p>
+<p><strong>With caching</strong>, define the <em>KV cache</em> for a layer as:</p>
+<p><span class="math display">\[\mathcal{C}_t = \bigl\{(\mathbf{k}_1, \mathbf{v}_1), \ldots, (\mathbf{k}_{t-1}, \mathbf{v}_{t-1})\bigr\}\]</span></p>
+<p>At step <span class="math inline">\(t\)</span>:
+1. Compute only <span class="math inline">\(\mathbf{q}_t\)</span>, <span class="math inline">\(\mathbf{k}_t\)</span>, <span class="math inline">\(\mathbf{v}_t\)</span> for the new token.
+2. Append <span class="math inline">\((\mathbf{k}_t, \mathbf{v}_t)\)</span> to the cache: <span class="math inline">\(\mathcal{C}_{t+1} = \mathcal{C}_t \cup \{(\mathbf{k}_t, \mathbf{v}_t)\}\)</span>.
+3. Compute the attention output using the cached keys and values: <span class="math inline">\(\mathbf{o}_t = \sum_{j=1}^{t} \alpha_{tj}\, \mathbf{v}_j\)</span>.</p>
+<p><em>The query <span class="math inline">\(\mathbf{q}_t\)</span> must be recomputed at each step because it depends on the new token embedding <span class="math inline">\(\mathbf{x}_t\)</span>, which is only available at step <span class="math inline">\(t\)</span>. Keys and values for prior tokens are reused without recomputation.</em></p>
+<p><strong>Prefill vs. decode.</strong> In practice, generation divides into two phases:</p>
+<ul>
+<li><em>Prefill</em>: The full prompt of <span class="math inline">\(T_0\)</span> tokens is processed in a single parallel forward pass (using the matrix form of Section 3). The resulting keys and values for all <span class="math inline">\(T_0\)</span> tokens are written into the cache.</li>
+<li><em>Decode</em>: Each subsequent token is generated one at a time, reading from and extending the cache.</li>
+</ul>
+<h3 id="memory-growth-with-sequence-length">5.2 Memory Growth with Sequence Length</h3>
+<p><strong>Definition (KV Cache Memory).</strong> For a transformer with <span class="math inline">\(L\)</span> layers, <span class="math inline">\(H\)</span> heads per layer, head dimension <span class="math inline">\(d_k = d_v = d\)</span>, and a sequence of length <span class="math inline">\(T\)</span> tokens, the KV cache requires:</p>
+<p><span class="math display">\[\text{Memory}_{\text{KV}} = 2 \times L \times H \times T \times d \text{ elements}\]</span></p>
+<p>(the factor of <span class="math inline">\(2\)</span> accounts for storing both keys and values). Since <span class="math inline">\(H \times d = D\)</span> (the model embedding dimension), this simplifies to:</p>
+<p><span class="math display">\[\text{Memory}_{\text{KV}} = 2 L T D \text{ elements}\]</span></p>
+<p>In float16 (2 bytes per element), this is <span class="math inline">\(4 L T D\)</span> bytes. <strong>The KV cache memory grows linearly with sequence length <span class="math inline">\(T\)</span>.</strong> For a model with <span class="math inline">\(L = 80\)</span> layers, <span class="math inline">\(D = 8192\)</span> (e.g., a 70B-parameter model), and <span class="math inline">\(T = 128{,}000\)</span>:</p>
+<p><span class="math display">\[\text{Memory}_{\text{KV}} = 4 \times 80 \times 128{,}000 \times 8192 \approx 336\,\text{GB}\]</span></p>
+<p>This is often larger than the model weights themselves, making KV cache memory a primary bottleneck in long-context LLM serving.</p>
+<p><strong>Compute cost per decode step.</strong> At decode step <span class="math inline">\(t\)</span>, computing <span class="math inline">\(\mathbf{q}_t^\top \mathbf{k}_j\)</span> for all <span class="math inline">\(j \leq t\)</span> requires <span class="math inline">\(O(t \cdot d)\)</span> multiply-adds. Over <span class="math inline">\(T - T_0\)</span> decode steps, the total compute for attention is <span class="math inline">\(O((T - T_0)^2 d)\)</span> — still quadratic in the total generated length, but avoiding the redundant key/value recomputation that would add a factor of <span class="math inline">\((T - T_0)\)</span>.</p>
+<h3 id="variants-gqa-mla-and-sparse-attention">5.3 Variants: GQA, MLA, and Sparse Attention</h3>
+<p>The linear memory cost of the KV cache (and the large absolute magnitudes for long contexts) has motivated several architectural variants that reduce the cache footprint.</p>
+<p><strong>Multi-Query Attention (MQA).</strong> Proposed by Shazeer (2019), MQA uses a single shared key/value head across all query heads. Each head has its own <span class="math inline">\(\mathbf{W}_Q^{(h)}\)</span> but all <span class="math inline">\(H\)</span> heads share a single <span class="math inline">\(\mathbf{W}_K\)</span> and <span class="math inline">\(\mathbf{W}_V\)</span>. This reduces the KV cache by a factor of <span class="math inline">\(H\)</span>.</p>
+<p><strong>Grouped-Query Attention (GQA).</strong> Ainslie et al. (2023) generalize MQA by grouping the <span class="math inline">\(H\)</span> query heads into <span class="math inline">\(G\)</span> groups (<span class="math inline">\(1 \leq G \leq H\)</span>), where each group shares one key/value head. MHA corresponds to <span class="math inline">\(G = H\)</span> (each query head has its own KV head) and MQA corresponds to <span class="math inline">\(G = 1\)</span>. <strong>GQA achieves quality close to MHA with inference speed approaching MQA</strong>, offering a practical interpolation between the two extremes.</p>
+<p><strong>Multi-Head Latent Attention (MLA).</strong> Introduced in DeepSeek-V2 (2024), MLA compresses the KV cache by projecting keys and values into a low-dimensional <em>latent space</em> before caching. Specifically, a compressed representation <span class="math inline">\(\mathbf{c}_t \in \mathbb{R}^{d_c}\)</span> with <span class="math inline">\(d_c \ll H d\)</span> is cached, from which full-rank keys and values are reconstructed via learned up-projections at inference time. This reduces the per-token cache footprint from <span class="math inline">\(2Hd\)</span> to <span class="math inline">\(d_c\)</span> elements.</p>
+<p><strong>Sparse Attention.</strong> Rather than attending to all <span class="math inline">\(t\)</span> preceding tokens, sparse attention patterns restrict each query to a subset of keys. Representative schemes include:
+- <em>Local (sliding-window) attention</em>: token <span class="math inline">\(t\)</span> attends only to tokens <span class="math inline">\([t - w, t]\)</span> for window size <span class="math inline">\(w\)</span>, achieving <span class="math inline">\(O(Tw)\)</span> memory.
+- <em>Global + local attention</em> (Longformer, Beltagy et al., 2020): a small number of designated global tokens attend to the full sequence, while all others use local windows.
+- <em>Random + local + global attention</em> (BigBird, Zaheer et al., 2020): adds random attention edges to the local + global pattern, proven to be a universal sequence function approximator.</p>
+<p><em>Sparse patterns preserve the core softmax attention computation but are architecturally constrained — they must be designed or learned carefully to avoid dropping critical long-range dependencies.</em></p>
+<p>For full mathematical derivations of MQA, GQA (including the low-rank factorization interpretation), MLA (including the matrix absorption trick and decoupled RoPE), and DeepSeek Sparse Attention, see the companion note <a href="../../../../notes/attention-efficiency%7Cattention-efficiency.md/">attention-efficiency|attention-efficiency.md</a>.</p>
+<hr />
+<h2 id="memory-efficient-exact-attention">6. Memory-Efficient Exact Attention</h2>
+<p>The matrix attention formulation in Section 3 has a fundamental memory problem: computing <span class="math inline">\(\mathbf{S} = \mathbf{Q}\mathbf{K}^\top / \sqrt{d_k}\)</span> requires materializing a <span class="math inline">\(T \times T\)</span> matrix that costs <span class="math inline">\(O(T^2)\)</span> memory. For <span class="math inline">\(T = 16{,}384\)</span> in float32, this is over 4 GB — a hard barrier for long sequences. Rabe and Staats (2021) ask: <em>is the <span class="math inline">\(O(T^2)\)</span> memory cost inherent, or is it an artifact of the naive implementation?</em></p>
+<p>The answer is the latter. The attention output <span class="math inline">\(\mathbf{o}_t\)</span> for a single query <span class="math inline">\(\mathbf{q}_t\)</span> is:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\displaystyle\sum_{j=1}^{t} \mathbf{v}_j \exp\!\left(\mathbf{q}_t^\top \mathbf{k}_j / \sqrt{d_k}\right)}{\displaystyle\sum_{j=1}^{t} \exp\!\left(\mathbf{q}_t^\top \mathbf{k}_j / \sqrt{d_k}\right)}\]</span></p>
+<p>This is a ratio of two quantities that can each be computed by <em>streaming over the key-value pairs</em>, with only <span class="math inline">\(O(1)\)</span> state maintained. The <span class="math inline">\(T \times T\)</span> score matrix is never necessary; it is an artifact of computing all queries simultaneously.</p>
+<h3 id="the-core-observation-deferred-normalization">6.1 The Core Observation: Deferred Normalization</h3>
+<p>Write <span class="math inline">\(s_j = \mathbf{q}_t^\top \mathbf{k}_j / \sqrt{d_k}\)</span> for brevity. The attention output is:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\displaystyle\sum_{j=1}^{t} \mathbf{v}_j e^{s_j}}{\displaystyle\sum_{j=1}^{t} e^{s_j}} = \frac{\mathbf{V}^*}{S^*}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{V}^* = \sum_j \mathbf{v}_j e^{s_j} \in \mathbb{R}^{d_v}\)</span> is a weighted value accumulator and <span class="math inline">\(S^* = \sum_j e^{s_j} \in \mathbb{R}\)</span> is the partition function. Both can be computed with a sequential update:</p>
+<p><span class="math display">\[\mathbf{V}^* \leftarrow \mathbf{V}^* + \mathbf{v}_j e^{s_j}, \qquad S^* \leftarrow S^* + e^{s_j}\]</span></p>
+<p>At each step, only the current <span class="math inline">\((\mathbf{k}_j, \mathbf{v}_j)\)</span> pair and the running accumulators <span class="math inline">\((\mathbf{V}^*, S^*)\)</span> must reside in memory — the previous <span class="math inline">\(j-1\)</span> key-value pairs can be discarded. <strong>A single query’s attention output therefore requires <span class="math inline">\(O(1)\)</span> memory with respect to sequence length.</strong> Iterating over all <span class="math inline">\(T\)</span> queries adds a position counter requiring <span class="math inline">\(O(\log T)\)</span> bits, giving <span class="math inline">\(O(\log T)\)</span> memory for the full self-attention computation.</p>
+<h3 id="numerical-stability-via-online-softmax">6.2 Numerical Stability via Online Softmax</h3>
+<p>The update above is numerically unstable: <span class="math inline">\(e^{s_j}\)</span> overflows in float32 when <span class="math inline">\(s_j \gtrsim 88\)</span>. Standard softmax avoids this by subtracting the global maximum <span class="math inline">\(m = \max_j s_j\)</span> before exponentiating. In a streaming setting the global maximum is not known in advance.</p>
+<p><strong>Definition (Online Softmax Accumulation).</strong> Maintain a third accumulator <span class="math inline">\(m^* \in \mathbb{R}\)</span> for the running maximum. Initialize <span class="math inline">\(m^* = -\infty\)</span>, <span class="math inline">\(\mathbf{V}^* = \mathbf{0}\)</span>, <span class="math inline">\(S^* = 0\)</span>. For each <span class="math inline">\((s_j, \mathbf{v}_j)\)</span>:</p>
+<ol type="1">
+<li>Compute new maximum: <span class="math inline">\(m_j = \max(m^*, s_j)\)</span>.</li>
+<li>Rescale existing accumulators: <span class="math inline">\(\mathbf{V}^* \leftarrow \mathbf{V}^* \cdot e^{m^* - m_j}\)</span>, <span class="math inline">\(S^* \leftarrow S^* \cdot e^{m^* - m_j}\)</span>.</li>
+<li>Incorporate new term: <span class="math inline">\(\mathbf{V}^* \leftarrow \mathbf{V}^* + \mathbf{v}_j \cdot e^{s_j - m_j}\)</span>, <span class="math inline">\(S^* \leftarrow S^* + e^{s_j - m_j}\)</span>.</li>
+<li>Update maximum: <span class="math inline">\(m^* \leftarrow m_j\)</span>.</li>
+</ol>
+<p><strong>Correctness.</strong> At each step, the invariant is:</p>
+<p><span class="math display">\[\mathbf{V}^* = \sum_{j' \leq j} \mathbf{v}_{j'} e^{s_{j'} - m^*}, \qquad S^* = \sum_{j' \leq j} e^{s_{j'} - m^*}\]</span></p>
+<p>After all <span class="math inline">\(T\)</span> steps, <span class="math inline">\(m^*\)</span> equals the global maximum <span class="math inline">\(m = \max_j s_j\)</span> and the final output is:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\mathbf{V}^*}{S^*} = \frac{\displaystyle\sum_j \mathbf{v}_j e^{s_j - m}}{\displaystyle\sum_j e^{s_j - m}}\]</span></p>
+<p>which is the numerically stable softmax exactly. Each rescaling step requires one scalar multiply applied to an <span class="math inline">\(\mathbb{R}^{d_v}\)</span> vector — <span class="math inline">\(O(d_v)\)</span> work and no additional memory beyond the <span class="math inline">\(O(d_v)\)</span> accumulator.</p>
+<p><em>This online softmax accumulation is the mathematical heart of memory-efficient exact attention. Every subsequent algorithm in this family — including FlashAttention — is a variant of this update.</em></p>
+<h3 id="tiling-for-practical-osqrt-n-memory">6.3 Tiling for Practical O(sqrt n) Memory</h3>
+<p>The <span class="math inline">\(O(1)\)</span> algorithm processes key-value pairs one at a time. On modern accelerators (TPUs, GPUs), scalar sequential processing is inefficient — hardware throughput comes from batched tensor operations. Rabe and Staats bridge the theory–practice gap with a <em>tiled</em> implementation.</p>
+<p><strong>Definition (Tiled Attention).</strong> Partition the sequence into <em>blocks</em> of size <span class="math inline">\(B\)</span>. For a query block <span class="math inline">\(Q_b \in \mathbb{R}^{B \times d_k}\)</span> and key-value block <span class="math inline">\((K_c, V_c) \in \mathbb{R}^{B \times d_k} \times \mathbb{R}^{B \times d_v}\)</span>, define the <em>partial summary</em>:</p>
+<p><span class="math display">\[\text{summary}(Q_b, K_c, V_c) = \left(\mathbf{V}^*_{b,c},\, S^*_{b,c},\, m^*_{b,c}\right)\]</span></p>
+<p>where for each query row <span class="math inline">\(\mathbf{q} \in Q_b\)</span>:</p>
+<p><span class="math display">\[m^*_{b,c}(\mathbf{q}) = \max_{j \in c} \mathbf{q}^\top \mathbf{k}_j / \sqrt{d_k}, \quad S^*_{b,c}(\mathbf{q}) = \sum_{j \in c} e^{s_j - m^*_{b,c}}, \quad \mathbf{V}^*_{b,c}(\mathbf{q}) = \sum_{j \in c} \mathbf{v}_j e^{s_j - m^*_{b,c}}\]</span></p>
+<p>These summaries are computed in parallel (one <span class="math inline">\(B \times B\)</span> matrix multiply per KV block). The outer loop then <em>combines</em> summaries across all KV blocks, applying a global rescaling analogous to the online softmax update:</p>
+<p><span class="math display">\[m^* \leftarrow \max(m^*_{\text{prev}},\, m^*_{b,c}), \quad S^* \leftarrow S^*_{\text{prev}} \cdot e^{m^*_{\text{prev}} - m^*} + S^*_{b,c} \cdot e^{m^*_{b,c} - m^*}, \quad \mathbf{V}^* \leftarrow \mathbf{V}^*_{\text{prev}} \cdot e^{m^*_{\text{prev}} - m^*} + \mathbf{V}^*_{b,c} \cdot e^{m^*_{b,c} - m^*}\]</span></p>
+<p><strong>Complexity.</strong> With block size <span class="math inline">\(B = \sqrt{T}\)</span>:
+- Each partial summary costs <span class="math inline">\(O(B^2 d_k) = O(T d_k)\)</span> work and <span class="math inline">\(O(B^2) = O(T)\)</span> scratch space — but summaries are computed and discarded sequentially.
+- At any point, only one query block (<span class="math inline">\(O(B d_k)\)</span> memory), one KV block (<span class="math inline">\(O(B(d_k + d_v))\)</span> memory), and the running accumulator (<span class="math inline">\(O(B d_v)\)</span> memory) must coexist.
+- Total peak memory: <span class="math inline">\(O(B(d_k + d_v)) = O(\sqrt{T} \cdot d)\)</span>.</p>
+<p><strong>For <span class="math inline">\(T = 16{,}384\)</span> and <span class="math inline">\(d = 128\)</span>:</strong> standard attention stores <span class="math inline">\(T^2 = 268\text{M}\)</span> floats. The tiled algorithm peaks at <span class="math inline">\(\sqrt{T} \cdot d \approx 128 \times 128 = 16\text{K}\)</span> floats per query block — a reduction of roughly <span class="math inline">\(16{,}000\times\)</span> in the attention matrix footprint. In practice, batching and the KV block adds a constant factor; Rabe and Staats report a <strong>59× memory reduction at <span class="math inline">\(T = 16{,}384\)</span> for inference</strong>.</p>
+<h3 id="backpropagation-via-recomputation">6.4 Backpropagation via Recomputation</h3>
+<p>Computing the attention output is memory-efficient, but training requires gradients. Naive backpropagation through the forward pass would require storing all intermediate partial summaries <span class="math inline">\((\mathbf{V}^*_{b,c}, S^*_{b,c}, m^*_{b,c})\)</span> — one per (query block, KV block) pair — which costs <span class="math inline">\(O(T/B \times T/B \times B) = O(T^2 / B)\)</span> memory, exactly the same as standard attention when <span class="math inline">\(B = O(1)\)</span>.</p>
+<p>Rabe and Staats resolve this by <em>recomputing</em> partial summaries during the backward pass rather than storing them. The summary function is a simple deterministic computation over the query and KV blocks, so recomputation is cheap:</p>
+<ul>
+<li><strong>Forward pass:</strong> compute and <em>discard</em> all summaries after combining them into the running accumulator. Store only the final output <span class="math inline">\(\mathbf{o}_t\)</span> and the combined state <span class="math inline">\((S^*_{\text{final}}, m^*_{\text{final}})\)</span> for each query.</li>
+<li><strong>Backward pass:</strong> for each query-KV block pair, <em>recompute</em> the partial summary from stored <span class="math inline">\(Q_b\)</span> and <span class="math inline">\(K_c, V_c\)</span>, then compute the gradient contribution.</li>
+</ul>
+<p>The stored quantities are <span class="math inline">\(O(T d_v)\)</span> (the outputs <span class="math inline">\(\mathbf{o}_t\)</span>) and <span class="math inline">\(O(T)\)</span> (the scalars <span class="math inline">\(S^*, m^*\)</span>), which is linear rather than quadratic.</p>
+<p><strong>Cost.</strong> Recomputation doubles the number of forward-pass FLOPs for the attention blocks. Rabe and Staats report approximately <strong>30–35% total training slowdown</strong> relative to the naive materialize-and-store approach, with a <strong>32× memory reduction at <span class="math inline">\(T = 16{,}384\)</span></strong>.</p>
+<p><em>This gradient-checkpointing strategy is exact (no approximation) and the tradeoff is purely compute vs. memory. In a regime where GPU memory is the binding constraint — which is typical for long-sequence training — the 30% extra compute is well worth it.</em></p>
+<h3 id="relation-to-flashattention">6.5 Relation to FlashAttention</h3>
+<p>Rabe and Staats (December 2021) establish the theoretical and algorithmic foundation. FlashAttention (Dao et al., May 2022) takes the same online softmax insight and augments it with <em>IO-awareness</em>:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Rabe &amp; Staats (2021)</th>
+<th>FlashAttention (2022)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Primary target</td>
+<td>Minimize HBM resident memory</td>
+<td>Minimize HBM read/write bandwidth</td>
+</tr>
+<tr class="even">
+<td>Tile size</td>
+<td><span class="math inline">\(B = \sqrt{T}\)</span> (memory-optimal)</td>
+<td>$B = $ SRAM capacity (throughput-optimal)</td>
+</tr>
+<tr class="odd">
+<td>Backward pass</td>
+<td>Generic JAX checkpointing</td>
+<td>Custom CUDA kernel with stored softmax statistics</td>
+</tr>
+<tr class="even">
+<td>Implementation</td>
+<td>JAX, TPU-oriented</td>
+<td>CUDA, GPU-first</td>
+</tr>
+<tr class="odd">
+<td>Speedup</td>
+<td>Slowdown of ~30% vs. naive</td>
+<td>Speedup of 2–4× vs. naive (bandwidth savings dominate)</td>
+</tr>
+</tbody>
+</table>
+<p>FlashAttention observes that modern GPUs have fast on-chip SRAM (shared memory) that is orders of magnitude faster to access than HBM (device DRAM). If tiles are sized to fit in SRAM, each tile is loaded from HBM exactly once rather than <span class="math inline">\(O(T/B)\)</span> times. This converts <span class="math inline">\(O(T^2)\)</span> HBM accesses to <span class="math inline">\(O(T^2 / \text{SRAM})\)</span> — a large constant-factor improvement that translates to 2–4× end-to-end speedup. <strong>The mathematical content is Rabe &amp; Staats; the systems innovation is Dao et al.</strong></p>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Vaswani et al. (2017), “Attention Is All You Need”</td>
+<td>Introduces the Transformer architecture: scaled dot-product attention, multi-head attention, positional encodings, and the encoder-decoder structure</td>
+<td><a href="https://arxiv.org/abs/1706.03762">arxiv.org/abs/1706.03762</a></td>
+</tr>
+<tr class="even">
+<td>Shazeer (2019), “Fast Transformer Decoding: One Write-Head is All You Need”</td>
+<td>Introduces multi-query attention (MQA) with a single shared KV head, reducing inference memory cost by a factor of <span class="math inline">\(H\)</span></td>
+<td><a href="https://arxiv.org/abs/1911.02150">arxiv.org/abs/1911.02150</a></td>
+</tr>
+<tr class="odd">
+<td>Ainslie et al. (2023), “GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints”</td>
+<td>Proposes grouped-query attention (GQA) as an interpolation between MHA and MQA; shows uptrained GQA matches MHA quality at near-MQA speed</td>
+<td><a href="https://arxiv.org/abs/2305.13245">arxiv.org/abs/2305.13245</a></td>
+</tr>
+<tr class="even">
+<td>DeepSeek-AI (2024), “DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model”</td>
+<td>Introduces multi-head latent attention (MLA), compressing the KV cache via a low-dimensional latent projection</td>
+<td><a href="https://arxiv.org/abs/2405.04434">arxiv.org/abs/2405.04434</a></td>
+</tr>
+<tr class="odd">
+<td>Rabe and Staats (2021), “Self-attention Does Not Need O(n²) Memory”</td>
+<td>Proves that exact self-attention requires only O(log n) memory via online softmax streaming; presents a practical O(√n) tiled implementation with gradient recomputation</td>
+<td><a href="https://arxiv.org/abs/2112.05682">arxiv.org/abs/2112.05682</a></td>
+</tr>
+<tr class="even">
+<td>Dao et al. (2022), “FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness”</td>
+<td>IO-aware algorithm for computing exact softmax attention without materializing the full <span class="math inline">\(T \times T\)</span> score matrix, using tiled SRAM-resident computation</td>
+<td><a href="https://arxiv.org/abs/2205.14135">arxiv.org/abs/2205.14135</a></td>
+</tr>
+<tr class="odd">
+<td>Beltagy et al. (2020), “Longformer: The Long-Document Transformer”</td>
+<td>Introduces sliding-window local attention combined with task-specific global tokens, achieving <span class="math inline">\(O(T)\)</span> attention complexity</td>
+<td><a href="https://arxiv.org/abs/2004.05150">arxiv.org/abs/2004.05150</a></td>
+</tr>
+<tr class="even">
+<td>Zaheer et al. (2020), “Big Bird: Transformers for Longer Sequences”</td>
+<td>Extends Longformer with random attention edges; proves the sparse pattern is a universal approximator and Turing complete</td>
+<td><a href="https://arxiv.org/abs/2007.14062">arxiv.org/abs/2007.14062</a></td>
+</tr>
+<tr class="odd">
+<td>Tay et al. (2022), “Efficient Transformers: A Survey”</td>
+<td>ACM Computing Surveys overview of the X-former landscape (Reformer, Linformer, Performer, Longformer, etc.), organized by approximation strategy; useful map of the design space between full and linear attention</td>
+<td><a href="https://arxiv.org/abs/2009.06732">arxiv.org/abs/2009.06732</a></td>
+</tr>
+<tr class="even">
+<td>Hewitt (2023), “CS224N Note 10: Self-Attention and Transformers”</td>
+<td>Graduate-level Stanford lecture notes with a clean self-contained derivation of scaled dot-product attention, multi-head attention, and positional encodings</td>
+<td><a href="https://web.stanford.edu/class/cs224n/readings/cs224n-self-attention-transformers-2023_draft.pdf">web.stanford.edu/class/cs224n/readings/cs224n-self-attention-transformers-2023_draft.pdf</a></td>
+</tr>
+<tr class="odd">
+<td>Umar Jamil, “Attention Mechanisms” (YouTube, 2024)</td>
+<td>Video walkthrough of standard and linear attention mechanisms, covering Q/K/V projections, KV caching, and the recurrent reformulation</td>
+<td><a href="https://youtu.be/pUCWwGR5WmQ">youtu.be/pUCWwGR5WmQ</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

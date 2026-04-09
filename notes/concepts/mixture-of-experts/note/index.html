@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>note - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>note</h1>
+            <article>
+    <section>
+        <p>A sparse conditional computation architecture that routes each input to a learned subset of specialist sub-networks, enabling massive parameter counts at sub-linear inference cost.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-motivation-and-background%7Cmotivation-and-background/">#1. Motivation and Background|Motivation and Background</a>
+<ul>
+<li><a href="../../../../notes/#the-parameter-efficiency-argument%7Cthe-parameter-efficiency-argument/">#The Parameter-Efficiency Argument|The Parameter-Efficiency Argument</a></li>
+<li><a href="../../../../notes/#conditional-computation-as-a-principle%7Cconditional-computation-as-a-principle/">#Conditional Computation as a Principle|Conditional Computation as a Principle</a></li>
+<li><a href="../../../../notes/#historical-lineage%7Chistorical-lineage/">#Historical Lineage|Historical Lineage</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-the-moe-layer:-formal-definition%7Cthe-moe-layer:-formal-definition/">#2. The MoE Layer: Formal Definition|The MoE Layer: Formal Definition</a>
+<ul>
+<li><a href="../../../../notes/#notation%7Cnotation/">#Notation|Notation</a></li>
+<li><a href="../../../../notes/#soft-gating%7Csoft-gating/">#Soft Gating|Soft Gating</a></li>
+<li><a href="../../../../notes/#hard-top-k-gating%7Chard-top-k-gating/">#Hard Top-k Gating|Hard Top-k Gating</a></li>
+<li><a href="../../../../notes/#relation-to-ensemble-methods%7Crelation-to-ensemble-methods/">#Relation to Ensemble Methods|Relation to Ensemble Methods</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-sparsely-gated-moe:-shazeer-2017%7Csparsely-gated-moe:-shazeer-2017/">#3. Sparsely-Gated MoE: Shazeer 2017|Sparsely-Gated MoE: Shazeer 2017</a>
+<ul>
+<li><a href="../../../../notes/#noisy-top-k-gating%7Cnoisy-top-k-gating/">#Noisy Top-k Gating|Noisy Top-k Gating</a></li>
+<li><a href="../../../../notes/#the-load-imbalance-problem%7Cthe-load-imbalance-problem/">#The Load Imbalance Problem|The Load Imbalance Problem</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-load-balancing%7Cload-balancing/">#4. Load Balancing|Load Balancing</a>
+<ul>
+<li><a href="../../../../notes/#importance-loss%7Cimportance-loss/">#Importance Loss|Importance Loss</a></li>
+<li><a href="../../../../notes/#load-loss%7Cload-loss/">#Load Loss|Load Loss</a></li>
+<li><a href="../../../../notes/#capacity-factor-and-token-dropping%7Ccapacity-factor-and-token-dropping/">#Capacity Factor and Token Dropping|Capacity Factor and Token Dropping</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-switch-transformer:-fedus-2021%7Cswitch-transformer:-fedus-2021/">#5. Switch Transformer: Fedus 2021|Switch Transformer: Fedus 2021</a>
+<ul>
+<li><a href="../../../../notes/#top-1-routing%7Ctop-1-routing/">#Top-1 Routing|Top-1 Routing</a></li>
+<li><a href="../../../../notes/#simplified-auxiliary-loss%7Csimplified-auxiliary-loss/">#Simplified Auxiliary Loss|Simplified Auxiliary Loss</a></li>
+<li><a href="../../../../notes/#scaling-behavior%7Cscaling-behavior/">#Scaling Behavior|Scaling Behavior</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-expert-choice-routing%7Cexpert-choice-routing/">#6. Expert-Choice Routing|Expert-Choice Routing</a>
+<ul>
+<li><a href="../../../../notes/#inverting-the-routing-decision%7Cinverting-the-routing-decision/">#Inverting the Routing Decision|Inverting the Routing Decision</a></li>
+<li><a href="../../../../notes/#formal-specification%7Cformal-specification/">#Formal Specification|Formal Specification</a></li>
+<li><a href="../../../../notes/#guaranteed-load-balance%7Cguaranteed-load-balance/">#Guaranteed Load Balance|Guaranteed Load Balance</a></li>
+<li><a href="../../../../notes/#connection-to-bipartite-matching%7Cconnection-to-bipartite-matching/">#Connection to Bipartite Matching|Connection to Bipartite Matching</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-mixtral-and-modern-dense-sparse-tradeoffs%7Cmixtral-and-modern-dense-sparse-tradeoffs/">#7. Mixtral and Modern Dense-Sparse Tradeoffs|Mixtral and Modern Dense-Sparse Tradeoffs</a>
+<ul>
+<li><a href="../../../../notes/#mixtral-8x7b-architecture%7Cmixtral-8x7b-architecture/">#Mixtral 8x7B Architecture|Mixtral 8x7B Architecture</a></li>
+<li><a href="../../../../notes/#flop-matched-comparisons%7Cflop-matched-comparisons/">#FLOP-Matched Comparisons|FLOP-Matched Comparisons</a></li>
+<li><a href="../../../../notes/#scaling-laws-for-moe%7Cscaling-laws-for-moe/">#Scaling Laws for MoE|Scaling Laws for MoE</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-training-dynamics-and-collapse%7Ctraining-dynamics-and-collapse/">#8. Training Dynamics and Collapse|Training Dynamics and Collapse</a>
+<ul>
+<li><a href="../../../../notes/#expert-collapse%7Cexpert-collapse/">#Expert Collapse|Expert Collapse</a></li>
+<li><a href="../../../../notes/#router-z-loss%7Crouter-z-loss/">#Router Z-Loss|Router Z-Loss</a></li>
+<li><a href="../../../../notes/#entropy-regularization%7Centropy-regularization/">#Entropy Regularization|Entropy Regularization</a></li>
+<li><a href="../../../../notes/#initialization%7Cinitialization/">#Initialization|Initialization</a></li>
+</ul></li>
+<li><a href="../../../../notes/#9.-multi-task-learning-with-mmoe%7Cmulti-task-learning-with-mmoe/">#9. Multi-Task Learning with MMoE|Multi-Task Learning with MMoE</a>
+<ul>
+<li><a href="../../../../notes/#multi-task-problem-setup%7Cmulti-task-problem-setup/">#Multi-Task Problem Setup|Multi-Task Problem Setup</a></li>
+<li><a href="../../../../notes/#architecture-family%7Carchitecture-family/">#Architecture Family|Architecture Family</a></li>
+<li><a href="../../../../notes/#the-mmoe-layer%7Cthe-mmoe-layer/">#The MMoE Layer|The MMoE Layer</a></li>
+<li><a href="../../../../notes/#task-relationship-modulation%7Ctask-relationship-modulation/">#Task-Relationship Modulation|Task-Relationship Modulation</a></li>
+<li><a href="../../../../notes/#gradient-flow-and-trainability%7Cgradient-flow-and-trainability/">#Gradient Flow and Trainability|Gradient Flow and Trainability</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ol>
+<hr />
+<h2 id="motivation-and-background">1. Motivation and Background</h2>
+<h3 id="the-parameter-efficiency-argument">The Parameter-Efficiency Argument</h3>
+<p>The fundamental tension in deep learning is this: more parameters yield better model quality, but more parameters require more compute per forward pass. For dense networks, these two quantities are coupled — doubling parameter count roughly doubles both memory footprint and floating-point operations. <em>Mixture of Experts</em> breaks this coupling by making parameter activation conditional on the input.</p>
+<p>Concretely, suppose a dense feed-forward network has <span class="math inline">\(P\)</span> parameters and costs <span class="math inline">\(F\)</span> FLOPs per token. A Mixture-of-Experts model might have <span class="math inline">\(n \cdot P\)</span> total parameters — one full set per expert — but activate only <span class="math inline">\(k\)</span> experts per token, incurring only <span class="math inline">\(k \cdot F\)</span> FLOPs. For <span class="math inline">\(k \ll n\)</span>, the model stores <span class="math inline">\(n\)</span> times more knowledge but computes at a fraction of the cost of a dense model with the same parameter count.</p>
+<p><strong>This is the parameter-efficiency argument: for a fixed inference compute budget, MoE models can achieve better quality than dense models because they can access vastly more parameters without paying the full FLOP cost.</strong></p>
+<p><img src="figures/grootendorst2024-moe-layer-architecture.png" alt="MoE layer architecture: input token passes through router, which dispatches to one of several expert FFNs, outputs are combined" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. The MoE layer embedded inside a Transformer block: a router examines each input token and dispatches it to a selected subset of expert FFNs; only those experts perform computation, and their outputs are aggregated to produce the layer’s output.</em></p>
+<p><img src="figures/grootendorst2024-dense-vs-sparse-decoder.png" alt="Dense decoder block vs sparse MoE decoder block: the single FFNN is replaced by multiple expert FFNNs" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. A dense Transformer decoder block (left) uses a single FFNN sublayer; a sparse MoE decoder block (right) replaces it with multiple parallel expert FFNNs, only a subset of which are activated per token.</em></p>
+<h3 id="conditional-computation-as-a-principle">Conditional Computation as a Principle</h3>
+<p>The broader principle underlying MoE is <em>conditional computation</em>: the idea that not every part of a network should be activated for every input. Bengio et al. (2013) articulated this formally as a research agenda: the computational graph of a neural network need not be fully traversed for each example; different inputs should trigger different subgraphs. MoE instantiates this principle at the layer level, where the “subgraph” is a single expert’s feed-forward network.</p>
+<p>The key challenge is that conditional computation introduces a discrete <em>routing</em> decision — which experts to activate — and discrete decisions are not differentiable, breaking standard gradient-based training. The history of MoE is largely the history of working around this non-differentiability.</p>
+<h3 id="historical-lineage">Historical Lineage</h3>
+<p>The origins of MoE lie in classical statistical mixture models. The model-theoretic precedent is a mixture distribution <span class="math inline">\(p(y \mid x) = \sum_i \pi_i(x) \, p_i(y \mid x)\)</span>, where <span class="math inline">\(\pi_i(x)\)</span> are input-dependent mixture weights. Jacobs et al. (1991) instantiated this as a supervised learning system, naming it “Adaptive Mixtures of Local Experts.” In their formulation, a <em>gating network</em> computes weights over a small set of <em>expert</em> networks, each network specializing on a region of the input space.</p>
+<p>This original MoE was soft — all experts are evaluated for every input, and outputs are a weighted sum. The key insight of Shazeer et al. (2017) was to make this hard and sparse: select only the top-<span class="math inline">\(k\)</span> experts by gate weight, set the rest to zero, and scale the system to thousands of experts within an LSTM language model. This required solving the <em>load balancing</em> problem — ensuring that routing does not trivially collapse to always selecting the same expert — which became the central research problem for all subsequent MoE work.</p>
+<p>GShard (Lepikhin et al., 2021) integrated sparse MoE into Transformers and demonstrated scaling to 600B parameters across hundreds of TPU devices. Switch Transformers (Fedus et al., 2021) pushed to top-1 routing and trillion parameters. Expert-Choice routing (Zhou et al., 2022) inverted the selection direction. Mixtral (Jiang et al., 2024) demonstrated that carefully designed sparse MoE LLMs are competitive with or superior to dense models many times their active parameter count.</p>
+<hr />
+<h2 id="the-moe-layer-formal-definition">2. The MoE Layer: Formal Definition</h2>
+<h3 id="notation">Notation</h3>
+<p>Let <span class="math inline">\(E\)</span> denote the number of experts, indexed <span class="math inline">\(i \in \{1, \ldots, E\}\)</span>. Let <span class="math inline">\(k \in \mathbb{Z}_{&gt;0}\)</span> with <span class="math inline">\(k \leq E\)</span> be the number of experts activated per token. Let <span class="math inline">\(x \in \mathbb{R}^d\)</span> be the input token representation. Each expert is a function <span class="math inline">\(f_i : \mathbb{R}^d \to \mathbb{R}^d\)</span> (in practice, a feed-forward network, typically the FFN sublayer of a Transformer block). Let <span class="math inline">\(W_g \in \mathbb{R}^{d \times E}\)</span> be the router weight matrix. We write <span class="math inline">\(z(x) = W_g^\top x \in \mathbb{R}^E\)</span> for the pre-softmax routing logits.</p>
+<h3 id="soft-gating">Soft Gating</h3>
+<p><strong>Definition (Soft MoE Output).</strong> The soft-gated MoE output for input <span class="math inline">\(x\)</span> is:</p>
+<p><span class="math display">\[y = \sum_{i=1}^{E} g_i(x) \cdot f_i(x), \qquad g_i(x) = \operatorname{softmax}(z(x))_i = \frac{\exp(z_i(x))}{\sum_{j=1}^E \exp(z_j(x))}\]</span></p>
+<p>In this formulation, <span class="math inline">\(g_i(x) &gt; 0\)</span> for all <span class="math inline">\(i\)</span>, so every expert is evaluated for every token. The output is a convex combination of all expert outputs, weighted by the softmax gate. This is the original Jacobs et al. (1991) formulation, made differentiable end-to-end. The gating network is trained jointly with the experts via backpropagation.</p>
+<p>The soft formulation is fully differentiable: <span class="math inline">\(\partial y / \partial \theta_{f_i} = g_i(x) \cdot \partial f_i(x) / \partial \theta_{f_i}\)</span> and <span class="math inline">\(\partial y / \partial W_g\)</span> follows from the chain rule through the softmax. However, it provides no computational savings — all <span class="math inline">\(E\)</span> experts must be evaluated.</p>
+<h3 id="hard-top-k-gating">Hard Top-k Gating</h3>
+<p>To obtain computational savings, we restrict to a sparse subset of experts. Introduce the masking operation:</p>
+<p><span class="math display">\[\operatorname{KeepTopK}(v, k)_i = \begin{cases} v_i &amp; \text{if } v_i \text{ is among the top-}k \text{ elements of } v \\ -\infty &amp; \text{otherwise} \end{cases}\]</span></p>
+<p><strong>Definition (Hard Top-k MoE Output).</strong> The sparse top-<span class="math inline">\(k\)</span> gated MoE output is:</p>
+<p><span class="math display">\[y = \sum_{i=1}^{E} g_i(x) \cdot f_i(x), \qquad g(x) = \operatorname{softmax}\!\left(\operatorname{KeepTopK}(z(x), k)\right)\]</span></p>
+<p>Because <span class="math inline">\(\operatorname{softmax}(-\infty) = 0\)</span>, only the <span class="math inline">\(k\)</span> experts with the highest logits receive non-zero gate weights, and the remaining <span class="math inline">\(E - k\)</span> experts are not evaluated. The gate weight for any selected expert <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[g_i(x) = \frac{\exp(z_i(x))}{\sum_{j \in \mathcal{T}(x)} \exp(z_j(x))}, \quad \mathcal{T}(x) = \{i : z_i(x) \text{ is a top-}k \text{ logit}\}\]</span></p>
+<p>This concentrates the gate mass onto a selected subset, while the experts in <span class="math inline">\(\mathcal{T}(x)\)</span> form a proper probability simplex.</p>
+<p>The top-<span class="math inline">\(k\)</span> selection is not differentiable: the set <span class="math inline">\(\mathcal{T}(x)\)</span> is a discrete function of <span class="math inline">\(z(x)\)</span>, so gradients cannot flow through the selection boundary. In practice, training works by treating the selected set as given (stop-gradient on the selection) and backpropagating through the softmax weights and through the selected experts’ outputs. <em>This is a valid but heuristic approximation to the true gradient.</em></p>
+<p><img src="figures/grootendorst2024-hard-topk-gating-flow.png" alt="Hard top-k gating flow: input X through router weight matrix W produces logits H(x), KeepTopK masks non-selected experts to -inf, Softmax produces sparse gate G(x), selected expert output E(x) is scaled by gate weight to produce output y" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. The hard top-k gating computation: input <span class="math inline">\(x\)</span> is projected through the router weight matrix <span class="math inline">\(W\)</span> to produce logits <span class="math inline">\(H(x)\)</span>; KeepTopK sets all but the top-<span class="math inline">\(k\)</span> entries to <span class="math inline">\(-\infty\)</span>; Softmax over the surviving logits yields the sparse gate <span class="math inline">\(G(x)\)</span>; only the selected expert’s output <span class="math inline">\(E(x)\)</span> is computed and scaled by the gate weight to produce the final output <span class="math inline">\(y\)</span>.</em></p>
+<h3 id="relation-to-ensemble-methods">Relation to Ensemble Methods</h3>
+<p>The soft MoE output <span class="math inline">\(y = \sum_i g_i(x) f_i(x)\)</span> is formally a weighted ensemble, where the weights <span class="math inline">\(g_i(x)\)</span> depend on the input. This is a <strong>mixture of experts</strong> rather than a <strong>committee</strong> (equal weights) or a <strong>boosting ensemble</strong> (sequential, residual correction). The critical distinction from static ensembles is that the gating is input-conditional: the mixture weights <span class="math inline">\(g_i(x)\)</span> vary with <span class="math inline">\(x\)</span>, implementing a learned partition (soft or hard) of the input space among specialists.</p>
+<p>Unlike standard ensembles, however, MoE is trained jointly — gate and experts share a single training loss. This coupling means the gate network is learning to route tokens to the most appropriate expert, while experts simultaneously learn to specialize on the tokens they receive. This joint training dynamic can lead to stable specialization or to degenerate solutions (see Section 8).</p>
+<hr />
+<h2 id="sparsely-gated-moe-shazeer-2017">3. Sparsely-Gated MoE: Shazeer 2017</h2>
+<p>Shazeer et al. (2017) operationalized the top-<span class="math inline">\(k\)</span> MoE idea at scale within an LSTM language model, demonstrating models with up to 137B parameters. The key technical contributions are <em>noisy top-k gating</em> and the first systematic treatment of the load imbalance problem.</p>
+<h3 id="noisy-top-k-gating">Noisy Top-k Gating</h3>
+<p>A naïve implementation of top-<span class="math inline">\(k\)</span> gating collapses: the same few experts receive all tokens because they were marginally better initialized, receive more gradient signal, improve further, and thus attract more tokens in a positive feedback loop. To break this symmetry, Shazeer et al. add token-wise Gaussian noise to the routing logits before the top-<span class="math inline">\(k\)</span> selection.</p>
+<p><strong>Definition (Noisy Top-k Gating).</strong> Let <span class="math inline">\(W_n \in \mathbb{R}^{d \times E}\)</span> be a learned noise scaling matrix, and let <span class="math inline">\(\epsilon \sim \mathcal{N}(0, I_E)\)</span> be a vector of standard normal random variables drawn independently for each token. Define the noisy logit:</p>
+<p><span class="math display">\[H_i(x) = z_i(x) + \epsilon_i \cdot \operatorname{Softplus}\!\left((W_n^\top x)_i\right), \qquad \operatorname{Softplus}(u) = \log(1 + e^u)\]</span></p>
+<p>The gate is then:</p>
+<p><span class="math display">\[g(x) = \operatorname{softmax}\!\left(\operatorname{KeepTopK}(H(x), k)\right)\]</span></p>
+<p>The noise magnitude <span class="math inline">\(\operatorname{Softplus}((W_n^\top x)_i)\)</span> is itself learned, making the exploration-exploitation tradeoff adaptive. The use of <span class="math inline">\(\operatorname{Softplus}\)</span> rather than <span class="math inline">\(|\cdot|\)</span> or <span class="math inline">\(\operatorname{ReLU}\)</span> ensures positive noise variance everywhere, which is needed for any non-selected expert to potentially be selected on the next step.</p>
+<p>The noise serves two functions: (1) it stochastically promotes underutilized experts by occasionally routing tokens to them despite lower mean logits, and (2) its gradient through <span class="math inline">\(W_n\)</span> provides a signal to the noise scaling network based on how beneficial or detrimental the exploration was. This constitutes a form of RL-inspired exploration in the gating.</p>
+<p><img src="figures/grootendorst2024-noisy-gating-formula.png" alt="Noisy top-k gating formula: H(x) = x * W + n, where W is the router weight matrix and n is Gaussian noise scaled by Softplus" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. The noisy top-k gating formula: the routing logit <span class="math inline">\(H(x) = xW + n\)</span> adds a small Gaussian noise term <span class="math inline">\(n\)</span> to the linear projection, introducing stochasticity that prevents routing collapse by occasionally promoting underutilized experts.</em></p>
+<p><strong>Remark (Inference).</strong> At inference time, the noise term is set to zero: <span class="math inline">\(H_i(x) = z_i(x)\)</span>. The gating is deterministic.</p>
+<h3 id="the-load-imbalance-problem">The Load Imbalance Problem</h3>
+<p>Even with noise, the top-<span class="math inline">\(k\)</span> gating mechanism in a distributed training setup creates a structural load imbalance problem. In a data-parallel setup where each device processes a batch of tokens, each expert is typically assigned to a specific device. If routing concentrates too many tokens onto a single expert’s device, that device becomes the bottleneck (stragglers in pipeline or tensor parallelism). Conversely, if some experts receive very few tokens, their parameters are updated infrequently or not at all in a given step, causing them to diverge from their intended specializations.</p>
+<p>Formally, let <span class="math inline">\(\mathcal{B}\)</span> be a batch of <span class="math inline">\(T\)</span> tokens. Define the <strong>load</strong> of expert <span class="math inline">\(i\)</span> as the number of tokens routed to it:</p>
+<p><span class="math display">\[\text{Load}_i(\mathcal{B}) = \sum_{x \in \mathcal{B}} \mathbf{1}[i \in \mathcal{T}(x)]\]</span></p>
+<p>A balanced configuration would have <span class="math inline">\(\text{Load}_i(\mathcal{B}) = kT/E\)</span> for all <span class="math inline">\(i\)</span> (equal share of <span class="math inline">\(k\)</span> activations per token distributed over <span class="math inline">\(E\)</span> experts). Any deviation from this is load imbalance. The challenge is encouraging balance without eliminating the specialization that makes MoE useful.</p>
+<p><img src="figures/grootendorst2024-load-imbalance.png" alt="Load imbalance: tokens from a batch routed predominantly to FFNN 1 while FFNN 2 and FFNN 3 receive almost none" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. An illustration of load imbalance: the router assigns the majority of tokens in a batch to a single expert (FFNN 1), while the remaining experts sit idle. This creates a computational bottleneck and prevents unused experts from receiving gradient updates.</em></p>
+<hr />
+<h2 id="load-balancing">4. Load Balancing</h2>
+<p>Shazeer et al. (2017) proposed two differentiable auxiliary loss terms to encourage load balance, added to the main task loss with a small coefficient <span class="math inline">\(\lambda &gt; 0\)</span>.</p>
+<h3 id="importance-loss">Importance Loss</h3>
+<p><strong>Definition (Expert Importance).</strong> For a batch <span class="math inline">\(\mathcal{B}\)</span> of <span class="math inline">\(T\)</span> tokens, define the importance of expert <span class="math inline">\(i\)</span> as the sum of its gate weights across the batch:</p>
+<p><span class="math display">\[\operatorname{Importance}_i(\mathcal{B}) = \sum_{x \in \mathcal{B}} g_i(x)\]</span></p>
+<p>Note that <span class="math inline">\(g_i(x) = 0\)</span> for experts not in <span class="math inline">\(\mathcal{T}(x)\)</span>, so this sums only over tokens for which expert <span class="math inline">\(i\)</span> is selected.</p>
+<p>The importance vector <span class="math inline">\(\operatorname{Importance}(\mathcal{B}) \in \mathbb{R}^E\)</span> measures the total “soft attention” each expert receives. If all experts are equally important, this vector is constant.</p>
+<p><strong>Definition (Importance Loss).</strong> The importance loss is the squared <em>coefficient of variation</em> (CV) of the importance vector:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{imp}} = \operatorname{CV}\!\left(\operatorname{Importance}(\mathcal{B})\right)^2 = \left(\frac{\sigma(\operatorname{Importance}(\mathcal{B}))}{\mu(\operatorname{Importance}(\mathcal{B}))}\right)^2\]</span></p>
+<p>where <span class="math inline">\(\sigma(\cdot)\)</span> is the standard deviation and <span class="math inline">\(\mu(\cdot)\)</span> is the mean. The CV is scale-invariant: it measures relative dispersion, so the loss is zero when all experts have equal importance and positive when importance is concentrated. Minimizing <span class="math inline">\(\mathcal{L}_{\text{imp}}\)</span> pushes the importance distribution toward uniformity.</p>
+<p>This loss is differentiable with respect to the gate values <span class="math inline">\(g_i(x)\)</span>, and hence with respect to <span class="math inline">\(W_g\)</span> through the softmax.</p>
+<h3 id="load-loss">Load Loss</h3>
+<p>The <em>importance loss</em> encourages balanced gate probabilities but does not directly constrain the number of tokens routed to each expert (which determines the actual computational load). The <em>load loss</em> addresses this.</p>
+<p><strong>Definition (Smooth Load Estimate).</strong> For expert <span class="math inline">\(i\)</span>, define its smooth load on batch <span class="math inline">\(\mathcal{B}\)</span> as:</p>
+<p><span class="math display">\[\operatorname{Load}_i(\mathcal{B}) = \sum_{x \in \mathcal{B}} P\!\left(i \in \mathcal{T}(x)\right)\]</span></p>
+<p>where <span class="math inline">\(P(i \in \mathcal{T}(x))\)</span> is the probability that expert <span class="math inline">\(i\)</span> is in the top-<span class="math inline">\(k\)</span> set when noise is applied. Since the noise <span class="math inline">\(\epsilon_i \sim \mathcal{N}(0, 1)\)</span> is independent across experts, expert <span class="math inline">\(i\)</span> enters the top-<span class="math inline">\(k\)</span> if and only if <span class="math inline">\(H_i(x) \geq H_{(k)}(x)\)</span>, where <span class="math inline">\(H_{(k)}(x)\)</span> is the <span class="math inline">\(k\)</span>-th order statistic. Given the current logits <span class="math inline">\(z(x)\)</span>, this probability can be computed via the normal CDF <span class="math inline">\(\Phi\)</span>:</p>
+<p><span class="math display">\[P(i \in \mathcal{T}(x)) = \Phi\!\left(\frac{z_i(x) - H_{-i,(k-1)}(x)}{\operatorname{Softplus}((W_n^\top x)_i)}\right)\]</span></p>
+<p>where <span class="math inline">\(H_{-i,(k-1)}(x)\)</span> is the <span class="math inline">\((k{-}1)\)</span>-th largest logit among all experts except <span class="math inline">\(i\)</span>. This is differentiable with respect to <span class="math inline">\(z(x)\)</span> and <span class="math inline">\(W_n\)</span>.</p>
+<p><strong>Definition (Load Loss).</strong> The load loss mirrors the importance loss:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{load}} = \operatorname{CV}\!\left(\operatorname{Load}(\mathcal{B})\right)^2\]</span></p>
+<p><strong>Combined Auxiliary Loss.</strong> The total auxiliary loss is:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{aux}} = \lambda \cdot \left(\mathcal{L}_{\text{imp}} + \mathcal{L}_{\text{load}}\right)\]</span></p>
+<p>with <span class="math inline">\(\lambda\)</span> a small positive constant (e.g., <span class="math inline">\(10^{-2}\)</span>). The total training loss is <span class="math inline">\(\mathcal{L} = \mathcal{L}_{\text{task}} + \mathcal{L}_{\text{aux}}\)</span>.</p>
+<h3 id="capacity-factor-and-token-dropping">Capacity Factor and Token Dropping</h3>
+<p>Even with auxiliary losses, routing in a distributed system requires hard limits on how many tokens each expert processes per batch (otherwise one expert could receive the entire batch). Shazeer et al. and subsequent work introduce the <em>capacity factor</em> to formalize this.</p>
+<p><strong>Definition (Expert Capacity).</strong> Given a batch of <span class="math inline">\(T\)</span> tokens, <span class="math inline">\(E\)</span> experts, and top-<span class="math inline">\(k\)</span> gating, the total number of expert-token pairs is <span class="math inline">\(kT\)</span>. A balanced assignment would give <span class="math inline">\(kT/E\)</span> tokens to each expert. The expert capacity is:</p>
+<p><span class="math display">\[C = \left\lfloor \frac{kT}{E} \cdot \phi \right\rfloor\]</span></p>
+<p>where <span class="math inline">\(\phi \geq 1\)</span> is the <strong>capacity factor</strong>. Each expert processes at most <span class="math inline">\(C\)</span> tokens; tokens routed to an already-full expert are <strong>dropped</strong> — their expert representation is replaced by the residual (the token representation before the MoE layer), so the expert contributes zero to that token’s output.</p>
+<p>A capacity factor of <span class="math inline">\(\phi = 1\)</span> means the expert handles exactly its fair share, and any imbalance causes dropping. A capacity factor of <span class="math inline">\(\phi = 1.25\)</span> provides a 25% buffer above the uniform share, reducing dropping at the cost of pre-allocating extra compute capacity. For inference, capacity factor constraints are typically relaxed or removed.</p>
+<p><img src="figures/grootendorst2024-expert-capacity.png" alt="Expert capacity enforcement: FFNN 1 has reached capacity (3 tokens), so overflow tokens are redirected to FFNN 4 instead" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. Expert capacity in practice: when FFNN 1 has already processed its capacity (here, 3 tokens), any additional tokens that the router would send to it are instead redirected to the next preferred expert (FFNN 4). Tokens with no available expert slot are dropped.</em></p>
+<p><strong>Remark (Token Dropping as a Regularizer).</strong> <em>Token dropping</em> is not merely an engineering constraint. It can be interpreted as a training-time regularizer: tokens whose first-choice expert is at capacity must rely on their second or subsequent choices, which forces those tokens to be processable by multiple experts and prevents over-specialization of the routing.</p>
+<hr />
+<h2 id="switch-transformer-fedus-2021">5. Switch Transformer: Fedus 2021</h2>
+<p>Fedus et al. (2021) scaled MoE Transformers to trillion parameters by simplifying the routing mechanism and carefully engineering the training regime. The central simplification is top-<span class="math inline">\(1\)</span> routing.</p>
+<h3 id="top-1-routing">Top-1 Routing</h3>
+<p>Switch Transformers set <span class="math inline">\(k = 1\)</span>: each token is routed to exactly one expert. This reduces the number of expert-token pairs from <span class="math inline">\(kT\)</span> to <span class="math inline">\(T\)</span> per MoE layer, halving communication volume for top-2 gating and enabling more experts to be deployed for the same per-step cost.</p>
+<p><strong>Definition (Switch Router).</strong> For input <span class="math inline">\(x\)</span>, the router computes:</p>
+<p><span class="math display">\[g(x) = \operatorname{softmax}(W_g^\top x), \qquad i^*(x) = \arg\max_i g_i(x)\]</span></p>
+<p>The output of the Switch layer is simply <span class="math inline">\(y = g_{i^*(x)}(x) \cdot f_{i^*(x)}(x)\)</span> — a single expert’s output, scaled by the gate weight for that expert.</p>
+<p><img src="figures/fedus2021-fig2-switch-encoder-block.png" alt="Switch Transformer encoder block: each token is independently routed to one of N expert FFN layers by the Switch routing module, replacing the single dense FFN" />
+<em>Figure 2 (Fedus et al., 2021): The Switch Transformer encoder block. The standard dense FFN sublayer is replaced by a sparse Switch FFN layer containing multiple expert FFNs. A lightweight routing module independently assigns each token to exactly one expert (top-1 routing), enabling massive parameter scaling without proportional FLOP increase.</em></p>
+<p><strong>The Simplification Argument.</strong> The Fedus et al. argument for top-1 routing is empirical: under FLOP-matched conditions (equal inference compute), top-1 routing with more total experts achieves comparable or better quality than top-2 routing with fewer experts. The communication reduction from top-1 allows training at larger scales, which more than compensates for any quality loss from limiting to one expert per token.</p>
+<h3 id="simplified-auxiliary-loss">Simplified Auxiliary Loss</h3>
+<p>Switch Transformer replaces the two-component CV-based loss of Shazeer et al. with a single, simpler auxiliary loss. Let <span class="math inline">\(T\)</span> be the number of tokens per batch per device, <span class="math inline">\(E\)</span> the number of experts, and define:</p>
+<p><span class="math display">\[f_i = \frac{1}{T} \sum_{x \in \mathcal{B}} \mathbf{1}[i^*(x) = i], \qquad P_i = \frac{1}{T} \sum_{x \in \mathcal{B}} g_i(x)\]</span></p>
+<p>Here <span class="math inline">\(f_i\)</span> is the fraction of tokens dispatched to expert <span class="math inline">\(i\)</span> (discrete, not differentiable) and <span class="math inline">\(P_i\)</span> is the fraction of total routing probability mass assigned to expert <span class="math inline">\(i\)</span> (continuous, differentiable). The auxiliary loss is:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{aux}} = \alpha \cdot E \cdot \sum_{i=1}^{E} f_i \cdot P_i\]</span></p>
+<p><strong>Why this works.</strong> Perfect balance would have <span class="math inline">\(f_i = P_i = 1/E\)</span> for all <span class="math inline">\(i\)</span>, giving <span class="math inline">\(\mathcal{L}_{\text{aux}} = E \cdot E \cdot (1/E)^2 = 1\)</span>. Any concentration — large <span class="math inline">\(f_i\)</span> and large <span class="math inline">\(P_i\)</span> for the same <span class="math inline">\(i\)</span> — increases the inner product <span class="math inline">\(\sum_i f_i P_i\)</span> above <span class="math inline">\(1/E\)</span>. The product <span class="math inline">\(f_i \cdot P_i\)</span> is a differentiable proxy for the alignment between discrete routing decisions and soft routing probabilities: it penalizes the case where an expert receives both many tokens and high probability mass. The factor <span class="math inline">\(E\)</span> normalizes the baseline. Fedus et al. use <span class="math inline">\(\alpha = 10^{-2}\)</span>.</p>
+<p><strong>Note on differentiability.</strong> <span class="math inline">\(f_i\)</span> is treated as a constant (no gradient through the argmax), while <span class="math inline">\(P_i\)</span> provides the gradient signal. The loss thus acts entirely through the softmax probabilities <span class="math inline">\(g_i(x)\)</span>, encouraging the router to spread probability mass more uniformly even when discrete routing is concentrated.</p>
+<h3 id="scaling-behavior">Scaling Behavior</h3>
+<p><strong>Switch Transformers achieve up to 7x pre-training speed improvements over dense T5 baselines at equivalent FLOP budgets, and 4x speedups over T5-XXL when scaling to trillion parameters.</strong> The key finding is that the gains are available even in lower-precision (bfloat16) training, which was previously thought to be unstable for sparse models. This demonstrated that the engineering barriers to trillion-parameter sparse training were surmountable.</p>
+<p><img src="figures/fedus2021-fig1-scaling-properties.png" alt="Switch Transformer scaling: negative log perplexity vs number of experts, showing consistent improvement as expert count grows from 2 to 2048" />
+<em>Figure 1 (Fedus et al., 2021): Scaling properties of the Switch Transformer. Negative log perplexity improves consistently as the number of experts grows from 2 to 2048 under a fixed per-token FLOP budget, demonstrating that increasing total parameter count via more experts yields reliable quality gains without additional inference cost.</em></p>
+<hr />
+<h2 id="expert-choice-routing">6. Expert-Choice Routing</h2>
+<h3 id="inverting-the-routing-decision">Inverting the Routing Decision</h3>
+<p>All routing strategies discussed so far are <em>token-choice routing</em>: each token independently selects the top-<span class="math inline">\(k\)</span> experts to process it. This creates an inherent load imbalance: multiple tokens may simultaneously select the same expert, causing overflow, while other experts sit idle. Auxiliary losses and capacity factors mitigate this but do not eliminate it.</p>
+<p>Zhou et al. (2022) propose <em>expert-choice routing</em>, which inverts the selection: instead of tokens choosing experts, each expert chooses its top-<span class="math inline">\(m\)</span> tokens from the batch.</p>
+<h3 id="formal-specification">Formal Specification</h3>
+<p><strong>Notation.</strong> Let <span class="math inline">\(T\)</span> denote the number of tokens in the batch, <span class="math inline">\(E\)</span> the number of experts, and <span class="math inline">\(m\)</span> the number of tokens each expert selects. Define <span class="math inline">\(S = \text{token-expert score matrix} \in \mathbb{R}^{T \times E}\)</span> with entries:</p>
+<p><span class="math display">\[S_{t,i} = \operatorname{softmax}(W_g^\top x_t)_i = g_i(x_t)\]</span></p>
+<p><strong>Definition (Expert-Choice Selection).</strong> Each expert <span class="math inline">\(i\)</span> selects the top-<span class="math inline">\(m\)</span> tokens by its routing score:</p>
+<p><span class="math display">\[\mathcal{B}_i = \operatorname{TopM}_{t \in [T]}(S_{t,i})\]</span></p>
+<p>where <span class="math inline">\(|\mathcal{B}_i| = m\)</span> for all <span class="math inline">\(i\)</span>. The output for token <span class="math inline">\(t\)</span> is:</p>
+<p><span class="math display">\[y_t = \sum_{i : t \in \mathcal{B}_i} g_i(x_t) \cdot f_i(x_t)\]</span></p>
+<p>Note that in this formulation, a token may appear in the selected sets of multiple experts (if its scores are high for several), or in none (if all experts rank it below their top-<span class="math inline">\(m\)</span> threshold). The effective number of experts activated per token is variable — this is a key distinction from token-choice routing.</p>
+<p>The capacity factor <span class="math inline">\(\phi\)</span> controls the relationship between <span class="math inline">\(m\)</span> and token count: <span class="math inline">\(m = \phi \cdot T / E\)</span>. Setting <span class="math inline">\(\phi = 2\)</span> means each expert processes twice its “fair share,” and on average each token is processed by <span class="math inline">\(2\)</span> experts — equivalent to top-2 token-choice routing in total compute.</p>
+<h3 id="guaranteed-load-balance">Guaranteed Load Balance</h3>
+<p><strong>Proposition.</strong> Under expert-choice routing, each expert processes exactly <span class="math inline">\(m\)</span> tokens per batch. Load is perfectly balanced by construction.</p>
+<p><em>Proof.</em> Each expert independently selects <span class="math inline">\(|\mathcal{B}_i| = m\)</span> tokens via the top-<span class="math inline">\(m\)</span> operation. Since each <span class="math inline">\(\mathcal{B}_i\)</span> is defined as the top-<span class="math inline">\(m\)</span> elements from a set of <span class="math inline">\(T\)</span> scores, <span class="math inline">\(|\mathcal{B}_i| = m\)</span> exactly for all <span class="math inline">\(i \in [E]\)</span>. Total expert activations are exactly <span class="math inline">\(m \cdot E\)</span>. Load is balanced by the selection mechanism itself, requiring no auxiliary loss for this purpose. <span class="math inline">\(\square\)</span></p>
+<p>This is the defining advantage of expert-choice: perfect load balance is a structural property, not a trained-in incentive. <strong>In practice this means no auxiliary loss for load balancing is required, and no tokens are dropped due to capacity overflow.</strong></p>
+<p>The tradeoff is that tokens may receive attention from zero or more than <span class="math inline">\(k\)</span> experts, violating the uniform “each token sees exactly <span class="math inline">\(k\)</span> experts” invariant of token-choice routing. Tokens that are “difficult” (high-entropy routing scores) may attract many experts, while easy tokens may be processed by none. This variable expert coverage can be seen as an emergent form of adaptive computation.</p>
+<h3 id="connection-to-bipartite-matching">Connection to Bipartite Matching</h3>
+<p>Expert-choice routing can be understood as solving a relaxed bipartite matching problem. Consider a bipartite graph <span class="math inline">\(G = ([T] \cup [E], \text{edges})\)</span> where tokens are on one side and experts on the other. The weight of edge <span class="math inline">\((t, i)\)</span> is <span class="math inline">\(S_{t,i}\)</span>. We wish to find an assignment that (a) assigns each expert exactly <span class="math inline">\(m\)</span> tokens and (b) maximizes total weight.</p>
+<p>This is a linear assignment problem, and if we additionally require each token to be assigned to exactly <span class="math inline">\(k\)</span> experts, it becomes a doubly-constrained bipartite <span class="math inline">\(b\)</span>-matching. Expert-choice routing relaxes the constraint on tokens, solving only the expert-side constraint: each expert takes its top-<span class="math inline">\(m\)</span> tokens greedily, without coordinating with other experts. The resulting assignment is not globally optimal (two experts may both select the same high-scoring token while a third token is matched to neither), but it is computationally trivial and achieves the key goal of exact expert-side balance.</p>
+<p>The connection to optimal transport is more than metaphorical: the doubly-constrained version can be solved via Sinkhorn iterations with appropriate marginal constraints, and this perspective has been explored in routing algorithms that aim to jointly balance both tokens and experts (see, e.g., Lewis et al., BASE Layers).</p>
+<hr />
+<h2 id="mixtral-and-modern-dense-sparse-tradeoffs">7. Mixtral and Modern Dense-Sparse Tradeoffs</h2>
+<h3 id="mixtral-8x7b-architecture">Mixtral 8x7B Architecture</h3>
+<p>Mixtral 8x7B (Jiang et al., 2024) is a decoder-only Transformer that replaces every FFN sublayer with a sparse MoE layer. The architecture follows:</p>
+<ul>
+<li><strong>Number of experts:</strong> <span class="math inline">\(E = 8\)</span> per MoE layer</li>
+<li><strong>Routing:</strong> top-<span class="math inline">\(k = 2\)</span> (each token is processed by exactly 2 of the 8 experts)</li>
+<li><strong>Total parameters:</strong> 46.7B (all experts across all layers)</li>
+<li><strong>Active parameters per token:</strong> 12.9B (2 experts activated per FFN layer)</li>
+<li><strong>Architecture otherwise:</strong> same as Mistral 7B (grouped-query attention, sliding window attention, SwiGLU activations)</li>
+</ul>
+<p>The MoE layer output for token <span class="math inline">\(x\)</span> at a given layer is:</p>
+<p><span class="math display">\[y = \sum_{i \in \mathcal{T}(x)} g_i(x) \cdot f_i(x), \qquad |\mathcal{T}(x)| = 2\]</span></p>
+<p>where the gate <span class="math inline">\(g\)</span> is a standard softmax router and <span class="math inline">\(f_i\)</span> is the <span class="math inline">\(i\)</span>-th FFN expert (a standard SwiGLU feed-forward network). Notably, Mixtral does not use an auxiliary load balancing loss during training, relying instead on natural balance induced by the training distribution. This is an empirical finding that the routing does not catastrophically collapse in this setting.</p>
+<p><img src="figures/jiang2024-fig1-moe-layer.png" alt="Mixtral MoE layer: each input vector is assigned to 2 of the 8 experts by a router; the layer output is the weighted sum of the two selected experts’ outputs" />
+<em>Figure 1 (Jiang et al., 2024): The Mixtral sparse MoE layer. A router scores all 8 expert FFNs for each input token and selects the top-2 by score. The layer output is the weighted sum of the two selected experts’ outputs, with weights given by the softmax-normalized gate scores over the selected pair.</em></p>
+<h3 id="flop-matched-comparisons">FLOP-Matched Comparisons</h3>
+<p>The proper comparison between a dense model and an MoE model is under a fixed inference compute budget, measured in FLOPs per token. Mixtral’s 12.9B active parameters imply a per-token FLOP count comparable to a 13B dense model. The relevant comparison is therefore: how does Mixtral 8x7B perform relative to a 13B dense model (same active compute) and a 70B dense model (same total parameter count)?</p>
+<p><strong>The results reported by Jiang et al. show Mixtral outperforms Llama 2 70B (a dense model with 5x more active parameters) on most benchmarks, while using only 2 of 8 experts per token.</strong> This concretely demonstrates the parameter-efficiency argument: access to 8 specialist FFN networks, even when only 2 are activated, provides substantially better quality than a single FFN with the same compute cost.</p>
+<p><img src="figures/grootendorst2024-mixtral-parameter-comparison.png" alt="Mixtral 8x7B parameter breakdown: 46.7B total parameters, 12.9B active parameters per token, compared to dense model equivalents" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. Parameter breakdown for Mixtral 8x7B: the model holds 46.7B total parameters across 8 experts per layer, but activates only 12.9B parameters per token (2 of 8 experts). This decouples total parameter count from per-token compute, enabling FLOP-matched comparison against a ~13B dense model while benefiting from 46.7B worth of stored knowledge.</em></p>
+<p>The FLOP equivalence argument formalizes as follows. A standard Transformer FFN layer with hidden dimension <span class="math inline">\(d_{ff}\)</span> applied to a token of dimension <span class="math inline">\(d\)</span> costs approximately <span class="math inline">\(2 \cdot 2d \cdot d_{ff}\)</span> FLOPs (two linear projections for SwiGLU). For Mixtral with <span class="math inline">\(E = 8\)</span> experts and <span class="math inline">\(k = 2\)</span>, the MoE layer cost is <span class="math inline">\(2 \cdot 2d \cdot d_{ff}\)</span> (same as a single FFN — only 2 experts are computed). The total parameter count in the MoE layer is <span class="math inline">\(8 \cdot 2d \cdot d_{ff}\)</span>, four times a single FFN. Parameter count and FLOP count are thus decoupled by a factor of <span class="math inline">\(E/k = 4\)</span>.</p>
+<h3 id="scaling-laws-for-moe">Scaling Laws for MoE</h3>
+<p>The scaling behavior of MoE models departs from the Kaplan/Chinchilla laws derived for dense models. The key structural difference is that each expert’s parameters are updated only by the tokens routed to it, so effective gradient signal per parameter scales as <span class="math inline">\((k/E)\)</span> relative to a dense model.</p>
+<p>Empirically, for a fixed training compute budget <span class="math inline">\(C\)</span> (measured in total FLOPs), MoE models consistently outperform dense models. Clark et al. (2022) and subsequent analyses find that under fixed FLOPs, it is better to train sparser models with more total parameters and more experts. The optimal number of experts as a function of compute is an active research question, with the general finding that more experts are beneficial until communication costs dominate.</p>
+<p>A rough characterization (heuristic): if a dense model achieves loss <span class="math inline">\(L\)</span> after <span class="math inline">\(C\)</span> FLOPs, an MoE model with <span class="math inline">\(E/k\)</span> times more parameters (same active compute) can achieve the same loss with approximately <span class="math inline">\(C / (E/k)^{\beta}\)</span> FLOPs, for some exponent <span class="math inline">\(\beta &lt; 1\)</span> that depends on the granularity and number of experts. The precise exponent is architecture- and data-dependent.</p>
+<hr />
+<h2 id="training-dynamics-and-collapse">8. Training Dynamics and Collapse</h2>
+<h3 id="expert-collapse">Expert Collapse</h3>
+<p><strong>Definition (Expert Collapse).</strong> Expert collapse occurs when the router <span class="math inline">\(g(x)\)</span> assigns near-zero probability to some subset of experts across all or most inputs in the training data. Collapsed experts receive negligible gradient updates, fail to specialize, and effectively remove themselves from the model’s functional capacity.</p>
+<p><em>Expert collapse</em> is a consequence of the positive feedback loop in joint training. Consider two experts <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, with <span class="math inline">\(A\)</span> marginally better initialized. Tokens routed to <span class="math inline">\(A\)</span> yield lower loss, providing stronger gradient signal to <span class="math inline">\(A\)</span>’s parameters. <span class="math inline">\(A\)</span> improves; the router, observing lower loss from <span class="math inline">\(A\)</span>, increases <span class="math inline">\(g_A(x)\)</span>. This diverts more tokens from <span class="math inline">\(B\)</span>, whose parameters stagnate, and the gap widens. This is a form of training-time symmetry breaking that is detrimental when it proceeds to completion (one or few experts receiving all tokens).</p>
+<p>Expert collapse is distinct from <strong>expert specialization</strong>: in a healthy MoE, different experts specialize on different input types, and routing is non-uniform but not catastrophically concentrated. The challenge is allowing beneficial specialization while preventing complete collapse.</p>
+<p><img src="figures/grootendorst2024-expert-specialization.png" alt="Expert specialization in ST-MoE: a heat map showing which tokens (e.g., punctuation, verbs, proper nouns) are preferentially routed to each of the 16 experts" />
+<em>Source: Grootendorst (2024), A Visual Guide to Mixture of Experts. Expert specialization in the ST-MoE model: different experts develop preferences for semantically or syntactically coherent token types. Some experts specialize on punctuation and delimiters, others on verbs or proper nouns. This emergent specialization is the desired outcome of joint gating-expert training, in contrast to the degenerate case of expert collapse.</em></p>
+<p><img src="figures/jiang2024-fig8-routing-specialization.png" alt="Mixtral routing sample: text tokens colored by first expert choice, showing expert assignment tracks syntactic rather than semantic or domain structure" />
+<em>Figure 8 (Jiang et al., 2024): Routing analysis in Mixtral 8x7B. Each token in a text passage is colored according to its first-choice expert. The routing pattern tracks syntactic structure rather than topic or domain — consecutive tokens of the same syntactic role (e.g., verb phrases, punctuation) tend to share an expert, even across different domains. This provides empirical evidence of expert specialization and confirms that Mixtral’s routing does not collapse to a single dominant expert.</em></p>
+<h3 id="router-z-loss">Router Z-Loss</h3>
+<p>The <em>router z-loss</em> (Zoph et al., 2022; ST-MoE) addresses training instability arising from large routing logits, which is a precursor to and companion of expert collapse.</p>
+<p><strong>Motivation.</strong> When routing logits <span class="math inline">\(z_i(x)\)</span> become large in magnitude, the softmax distribution becomes very sharp (peaked), effectively implementing hard routing. Sharp routing amplifies small perturbations — tiny changes in input <span class="math inline">\(x\)</span> can flip which expert is selected, causing discontinuous loss landscapes and gradient instability. Large logits also cause numerical issues in bfloat16 training.</p>
+<p><strong>Definition (Router Z-Loss).</strong> Let <span class="math inline">\(z(x) \in \mathbb{R}^E\)</span> denote the routing logits for token <span class="math inline">\(x\)</span>. The router z-loss is:</p>
+<p><span class="math display">\[\mathcal{L}_z = \frac{1}{T} \sum_{t=1}^{T} \left(\log \sum_{i=1}^{E} \exp(z_i(x_t))\right)^2\]</span></p>
+<p>This is the mean squared log-sum-exp of the routing logits, taken over a batch of <span class="math inline">\(T\)</span> tokens.</p>
+<p><strong>Why log-sum-exp.</strong> Note that <span class="math inline">\(\log \sum_i \exp(z_i) = \operatorname{LSE}(z)\)</span> is a smooth approximation to <span class="math inline">\(\max_i z_i\)</span>, with the bound:</p>
+<p><span class="math display">\[\max_i z_i \leq \operatorname{LSE}(z) \leq \max_i z_i + \log E\]</span></p>
+<p>Minimizing <span class="math inline">\(\mathcal{L}_z\)</span> therefore discourages large maximum routing logits, which directly counteracts the logit-growth mechanism underlying instability. The squared form (rather than absolute value) penalizes large deviations more strongly and provides a smooth gradient everywhere.</p>
+<p><strong>Gradient.</strong> Differentiating with respect to logit <span class="math inline">\(z_{i}(x_t)\)</span>:</p>
+<p><span class="math display">\[\frac{\partial \mathcal{L}_z}{\partial z_i(x_t)} = \frac{2}{T} \cdot \operatorname{LSE}(z(x_t)) \cdot \operatorname{softmax}(z(x_t))_i\]</span></p>
+<p>The gradient scales with both the LSE magnitude and the softmax probability. High-probability experts (which tend to have the largest logits) receive the strongest shrinkage signal, directly countering the feedback loop driving collapse.</p>
+<p><strong>Combined objective.</strong> The full training loss including both load balancing and z-loss is:</p>
+<p><span class="math display">\[\mathcal{L} = \mathcal{L}_{\text{task}} + \alpha_{\text{aux}} \cdot \mathcal{L}_{\text{aux}} + \alpha_z \cdot \mathcal{L}_z\]</span></p>
+<p>Typical values from ST-MoE are <span class="math inline">\(\alpha_{\text{aux}} = 10^{-2}\)</span> and <span class="math inline">\(\alpha_z \in [10^{-4}, 10^{-2}]\)</span>.</p>
+<h3 id="entropy-regularization">Entropy Regularization</h3>
+<p>An alternative or complementary approach to z-loss is entropy regularization on the routing distribution. Define the routing entropy for token <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[H(g(x)) = -\sum_{i=1}^{E} g_i(x) \log g_i(x)\]</span></p>
+<p>Adding a term <span class="math inline">\(-\beta \cdot \mathbb{E}_x[H(g(x))]\)</span> to the loss (i.e., subtracting entropy from the objective, which is equivalent to penalizing low entropy) encourages the router to distribute probability mass more uniformly. <em>This directly counteracts collapse but can conflict with the model’s incentive to specialize: a uniform routing distribution means every expert receives equal probability mass, which may not reflect genuine input-dependent variation.</em></p>
+<p>In practice, entropy regularization is used more often in the soft-MoE and multi-task MoE literature than in the sparse-top-<span class="math inline">\(k\)</span> LLM context, where auxiliary losses and z-loss tend to be preferred.</p>
+<h3 id="initialization">Initialization</h3>
+<p>Router initialization matters because routing decisions in the first few steps of training establish early specializations that are hard to undo. Recommendations from the ST-MoE paper include:</p>
+<ol type="1">
+<li><p><strong>Router weight initialization.</strong> Sample <span class="math inline">\(W_g\)</span> from a truncated normal distribution with standard deviation <span class="math inline">\(\sigma = \sqrt{s/d}\)</span>, where <span class="math inline">\(s \approx 0.1\)</span> is a scale hyperparameter and <span class="math inline">\(d\)</span> is the input dimension. This produces logits of modest magnitude at initialization, avoiding the sharp softmax regime from the start.</p></li>
+<li><p><strong>Learning rate warmup.</strong> Use a gradual learning rate warmup (e.g., linear from 0 to the peak LR over the first 10,000 steps) to allow routing to stabilize before the optimizer moves aggressively.</p></li>
+<li><p><strong>Expert weight copying.</strong> One practical initialization strategy is to initialize all experts as copies of the same pre-trained dense FFN, then fine-tune the MoE. This gives all experts equal starting quality, removing any initial asymmetry that could seed collapse. This is the approach used in some MoE “upcycling” methods.</p></li>
+</ol>
+<hr />
+<h2 id="multi-task-learning-with-mmoe">9. Multi-Task Learning with MMoE</h2>
+<p>The routing architectures in Sections 3–7 share a single objective: efficiency in a single-task setting. Ma et al. (2018) applied the MoE principle to a different problem — <em>multi-task multi-label (MTML) learning</em> — where the goal is not compute-efficiency but knowledge transfer and task-relationship modeling across heterogeneous objectives.</p>
+<h3 id="multi-task-problem-setup">Multi-Task Problem Setup</h3>
+<p>Consider <span class="math inline">\(K\)</span> tasks, each associated with a loss function <span class="math inline">\(\mathcal{L}_k\)</span> over inputs <span class="math inline">\(x \in \mathbb{R}^d\)</span> and labels <span class="math inline">\(y^k\)</span>. The standard <em>multi-task learning</em> (MTL) objective is:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{MTL}} = \sum_{k=1}^{K} \lambda_k \, \mathcal{L}_k, \qquad \lambda_k &gt; 0\]</span></p>
+<p>where the <span class="math inline">\(\lambda_k\)</span> are task weights. The central challenge is <em>task interference</em>: gradients from different tasks may conflict, causing the shared representation to satisfy one task at the cost of another. This tension is most severe when task labels are weakly correlated or structurally different (e.g., engagement vs. satisfaction in a recommendation system).</p>
+<p><strong>Definition (Task Correlation).</strong> For two tasks <span class="math inline">\(k, k'\)</span> with label distributions <span class="math inline">\(Y^k, Y^{k'}\)</span> on a shared input distribution, define their <em>Pearson correlation</em> as:</p>
+<p><span class="math display">\[\rho_{k,k'} = \frac{\operatorname{Cov}(Y^k, Y^{k'})}{\sigma(Y^k) \, \sigma(Y^{k'})}\]</span></p>
+<p>Ma et al. use <span class="math inline">\(\rho_{k,k'}\)</span> as an experimental control variable: datasets are constructed or modified so that <span class="math inline">\(\rho\)</span> varies from near <span class="math inline">\(1\)</span> (highly related tasks) to near <span class="math inline">\(0\)</span> or negative (weakly related or conflicting tasks).</p>
+<h3 id="architecture-family">Architecture Family</h3>
+<p>Ma et al. compare three architectures that all share parameters across tasks:</p>
+<p><strong>Shared-Bottom (SB).</strong> The classical <em>hard parameter sharing</em> baseline. A single shared encoder <span class="math inline">\(h : \mathbb{R}^d \to \mathbb{R}^m\)</span> (e.g., a stack of dense layers) produces a common representation, and each task applies a private <em>tower network</em> <span class="math inline">\(t^k : \mathbb{R}^m \to \mathbb{R}\)</span> on top:</p>
+<p><span class="math display">\[\hat{y}^k = t^k(h(x))\]</span></p>
+<p>All <span class="math inline">\(K\)</span> tasks train through <span class="math inline">\(h\)</span> simultaneously, making <span class="math inline">\(h\)</span> susceptible to conflicting gradient updates. When tasks are strongly correlated, the shared representation generalizes well; when they are weakly correlated, no single <span class="math inline">\(h(x)\)</span> satisfies all tasks optimally.</p>
+<p><strong>One-gate Mixture-of-Experts (OMoE).</strong> A soft-gated MoE layer replaces <span class="math inline">\(h\)</span>, with <span class="math inline">\(E\)</span> expert sub-networks <span class="math inline">\(f_1, \ldots, f_E : \mathbb{R}^d \to \mathbb{R}^m\)</span> and a single gating network shared across all tasks:</p>
+<p><span class="math display">\[f(x) = \sum_{i=1}^{E} g_i(x) \cdot f_i(x), \qquad g(x) = \operatorname{softmax}(W_g^\top x), \quad W_g \in \mathbb{R}^{d \times E}\]</span></p>
+<p>Each task then applies its own tower: <span class="math inline">\(\hat{y}^k = t^k(f(x))\)</span>. OMoE increases representational capacity via the experts, but all tasks share the <em>same</em> expert mixture — the single gate <span class="math inline">\(g(x)\)</span> cannot route tasks differently.</p>
+<h3 id="the-mmoe-layer">The MMoE Layer</h3>
+<p><strong>Definition (Multi-gate Mixture-of-Experts).</strong> In <em>MMoE</em> (Ma et al., 2018), each task <span class="math inline">\(k\)</span> receives its own gating network <span class="math inline">\(g^k\)</span>, while the experts <span class="math inline">\(\{f_i\}\)</span> are shared across all tasks:</p>
+<p><span class="math display">\[f^k(x) = \sum_{i=1}^{E} g^k_i(x) \cdot f_i(x), \qquad g^k(x) = \operatorname{softmax}\!\left(W_{g^k}^\top x\right), \quad W_{g^k} \in \mathbb{R}^{d \times E}\]</span></p>
+<p>The final output for task <span class="math inline">\(k\)</span> is:</p>
+<p><span class="math display">\[\hat{y}^k = t^k\!\left(f^k(x)\right)\]</span></p>
+<p>where <span class="math inline">\(t^k\)</span> is task <span class="math inline">\(k\)</span>’s tower network. The MMoE model has <span class="math inline">\(K\)</span> gating networks (one per task) and <span class="math inline">\(E\)</span> shared expert networks. Compared to Shared-Bottom with a single encoder, MMoE introduces <span class="math inline">\(K \cdot d \cdot E\)</span> additional parameters for the gates and replaces one shared dense layer with <span class="math inline">\(E\)</span> expert layers — a modest parameter overhead in exchange for task-specific mixture weights.</p>
+<p><strong>Parameter comparison.</strong> Let <span class="math inline">\(E\)</span> experts each have <span class="math inline">\(P\)</span> parameters. The gating networks add <span class="math inline">\(K \cdot d \cdot E\)</span> parameters (small for large experts). The key contrast:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Architecture</th>
+<th>Expert parameters</th>
+<th>Gate parameters</th>
+<th>Task can modulate mixture?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Shared-Bottom</td>
+<td><span class="math inline">\(P\)</span> (one encoder)</td>
+<td>none</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>OMoE</td>
+<td><span class="math inline">\(E \cdot P\)</span></td>
+<td><span class="math inline">\(d \cdot E\)</span></td>
+<td>No (shared gate)</td>
+</tr>
+<tr class="odd">
+<td>MMoE</td>
+<td><span class="math inline">\(E \cdot P\)</span></td>
+<td><span class="math inline">\(K \cdot d \cdot E\)</span></td>
+<td>Yes (per-task gate)</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/ma2018-fig1a-shared-bottom-architecture.jpg" alt="Figure 1(a) from Ma et al. (2018): Shared-Bottom architecture with a single shared encoder feeding both task towers" />
+<em>Figure 1(a) (Ma et al., 2018): Shared-Bottom model. A single shared encoder <span class="math inline">\(h(x)\)</span> produces a common representation consumed by all task-specific tower networks. All tasks train through <span class="math inline">\(h\)</span> simultaneously, making it susceptible to conflicting gradient updates.</em></p>
+<p><img src="figures/ma2018-fig1b-omoe-architecture.jpg" alt="Figure 1(b) from Ma et al. (2018): One-gate Mixture-of-Experts (OMoE) architecture with shared experts and a single gating network" />
+<em>Figure 1(b) (Ma et al., 2018): OMoE model. <span class="math inline">\(E\)</span> expert sub-networks are mixed by a single shared gating network. All task towers receive the same expert mixture; per-task routing is impossible.</em></p>
+<p><img src="figures/ma2018-fig1c-mmoe-architecture.jpg" alt="Figure 1(c) from Ma et al. (2018): Multi-gate Mixture-of-Experts (MMoE) architecture with shared experts and per-task gating networks" />
+<em>Figure 1(c) (Ma et al., 2018): MMoE model. Each task <span class="math inline">\(k\)</span> has its own gating network <span class="math inline">\(g^k\)</span>, enabling task-specific expert mixtures <span class="math inline">\(f^k(x) = \sum_i g^k_i(x) \cdot f_i(x)\)</span>. The experts are shared; only the routing weights are task-private.</em></p>
+<h3 id="task-relationship-modulation">Task-Relationship Modulation</h3>
+<p>The key claim of MMoE is that when tasks are weakly correlated, the per-task gates <span class="math inline">\(g^k(x)\)</span> learn to activate <em>different subsets of experts</em> for different tasks, effectively decomposing the multi-task problem into task-specific subproblems.</p>
+<p>Formally, define the <em>gate divergence</em> between tasks <span class="math inline">\(k\)</span> and <span class="math inline">\(k'\)</span> as the expected <span class="math inline">\(L_1\)</span> distance between their routing distributions:</p>
+<p><span class="math display">\[\Delta(k, k') = \mathbb{E}_x\!\left[\left\|g^k(x) - g^{k'}(x)\right\|_1\right]\]</span></p>
+<p><em>In the OMoE baseline, <span class="math inline">\(\Delta(k, k') = 0\)</span> by construction.</em> In MMoE, <span class="math inline">\(\Delta(k, k')\)</span> is a learned quantity: when tasks have conflicting gradient signals, the optimizer is free to reduce interference by pushing the gates to utilize different experts. Ma et al. confirm empirically that lower inter-task correlation <span class="math inline">\(\rho_{k,k'}\)</span> correlates with higher learned <span class="math inline">\(\Delta(k, k')\)</span>, providing evidence that MMoE implicitly learns a soft task-specific expert allocation.</p>
+<p><strong>Remark (Specialization vs. Sharing).</strong> Unlike sparse top-<span class="math inline">\(k\)</span> routing, MMoE uses soft gating (all experts receive non-zero weight). Expert specialization is therefore emergent from gradient dynamics rather than enforced by routing architecture. An expert <span class="math inline">\(f_i\)</span> specializes for task <span class="math inline">\(k\)</span> to the extent that <span class="math inline">\(g^k_i(x) \gg g^{k'}_i(x)\)</span> for <span class="math inline">\(k' \neq k\)</span>.</p>
+<h3 id="gradient-flow-and-trainability">Gradient Flow and Trainability</h3>
+<p>The gradient of the total MTL loss with respect to expert <span class="math inline">\(f_i\)</span>’s parameters <span class="math inline">\(\theta_i\)</span> decomposes by task:</p>
+<p><span class="math display">\[\frac{\partial \mathcal{L}_{\text{MTL}}}{\partial \theta_i} = \sum_{k=1}^{K} \lambda_k \, g^k_i(x) \cdot \frac{\partial \mathcal{L}_k}{\partial f^k(x)} \cdot \frac{\partial f_i(x)}{\partial \theta_i}\]</span></p>
+<p>The gate weight <span class="math inline">\(g^k_i(x)\)</span> appears as a <em>task-specific gradient scaling factor</em> for expert <span class="math inline">\(i\)</span>: if task <span class="math inline">\(k\)</span> routes little mass to expert <span class="math inline">\(i\)</span> (i.e., <span class="math inline">\(g^k_i(x) \approx 0\)</span>), then task <span class="math inline">\(k\)</span> contributes negligibly to <span class="math inline">\(\theta_i\)</span>’s update. This is the sense in which per-task gates modulate inter-task interference: expert <span class="math inline">\(i\)</span> is insulated from tasks that have learned to route around it.</p>
+<p><strong>Trainability.</strong> Ma et al. conduct an experiment measuring <em>trainability</em> — the fraction of random initializations and data permutations under which training converges to a good solution — across the three architectures. <strong>MMoE exhibits higher trainability than both Shared-Bottom and OMoE, particularly under high data noise and high initialization variance.</strong> The interpretation is that per-task gating provides more gradient pathways: if one path produces a conflicting gradient, another expert can absorb the conflicting signal, preventing the optimizer from getting stuck in a saddle caused by task interference.</p>
+<p><em>Concretely, in the synthetic experiments, Shared-Bottom’s trainability drops sharply as task correlation decreases below <span class="math inline">\(\rho \approx 0.5\)</span>, while MMoE maintains high trainability down to <span class="math inline">\(\rho \approx 0\)</span>.</em> OMoE falls in between — the MoE structure helps but the shared gate cannot decouple task interference at the routing level.</p>
+<p><img src="figures/ma2018-fig5-performance-histogram.jpg" alt="Figure 5 from Ma et al. (2018): Histogram of final-loss distributions for MMoE, OMoE, and Shared-Bottom across task correlations 0.5, 0.9, and 1.0" />
+<em>Figure 5 (Ma et al., 2018): Performance histograms on synthetic data at three task-correlation levels (0.5, 0.9, 1.0). Each cell shows the distribution of final training losses over 200 independent runs. MMoE (top row) concentrates mass at low loss values across all correlation levels; Shared-Bottom (bottom row) shows a heavy right tail — many runs fail to converge — particularly at correlation 0.5, where task interference is strongest.</em></p>
+<p><strong>Real-world deployment.</strong> Ma et al. apply MMoE to a large-scale recommendation system at Google, where tasks correspond to <em>engagement</em> (implicit feedback, e.g., watch time) and <em>satisfaction</em> (explicit feedback, e.g., user rating). These objectives are structurally different: engagement is dense and noisy, satisfaction is sparse and deliberate. MMoE outperforms both Shared-Bottom and OMoE baselines on held-out metrics, with particularly strong gains on the satisfaction task — the harder, sparser objective that benefits most from being shielded from engagement’s gradient.</p>
+<p><img src="figures/ma2018-fig6-gate-distribution.jpg" alt="Figure 6 from Ma et al. (2018): Softmax gate distribution for Engagement and Satisfaction tasks across four experts in the deployed MMoE model" />
+<em>Figure 6 (Ma et al., 2018): Softmax gate weight distribution in the deployed Google recommendation MMoE model. The Engagement task (blue) concentrates routing mass on Expert 0, while the Satisfaction task (red/pink) routes predominantly through Expert 1. This divergence in routing distributions — high <span class="math inline">\(\Delta(\text{engagement}, \text{satisfaction})\)</span> — provides direct evidence that MMoE learns task-specific expert utilization when tasks are structurally dissimilar.</em></p>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Jacobs et al. (1991) — Adaptive Mixtures of Local Experts</td>
+<td>The original MoE paper; introduces soft gating with softmax weights over expert networks, training via backpropagation through a mixture loss.</td>
+<td><a href="https://direct.mit.edu/neco/article/3/1/79/5560/Adaptive-Mixtures-of-Local-Experts">Neural Computation</a></td>
+</tr>
+<tr class="even">
+<td>Shazeer et al. (2017) — Outrageously Large Neural Networks</td>
+<td>Introduces sparsely-gated MoE with noisy top-k gating, importance and load auxiliary losses, and 137B parameter LSTM language models.</td>
+<td><a href="https://arxiv.org/abs/1701.06538">arXiv:1701.06538</a></td>
+</tr>
+<tr class="odd">
+<td>Lepikhin et al. (2021) — GShard</td>
+<td>Scales MoE Transformers to 600B parameters via top-2 gating with random second-expert routing, distributed sharding, and capacity-based token dropping.</td>
+<td><a href="https://arxiv.org/abs/2006.16668">arXiv:2006.16668</a></td>
+</tr>
+<tr class="even">
+<td>Fedus et al. (2021) — Switch Transformers</td>
+<td>Simplifies MoE to top-1 routing, introduces the product-form auxiliary loss, demonstrates 7x pre-training speedup over dense T5, scales to 1T parameters.</td>
+<td><a href="https://arxiv.org/abs/2101.03961">arXiv:2101.03961</a></td>
+</tr>
+<tr class="odd">
+<td>Zoph et al. (2022) — ST-MoE</td>
+<td>Introduces the router z-loss for training stability, systematic analysis of MoE training dynamics and initialization, scaling to 269B sparse expert models.</td>
+<td><a href="https://arxiv.org/abs/2202.08906">arXiv:2202.08906</a></td>
+</tr>
+<tr class="even">
+<td>Zhou et al. (2022) — Expert Choice Routing</td>
+<td>Proposes expert-choice (expert selects top-m tokens) as an alternative to token-choice routing; proves guaranteed load balance; shows improved training efficiency.</td>
+<td><a href="https://arxiv.org/abs/2202.09368">arXiv:2202.09368</a></td>
+</tr>
+<tr class="odd">
+<td>Jiang et al. (2024) — Mixtral of Experts</td>
+<td>Presents Mixtral 8x7B, a top-2 sparse MoE LLM with 46.7B total / 12.9B active parameters; outperforms Llama 2 70B on most benchmarks with 5x fewer active parameters.</td>
+<td><a href="https://arxiv.org/abs/2401.04088">arXiv:2401.04088</a></td>
+</tr>
+<tr class="even">
+<td>Mu and Lin (2025) — A Comprehensive Survey of MoE</td>
+<td>Broad survey of MoE algorithms, theory, and applications spanning continual learning, meta-learning, multi-task learning, reinforcement learning, vision, and NLP.</td>
+<td><a href="https://arxiv.org/abs/2503.07137">arXiv:2503.07137</a></td>
+</tr>
+<tr class="odd">
+<td>Bengio et al. (2013) — Estimating or Propagating Gradients Through Stochastic Neurons</td>
+<td>Formalizes conditional computation as a research agenda; discusses gradient estimation through discrete stochastic decisions.</td>
+<td><a href="https://arxiv.org/abs/1305.2982">arXiv:1305.2982</a></td>
+</tr>
+<tr class="even">
+<td>Ma et al. (2018) — Modeling Task Relationships in Multi-task Learning with MMoE</td>
+<td>Introduces Multi-gate Mixture-of-Experts (MMoE) for MTML: shared experts with per-task gating networks; demonstrates superior performance and trainability when tasks are weakly correlated; deployed in Google recommendation systems.</td>
+<td><a href="https://dl.acm.org/doi/10.1145/3219819.3220007">ACM KDD 2018</a></td>
+</tr>
+<tr class="odd">
+<td>Grootendorst 2024 (Visual Guide to MoE)</td>
+<td>Illustrated walkthrough of MoE routing, load balancing, and expert specialization</td>
+<td>https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

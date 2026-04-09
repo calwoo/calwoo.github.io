@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>g-spaces-and-equivariant-maps - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>g-spaces-and-equivariant-maps</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-basic-definitions%7C1.-basic-definitions/">#1. Basic Definitions|1. Basic Definitions</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-category-of-g-spaces-via-monads%7C1.1-the-category-of-g-spaces-via-monads/">#1.1 The Category of G-Spaces via Monads|1.1 The Category of G-Spaces via Monads</a></li>
+<li><a href="../../../../notes/#1.2-explicit-definition-and-morphisms%7C1.2-explicit-definition-and-morphisms/">#1.2 Explicit Definition and Morphisms|1.2 Explicit Definition and Morphisms</a></li>
+<li><a href="../../../../notes/#1.3-mapping-spaces-and-enrichment%7C1.3-mapping-spaces-and-enrichment/">#1.3 Mapping Spaces and Enrichment|1.3 Mapping Spaces and Enrichment</a></li>
+<li><a href="../../../../notes/#1.4-g-homotopies%7C1.4-g-homotopies/">#1.4 G-Homotopies|1.4 G-Homotopies</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-fixed-points,-orbits,-and-key-examples%7C2.-fixed-points,-orbits,-and-key-examples/">#2. Fixed Points, Orbits, and Key Examples|2. Fixed Points, Orbits, and Key Examples</a>
+<ul>
+<li><a href="../../../../notes/#2.1-fixed-point-spaces-and-isotropy%7C2.1-fixed-point-spaces-and-isotropy/">#2.1 Fixed-Point Spaces and Isotropy|2.1 Fixed-Point Spaces and Isotropy</a></li>
+<li><a href="../../../../notes/#2.2-corepresentability-of-fixed-points%7C2.2-corepresentability-of-fixed-points/">#2.2 Corepresentability of Fixed Points|2.2 Corepresentability of Fixed Points</a></li>
+<li><a href="../../../../notes/#2.3-induction-and-coinduction%7C2.3-induction-and-coinduction/">#2.3 Induction and Coinduction|2.3 Induction and Coinduction</a></li>
+<li><a href="../../../../notes/#2.4-representation-spheres%7C2.4-representation-spheres/">#2.4 Representation Spheres|2.4 Representation Spheres</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-naive-vs.-genuine-g-spaces%7C3.-naive-vs.-genuine-g-spaces/">#3. Naive vs. Genuine G-Spaces|3. Naive vs. Genuine G-Spaces</a>
+<ul>
+<li><a href="../../../../notes/#3.1-naive-g-spaces%7C3.1-naive-g-spaces/">#3.1 Naive G-Spaces|3.1 Naive G-Spaces</a></li>
+<li><a href="../../../../notes/#3.2-genuine-weak-equivalences%7C3.2-genuine-weak-equivalences/">#3.2 Genuine Weak Equivalences|3.2 Genuine Weak Equivalences</a></li>
+<li><a href="../../../../notes/#3.3-the-model-structure-on-g-top%7C3.3-the-model-structure-on-g-top/">#3.3 The Model Structure on G Top|3.3 The Model Structure on G Top</a></li>
+<li><a href="../../../../notes/#3.4-equivariant-homotopy-groups%7C3.4-equivariant-homotopy-groups/">#3.4 Equivariant Homotopy Groups|3.4 Equivariant Homotopy Groups</a></li>
+<li><a href="../../../../notes/#3.5-the-unstable-distinction-in-context%7C3.5-the-unstable-distinction-in-context/">#3.5 The Unstable Distinction in Context|3.5 The Unstable Distinction in Context</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-g-cw-complexes%7C4.-g-cw-complexes/">#4. G-CW Complexes|4. G-CW Complexes</a>
+<ul>
+<li><a href="../../../../notes/#4.1-cells-and-skeleta%7C4.1-cells-and-skeleta/">#4.1 Cells and Skeleta|4.1 Cells and Skeleta</a></li>
+<li><a href="../../../../notes/#4.2-fixed-points-of-cells%7C4.2-fixed-points-of-cells/">#4.2 Fixed Points of Cells|4.2 Fixed Points of Cells</a></li>
+<li><a href="../../../../notes/#4.3-colimit-compatibility%7C4.3-colimit-compatibility/">#4.3 Colimit Compatibility|4.3 Colimit Compatibility</a></li>
+<li><a href="../../../../notes/#4.4-theta-connectedness-and-the-help-lemma%7C4.4-theta-connectedness-and-the-help-lemma/">#4.4 Theta-Connectedness and the HELP Lemma|4.4 Theta-Connectedness and the HELP Lemma</a></li>
+<li><a href="../../../../notes/#4.5-worked-examples%7C4.5-worked-examples/">#4.5 Worked Examples|4.5 Worked Examples</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-elmendorf's-theorem%7C5.-elmendorf's-theorem/">#5. Elmendorf’s Theorem|5. Elmendorf’s Theorem</a>
+<ul>
+<li><a href="../../../../notes/#5.1-the-orbit-category%7C5.1-the-orbit-category/">#5.1 The Orbit Category|5.1 The Orbit Category</a></li>
+<li><a href="../../../../notes/#5.2-the-presheaf-functor%7C5.2-the-presheaf-functor/">#5.2 The Presheaf Functor|5.2 The Presheaf Functor</a></li>
+<li><a href="../../../../notes/#5.3-statement-and-proof-sketch%7C5.3-statement-and-proof-sketch/">#5.3 Statement and Proof Sketch|5.3 Statement and Proof Sketch</a></li>
+<li><a href="../../../../notes/#5.4-the-infinity-categorical-statement%7C5.4-the-infinity-categorical-statement/">#5.4 The Infinity-Categorical Statement|5.4 The Infinity-Categorical Statement</a></li>
+<li><a href="../../../../notes/#5.5-applications%7C5.5-applications/">#5.5 Applications|5.5 Applications</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="basic-definitions">1. Basic Definitions 📐</h2>
+<h3 id="the-category-of-g-spaces-via-monads">1.1 The Category of G-Spaces via Monads</h3>
+<p>Throughout, let <span class="math inline">\(G\)</span> be a <em>topological group</em> — a group object in <span class="math inline">\(\mathbf{Top}\)</span>. We define the category <span class="math inline">\(G\mathbf{Top}\)</span> of <em>G-spaces</em> as the category of algebras over a monad.</p>
+<p><strong>Definition (The Monad <span class="math inline">\(M_G\)</span>).</strong> Define the <em>endofunctor</em> <span class="math inline">\(M_G: \mathbf{Top} \to \mathbf{Top}\)</span> by</p>
+<p><span class="math display">\[M_G(X) = G \times X.\]</span></p>
+<p>The monad structure is given by:
+- <em>Unit</em> <span class="math inline">\(\eta_X: X \to G \times X\)</span>, <span class="math inline">\(x \mapsto (e, x)\)</span> (inclusion at the identity),
+- <em>Multiplication</em> <span class="math inline">\(\mu_X: G \times G \times X \to G \times X\)</span>, <span class="math inline">\((g, h, x) \mapsto (gh, x)\)</span>.</p>
+<p>Associativity and unitality of this monad follow directly from the group axioms of <span class="math inline">\(G\)</span>.</p>
+<p>The <em>category of <span class="math inline">\(M_G\)</span>-algebras</em> is exactly <span class="math inline">\(G\mathbf{Top}\)</span>: an algebra structure <span class="math inline">\(\alpha: G \times X \to X\)</span> satisfying the algebra axioms is precisely a continuous <span class="math inline">\(G\)</span>-action. The algebra maps are exactly equivariant maps.</p>
+<div class="callout callout-info">
+<p> Completeness and Cocompleteness
+Since <span class="math inline">\(\mathbf{Top}\)</span> is complete and cocomplete, and the forgetful functor <span class="math inline">\(U: G\mathbf{Top} \to \mathbf{Top}\)</span> creates limits and reflexive coequalizers, the category <span class="math inline">\(G\mathbf{Top}\)</span> is itself complete and cocomplete. Limits are computed in <span class="math inline">\(\mathbf{Top}\)</span> with the pointwise <span class="math inline">\(G\)</span>-action; colimits are computed as coequalizers involving the <span class="math inline">\(G\)</span>-action.</p>
+</div>
+<p>For <em>based</em> G-spaces we instead work with the monad <span class="math inline">\(M_G^+\)</span> on <span class="math inline">\(\mathbf{Top}_*\)</span> sending <span class="math inline">\(X \mapsto G_+ \wedge X\)</span>, where <span class="math inline">\(G_+ = G \sqcup \{*\}\)</span> is <span class="math inline">\(G\)</span> with a disjoint basepoint. The based category is denoted <span class="math inline">\(G\mathbf{Top}_*\)</span>.</p>
+<h3 id="explicit-definition-and-morphisms">1.2 Explicit Definition and Morphisms</h3>
+<p>Unpacking the monad description gives the explicit definition.</p>
+<p><strong>Definition (G-Space).</strong> A <em>G-space</em> is a topological space <span class="math inline">\(X\)</span> equipped with a continuous <em>action map</em></p>
+<p><span class="math display">\[\mu: G \times X \longrightarrow X, \quad (g, x) \mapsto g \cdot x,\]</span></p>
+<p>satisfying:
+1. <em>(Associativity)</em> <span class="math inline">\(g \cdot (h \cdot x) = (gh) \cdot x\)</span> for all <span class="math inline">\(g, h \in G\)</span>, <span class="math inline">\(x \in X\)</span>.
+2. <em>(Unitality)</em> <span class="math inline">\(e \cdot x = x\)</span> for all <span class="math inline">\(x \in X\)</span>.</p>
+<p>These conditions correspond precisely to <span class="math inline">\(\alpha \circ (m_G \times \mathrm{id}) = \alpha \circ (\mathrm{id}_G \times \alpha)\)</span> and <span class="math inline">\(\alpha \circ (\eta \times \mathrm{id}) = \mathrm{id}_X\)</span> in the monad algebra axioms.</p>
+<p><strong>Definition (Equivariant Map).</strong> A <em>G-equivariant map</em> (or <em>G-map</em>) between G-spaces <span class="math inline">\((X, \mu_X)\)</span> and <span class="math inline">\((Y, \mu_Y)\)</span> is a continuous map <span class="math inline">\(f: X \to Y\)</span> such that</p>
+<p><span class="math display">\[f(g \cdot x) = g \cdot f(x) \quad \text{for all } g \in G, x \in X,\]</span></p>
+<p>i.e., the following diagram commutes:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode tikz"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">tikz-cd</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>G <span class="fu">\times</span> X <span class="fu">\arrow</span>[r, &quot;{<span class="fu">\mathrm</span>{id}_G <span class="fu">\times</span> f}&quot;] <span class="fu">\arrow</span>[d, &quot;<span class="fu">\mu</span>_X&quot;'] &amp; G <span class="fu">\times</span> Y <span class="fu">\arrow</span>[d, &quot;<span class="fu">\mu</span>_Y&quot;] <span class="fu">\\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X <span class="fu">\arrow</span>[r, &quot;f&quot;'] &amp; Y</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">tikzcd</span>}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p><span class="math inline">\(G\mathbf{Top}\)</span> denotes the category with objects G-spaces and morphisms G-equivariant maps.</p>
+<div class="callout callout-question">
+<p> Exercise 1
+<em>This exercise characterizes equivariant maps as a limit in <span class="math inline">\(\mathbf{Top}\)</span>, connecting the monad algebra description to the equalizer definition.</em></p>
+<p>Show that <span class="math inline">\(\mathrm{Map}_G(X, Y)\)</span> is the equalizer in <span class="math inline">\(\mathbf{Top}\)</span> of the two maps <span class="math inline">\(\mathrm{Map}(X, Y) \rightrightarrows \mathrm{Map}(G \times X, Y)\)</span> given by <span class="math inline">\(f \mapsto \mu_Y \circ (\mathrm{id}_G \times f)\)</span> and <span class="math inline">\(f \mapsto f \circ \mu_X\)</span>. Conclude that <span class="math inline">\(\mathrm{Map}_G(X, Y)\)</span> is a closed subspace of <span class="math inline">\(\mathrm{Map}(X, Y)\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 1
+A map <span class="math inline">\(f: X \to Y\)</span> lies in the equalizer exactly when <span class="math inline">\(\mu_Y(g, f(x)) = f(\mu_X(g, x))\)</span> for all <span class="math inline">\((g, x) \in G \times X\)</span>, which is the equivariance condition. Equalizers in <span class="math inline">\(\mathbf{Top}\)</span> are closed inclusions of the underlying sets with the subspace topology.</p>
+</blockquote>
+<h3 id="mapping-spaces-and-enrichment">1.3 Mapping Spaces and Enrichment</h3>
+<p>Three distinct notions of mapping space appear naturally in <span class="math inline">\(G\mathbf{Top}\)</span>, and keeping them distinct is essential.</p>
+<p><strong>Definition (Fixed-Point Mapping Space).</strong> For G-spaces <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, the <em>equivariant mapping space</em> is</p>
+<p><span class="math display">\[\mathrm{Map}_G(X, Y) = \{ f \in \mathrm{Map}(X, Y) \mid f \text{ is } G\text{-equivariant} \}\]</span></p>
+<p>with the subspace topology inherited from <span class="math inline">\(\mathrm{Map}(X, Y)\)</span> (compactly generated compact-open topology). This is the <em>internal hom of the fixed-point enrichment</em>.</p>
+<p><strong>Definition (Conjugation Action).</strong> The <em>conjugation G-space of maps</em> is</p>
+<p><span class="math display">\[G\mathrm{Map}(X, Y) = \mathrm{Map}(X, Y)\]</span></p>
+<p>as a topological space, equipped with the <em>conjugation action</em>:</p>
+<p><span class="math display">\[(g \cdot f)(x) = g \cdot f(g^{-1} \cdot x).\]</span></p>
+<div class="callout callout-note">
+<p> Why conjugation?
+This is the unique <span class="math inline">\(G\)</span>-action on <span class="math inline">\(\mathrm{Map}(X,Y)\)</span> making evaluation <span class="math inline">\(\mathrm{ev}: G\mathrm{Map}(X,Y) \times X \to Y\)</span> into a <span class="math inline">\(G\)</span>-map (where <span class="math inline">\(G\)</span> acts diagonally on the product). The formula <span class="math inline">\((g \cdot f)(x) = g \cdot f(g^{-1} x)\)</span> is the natural “change-of-frame” action.</p>
+</div>
+<p>The <em>self-enrichment</em> of <span class="math inline">\(G\mathbf{Top}\)</span> uses <span class="math inline">\(G\mathrm{Map}(X, Y)\)</span> as the internal hom object — the category <span class="math inline">\(G\mathbf{Top}\)</span> is enriched over itself.</p>
+<p><strong>Key Relation.</strong> The equivariant mapping space is the fixed points of the conjugation space:</p>
+<p><span class="math display">\[\mathrm{Map}_G(X, Y) = \bigl(G\mathrm{Map}(X, Y)\bigr)^G.\]</span></p>
+<p><em>Proof.</em> A map <span class="math inline">\(f \in G\mathrm{Map}(X,Y)\)</span> is fixed by every <span class="math inline">\(g \in G\)</span> under conjugation iff <span class="math inline">\(g \cdot f = f\)</span> for all <span class="math inline">\(g\)</span>, i.e., <span class="math inline">\(g \cdot f(g^{-1} x) = f(x)\)</span> for all <span class="math inline">\(g, x\)</span>. Setting <span class="math inline">\(x' = g^{-1} x\)</span> gives <span class="math inline">\(f(gx') = g \cdot f(x')\)</span>, which is exactly the equivariance condition. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Adjunction
+The conjugation mapping space gives an adjunction: for G-spaces <span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span>, <span class="math inline">\(Z\)</span>,
+<span class="math display">\[G\mathbf{Top}(X \times Y, Z) \cong G\mathbf{Top}(X, G\mathrm{Map}(Y, Z)).\]</span>
+Taking <span class="math inline">\(G\)</span>-fixed points on both sides recovers the non-equivariant adjunction at the level of equivariant maps.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 2
+<em>This exercise verifies that the conjugation action is well-defined and establishes the precise relationship between the three mapping spaces.</em></p>
+<ol type="a">
+<li><p>Verify that <span class="math inline">\((g \cdot f)(x) = g \cdot f(g^{-1} x)\)</span> defines a genuine group action on <span class="math inline">\(\mathrm{Map}(X, Y)\)</span> — i.e., check <span class="math inline">\((gh) \cdot f = g \cdot (h \cdot f)\)</span> and <span class="math inline">\(e \cdot f = f\)</span>.</p></li>
+<li><p>Prove the key relation <span class="math inline">\(\bigl(G\mathrm{Map}(X, Y)\bigr)^G = \mathrm{Map}_G(X, Y)\)</span> directly: show that <span class="math inline">\(f\)</span> is fixed by all <span class="math inline">\(g \in G\)</span> under conjugation if and only if <span class="math inline">\(f\)</span> is <span class="math inline">\(G\)</span>-equivariant.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 2
+For (a), compute <span class="math inline">\((gh) \cdot f\)</span> explicitly and compare with <span class="math inline">\(g \cdot (h \cdot f)\)</span> — both sides simplify to <span class="math inline">\(x \mapsto gh \cdot f(h^{-1}g^{-1}x)\)</span>. For (b), write out the fixed-point condition <span class="math inline">\(g \cdot f = f\)</span> pointwise and substitute <span class="math inline">\(x' = g^{-1}x\)</span>.</p>
+</blockquote>
+<h3 id="g-homotopies">1.4 G-Homotopies</h3>
+<p><strong>Definition (G-Homotopy).</strong> A <em>G-homotopy</em> between G-maps <span class="math inline">\(f_0, f_1: X \to Y\)</span> is a continuous map</p>
+<p><span class="math display">\[h: X \times I \longrightarrow Y\]</span></p>
+<p>that is a morphism in <span class="math inline">\(G\mathbf{Top}\)</span>, where <span class="math inline">\(G\)</span> acts on <span class="math inline">\(X \times I\)</span> via <span class="math inline">\(g \cdot (x, t) = (g \cdot x, t)\)</span> — that is, <span class="math inline">\(G\)</span> acts <em>trivially</em> on <span class="math inline">\(I = [0,1]\)</span>.</p>
+<p>The triviality of the <span class="math inline">\(G\)</span>-action on <span class="math inline">\(I\)</span> is forced: we want homotopies to be “the same at every time <span class="math inline">\(t\)</span>” from <span class="math inline">\(G\)</span>’s perspective. Explicitly, <span class="math inline">\(h\)</span> is a G-homotopy iff <span class="math inline">\(h(g \cdot x, t) = g \cdot h(x, t)\)</span> for all <span class="math inline">\(g \in G\)</span>, <span class="math inline">\(x \in X\)</span>, <span class="math inline">\(t \in I\)</span>.</p>
+<div class="callout callout-warning">
+<p>
+<em>Do not</em> allow <span class="math inline">\(G\)</span> to act non-trivially on <span class="math inline">\(I\)</span>. A map <span class="math inline">\(X \times I \to Y\)</span> with a non-trivial <span class="math inline">\(G\)</span>-action on <span class="math inline">\(I\)</span> does not define a “path” between <span class="math inline">\(f_0\)</span> and <span class="math inline">\(f_1\)</span> in any homotopy-theoretically meaningful sense for equivariant purposes.</p>
+</div>
+<hr />
+<h2 id="fixed-points-orbits-and-key-examples">2. Fixed Points, Orbits, and Key Examples 🔑</h2>
+<h3 id="fixed-point-spaces-and-isotropy">2.1 Fixed-Point Spaces and Isotropy</h3>
+<p><strong>Definition (Fixed-Point Space).</strong> For a G-space <span class="math inline">\(X\)</span> and a subgroup <span class="math inline">\(H \leq G\)</span>, the <em><span class="math inline">\(H\)</span>-fixed-point subspace</em> is</p>
+<p><span class="math display">\[X^H = \{ x \in X \mid h \cdot x = x \text{ for all } h \in H \}.\]</span></p>
+<p>This is a closed subspace of <span class="math inline">\(X\)</span> (since it is the equalizer of the continuous maps <span class="math inline">\(\mu(h, -): X \to X\)</span> and <span class="math inline">\(\mathrm{id}_X\)</span> for each <span class="math inline">\(h \in H\)</span>, and a countable intersection of closed sets when <span class="math inline">\(H\)</span> is second countable).</p>
+<p><strong>Definition (Weyl Group).</strong> The <em>Weyl group</em> of <span class="math inline">\(H\)</span> in <span class="math inline">\(G\)</span> is</p>
+<p><span class="math display">\[WH = NH/H,\]</span></p>
+<p>where <span class="math inline">\(NH = \{ g \in G \mid gHg^{-1} = H \}\)</span> is the <em>normalizer</em> of <span class="math inline">\(H\)</span>. The Weyl group <span class="math inline">\(WH\)</span> acts on <span class="math inline">\(X^H\)</span> by <span class="math inline">\([n] \cdot x = n \cdot x\)</span>, making <span class="math inline">\(X^H\)</span> naturally a <span class="math inline">\(WH\)</span>-space.</p>
+<div class="callout callout-note">
+<p> Why WH acts on <span class="math inline">\(X^H\)</span>
+If <span class="math inline">\(x \in X^H\)</span> and <span class="math inline">\(n \in NH\)</span>, then for any <span class="math inline">\(h \in H\)</span>: <span class="math inline">\(h \cdot (n \cdot x) = n \cdot (n^{-1}hn) \cdot x = n \cdot x\)</span> since <span class="math inline">\(n^{-1}hn \in H\)</span>. So <span class="math inline">\(n \cdot x \in X^H\)</span>, and the action of <span class="math inline">\(NH\)</span> on <span class="math inline">\(X^H\)</span> factors through <span class="math inline">\(WH = NH/H\)</span>.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 3
+<em>This exercise makes the Weyl-group structure explicit for normal subgroups, where it simplifies to a full quotient-group action.</em></p>
+<p>Let <span class="math inline">\(H \unlhd G\)</span> be a normal subgroup. Show that <span class="math inline">\(X^H\)</span> is naturally a <span class="math inline">\(G/H\)</span>-space, i.e., that the <span class="math inline">\(G\)</span>-action on <span class="math inline">\(X^H\)</span> (by restriction) factors through <span class="math inline">\(G \twoheadrightarrow G/H\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 3
+Since <span class="math inline">\(H \unlhd G\)</span>, we have <span class="math inline">\(NH = G\)</span>, so <span class="math inline">\(WH = G/H\)</span>. The proposed <span class="math inline">\(G/H\)</span>-action is <span class="math inline">\([g] \cdot x := g \cdot x\)</span>; check independence of representative: if <span class="math inline">\(g' = gh\)</span> for <span class="math inline">\(h \in H\)</span>, then <span class="math inline">\(g' \cdot x = gh \cdot x = g \cdot (h \cdot x) = g \cdot x\)</span> since <span class="math inline">\(x \in X^H\)</span>.</p>
+</blockquote>
+<p><strong>Definition (Isotropy Group).</strong> For <span class="math inline">\(x \in X\)</span>, the <em>isotropy group</em> (or <em>stabilizer</em>) of <span class="math inline">\(x\)</span> is</p>
+<p><span class="math display">\[G_x = \{ g \in G \mid g \cdot x = x \} \leq G.\]</span></p>
+<p>The <em>orbit</em> of <span class="math inline">\(x\)</span> is <span class="math inline">\(Gx = G/G_x\)</span> as a <span class="math inline">\(G\)</span>-set, and the orbit map <span class="math inline">\(G \to Gx\)</span>, <span class="math inline">\(g \mapsto gx\)</span>, induces a homeomorphism <span class="math inline">\(G/G_x \xrightarrow{\sim} Gx\)</span> when <span class="math inline">\(G\)</span> is compact and <span class="math inline">\(X\)</span> is Hausdorff.</p>
+<div class="callout callout-question">
+<p> Exercise 4 (Computational)
+<em>This exercise builds intuition for how fixed-point sets vary across the lattice of subgroups — the basic data of genuine equivariant homotopy theory.</em></p>
+<p>Let <span class="math inline">\(G = C_4 = \langle r \mid r^4 = 1 \rangle\)</span> act on <span class="math inline">\(S^1 \subset \mathbb{C}\)</span> by <span class="math inline">\(r \cdot z = iz\)</span> (rotation by <span class="math inline">\(\pi/2\)</span>). Compute <span class="math inline">\(X^H\)</span> for every subgroup <span class="math inline">\(H \leq C_4\)</span>. Also identify the isotropy group <span class="math inline">\(G_z\)</span> for a generic point <span class="math inline">\(z \in S^1\)</span> and for the special points <span class="math inline">\(z = 1, i, -1, -i\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 4
+The subgroups of <span class="math inline">\(C_4\)</span> are <span class="math inline">\(\{e\} \subset C_2 = \langle r^2 \rangle \subset C_4\)</span>. Fixed-point sets:
+- <span class="math inline">\(X^{\{e\}} = S^1\)</span> (nothing is fixed by the trivial subgroup)
+- <span class="math inline">\(X^{C_2}\)</span>: need <span class="math inline">\(r^2 \cdot z = -z = z\)</span>, i.e., <span class="math inline">\(z = 0\)</span> — but <span class="math inline">\(0 \notin S^1\)</span>. So <span class="math inline">\(X^{C_2} = \emptyset\)</span>.
+- <span class="math inline">\(X^{C_4} \subseteq X^{C_2} = \emptyset\)</span>, so <span class="math inline">\(X^{C_4} = \emptyset\)</span>.</p>
+<p>Isotropy: a generic <span class="math inline">\(z \in S^1\)</span> (not a 4th root of unity in a special sense) has <span class="math inline">\(G_z = \{e\}\)</span>. The orbit of any <span class="math inline">\(z\)</span> has 4 elements <span class="math inline">\(\{z, iz, -z, -iz\}\)</span>, so <span class="math inline">\(|G/G_z| = 4\)</span>, confirming <span class="math inline">\(G_z = \{e\}\)</span> for all <span class="math inline">\(z \in S^1\)</span>.</p>
+</blockquote>
+<h3 id="corepresentability-of-fixed-points">2.2 Corepresentability of Fixed Points</h3>
+<p>The orbit spaces <span class="math inline">\(G/H\)</span> play a fundamental role: they <em>corepresent</em> the fixed-point functors.</p>
+<p><strong>Proposition (Corepresentability).</strong> For any G-space <span class="math inline">\(X\)</span> and closed subgroup <span class="math inline">\(H \leq G\)</span>,</p>
+<p><span class="math display">\[X^H \cong \mathrm{Map}_G(G/H, X).\]</span></p>
+<p><em>Proof.</em> A <span class="math inline">\(G\)</span>-equivariant map <span class="math inline">\(f: G/H \to X\)</span> is determined by <span class="math inline">\(f(eH) \in X\)</span>, subject to the condition that <span class="math inline">\(f(eH)\)</span> is fixed by <span class="math inline">\(H\)</span>: for <span class="math inline">\(h \in H\)</span>, equivariance gives <span class="math inline">\(h \cdot f(eH) = f(h \cdot eH) = f(eH)\)</span>. Conversely, any <span class="math inline">\(x \in X^H\)</span> determines an equivariant map <span class="math inline">\(f_x: G/H \to X\)</span> by <span class="math inline">\(f_x(gH) = g \cdot x\)</span> (well-defined since <span class="math inline">\(x \in X^H\)</span>). These assignments are inverse homeomorphisms. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-info">
+<p> Conceptual Significance
+This says that <span class="math inline">\(G/H\)</span> is the “universal <span class="math inline">\(H\)</span>-fixed space” in <span class="math inline">\(G\mathbf{Top}\)</span>: maps out of <span class="math inline">\(G/H\)</span> detect <span class="math inline">\(H\)</span>-fixed points. This is the key reason orbit spaces appear as the generating objects for the whole theory, and is the seed of Elmendorf’s theorem.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 5
+<em>This exercise derives the description of orbit category morphisms directly from corepresentability, connecting §2.2 to §5.</em></p>
+<p>Use the corepresentability isomorphism <span class="math inline">\(X^H \cong \mathrm{Map}_G(G/H, X)\)</span> to show that <span class="math inline">\(\mathrm{Map}_G(G/H, G/K) \cong (G/K)^H\)</span>. Then identify <span class="math inline">\((G/K)^H\)</span> explicitly as the set <span class="math inline">\(\{ gK \in G/K \mid g^{-1}Hg \subseteq K \}\)</span>, and conclude that a morphism <span class="math inline">\(G/H \to G/K\)</span> in <span class="math inline">\(\mathcal{O}_G\)</span> exists if and only if <span class="math inline">\(H\)</span> is subconjugate to <span class="math inline">\(K\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 5
+Apply corepresentability with <span class="math inline">\(X = G/K\)</span>: a <span class="math inline">\(G\)</span>-map <span class="math inline">\(G/H \to G/K\)</span> is determined by the image of the coset <span class="math inline">\(eH\)</span>, which must land in <span class="math inline">\((G/K)^H\)</span>. A coset <span class="math inline">\(gK \in G/K\)</span> is fixed by <span class="math inline">\(h \in H\)</span> iff <span class="math inline">\(hgK = gK\)</span> iff <span class="math inline">\(g^{-1}hg \in K\)</span>.</p>
+</blockquote>
+<h3 id="induction-and-coinduction">2.3 Induction and Coinduction</h3>
+<p>Let <span class="math inline">\(H \leq G\)</span> be a closed subgroup. The <em>forgetful functor</em> <span class="math inline">\(U: G\mathbf{Top} \to H\mathbf{Top}\)</span> restricts the group action from <span class="math inline">\(G\)</span> to <span class="math inline">\(H\)</span>. This functor has both a left and a right adjoint.</p>
+<p><strong>Definition (Induced G-Space).</strong> The <em>induced G-space</em> of an <span class="math inline">\(H\)</span>-space <span class="math inline">\(X\)</span> is the <em>balanced product</em></p>
+<p><span class="math display">\[G \times_H X = (G \times X) / {\sim}, \quad (gh, x) \sim (g, hx) \text{ for } h \in H,\]</span></p>
+<p>with <span class="math inline">\(G\)</span>-action <span class="math inline">\(g' \cdot [g, x] = [g'g, x]\)</span>. This is the left adjoint of <span class="math inline">\(U\)</span>:</p>
+<p><span class="math display">\[G\mathbf{Top}(G \times_H X, Y) \cong H\mathbf{Top}(X, UY).\]</span></p>
+<p><strong>Definition (Coinduced G-Space).</strong> The <em>coinduced G-space</em> of an <span class="math inline">\(H\)</span>-space <span class="math inline">\(X\)</span> is</p>
+<p><span class="math display">\[\mathrm{Map}_H(G, X),\]</span></p>
+<p>the space of <span class="math inline">\(H\)</span>-equivariant maps <span class="math inline">\(G \to X\)</span> (where <span class="math inline">\(H\)</span> acts on <span class="math inline">\(G\)</span> by left multiplication), with <span class="math inline">\(G\)</span>-action <span class="math inline">\((g \cdot f)(g') = f(g'g)\)</span> (right translation). This is the right adjoint of <span class="math inline">\(U\)</span>:</p>
+<p><span class="math display">\[H\mathbf{Top}(UY, X) \cong G\mathbf{Top}(Y, \mathrm{Map}_H(G, X)).\]</span></p>
+<div class="callout callout-question">
+<p> Exercise 6
+<em>This exercise verifies the induction adjunction (Frobenius reciprocity) directly from the definition of the balanced product.</em></p>
+<p>Construct an explicit natural bijection <span class="math inline">\(G\mathbf{Top}(G \times_H X, Y) \cong H\mathbf{Top}(X, UY)\)</span>. Given a <span class="math inline">\(G\)</span>-equivariant map <span class="math inline">\(f: G \times_H X \to Y\)</span>, define a map <span class="math inline">\(\tilde{f}: X \to Y\)</span> and show it is <span class="math inline">\(H\)</span>-equivariant. Conversely, given <span class="math inline">\(g: X \to Y\)</span> an <span class="math inline">\(H\)</span>-equivariant map, define <span class="math inline">\(\hat{g}: G \times_H X \to Y\)</span> and verify it is well-defined and <span class="math inline">\(G\)</span>-equivariant.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Hint for Exercise 6
+Given <span class="math inline">\(f: G \times_H X \to Y\)</span>, set <span class="math inline">\(\tilde{f}(x) = f([e, x])\)</span>. For the converse, set <span class="math inline">\(\hat{g}([g', x]) = g' \cdot g(x)\)</span> and check this is independent of the representative: if <span class="math inline">\((g'h, x) \sim (g', hx)\)</span>, then <span class="math inline">\(g'h \cdot g(x) = g' \cdot (h \cdot g(x)) = g' \cdot g(hx)\)</span> using <span class="math inline">\(H\)</span>-equivariance of <span class="math inline">\(g\)</span>.</p>
+</blockquote>
+<div class="callout callout-info">
+<p> Kan Extension Perspective
+Let <span class="math inline">\(BG\)</span> and <span class="math inline">\(BH\)</span> denote the one-object topological categories with morphism spaces <span class="math inline">\(G\)</span> and <span class="math inline">\(H\)</span> respectively. The inclusion <span class="math inline">\(i: BH \hookrightarrow BG\)</span> induces <span class="math inline">\(i^*: \mathbf{Top}^{BG} \to \mathbf{Top}^{BH}\)</span>, which is exactly the forgetful functor <span class="math inline">\(U\)</span>.</p>
+<ul>
+<li>The <em>left Kan extension</em> <span class="math inline">\(\mathrm{Lan}_i\)</span> is <span class="math inline">\((G \times_H -)\)</span>: induction.</li>
+<li>The <em>right Kan extension</em> <span class="math inline">\(\mathrm{Ran}_i\)</span> is <span class="math inline">\(\mathrm{Map}_H(G, -)\)</span>: coinduction.</li>
+</ul>
+<p>The induction-restriction-coinduction triple <span class="math inline">\((G \times_H -, U, \mathrm{Map}_H(G,-))\)</span> is the standard example of a <em>Kan extension sandwich</em>.</p>
+</div>
+<blockquote>
+<p>[!EXAMPLE]- Induction for <span class="math inline">\(C_2 \leq C_4\)</span>
+Let <span class="math inline">\(G = C_4 = \langle r \mid r^4 = 1 \rangle\)</span> and <span class="math inline">\(H = C_2 = \langle r^2 \rangle\)</span>. Let <span class="math inline">\(X = \{pt\}\)</span> with trivial <span class="math inline">\(H\)</span>-action.</p>
+<p>Then <span class="math inline">\(G \times_H X = C_4 \times_{C_2} \{pt\} \cong C_4/C_2 \cong \{eC_2, rC_2\}\)</span>, which is a two-point <span class="math inline">\(C_4\)</span>-space — the orbit <span class="math inline">\(C_4/C_2\)</span>.</p>
+<p>On the other hand, <span class="math inline">\(\mathrm{Map}_H(G, X) = \mathrm{Map}_{C_2}(C_4, \{pt\}) = \{pt\}\)</span> (only one map).</p>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 7 (Computational)
+<em>This exercise computes an induced G-space from a nontrivial H-space, illustrating how induction “spreads” the action.</em></p>
+<p>Let <span class="math inline">\(G = C_4 = \langle r \rangle\)</span>, <span class="math inline">\(H = C_2 = \langle r^2 \rangle\)</span>, and let <span class="math inline">\(X = S^1 \subset \mathbb{C}\)</span> with <span class="math inline">\(C_2\)</span> acting by <span class="math inline">\(r^2 \cdot z = -z\)</span> (rotation by <span class="math inline">\(\pi\)</span>).</p>
+<ol type="a">
+<li><p>Describe <span class="math inline">\(C_4 \times_{C_2} S^1\)</span> as a topological space. Is it connected?</p></li>
+<li><p>Compute the <span class="math inline">\(C_4\)</span>-fixed-point set <span class="math inline">\((C_4 \times_{C_2} S^1)^{C_4}\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 7
+(a) As a set, <span class="math inline">\(C_4 \times_{C_2} S^1 = (C_4 \times S^1)/{\sim}\)</span> where <span class="math inline">\((r^2 g, z) \sim (g, -z)\)</span>. Since <span class="math inline">\(C_4/C_2 = \{[e], [r]\}\)</span>, we can write every element as <span class="math inline">\([e, z]\)</span> or <span class="math inline">\([r, z]\)</span> with <span class="math inline">\(z \in S^1\)</span>. The identification is <span class="math inline">\([e, -z] = [r^2 \cdot e, z] \sim [e, r^2 \cdot z]\)</span>, but since <span class="math inline">\(r^2\)</span> acts by <span class="math inline">\(-1\)</span>: <span class="math inline">\([e, -z]\)</span> and <span class="math inline">\([e, z]\)</span> are <em>different</em> elements, so the space is <span class="math inline">\(S^1 \sqcup S^1\)</span> (two disjoint copies).</p>
+<p>The <span class="math inline">\(C_4\)</span>-action swaps the two copies: <span class="math inline">\(r \cdot [e, z] = [r, z]\)</span> and <span class="math inline">\(r \cdot [r, z] = [r^2, z] = [e, -z]\)</span>. So <span class="math inline">\(C_4\)</span> acts on <span class="math inline">\(S^1 \sqcup S^1\)</span> by: <span class="math inline">\(r\)</span> maps the first copy to the second and the second back to the first (with a <span class="math inline">\(-1\)</span> twist).</p>
+<ol start="2" type="a">
+<li><span class="math inline">\((C_4 \times_{C_2} S^1)^{C_4}\)</span>: a fixed point <span class="math inline">\([g, z]\)</span> satisfies <span class="math inline">\(r \cdot [g, z] = [g, z]\)</span>. From the action above, no point is fixed, so <span class="math inline">\((C_4 \times_{C_2} S^1)^{C_4} = \emptyset\)</span>.</li>
+</ol>
+</blockquote>
+<h3 id="representation-spheres">2.4 Representation Spheres</h3>
+<p>A key family of examples arises from linear representations.</p>
+<p><strong>Definition (Representation Sphere).</strong> Let <span class="math inline">\(V\)</span> be a finite-dimensional real <em><span class="math inline">\(G\)</span>-representation</em> (i.e., a finite-dimensional real vector space with a continuous linear <span class="math inline">\(G\)</span>-action). The <em>representation sphere</em> is</p>
+<p><span class="math display">\[S^V = V^+ = V \cup \{\infty\},\]</span></p>
+<p>the one-point compactification of <span class="math inline">\(V\)</span>, with the <span class="math inline">\(G\)</span>-action extended so that <span class="math inline">\(G\)</span> fixes <span class="math inline">\(\infty\)</span>.</p>
+<div class="callout callout-note">
+<p>
+When <span class="math inline">\(V = \mathbb{R}^n\)</span> with trivial <span class="math inline">\(G\)</span>-action, <span class="math inline">\(S^V = S^n\)</span> with trivial <span class="math inline">\(G\)</span>-action. When <span class="math inline">\(V = \mathbb{R}\)</span> with <span class="math inline">\(C_2\)</span> acting by <span class="math inline">\(-1\)</span> (the <em>sign representation</em> <span class="math inline">\(\sigma\)</span>), <span class="math inline">\(S^\sigma \cong S^1\)</span> with <span class="math inline">\(C_2\)</span> acting by reflection (the antipodal map on the equator).</p>
+</div>
+<p>Representation spheres are fundamental for defining <em><span class="math inline">\(RO(G)\)</span>-graded</em> cohomology theories, where one suspends not just by <span class="math inline">\(S^n\)</span> but by arbitrary representation spheres <span class="math inline">\(S^V\)</span>.</p>
+<div class="callout callout-question">
+<p> Exercise 8 (Computational)
+<em>This exercise computes the fixed-point sets of representation spheres for the sign representation, building intuition for RO(G)-grading.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(\sigma: C_2 \to \mathrm{GL}_1(\mathbb{R})\)</span> the <em>sign representation</em> (<span class="math inline">\(\tau \cdot t = -t\)</span>). Compute <span class="math inline">\((S^{n\sigma})^{C_2}\)</span> for <span class="math inline">\(n = 0, 1, 2\)</span>. Then verify the smash product formula <span class="math inline">\((S^\sigma)^{C_2} \times (S^\sigma)^{C_2} \cong (S^{2\sigma})^{C_2}\)</span> at the level of fixed-point sets.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 8
+<span class="math inline">\(S^{n\sigma}\)</span> is the one-point compactification of <span class="math inline">\(\mathbb{R}^n\)</span> with <span class="math inline">\(C_2\)</span> acting by <span class="math inline">\(v \mapsto -v\)</span>. The fixed set <span class="math inline">\((S^{n\sigma})^{C_2}\)</span> consists of points fixed by <span class="math inline">\(\tau\)</span>: <span class="math inline">\(v = -v\)</span> iff <span class="math inline">\(v = 0\)</span>, plus the fixed point at <span class="math inline">\(\infty\)</span> (since <span class="math inline">\(\tau\)</span> fixes <span class="math inline">\(\infty\)</span>). So <span class="math inline">\((S^{n\sigma})^{C_2} = \{0, \infty\} \cong S^0\)</span> for all <span class="math inline">\(n \geq 1\)</span>, and <span class="math inline">\((S^0)^{C_2} = S^0\)</span> (both points <span class="math inline">\(\pm 1\)</span> are fixed since the <span class="math inline">\(C_2\)</span>-action on <span class="math inline">\(S^0 = \{1,-1\}\)</span> is trivial for <span class="math inline">\(0\)</span>-dimensional representation).</p>
+<p>For the smash product: <span class="math inline">\(S^\sigma \wedge S^\sigma \cong S^{2\sigma}\)</span>. Fixed sets: <span class="math inline">\((S^\sigma)^{C_2} = S^0\)</span> and <span class="math inline">\((S^{2\sigma})^{C_2} = S^0\)</span>, so both sides are <span class="math inline">\(S^0\)</span> — consistent with <span class="math inline">\(S^0 \wedge S^0 \cong S^0\)</span>.</p>
+</blockquote>
+<hr />
+<h2 id="naive-vs.-genuine-g-spaces">3. Naive vs. Genuine G-Spaces 🎯</h2>
+<p>This section contains the most conceptually important distinction in equivariant homotopy theory.</p>
+<h3 id="naive-g-spaces">3.1 Naive G-Spaces</h3>
+<p><strong>Definition (Naive G-Space).</strong> A <em>naive G-space</em> is simply a topological space with a continuous <span class="math inline">\(G\)</span>-action, viewed through the lens of <span class="math inline">\(\mathbf{Top}^{BG}\)</span> — i.e., as a functor <span class="math inline">\(BG \to \mathbf{Top}\)</span>.</p>
+<p>In the <em>naive</em> theory, a map <span class="math inline">\(f: X \to Y\)</span> of G-spaces is a <em>weak equivalence</em> if the underlying map of topological spaces <span class="math inline">\(Uf: UX \to UY\)</span> is a weak homotopy equivalence — that is, <span class="math inline">\(\pi_n(f): \pi_n(X) \xrightarrow{\sim} \pi_n(Y)\)</span> for all <span class="math inline">\(n \geq 0\)</span> and all basepoints. The <span class="math inline">\(G\)</span>-action is <em>completely ignored</em>.</p>
+<div class="callout callout-danger">
+<p> The Naive Theory is Insufficient
+The naive theory discards all equivariant information. For example, the two <span class="math inline">\(C_2\)</span>-spaces <span class="math inline">\(X = S^1\)</span> (with trivial action) and <span class="math inline">\(Y = S^1\)</span> (with antipodal action) are naively weakly equivalent (both have <span class="math inline">\(\pi_1 = \mathbb{Z}\)</span>), but they are <em>not</em> equivariantly equivalent: <span class="math inline">\(X^{C_2} = S^1 \neq \emptyset\)</span> while <span class="math inline">\(Y^{C_2} = \emptyset\)</span>.</p>
+</div>
+<p>The naive theory is appropriate when one only cares about spaces parametrized by the classifying space <span class="math inline">\(BG\)</span>, not about the equivariant structure itself.</p>
+<h3 id="genuine-weak-equivalences">3.2 Genuine Weak Equivalences</h3>
+<p><strong>Definition (Genuine Weak Equivalence).</strong> A map <span class="math inline">\(f: X \to Y\)</span> in <span class="math inline">\(G\mathbf{Top}\)</span> is a <em>genuine weak equivalence</em> if for every closed subgroup <span class="math inline">\(H \leq G\)</span>, the induced map on <span class="math inline">\(H\)</span>-fixed points</p>
+<p><span class="math display">\[f^H: X^H \longrightarrow Y^H\]</span></p>
+<p>is a weak homotopy equivalence.</p>
+<p><strong>The key principle:</strong> <em>genuine</em> equivariant homotopy theory sees a G-space <span class="math inline">\(X\)</span> as a <em>system</em> of spaces <span class="math inline">\(\{X^H\}_{H \leq G}\)</span> varying over the lattice of closed subgroups, and requires weak equivalences to be <em>detected at every level of this system simultaneously</em>.</p>
+<div class="callout callout-note">
+<p> Subgroup Lattice
+For a finite group <span class="math inline">\(G\)</span>, there are finitely many subgroups, so the condition is a finite conjunction of weak equivalences. For a compact Lie group, the lattice is typically uncountable but still manageable by the structure theory of compact Lie groups.</p>
+</div>
+<p>The distinction between naive and genuine weak equivalences is the central divide in equivariant homotopy theory:</p>
+<pre class="mermaid"><code>flowchart TD
+    A[&quot;G-map f: X → Y&quot;]
+    B[&quot;Underlying map Uf: UX → UY&lt;br/&gt;is a weak equivalence&quot;]
+    C[&quot;Fixed-point maps f^H: X^H → Y^H&lt;br/&gt;are weak equivalences for ALL H&quot;]
+    D[&quot;Naive weak equivalence&quot;]
+    E[&quot;Genuine weak equivalence&quot;]
+    A --&gt; B --&gt; D
+    A --&gt; C --&gt; E
+    E --&gt;|&quot;implies&quot;| D
+    D --&gt;|&quot;does NOT imply&quot;| E</code></pre>
+<p><strong>The implication is strict.</strong> Every genuine weak equivalence is a naive weak equivalence (taking <span class="math inline">\(H = \{e\}\)</span> gives the underlying map), but the converse fails, as the <span class="math inline">\(C_2\)</span>-action example above demonstrates.</p>
+<div class="callout callout-question">
+<p> Exercise 9 (Computational)
+<em>This exercise works out a concrete example of the naive/genuine gap — a map that is naively a weak equivalence but not genuinely so.</em></p>
+<p>Let <span class="math inline">\(G = C_2 = \{e, \tau\}\)</span> and consider the two <span class="math inline">\(C_2\)</span>-spaces:
+- <span class="math inline">\(X = S^1\)</span> with the <em>reflection action</em> <span class="math inline">\(\tau \cdot e^{i\theta} = e^{-i\theta}\)</span>.
+- <span class="math inline">\(Y = S^1\)</span> with the <em>antipodal action</em> <span class="math inline">\(\tau \cdot e^{i\theta} = e^{i(\theta + \pi)} = -e^{i\theta}\)</span>.</p>
+<ol type="a">
+<li><p>Show the identity map on the underlying space <span class="math inline">\(S^1\)</span> is a naive weak equivalence <span class="math inline">\(X \to Y\)</span>.</p></li>
+<li><p>Compute <span class="math inline">\(X^{C_2}\)</span> and <span class="math inline">\(Y^{C_2}\)</span>. Is this map a genuine weak equivalence?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 9
+(a) The underlying spaces are both <span class="math inline">\(S^1\)</span>, so the identity is a homeomorphism, hence a weak equivalence naively.</p>
+<ol start="2" type="a">
+<li><span class="math inline">\(X^{C_2} = \{e^{i\theta} \mid e^{-i\theta} = e^{i\theta}\} = \{1, -1\} \cong S^0\)</span> (the two points where <span class="math inline">\(\sin\theta = 0\)</span>).</li>
+</ol>
+<p><span class="math inline">\(Y^{C_2} = \{e^{i\theta} \mid -e^{i\theta} = e^{i\theta}\} = \emptyset\)</span> (no point satisfies <span class="math inline">\(z = -z\)</span> on <span class="math inline">\(S^1 \subset \mathbb{C} \setminus \{0\}\)</span>).</p>
+<p>Since <span class="math inline">\(X^{C_2} \simeq S^0 \not\simeq \emptyset = Y^{C_2}\)</span>, the identity is <strong>not</strong> a genuine weak equivalence. The two <span class="math inline">\(C_2\)</span>-spaces have completely different equivariant homotopy types.</p>
+</blockquote>
+<h3 id="the-model-structure-on-g-top">3.3 The Model Structure on G Top</h3>
+<p>The genuine weak equivalences are the weak equivalences in a model structure on <span class="math inline">\(G\mathbf{Top}\)</span>.</p>
+<p><strong>Proposition 1.2.15 (Genuine Model Structure on <span class="math inline">\(G\mathbf{Top}\)</span>).</strong> There is a cofibrantly generated model structure on <span class="math inline">\(G\mathbf{Top}\)</span> in which:</p>
+<ul>
+<li><em>Weak equivalences</em> are genuine weak equivalences: maps <span class="math inline">\(f: X \to Y\)</span> with <span class="math inline">\(f^H: X^H \xrightarrow{\sim} Y^H\)</span> for all closed <span class="math inline">\(H \leq G\)</span>.</li>
+<li><em>Fibrations</em> are maps <span class="math inline">\(p: X \to Y\)</span> such that <span class="math inline">\(p^H: X^H \to Y^H\)</span> is a Serre fibration for all closed <span class="math inline">\(H \leq G\)</span>.</li>
+<li><em>Cofibrations</em> are retracts of relative <span class="math inline">\(G\)</span>-CW complexes (see §4).</li>
+</ul>
+<p>The <em>generating cofibrations</em> are:</p>
+<p><span class="math display">\[I_G = \{ G/H \times S^{n-1} \hookrightarrow G/H \times D^n \mid H \leq G \text{ closed}, n \geq 0 \}.\]</span></p>
+<p>The <em>generating acyclic cofibrations</em> are:</p>
+<p><span class="math display">\[J_G = \{ G/H \times D^n \hookrightarrow G/H \times D^n \times I \mid H \leq G \text{ closed}, n \geq 0 \}.\]</span></p>
+<div class="callout callout-info">
+<p> Verification Strategy
+The model structure is verified using the <em>recognition theorem</em> for cofibrantly generated model categories: one checks the small object argument applies (compactness of cells), that <span class="math inline">\(I_G\)</span>-cofibrations with the RLP against <span class="math inline">\(J_G\)</span> are acyclic, and that <span class="math inline">\(J_G\)</span>-cofibrations are weak equivalences. The key input is that fixed-point functors <span class="math inline">\((-)^H\)</span> commute with sequential colimits along closed inclusions — proved in Proposition 1.2.8 (see §4.3).</p>
+</div>
+<h3 id="equivariant-homotopy-groups">3.4 Equivariant Homotopy Groups</h3>
+<p><strong>Definition (Equivariant Homotopy Groups).</strong> For a based G-space <span class="math inline">\(X\)</span> with <span class="math inline">\(H\)</span>-fixed basepoint, the <em><span class="math inline">\(H\)</span>-equivariant homotopy groups</em> are</p>
+<p><span class="math display">\[\pi_n^H(X) := \pi_n(X^H),\]</span></p>
+<p>the ordinary homotopy groups of the <span class="math inline">\(H\)</span>-fixed-point space.</p>
+<p>These are indexed not just by <span class="math inline">\(n \geq 0\)</span> but by the <em>lattice of closed subgroups</em> of <span class="math inline">\(G\)</span>:</p>
+<p><span class="math display">\[\bigl\{ \pi_n^H(X) \bigr\}_{H \leq G,\, n \geq 0}.\]</span></p>
+<p><strong>The genuine weak equivalences are precisely the maps inducing isomorphisms on all <span class="math inline">\(\pi_n^H\)</span>.</strong> This is the equivariant analog of Whitehead’s theorem characterizing weak equivalences via homotopy groups.</p>
+<div class="callout callout-warning">
+<p>
+<em>This is not the only natural notion of equivariant homotopy groups.</em> In the stable setting, one also has homotopy groups indexed by representations <span class="math inline">\(V\)</span> of <span class="math inline">\(G\)</span>, giving <span class="math inline">\(\pi_V^H(X) = [S^V, X]^H\)</span>. The groups <span class="math inline">\(\pi_n^H\)</span> defined here are the <em>unstable</em> equivariant homotopy groups.</p>
+</div>
+<h3 id="the-unstable-distinction-in-context">3.5 The Unstable Distinction in Context 💡</h3>
+<p>The naive/genuine distinction is worth pausing on, because it is <em>far less dramatic</em> in the unstable setting than in the stable one — and this asymmetry explains why it receives comparatively little attention in unstable equivariant homotopy theory.</p>
+<p><strong>Unstable: same objects, different weak equivalences.</strong> Both the naive and genuine theories live on the same category <span class="math inline">\(G\mathbf{Top}\)</span> — spaces with continuous <span class="math inline">\(G\)</span>-action. They are two different <em>model structures</em> on the same underlying category:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Naive model structure</th>
+<th>Genuine model structure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Objects</td>
+<td><span class="math inline">\(G\)</span>-spaces</td>
+<td><span class="math inline">\(G\)</span>-spaces</td>
+</tr>
+<tr class="even">
+<td>Weak equivalences</td>
+<td><span class="math inline">\(Uf: UX \xrightarrow{\sim} UY\)</span> (underlying space)</td>
+<td><span class="math inline">\(f^H: X^H \xrightarrow{\sim} Y^H\)</span> for all <span class="math inline">\(H \leq G\)</span></td>
+</tr>
+<tr class="odd">
+<td>Homotopy category</td>
+<td><span class="math inline">\(\simeq \mathrm{Ho}(\mathbf{Top}^{BG})\)</span></td>
+<td><span class="math inline">\(\simeq \mathrm{Ho}(\mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top}))\)</span></td>
+</tr>
+<tr class="even">
+<td>Classifying data</td>
+<td><span class="math inline">\(G\)</span>-action on <span class="math inline">\(\pi_*(X)\)</span></td>
+<td>System <span class="math inline">\(\{\pi_*^H(X)\}_{H \leq G}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The naive homotopy category is equivalent to the homotopy theory of spaces <em>parametrized over <span class="math inline">\(BG\)</span></em> — it sees only the total homotopy type and the monodromy action of <span class="math inline">\(\pi_1(BG) = G\)</span> on it. All finer fixed-point information is lost.</p>
+<p><strong>Why genuine is the right answer unstably.</strong> Elmendorf’s theorem (§5) makes the genuine theory completely natural: genuine G-spaces <em>are</em> presheaves of spaces on <span class="math inline">\(\mathcal{O}_G\)</span>, and the weak equivalences are just objectwise equivalences. There is no comparably clean description of the naive homotopy theory in terms of the equivariant structure. The naive theory is a coarsening of the genuine one, obtained by restricting to the single object <span class="math inline">\(G/e \in \mathcal{O}_G\)</span> (the free orbit).</p>
+<div class="callout callout-info">
+<p> Smith Theory: The Original Motivation
+The classical reason genuine equivariant homotopy theory is necessary is <strong>Smith theory</strong> (P.A. Smith, 1930s–40s): if <span class="math inline">\(G = \mathbb{Z}/p\)</span> acts on a mod-<span class="math inline">\(p\)</span> homology sphere <span class="math inline">\(X\)</span> (meaning <span class="math inline">\(H_*(X; \mathbb{F}_p) \cong H_*(S^n; \mathbb{F}_p)\)</span> for some <span class="math inline">\(n\)</span>), then the fixed-point set <span class="math inline">\(X^G\)</span> is also a mod-<span class="math inline">\(p\)</span> homology sphere (of possibly lower dimension <span class="math inline">\(d \leq n\)</span>).</p>
+<p>This is a theorem <em>about fixed-point sets</em> and is completely invisible to naive equivariant homotopy theory, which cannot distinguish the two <span class="math inline">\(C_2\)</span>-spaces in Exercise 9 (both are naively equivalent to <span class="math inline">\(S^1\)</span>, but their fixed-point sets are <span class="math inline">\(S^0\)</span> and <span class="math inline">\(\emptyset\)</span> respectively). The genuine theory is precisely the framework that makes such fixed-point phenomena accessible.</p>
+</div>
+<p><strong>Contrast with the stable world.</strong> In the stable world, naive and genuine <span class="math inline">\(G\)</span>-spectra are <em>different categories</em>, not just different model structures:</p>
+<ul>
+<li><strong>Naive <span class="math inline">\(G\)</span>-spectra</strong>: ordinary spectra with a <span class="math inline">\(G\)</span>-action (i.e., objects of <span class="math inline">\(\mathrm{Sp}^{BG}\)</span>, spectra parametrized over <span class="math inline">\(BG\)</span>). Homotopy groups <span class="math inline">\(\pi_n^H(X) = \pi_n(X^{hH})\)</span> (homotopy fixed points).</li>
+<li><strong>Genuine <span class="math inline">\(G\)</span>-spectra</strong>: spectra indexed over a <em>complete <span class="math inline">\(G\)</span>-universe</em> <span class="math inline">\(\mathcal{U}\)</span> (a countably infinite-dimensional real <span class="math inline">\(G\)</span>-representation containing all irreducibles). Homotopy groups are <span class="math inline">\(RO(G)\)</span>-graded: <span class="math inline">\(\pi_V^H(X) = [S^V, X]^H\)</span> for <span class="math inline">\(V \in RO(G)\)</span>.</li>
+</ul>
+<p>The difference is structural: genuine <span class="math inline">\(G\)</span>-spectra have <em>norm maps</em> <span class="math inline">\(N_H^G: \mathrm{Sp}^H \to \mathrm{Sp}^G\)</span> — multiplicative transfers that have no naive analogue. These norms are essential in the Hill–Hopkins–Ravenel theorem resolving the Kervaire invariant one problem (2009): the key object is the genuine <span class="math inline">\(C_8\)</span>-spectrum <span class="math inline">\(\Omega = D^{-1} MU^{((C_8))}\)</span>, and the proof relies critically on norm maps and <span class="math inline">\(RO(G)\)</span>-graded homotopy groups that are unavailable in the naive stable theory.</p>
+<div class="callout callout-note">
+<p> Summary of the Distinction
+| | Unstable | Stable |
+|—|—|—|
+| Naive vs. genuine | Same category, different model structures | <em>Different categories</em> |
+| Genuine advantage | Sees fixed-point sets; Smith theory | Norm maps, <span class="math inline">\(RO(G)\)</span>-grading, transfer |
+| Elmendorf’s role | Makes genuine the “canonical” theory | No direct analogue |
+| Key example | <span class="math inline">\(C_2 \curvearrowright S^1\)</span>: reflection <span class="math inline">\(\neq\)</span> antipodal (genuinely) | HHR theorem requires genuine <span class="math inline">\(C_8\)</span>-spectra |</p>
+<p><em>In the unstable world, the genuine theory is so natural that the naive/genuine distinction rarely needs to be made explicit. In the stable world, the distinction is unavoidable.</em></p>
+</div>
+<hr />
+<h2 id="g-cw-complexes">4. G-CW Complexes 🏗️</h2>
+<h3 id="cells-and-skeleta">4.1 Cells and Skeleta</h3>
+<p>The cells in a G-CW complex are <em>orbit spaces times discs</em>.</p>
+<p><strong>Definition (G-Cells).</strong> The <em><span class="math inline">\(n\)</span>-dimensional <span class="math inline">\(G\)</span>-cells</em> are spaces of the form</p>
+<p><span class="math display">\[G/H \times D^n \quad \text{(interior cell)}, \qquad G/H \times S^{n-1} \quad \text{(boundary cell)},\]</span></p>
+<p>where <span class="math inline">\(H \leq G\)</span> is a closed subgroup and <span class="math inline">\(G\)</span> acts on the orbit factor <span class="math inline">\(G/H\)</span> by left translation and <em>trivially</em> on <span class="math inline">\(D^n\)</span> and <span class="math inline">\(S^{n-1}\)</span>.</p>
+<div class="callout callout-note">
+<p> Why these cells?
+One might hope to use cells of the form <span class="math inline">\(G \times_H D(V)\)</span> for a representation <span class="math inline">\(V\)</span> of <span class="math inline">\(H\)</span> (the <em>equivariant disk bundle</em>). These are more flexible and appear in <em><span class="math inline">\(G\)</span>-CW structures compatible with representation theory</em>. However, it is a theorem that any such cell can be <em>triangulated</em> in terms of the simpler cells <span class="math inline">\(G/K \times D^n\)</span>, so no generality is lost by restricting to the simpler form for homotopy-theoretic purposes.</p>
+</div>
+<p><strong>Definition 1.2.1 (G-CW Complex).</strong> A <em>G-CW complex</em> is a G-space <span class="math inline">\(X\)</span> equipped with a filtration</p>
+<p><span class="math display">\[X^0 \subseteq X^1 \subseteq X^2 \subseteq \cdots \subseteq X = \operatorname{colim}_n X^n\]</span></p>
+<p>where:
+- <span class="math inline">\(X^0 = \coprod_\alpha G/H_\alpha\)</span> is a disjoint union of orbits (a discrete set of <span class="math inline">\(G\)</span>-orbits),
+- <span class="math inline">\(X^{n+1}\)</span> is obtained from <span class="math inline">\(X^n\)</span> by a <em>pushout</em> of the form:</p>
+<p><span class="math display">\[\begin{array}{ccc}
+\displaystyle\coprod_\beta G/H_\beta \times S^n &amp; \hookrightarrow &amp; \displaystyle\coprod_\beta G/H_\beta \times D^{n+1} \\[4pt]
+\downarrow &amp; &amp; \downarrow \\
+X^n &amp; \longrightarrow &amp; X^{n+1}
+\end{array}\]</span></p>
+<p>where the <span class="math inline">\(H_\beta\)</span> range over (possibly varying) closed subgroups of <span class="math inline">\(G\)</span>.</p>
+<p>The horizontal top map is the standard inclusion <span class="math inline">\(S^n \hookrightarrow D^{n+1}\)</span>, and the left vertical map is the <em>attaching map</em> of the cells.</p>
+<div class="callout callout-question">
+<p> Exercise 10 (Computational)
+<em>This exercise writes down the simplest nontrivial G-CW structure, illustrating how free orbits build a space with trivial fixed-point sets.</em></p>
+<p>Give an explicit <span class="math inline">\(C_n\)</span>-CW structure on <span class="math inline">\(S^1 \subset \mathbb{C}\)</span> with <span class="math inline">\(C_n = \langle \zeta \rangle\)</span> acting by <span class="math inline">\(\zeta \cdot z = e^{2\pi i/n} z\)</span> (rotation by <span class="math inline">\(2\pi/n\)</span>). Identify each cell’s orbit type (<span class="math inline">\(G/H\)</span> for some <span class="math inline">\(H\)</span>) and verify that <span class="math inline">\((S^1)^{C_n} = \emptyset\)</span>.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 10
+Take <span class="math inline">\(n\)</span> equally spaced points <span class="math inline">\(\zeta^k\)</span> for <span class="math inline">\(k = 0, \ldots, n-1\)</span> as the <span class="math inline">\(0\)</span>-skeleton: these form a single free orbit <span class="math inline">\(C_n/e\)</span> (since no point is fixed by any nontrivial rotation). Then attach a single <span class="math inline">\(1\)</span>-cell of type <span class="math inline">\(C_n/e \times D^1\)</span>: the <span class="math inline">\(n\)</span> arcs between consecutive points, all in the same free orbit. The resulting <span class="math inline">\(C_n\)</span>-CW structure has one <span class="math inline">\(0\)</span>-cell of type <span class="math inline">\(C_n/e\)</span> and one <span class="math inline">\(1\)</span>-cell of type <span class="math inline">\(C_n/e \times D^1\)</span>.</p>
+<p>Fixed points: <span class="math inline">\((S^1)^{C_n}\)</span> requires <span class="math inline">\(e^{2\pi i/n} z = z\)</span>, i.e., <span class="math inline">\(z = 0\)</span>, but <span class="math inline">\(0 \notin S^1\)</span>. So <span class="math inline">\((S^1)^{C_n} = \emptyset\)</span>, consistent with all cells being free.</p>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 11
+<em>This exercise constructs a G-CW structure for a space with empty fixed-point set — the simplest “free” equivariant complex.</em></p>
+<p>Let <span class="math inline">\(C_2\)</span> act on <span class="math inline">\(S^2\)</span> by the <em>antipodal map</em> <span class="math inline">\(\tau \cdot (x, y, z) = (-x, -y, -z)\)</span>, which has no fixed points. Write a <span class="math inline">\(C_2\)</span>-CW structure for this <span class="math inline">\(C_2\)</span>-space, identifying the orbit type of each cell. Verify that all cells are free (<span class="math inline">\(C_2/e\)</span>-type).</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 11
+Since the antipodal map has no fixed points, every cell must be free (orbit type <span class="math inline">\(C_2/e\)</span>). One minimal structure:
+- Two <span class="math inline">\(0\)</span>-cells forming one free orbit: <span class="math inline">\(C_2/e \times D^0\)</span> (pick the north pole <span class="math inline">\(N\)</span> and south pole <span class="math inline">\(S = \tau(N)\)</span>, but the antipodal of <span class="math inline">\(N = (0,0,1)\)</span> is <span class="math inline">\(S = (0,0,-1)\)</span> — these form a free orbit).
+- One free <span class="math inline">\(1\)</span>-cell <span class="math inline">\(C_2/e \times D^1\)</span>: a great semicircle from <span class="math inline">\(N\)</span> to <span class="math inline">\(S\)</span> and its antipodal image, forming a free orbit of arcs.
+- One free <span class="math inline">\(2\)</span>-cell <span class="math inline">\(C_2/e \times D^2\)</span>: the two hemispheres bounding the above.</p>
+<p>Compare: the beachball structure for <span class="math inline">\(C_2\)</span> acting by <em>rotation</em> (not antipodal) has two <em>fixed</em> <span class="math inline">\(0\)</span>-cells of type <span class="math inline">\(C_2/C_2\)</span>; here all cells are free.</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Zero-Dimensional G-CW Complexes
+A <span class="math inline">\(0\)</span>-dimensional <span class="math inline">\(G\)</span>-CW complex is simply a disjoint union of orbits:
+<span class="math display">\[X^0 = \coprod_\alpha G/H_\alpha.\]</span>
+These are the “discrete G-spaces” — their fixed-point sets are <span class="math inline">\((G/H_\alpha)^K = \mathrm{Map}_G(G/K, G/H_\alpha)\)</span>, which is nonempty iff some <span class="math inline">\(G\)</span>-conjugate of <span class="math inline">\(K\)</span> is contained in <span class="math inline">\(H_\alpha\)</span>.</p>
+</blockquote>
+<h3 id="fixed-points-of-cells">4.2 Fixed Points of Cells</h3>
+<p>To understand the homotopy theory, one must understand the fixed-point sets of cells.</p>
+<p><strong>Lemma (Fixed Points of a Cell).</strong> For closed subgroups <span class="math inline">\(H, K \leq G\)</span>,</p>
+<p><span class="math display">\[(G/K \times D^n)^H = (G/K)^H \times D^n.\]</span></p>
+<p><em>Proof.</em> The <span class="math inline">\(G\)</span>-action is <span class="math inline">\((G/K \times D^n)\)</span> with trivial action on <span class="math inline">\(D^n\)</span>, so <span class="math inline">\(H\)</span> fixes a pair <span class="math inline">\((gK, x)\)</span> iff <span class="math inline">\(H\)</span> fixes <span class="math inline">\(gK\)</span> (and <span class="math inline">\(x\)</span> is arbitrary). <span class="math inline">\(\square\)</span></p>
+<p>This reduces the computation of cell fixed points to understanding <span class="math inline">\((G/K)^H\)</span>.</p>
+<p><strong>Proposition.</strong> There is a natural bijection</p>
+<p><span class="math display">\[(G/K)^H = \mathrm{Map}_G(G/H, G/K).\]</span></p>
+<p><em>Proof.</em> By the corepresentability result of §2.2, <span class="math inline">\(\mathrm{Map}_G(G/H, G/K) \cong (G/K)^H\)</span>. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-note">
+<p> Explicit Description
+An element of <span class="math inline">\((G/K)^H\)</span> is a coset <span class="math inline">\(gK\)</span> fixed by all <span class="math inline">\(h \in H\)</span>, i.e., <span class="math inline">\(hgK = gK\)</span> for all <span class="math inline">\(h \in H\)</span>, i.e., <span class="math inline">\(g^{-1}Hg \subseteq K\)</span>. So
+<span class="math display">\[(G/K)^H = \{ gK \mid g^{-1}Hg \subseteq K \}\]</span>
+— the <span class="math inline">\(H\)</span>-fixed cosets of <span class="math inline">\(K\)</span> correspond to elements <span class="math inline">\(g\)</span> for which <span class="math inline">\(H\)</span> is subconjugate to <span class="math inline">\(K\)</span> via <span class="math inline">\(g\)</span>. In particular, <span class="math inline">\((G/K)^H \neq \emptyset\)</span> iff <span class="math inline">\(H\)</span> is subconjugate to <span class="math inline">\(K\)</span> in <span class="math inline">\(G\)</span>.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 12 (Computational)
+<em>This exercise computes all nontrivial fixed-point sets of cells for <span class="math inline">\(G = C_4\)</span>, which is the basic data needed to understand the homotopy theory of <span class="math inline">\(C_4\)</span>-CW complexes.</em></p>
+<p>Let <span class="math inline">\(G = C_4\)</span> with subgroups <span class="math inline">\(\{e\} \subset C_2 \subset C_4\)</span>. For each pair of subgroups <span class="math inline">\(H, K \in \{\{e\}, C_2, C_4\}\)</span>, compute <span class="math inline">\((G/K)^H\)</span> explicitly as a set. Arrange the results in a <span class="math inline">\(3 \times 3\)</span> table. For which pairs is the set nonempty?</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 12
+<span class="math inline">\((G/K)^H = \{gK \mid g^{-1}Hg \subseteq K\}\)</span>. Since <span class="math inline">\(C_4\)</span> is abelian, <span class="math inline">\(g^{-1}Hg = H\)</span> for all <span class="math inline">\(g\)</span>, so the condition is simply <span class="math inline">\(H \subseteq K\)</span>.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">\(K = \{e\}\)</span></th>
+<th><span class="math inline">\(K = C_2\)</span></th>
+<th><span class="math inline">\(K = C_4\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(H = \{e\}\)</span></td>
+<td><span class="math inline">\(C_4/\{e\} \cong C_4\)</span> (4 elements)</td>
+<td><span class="math inline">\(C_4/C_2 \cong \{eC_2, rC_2\}\)</span> (2 elements)</td>
+<td><span class="math inline">\(C_4/C_4 = \{*\}\)</span> (1 element)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(H = C_2\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span> (<span class="math inline">\(C_2 \not\subseteq \{e\}\)</span>)</td>
+<td><span class="math inline">\(C_4/C_2\)</span> (2 elements, since <span class="math inline">\(C_2 \subseteq C_2\)</span>)</td>
+<td><span class="math inline">\(\{*\}\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(H = C_4\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td><span class="math inline">\(\{*\}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The set is nonempty exactly when <span class="math inline">\(H \subseteq K\)</span>.</p>
+</blockquote>
+<h3 id="colimit-compatibility">4.3 Colimit Compatibility</h3>
+<p>A crucial technical fact underlies the model structure verification.</p>
+<p><strong>Proposition 1.2.8 (Fixed Points Commute with Relevant Colimits).</strong> Let <span class="math inline">\(H \leq G\)</span> be a closed subgroup. The fixed-point functor <span class="math inline">\((-)^H: G\mathbf{Top} \to \mathbf{Top}\)</span> commutes with:
+1. <em>Pushouts along closed inclusions</em> (i.e., if <span class="math inline">\(A \hookrightarrow X\)</span> is a <span class="math inline">\(G\)</span>-equivariant closed inclusion and <span class="math inline">\(A \hookrightarrow B\)</span> is any <span class="math inline">\(G\)</span>-map, then <span class="math inline">\((X \cup_A B)^H \cong X^H \cup_{A^H} B^H\)</span>).
+2. <em>Sequential colimits along closed inclusions</em> (i.e., if <span class="math inline">\(X_0 \hookrightarrow X_1 \hookrightarrow \cdots\)</span> are <span class="math inline">\(G\)</span>-equivariant closed inclusions, then <span class="math inline">\((\operatorname{colim}_n X_n)^H \cong \operatorname{colim}_n (X_n^H)\)</span>).</p>
+<div class="callout callout-info">
+<p> Why Closed Inclusions?
+General colimits do not commute with fixed points. The <em>closed inclusion</em> hypothesis ensures that the fixed-point set of the colimit is the colimit of the fixed-point sets — this follows from the fact that fixed points of a closed <span class="math inline">\(G\)</span>-equivariant subspace are closed, and compact Hausdorff (or compactly generated) spaces have good intersection properties.</p>
+</div>
+<p><strong>Corollary.</strong> If <span class="math inline">\(X\)</span> is a <span class="math inline">\(G\)</span>-CW complex, then <span class="math inline">\(X^H\)</span> is a CW complex with cells <span class="math inline">\((G/K)^H \times D^n\)</span> for each <span class="math inline">\(G\)</span>-cell <span class="math inline">\(G/K \times D^n\)</span> of <span class="math inline">\(X\)</span>. The CW filtration on <span class="math inline">\(X^H\)</span> is induced from the skeletal filtration of <span class="math inline">\(X\)</span>.</p>
+<h3 id="theta-connectedness-and-the-help-lemma">4.4 Theta-Connectedness and the HELP Lemma</h3>
+<p><strong>Definition 1.2.10 (<span class="math inline">\(\theta\)</span>-Connected Maps).</strong> Let <span class="math inline">\(\theta: \{\text{closed subgroups of } G\} \to \mathbb{Z}_{\geq 0} \cup \{\infty\}\)</span> be a function. A <span class="math inline">\(G\)</span>-map <span class="math inline">\(f: X \to Y\)</span> is <em><span class="math inline">\(\theta\)</span>-connected</em> if <span class="math inline">\(f^H: X^H \to Y^H\)</span> is <span class="math inline">\(\theta(H)\)</span>-connected for all closed subgroups <span class="math inline">\(H \leq G\)</span>.</p>
+<div class="callout callout-note">
+<p>
+Recall a map <span class="math inline">\(f: A \to B\)</span> is <em><span class="math inline">\(k\)</span>-connected</em> if <span class="math inline">\(\pi_i(f): \pi_i(A) \xrightarrow{\sim} \pi_i(B)\)</span> is an isomorphism for <span class="math inline">\(i &lt; k\)</span> and a surjection for <span class="math inline">\(i = k\)</span>. A <span class="math inline">\(\theta\)</span>-connected map is one that is simultaneously connected at every level of the equivariant structure, with the connectivity requirement possibly varying by subgroup.</p>
+</div>
+<p><strong>Theorem 1.2.11 (Equivariant HELP Lemma — Homotopy Extension Lifting Property).</strong> Let <span class="math inline">\(f: X \to Y\)</span> be a <span class="math inline">\(\theta\)</span>-connected <span class="math inline">\(G\)</span>-map and let <span class="math inline">\(i: A \hookrightarrow B\)</span> be an inclusion of <span class="math inline">\(G\)</span>-CW complexes such that all cells of <span class="math inline">\(B \setminus A\)</span> of type <span class="math inline">\(G/H\)</span> have dimension <span class="math inline">\(\leq \theta(H)\)</span>. Then <span class="math inline">\(f\)</span> has the <em>homotopy lifting property</em> with respect to <span class="math inline">\(i\)</span>.</p>
+<p><em>Proof sketch.</em> By induction over the skeletal filtration of <span class="math inline">\(B\)</span>, using Proposition 1.2.8 to reduce each attachment to an ordinary (non-equivariant) HELP lemma problem for the fixed-point maps <span class="math inline">\(f^H\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary 1.2.14 (Equivariant Whitehead Theorem).</strong> A genuine weak equivalence between <span class="math inline">\(G\)</span>-CW complexes is a <span class="math inline">\(G\)</span>-homotopy equivalence.</p>
+<p><em>Proof sketch.</em> Apply the Equivariant HELP Lemma with <span class="math inline">\(A = \emptyset\)</span>, <span class="math inline">\(B = Y\)</span>, and <span class="math inline">\(f: X \to Y\)</span> the weak equivalence. The <span class="math inline">\(\theta\)</span>-connectedness condition is satisfied for <span class="math inline">\(\theta \equiv \infty\)</span>. Construct the inverse homotopy equivalence and homotopies inductively. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-warning">
+<p>
+<em>The Equivariant Whitehead theorem requires the domain and codomain to be G-CW complexes</em> — it fails for general G-spaces, just as in the non-equivariant setting.</p>
+</div>
+<h3 id="worked-examples">4.5 Worked Examples</h3>
+<blockquote>
+<p>[!EXAMPLE]- The Beachball: <span class="math inline">\(C_2\)</span> Acting on <span class="math inline">\(S^V\)</span>
+Let <span class="math inline">\(V = \mathbb{R}^2\)</span> with <span class="math inline">\(C_2 = \{1, \tau\}\)</span> acting by <span class="math inline">\(\tau \cdot (x,y) = (-x, -y)\)</span> (the antipodal map). Then <span class="math inline">\(S^V = S^2\)</span>.</p>
+<p>The <span class="math inline">\(C_2\)</span>-CW structure on <span class="math inline">\(S^2\)</span> (the “beachball”) is:
+- Two <span class="math inline">\(0\)</span>-cells: <span class="math inline">\(\{N, S\}\)</span> — one <span class="math inline">\(C_2\)</span>-orbit <span class="math inline">\(C_2/e\)</span>, or equivalently two fixed points if <span class="math inline">\(\tau(N) = S\)</span>. Let <span class="math inline">\(\tau\)</span> act antipodally, so <span class="math inline">\(\{N,S\}\)</span> is the orbit <span class="math inline">\(C_2/e\)</span>.
+- One equatorial <span class="math inline">\(1\)</span>-cell: <span class="math inline">\(C_2/e \times D^1\)</span> — the equator as an orbit of arcs.
+- One <span class="math inline">\(2\)</span>-cell: <span class="math inline">\(C_2/e \times D^2\)</span> — the two hemispheres as an orbit.</p>
+<p>The fixed-point set <span class="math inline">\((S^V)^{C_2}\)</span> is the set of antipodally-fixed points of <span class="math inline">\(S^2\)</span>: since antipodal map has no fixed points on <span class="math inline">\(S^2\)</span>, <span class="math inline">\((S^V)^{C_2} = \emptyset\)</span>.</p>
+<p>Compare with <span class="math inline">\(S^{2\sigma}\)</span> where <span class="math inline">\(\sigma\)</span> is the sign rep on <span class="math inline">\(\mathbb{R}\)</span>: here <span class="math inline">\(S^{2\sigma} = S^2\)</span> with <span class="math inline">\(C_2\)</span> reflecting across the equator. Then <span class="math inline">\((S^{2\sigma})^{C_2} = S^1\)</span> (the equator).</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- The Torus with <span class="math inline">\(S^1\)</span>-Action
+Consider <span class="math inline">\(T^2 = S^1 \times S^1\)</span> with the <span class="math inline">\(S^1\)</span>-action <span class="math inline">\(z \cdot (w_1, w_2) = (zw_1, w_2)\)</span> (rotation on the first factor).</p>
+<p>A minimal <span class="math inline">\(S^1\)</span>-CW structure requires only:
+- <span class="math inline">\(0\)</span>-cells: One orbit <span class="math inline">\(S^1/S^1 \cong \{*\}\)</span> — the point <span class="math inline">\(\{1\} \times S^1\)</span> (fixed-point set), thought of as a single <span class="math inline">\(S^1\)</span>-fixed point. Actually the fixed set is <span class="math inline">\((T^2)^{S^1} = \{1\} \times S^1\)</span>.</p>
+<p>Wait — we need cells to build the whole torus. A minimal structure is:
+- One <span class="math inline">\(0\)</span>-cell of type <span class="math inline">\(S^1/e\)</span> (a free orbit)
+- One <span class="math inline">\(1\)</span>-cell of type <span class="math inline">\(S^1/e \times D^1\)</span></p>
+<p>This gives <span class="math inline">\(S^1 \cup_{S^1} S^1 \times I \cong T^2\)</span>. The remarkable fact is that <em>the torus only needs a single free <span class="math inline">\(1\)</span>-cell</em> in its <span class="math inline">\(S^1\)</span>-CW structure, whereas without the group action one needs <span class="math inline">\(2\)</span>-cells as well.</p>
+</blockquote>
+<blockquote>
+<p>[!EXAMPLE]- Equilateral Triangle with <span class="math inline">\(D_6\)</span>-Action
+The dihedral group <span class="math inline">\(D_6 = \langle r, s \mid r^3 = s^2 = 1, srs = r^{-1} \rangle\)</span> acts on the equilateral triangle <span class="math inline">\(T\)</span> (as a topological space, homeomorphic to <span class="math inline">\(S^1\)</span>).</p>
+<p>The <span class="math inline">\(D_6\)</span>-CW structure:
+- <span class="math inline">\(0\)</span>-cells: The three vertices form a single <span class="math inline">\(D_6\)</span>-orbit <span class="math inline">\(D_6/D_2\)</span> (where <span class="math inline">\(D_2\)</span> is the stabilizer of a vertex, isomorphic to <span class="math inline">\(\mathbb{Z}/2\)</span>, generated by the reflection fixing that vertex).
+- <span class="math inline">\(1\)</span>-cells: The three edges form a single <span class="math inline">\(D_6\)</span>-orbit <span class="math inline">\(D_6/\mathbb{Z}/2\)</span> (where <span class="math inline">\(\mathbb{Z}/2\)</span> is the reflection fixing the midpoint of an edge). But an edge has a midpoint fixed by a reflection, so the attaching data is an equivariant attachment.</p>
+<p>The key point is that <span class="math inline">\(|D_6|/|D_2| = 6/2 = 3\)</span> (the number of vertices), confirming the orbit count.</p>
+</blockquote>
+<hr />
+<h2 id="elmendorfs-theorem">5. Elmendorf’s Theorem 🌐</h2>
+<h3 id="the-orbit-category">5.1 The Orbit Category</h3>
+<p><strong>Definition (Orbit Category).</strong> The <em>orbit category</em> <span class="math inline">\(\mathcal{O}_G\)</span> is the full subcategory of <span class="math inline">\(G\mathbf{Top}\)</span> on objects <span class="math inline">\(\{G/H \mid H \leq G \text{ closed}\}\)</span>.</p>
+<p>The morphism spaces in <span class="math inline">\(\mathcal{O}_G\)</span> are computed as:</p>
+<p><span class="math display">\[\mathrm{Map}_{\mathcal{O}_G}(G/H, G/K) = \mathrm{Map}_G(G/H, G/K) \cong (G/K)^H.\]</span></p>
+<p>By the analysis in §4.2, an element of <span class="math inline">\((G/K)^H\)</span> is a coset <span class="math inline">\(gK\)</span> with <span class="math inline">\(g^{-1}Hg \subseteq K\)</span> — i.e., an element exhibiting a <em>subconjugacy relation</em> <span class="math inline">\(H \lesssim K\)</span>.</p>
+<div class="callout callout-note">
+<p> Morphisms Encode Subconjugacy
+There is a morphism <span class="math inline">\(G/H \to G/K\)</span> in <span class="math inline">\(\mathcal{O}_G\)</span> iff there exists <span class="math inline">\(g \in G\)</span> with <span class="math inline">\(g^{-1}Hg \subseteq K\)</span>. In particular:
+- <span class="math inline">\(G/H \to G/\{e\} = G\)</span> always exists (take <span class="math inline">\(g = e\)</span> and <span class="math inline">\(K = \{e\}\)</span> is subconjugate to anything).
+- <span class="math inline">\(G/\{e\} \to G/H\)</span> exists iff <span class="math inline">\(\{e\} \subseteq H\)</span>, which is always true — so <span class="math inline">\(G/e \to G/H\)</span> exists for all <span class="math inline">\(H\)</span>.
+- There is a morphism <span class="math inline">\(G/H \to G/H\)</span> for each element of <span class="math inline">\(WH = (G/H)^H\)</span>.</p>
+</div>
+<p>For <span class="math inline">\(G\)</span> a finite group, <span class="math inline">\(\mathcal{O}_G\)</span> is a finite category and this becomes an explicit finite combinatorial object.</p>
+<div class="callout callout-question">
+<p> Exercise 13
+<em>This exercise identifies the orbit category for the simplest nontrivial group, which will recur throughout equivariant homotopy theory as the base case for inductive arguments.</em></p>
+<p>For <span class="math inline">\(G = C_p\)</span> (cyclic of prime order), the only subgroups are <span class="math inline">\(\{e\}\)</span> and <span class="math inline">\(C_p\)</span>. Describe <span class="math inline">\(\mathcal{O}_{C_p}\)</span> completely: list both objects, compute all morphism sets, and identify the composition law. Draw the resulting category.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 13
+Objects: <span class="math inline">\(C_p/e\)</span> and <span class="math inline">\(C_p/C_p = \{*\}\)</span>. Morphism sets (using <span class="math inline">\((G/K)^H\)</span>):
+- <span class="math inline">\(\mathrm{Hom}(C_p/e, C_p/e) = (C_p/e)^e = C_p/e \cong C_p\)</span> — exactly <span class="math inline">\(p\)</span> endomorphisms (the <span class="math inline">\(p\)</span> elements of <span class="math inline">\(C_p\)</span> acting by left multiplication).
+- <span class="math inline">\(\mathrm{Hom}(C_p/e, C_p/C_p) = (C_p/C_p)^e = \{*\}\)</span> — one map (collapsing to the point).
+- <span class="math inline">\(\mathrm{Hom}(C_p/C_p, C_p/e) = (C_p/e)^{C_p} = \emptyset\)</span> — no maps (no <span class="math inline">\(C_p\)</span>-fixed points in <span class="math inline">\(C_p/e\)</span>).
+- <span class="math inline">\(\mathrm{Hom}(C_p/C_p, C_p/C_p) = \{*\}\)</span> — the identity.</p>
+<p>So <span class="math inline">\(\mathcal{O}_{C_p}\)</span> has two objects, a <span class="math inline">\(C_p\)</span>-torsor of endomorphisms on the free orbit, one map to the fixed-point object, and no maps back. This is the archetype of all orbit categories.</p>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 14 (Computational)
+<em>This exercise extends Exercise 13 to a group with a nontrivial subgroup lattice, making the orbit category a richer combinatorial object.</em></p>
+<p>For <span class="math inline">\(G = C_4\)</span>, completely describe the orbit category <span class="math inline">\(\mathcal{O}_{C_4}\)</span>: list the three objects, compute the cardinality of each of the nine hom-sets <span class="math inline">\(\mathrm{Hom}_{\mathcal{O}_{C_4}}(G/H, G/K)\)</span> for <span class="math inline">\(H, K \in \{\{e\}, C_2, C_4\}\)</span>, and identify the composition.</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 14
+From Exercise 12 (since <span class="math inline">\(C_4\)</span> is abelian, <span class="math inline">\((G/K)^H = G/K\)</span> if <span class="math inline">\(H \subseteq K\)</span> and <span class="math inline">\(\emptyset\)</span> otherwise):</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">\(G/\{e\}\)</span></th>
+<th><span class="math inline">\(G/C_2\)</span></th>
+<th><span class="math inline">\(G/C_4\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>from <span class="math inline">\(G/\{e\}\)</span></td>
+<td><span class="math inline">\(C_4\)</span> (4 maps)</td>
+<td><span class="math inline">\(C_4/C_2 \cong \mathbb{Z}/2\)</span> (2 maps)</td>
+<td><span class="math inline">\(\{*\}\)</span> (1 map)</td>
+</tr>
+<tr class="even">
+<td>from <span class="math inline">\(G/C_2\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td><span class="math inline">\(C_4/C_2\)</span> (2 maps)</td>
+<td><span class="math inline">\(\{*\}\)</span> (1 map)</td>
+</tr>
+<tr class="odd">
+<td>from <span class="math inline">\(G/C_4\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td><span class="math inline">\(\emptyset\)</span></td>
+<td><span class="math inline">\(\{*\}\)</span> (1 map)</td>
+</tr>
+</tbody>
+</table>
+<p>Composition: the unique map <span class="math inline">\(G/\{e\} \to G/C_4\)</span> factors through both <span class="math inline">\(G/C_2\)</span> routes; the 4 endomorphisms of <span class="math inline">\(G/\{e\}\)</span> compose as the group <span class="math inline">\(C_4\)</span>.</p>
+</blockquote>
+<h3 id="the-presheaf-functor">5.2 The Presheaf Functor</h3>
+<p>Every G-space <span class="math inline">\(X\)</span> determines a presheaf on <span class="math inline">\(\mathcal{O}_G\)</span>.</p>
+<p><strong>Definition (Fixed-Point System Functor).</strong> Define the functor</p>
+<p><span class="math display">\[\psi: G\mathbf{Top} \longrightarrow \mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\]</span></p>
+<p>by</p>
+<p><span class="math display">\[\psi(X) = \bigl( G/H \mapsto X^H \bigr).\]</span></p>
+<p>The functoriality in <span class="math inline">\(\mathcal{O}_G^{\mathrm{op}}\)</span> is given as follows: a morphism <span class="math inline">\(\phi: G/H \to G/K\)</span> in <span class="math inline">\(\mathcal{O}_G\)</span> (corresponding to <span class="math inline">\(gK \in (G/K)^H\)</span>) induces a <em>restriction map</em></p>
+<p><span class="math display">\[\phi^*: X^K \longrightarrow X^H, \quad x \mapsto g \cdot x.\]</span></p>
+<p>(This is well-defined: if <span class="math inline">\(x \in X^K\)</span> and <span class="math inline">\(h \in H\)</span>, then <span class="math inline">\(h \cdot (gx) = g \cdot (g^{-1}hg) \cdot x = g \cdot x\)</span> since <span class="math inline">\(g^{-1}hg \in K\)</span>.)</p>
+<div class="callout callout-info">
+<p> Contravariance
+The functor <span class="math inline">\(\psi\)</span> is <em>contravariant</em> in <span class="math inline">\(\mathcal{O}_G\)</span> — a map <span class="math inline">\(G/H \to G/K\)</span> induces a map <span class="math inline">\(X^K \to X^H\)</span> in the <em>opposite direction</em>. This is why <span class="math inline">\(\psi\)</span> lands in presheaves <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\)</span>, not sheaves on <span class="math inline">\(\mathcal{O}_G\)</span>.</p>
+</div>
+<p><strong>Key Observation.</strong> Under <span class="math inline">\(\psi\)</span>, genuine weak equivalences in <span class="math inline">\(G\mathbf{Top}\)</span> correspond exactly to <em>objectwise weak equivalences</em> in <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\)</span> (the <em>projective</em> model structure): a map <span class="math inline">\(f: X \to Y\)</span> is a genuine weak equivalence iff <span class="math inline">\(\psi(f)(G/H): X^H \to Y^H\)</span> is a weak equivalence for all <span class="math inline">\(H\)</span>. <strong>This is the precise sense in which genuine G-spaces are “systems of spaces.”</strong></p>
+<div class="callout callout-question">
+<p> Exercise 15 (Computational)
+<em>This exercise unpacks Elmendorf’s dictionary concretely for a familiar G-space, translating equivariant geometry into presheaf data.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(X = S^1 \subset \mathbb{C}\)</span> with the <em>reflection action</em> <span class="math inline">\(\tau \cdot z = \bar{z}\)</span> (<span class="math inline">\(\tau\)</span> complex-conjugates). Write down the presheaf <span class="math inline">\(\psi(X): \mathcal{O}_{C_2}^{\mathrm{op}} \to \mathbf{Top}\)</span> explicitly:</p>
+<ol type="a">
+<li><p>What are the two spaces <span class="math inline">\(\psi(X)(C_2/e)\)</span> and <span class="math inline">\(\psi(X)(C_2/C_2)\)</span>?</p></li>
+<li><p>What is the restriction map <span class="math inline">\(\psi(X)(C_2/C_2) \to \psi(X)(C_2/e)\)</span> corresponding to the unique morphism <span class="math inline">\(C_2/e \to C_2/C_2\)</span>?</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 15
+(a) <span class="math inline">\(\psi(X)(C_2/e) = X^e = S^1\)</span> (the whole space). <span class="math inline">\(\psi(X)(C_2/C_2) = X^{C_2}\)</span> = fixed points of <span class="math inline">\(z \mapsto \bar{z}\)</span> on <span class="math inline">\(S^1\)</span>: these are the real points <span class="math inline">\(\{z \in S^1 \mid \bar{z} = z\} = \{1, -1\} \cong S^0\)</span>.</p>
+<ol start="2" type="a">
+<li>The unique morphism <span class="math inline">\(C_2/e \to C_2/C_2\)</span> (collapsing <span class="math inline">\(C_2\)</span> to a point) induces the restriction <span class="math inline">\(X^{C_2} \hookrightarrow X^e\)</span>, i.e., the inclusion <span class="math inline">\(S^0 = \{1, -1\} \hookrightarrow S^1\)</span>.</li>
+</ol>
+<p>So the presheaf <span class="math inline">\(\psi(X)\)</span> is: the pair of spaces <span class="math inline">\((S^1, S^0)\)</span> with the inclusion <span class="math inline">\(S^0 \hookrightarrow S^1\)</span> as the structure map. This is all the homotopy-theoretic data of the <span class="math inline">\(C_2\)</span>-space <span class="math inline">\(S^1\)</span> with reflection.</p>
+</blockquote>
+<h3 id="statement-and-proof-sketch">5.3 Statement and Proof Sketch</h3>
+<p><strong>Theorem 1.3.6 (Elmendorf, 1983).</strong> The functor</p>
+<p><span class="math display">\[\psi: G\mathbf{Top} \longrightarrow \mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\]</span></p>
+<p>is the <em>right adjoint</em> of a Quillen equivalence. The left adjoint <span class="math inline">\(\Phi: \mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top}) \to G\mathbf{Top}\)</span> is <em>evaluation at <span class="math inline">\(G/e\)</span></em>:</p>
+<p><span class="math display">\[\Phi(\mathcal{F}) = \mathcal{F}(G/e).\]</span></p>
+<p>The space <span class="math inline">\(\mathcal{F}(G/e)\)</span> acquires a <span class="math inline">\(G\)</span>-action via the <span class="math inline">\(G\)</span>-action on <span class="math inline">\(G/e \cong G\)</span> — morphisms in <span class="math inline">\(\mathcal{O}_G\)</span> from <span class="math inline">\(G/e\)</span> to itself correspond to elements of <span class="math inline">\(G\)</span> (since <span class="math inline">\(\mathrm{Map}_G(G/e, G/e) = (G/e)^e = G\)</span>), and this gives <span class="math inline">\(\mathcal{F}(G/e)\)</span> a <span class="math inline">\(G\)</span>-action.</p>
+<div class="callout callout-info">
+<p> Quillen Equivalence
+A <em>Quillen equivalence</em> is an adjunction <span class="math inline">\(F \dashv G\)</span> between model categories such that the total derived functors <span class="math inline">\(\mathbf{L}F\)</span> and <span class="math inline">\(\mathbf{R}G\)</span> are inverse equivalences of homotopy categories. The model structure on <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\)</span> used here is the <em>projective model structure</em> (weak equivalences and fibrations are objectwise).</p>
+</div>
+<p><em>Proof sketch via the bar construction.</em></p>
+<p>Define a <em>cofibrant replacement functor</em> <span class="math inline">\(\Phi: \mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top}) \to G\mathbf{Top}\)</span> by the <em>two-sided bar construction</em>:</p>
+<p><span class="math display">\[\Phi(\mathcal{F}) = \bigl| B_\bullet(\mathcal{F}, \mathcal{O}_G, M) \bigr|,\]</span></p>
+<p>where <span class="math inline">\(M: \mathcal{O}_G \to G\mathbf{Top}\)</span> is the functor <span class="math inline">\(M(G/H) = G/H\)</span> (realizing the orbits in <span class="math inline">\(G\mathbf{Top}\)</span>), and the bar construction has:</p>
+<ul>
+<li><span class="math inline">\(B_n(\mathcal{F}, \mathcal{O}_G, M) = \displaystyle\coprod_{G/H_0 \to \cdots \to G/H_n} \mathcal{F}(G/H_0) \times G/H_n\)</span>,</li>
+</ul>
+<p>with simplicial face maps given by composition in <span class="math inline">\(\mathcal{O}_G\)</span> and by the <span class="math inline">\(\mathcal{F}\)</span> and <span class="math inline">\(M\)</span> actions.</p>
+<p>The key computation: <span class="math inline">\(\Phi(\mathcal{F})^H = |\mathcal{F}(G/H \times \Delta^\bullet)| \simeq \mathcal{F}(G/H)\)</span> via the <em>extra degeneracy argument</em>: there is a contraction of the simplicial set of <span class="math inline">\(H\)</span>-fixed-point simplices onto the <span class="math inline">\(0\)</span>-simplices, given by the identity coset <span class="math inline">\(eH \in (G/H)^H\)</span>.</p>
+<p>This shows <span class="math inline">\(\psi \circ \Phi \simeq \mathrm{id}\)</span> (up to weak equivalence), establishing the Quillen equivalence. <span class="math inline">\(\square\)</span></p>
+<div class="callout callout-question">
+<p> The Left Adjoint Perspective
+The left adjoint <span class="math inline">\(\Phi \dashv \psi\)</span> satisfies: a map <span class="math inline">\(\Phi(\mathcal{F}) \to X\)</span> in <span class="math inline">\(G\mathbf{Top}\)</span> corresponds to a natural transformation <span class="math inline">\(\mathcal{F} \to \psi(X)\)</span> in <span class="math inline">\(\mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Top})\)</span>. At <span class="math inline">\(G/H\)</span>, this is a map <span class="math inline">\(\mathcal{F}(G/H) \to X^H\)</span>, compatible with all restriction maps. This is the precise sense in which <span class="math inline">\(\Phi(\mathcal{F})\)</span> is “built from the data <span class="math inline">\(\mathcal{F}\)</span>.”</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 16
+<em>This exercise makes Elmendorf’s equivalence completely explicit for the smallest nontrivial case, showing that <span class="math inline">\(C_2\)</span>-spaces are exactly pairs of spaces with a map.</em></p>
+<p>For <span class="math inline">\(G = C_2\)</span>, describe a presheaf <span class="math inline">\(\mathcal{F}: \mathcal{O}_{C_2}^{\mathrm{op}} \to \mathbf{Top}\)</span> as a concrete datum (a pair of spaces and a map between them). Under Elmendorf’s equivalence, what <span class="math inline">\(C_2\)</span>-space does the presheaf <span class="math inline">\(\mathcal{F}\)</span> with <span class="math inline">\(\mathcal{F}(C_2/e) = A\)</span>, <span class="math inline">\(\mathcal{F}(C_2/C_2) = B\)</span>, and restriction map <span class="math inline">\(\rho: B \to A\)</span> correspond to? What is the condition for <span class="math inline">\(\mathcal{F}\)</span> to correspond to a genuine (not naive) <span class="math inline">\(C_2\)</span>-space?</p>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 16
+A presheaf on <span class="math inline">\(\mathcal{O}_{C_2}^{\mathrm{op}}\)</span> is determined by: two spaces <span class="math inline">\(A = \mathcal{F}(C_2/e)\)</span> and <span class="math inline">\(B = \mathcal{F}(C_2/C_2)\)</span>, a map <span class="math inline">\(\rho: B \to A\)</span> (the restriction along <span class="math inline">\(C_2/e \to C_2/C_2\)</span>), and an involution <span class="math inline">\(\sigma: A \to A\)</span> (coming from the nontrivial endomorphism of <span class="math inline">\(C_2/e\)</span>, i.e., the generator <span class="math inline">\(\tau \in C_2\)</span> acting on <span class="math inline">\(C_2/e \cong C_2\)</span>).</p>
+<p>The constraint is that <span class="math inline">\(\rho\)</span> maps into the <span class="math inline">\(\sigma\)</span>-fixed points: <span class="math inline">\(\sigma \circ \rho = \rho\)</span> (since <span class="math inline">\(B\)</span> maps to the fixed part of <span class="math inline">\(A\)</span>).</p>
+<p>The corresponding <span class="math inline">\(C_2\)</span>-space under <span class="math inline">\(\Phi\)</span> is the space <span class="math inline">\(A\)</span> with <span class="math inline">\(C_2\)</span>-action given by <span class="math inline">\(\sigma\)</span>, and <span class="math inline">\(B \cong A^{C_2}\)</span> (the fixed-point subspace). So a genuine <span class="math inline">\(C_2\)</span>-space is precisely the data of a space <span class="math inline">\(A\)</span> with a <span class="math inline">\(C_2\)</span>-involution <span class="math inline">\(\sigma\)</span> — but the presheaf perspective makes the fixed-point data <span class="math inline">\(B\)</span> explicit.</p>
+</blockquote>
+<h3 id="the-infinity-categorical-statement">5.4 The Infinity-Categorical Statement</h3>
+<p>The Quillen equivalence of Elmendorf upgrades to an <span class="math inline">\((\infty,1)\)</span>-categorical equivalence.</p>
+<p><strong>Theorem 1.3.8 (Elmendorf, <span class="math inline">\(\infty\)</span>-categorical form).</strong> There is an equivalence of <span class="math inline">\((\infty,1)\)</span>-categories:</p>
+<p><span class="math display">\[G\mathbf{Top} \simeq \mathrm{Fun}(\mathcal{O}_G^{\mathrm{op}}, \mathbf{Spaces}),\]</span></p>
+<p>where <span class="math inline">\(\mathbf{Spaces}\)</span> denotes the <span class="math inline">\((\infty,1)\)</span>-category of spaces (Kan complexes / <span class="math inline">\(\infty\)</span>-groupoids).</p>
+<div class="callout callout-info">
+<p> Modern Perspective
+This is the <em>modern</em> way to understand genuine G-spaces. Rather than a G-space being “a space with a group action,” it is a <em><span class="math inline">\(\mathcal{O}_G^{\mathrm{op}}\)</span>-diagram of spaces</em>:</p>
+<p><span class="math display">\[X \longleftrightarrow \bigl\{ X^H \text{ for each closed } H \leq G, \text{ with restriction maps} \bigr\}.\]</span></p>
+<p>The equivariant structure of <span class="math inline">\(X\)</span> is <em>entirely encoded</em> by its system of fixed-point spaces and the maps between them, indexed by the orbit category. This perspective is essential in modern formulations of equivariant stable homotopy theory.</p>
+</div>
+<p>The <span class="math inline">\((\infty,1)\)</span>-categorical statement is strictly stronger: it says not only that the homotopy categories are equivalent, but that all higher homotopical data (mapping spaces, homotopy coherent diagrams, etc.) are also equivalent.</p>
+<h3 id="applications">5.5 Applications</h3>
+<p>Elmendorf’s theorem has several important structural consequences.</p>
+<p><strong>Families of Subgroups.</strong> A <em>family</em> <span class="math inline">\(\mathcal{F}\)</span> of subgroups of <span class="math inline">\(G\)</span> is a collection closed under conjugation and taking subgroups. Examples:
+- <span class="math inline">\(\mathcal{F} = \{\{e\}\}\)</span>: the <em>trivial family</em> (only the trivial subgroup).
+- <span class="math inline">\(\mathcal{F} = \mathbf{All}\)</span>: all closed subgroups.
+- <span class="math inline">\(\mathcal{F} = \mathbf{Fin}\)</span>: all <em>finite</em> subgroups (relevant for <span class="math inline">\(G = S^1\)</span>).</p>
+<p><strong>Definition (Classifying G-Space for a Family).</strong> For a family <span class="math inline">\(\mathcal{F}\)</span>, the <em>classifying G-space</em> <span class="math inline">\(E\mathcal{F}\)</span> is the unique G-space (up to genuine weak equivalence) with:</p>
+<p><span class="math display">\[E\mathcal{F}^H \simeq \begin{cases} * &amp; H \in \mathcal{F} \\ \emptyset &amp; H \notin \mathcal{F}. \end{cases}\]</span></p>
+<p>Via Elmendorf’s theorem, this is the presheaf <span class="math inline">\(\mathcal{O}_G^{\mathrm{op}} \to \mathbf{Spaces}\)</span> sending <span class="math inline">\(G/H \mapsto *\)</span> for <span class="math inline">\(H \in \mathcal{F}\)</span> and <span class="math inline">\(G/H \mapsto \emptyset\)</span> for <span class="math inline">\(H \notin \mathcal{F}\)</span>.</p>
+<blockquote>
+<p>[!EXAMPLE]- The Universal Space <span class="math inline">\(EG\)</span>
+Taking <span class="math inline">\(\mathcal{F} = \{\{e\}\}\)</span>: <span class="math inline">\(E\mathcal{F} = EG\)</span> (the universal free <span class="math inline">\(G\)</span>-space), which has <span class="math inline">\((EG)^H = \emptyset\)</span> for <span class="math inline">\(H \neq \{e\}\)</span> and <span class="math inline">\((EG)^{\{e\}} \simeq *\)</span>. This is the contractible total space of the universal <span class="math inline">\(G\)</span>-bundle <span class="math inline">\(EG \to BG\)</span>.</p>
+</blockquote>
+<div class="callout callout-question">
+<p> Exercise 17 (Computational)
+<em>This exercise identifies the classifying space for the trivial family as a familiar object from classical algebraic topology.</em></p>
+<p>Let <span class="math inline">\(G = C_2\)</span> and <span class="math inline">\(\mathcal{F} = \{\{e\}\}\)</span> (the trivial family, containing only the trivial subgroup). The classifying space <span class="math inline">\(E\mathcal{F}\)</span> is characterized by <span class="math inline">\((E\mathcal{F})^{C_2} = \emptyset\)</span> and <span class="math inline">\((E\mathcal{F})^e \simeq *\)</span>.</p>
+<ol type="a">
+<li><p>Show that the infinite-dimensional sphere <span class="math inline">\(S^\infty \subset \mathbb{R}^\infty\)</span> with the antipodal <span class="math inline">\(C_2\)</span>-action <span class="math inline">\(\tau \cdot x = -x\)</span> satisfies these conditions.</p></li>
+<li><p>Using the <span class="math inline">\(C_2\)</span>-CW structure on <span class="math inline">\(S^\infty\)</span> (built as a sequential colimit of <span class="math inline">\(S^n\)</span> with antipodal action), verify that <span class="math inline">\(E\mathcal{F} = S^\infty\)</span> and that the orbit space <span class="math inline">\(E\mathcal{F}/C_2 = \mathbb{RP}^\infty = BC_2\)</span>.</p></li>
+</ol>
+</div>
+<blockquote>
+<p>[!TIP]- Solution to Exercise 17
+(a) <span class="math inline">\((S^\infty)^{C_2}\)</span>: fixed points of <span class="math inline">\(x \mapsto -x\)</span> on <span class="math inline">\(S^\infty\)</span> would require <span class="math inline">\(x = -x\)</span>, i.e., <span class="math inline">\(x = 0\)</span>, but <span class="math inline">\(0 \notin S^\infty\)</span>. So <span class="math inline">\((S^\infty)^{C_2} = \emptyset\)</span>. The underlying space <span class="math inline">\(S^\infty\)</span> is contractible (it is the colimit of <span class="math inline">\(S^n\)</span> along the standard inclusions, and each map <span class="math inline">\(S^n \hookrightarrow S^{n+1}\)</span> is nullhomotopic in <span class="math inline">\(S^{n+1}\)</span>). So <span class="math inline">\((S^\infty)^e = S^\infty \simeq *\)</span>.</p>
+<ol start="2" type="a">
+<li>The <span class="math inline">\(C_2\)</span>-CW structure on <span class="math inline">\(S^n\)</span> with antipodal action (from Exercise 11) gives <span class="math inline">\(S^\infty\)</span> a <span class="math inline">\(C_2\)</span>-CW structure with all cells of type <span class="math inline">\(C_2/e\)</span> (free). The orbit space is <span class="math inline">\(S^\infty/C_2 = \mathbb{RP}^\infty\)</span>, and since <span class="math inline">\(S^\infty\)</span> is contractible with free <span class="math inline">\(C_2\)</span>-action, this is indeed a model for <span class="math inline">\(BC_2 = K(C_2, 1)\)</span>.</li>
+</ol>
+</blockquote>
+<p><strong>G-Connected Components.</strong> Via Elmendorf’s theorem, the <em>equivariant <span class="math inline">\(\pi_0\)</span></em> of a G-space <span class="math inline">\(X\)</span> is the presheaf <span class="math inline">\(G/H \mapsto \pi_0(X^H)\)</span>. This records how the connected components of the fixed-point sets vary with the subgroup.</p>
+<p><strong>Bredon Cohomology.</strong> The Eilenberg-Mac Lane G-spaces are constructed via Elmendorf’s theorem from presheaves of abelian groups on <span class="math inline">\(\mathcal{O}_G\)</span>.</p>
+<p><strong>Definition (Coefficient System).</strong> A <em>Bredon coefficient system</em> is a functor <span class="math inline">\(M: \mathcal{O}_G^{\mathrm{op}} \to \mathbf{Ab}\)</span> (a presheaf of abelian groups on <span class="math inline">\(\mathcal{O}_G\)</span>).</p>
+<p>Via Elmendorf’s theorem, one constructs an <em>Eilenberg-Mac Lane G-space</em> <span class="math inline">\(K(M, n)\)</span> with <span class="math inline">\(\pi_n^H(K(M,n)) = M(G/H)\)</span> and all other equivariant homotopy groups trivial. <em>Bredon cohomology</em> is then defined by</p>
+<p><span class="math display">\[H^n_G(X; M) = [X, K(M,n)]_G,\]</span></p>
+<p>the group of equivariant homotopy classes of maps, and this recovers Bredon’s original (1967) cohomology theory of <span class="math inline">\(G\)</span>-spaces.</p>
+<div class="callout callout-info">
+<p> Significance of Elmendorf
+Elmendorf’s theorem is the cornerstone of the modern approach to equivariant homotopy theory. <strong>The slogan is: a genuine G-space is precisely a presheaf on the orbit category.</strong> This perspective:
+1. Makes the definition of equivariant homotopy types conceptually transparent.
+2. Provides the correct framework for equivariant stable homotopy theory (spectra indexed by the orbit category).
+3. Explains why Bredon cohomology — defined by coefficient systems on <span class="math inline">\(\mathcal{O}_G\)</span> — is the correct equivariant generalization of ordinary cohomology.
+4. Enables the systematic use of homotopy-theoretic techniques (model categories, <span class="math inline">\((\infty,1)\)</span>-categories) in equivariant settings.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Blumberg, <em>M392C Lecture Notes</em></td>
+<td>Main source; Chapter 1 covers G-spaces, G-CW complexes, and Elmendorf’s theorem in detail</td>
+<td><a href="https://adebray.github.io/lecture_notes/m392c_EHT_notes.pdf">adebray.github.io</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://www.ams.org/journals/tran/1983-277-01/S0002-9947-1983-0690052-0/">Elmendorf (1983), <em>Systems of fixed point sets</em></a></td>
+<td>Original proof of Elmendorf’s theorem via the bar construction; introduced the orbit category perspective</td>
+<td><a href="https://www.ams.org/journals/tran/1983-277-01/S0002-9947-1983-0690052-0/">AMS Transactions (1983)</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://math.uchicago.edu/~may/BOOKS/alaska.pdf">May, <em>Equivariant Homotopy and Cohomology Theory</em> (1996)</a></td>
+<td>Comprehensive reference for equivariant stable homotopy theory; covers G-CW complexes, model structures, and equivariant spectra</td>
+<td><a href="https://math.uchicago.edu/~may/BOOKS/alaska.pdf">University of Chicago</a></td>
+</tr>
+<tr class="even">
+<td>Bredon, <em>Equivariant Cohomology Theories</em> (1967)</td>
+<td>Original definition of Bredon cohomology via coefficient systems on the orbit category</td>
+<td>(book)</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/0908.3724">Hill–Hopkins–Ravenel, <em>On the non-existence of elements of Kervaire invariant one</em> (2016)</a></td>
+<td>Resolves the Kervaire invariant one problem using genuine <span class="math inline">\(C_8\)</span>-spectra; the central application of norm maps in genuine equivariant stable homotopy theory</td>
+<td><a href="https://arxiv.org/abs/0908.3724">arXiv:0908.3724</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://math.jhu.edu/~eriehl/cathtpy.pdf">Riehl, <em>Categorical Homotopy Theory</em> (2014)</a></td>
+<td>Background on model categories, bar constructions, and Kan extensions used throughout</td>
+<td><a href="https://math.jhu.edu/~eriehl/cathtpy.pdf">Johns Hopkins</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

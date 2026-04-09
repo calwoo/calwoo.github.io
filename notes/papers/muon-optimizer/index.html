@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>muon-optimizer - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>muon-optimizer</h1>
+            <article>
+    <section>
+        <p><em>Jingyuan Liu, Jianlin Su, et al. (Kimi Team, Moonshot AI) — arXiv 2502.16982, February 2025</em></p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 27%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Scalability</td>
+<td>Original Muon untested beyond small LMs</td>
+<td>Weight decay + per-parameter update scaling</td>
+<td>Validated on 3B/16B MoE at 5.7T tokens</td>
+</tr>
+<tr class="even">
+<td>Compute efficiency</td>
+<td>AdamW is the de facto standard</td>
+<td>Muon under compute-optimal training</td>
+<td>~2x fewer FLOPs to match AdamW loss</td>
+</tr>
+<tr class="odd">
+<td>Theoretical grounding</td>
+<td>Heuristic motivation for orthogonalization</td>
+<td>Steepest descent under RMS-to-RMS operator norm</td>
+<td>Update = UV^T from SVD is the exact dual solution</td>
+</tr>
+<tr class="even">
+<td>Hyperparameter transfer</td>
+<td>Optimizer-specific tuning required</td>
+<td>Scaling factor ties update RMS to parameter shape</td>
+<td>Muon reuses AdamW learning rate and weight decay</td>
+</tr>
+<tr class="odd">
+<td>Model quality</td>
+<td>DeepSeek-V2-Lite MMLU 58.3, MATH 17.1</td>
+<td>Moonlight (same arch/tokens)</td>
+<td>MMLU 70.0, MATH 45.3, HumanEval 48.1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../notes/papers/shampoo%7Cshampoo/">papers/shampoo|Shampoo</a> <em>(no note yet)</em>, <a href="../../../notes/papers/adam%7Cadam-/-adamw/">papers/adam|Adam / AdamW</a> <em>(no note yet)</em>
+<strong>Extended by:</strong> <a href="../../../notes/papers/muon-hyperball%7Chyperball-/-hypermuon/">papers/muon-hyperball|Hyperball / HyperMuon</a> <em>(no note yet)</em>
+<strong>Concepts used:</strong> <a href="../../../notes/concepts/randomized-algorithms/metric-geometry-and-dimension-reduction%7Cmetric-geometry-and-dimension-reduction/">concepts/randomized-algorithms/metric-geometry-and-dimension-reduction|Metric Geometry and Dimension Reduction</a>, <a href="../../../notes/concepts/optimization/steepest-descent%7Csteepest-descent-and-dual-norms/">concepts/optimization/steepest-descent|Steepest Descent and Dual Norms</a> <em>(no note yet)</em></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#1.-overview-and-motivation%7C1.-overview-and-motivation/">#1. Overview and Motivation|1. Overview and Motivation</a></li>
+<li><a href="../../../notes/#2.-the-muon-algorithm%7C2.-the-muon-algorithm/">#2. The Muon Algorithm|2. The Muon Algorithm</a>
+<ul>
+<li><a href="../../../notes/#2.1-core-update-rule%7C2.1-core-update-rule/">#2.1 Core Update Rule|2.1 Core Update Rule</a></li>
+<li><a href="../../../notes/#2.2-newton-schulz-orthogonalization%7C2.2-newton-schulz-orthogonalization/">#2.2 Newton-Schulz Orthogonalization|2.2 Newton-Schulz Orthogonalization</a></li>
+<li><a href="../../../notes/#2.3-scaled-muon-for-large-models%7C2.3-scaled-muon-for-large-models/">#2.3 Scaled Muon for Large Models|2.3 Scaled Muon for Large Models</a></li>
+</ul></li>
+<li><a href="../../../notes/#3.-derivation-from-first-principles%7C3.-derivation-from-first-principles/">#3. Derivation from First Principles|3. Derivation from First Principles</a>
+<ul>
+<li><a href="../../../notes/#3.1-metrizing-the-linear-layer%7C3.1-metrizing-the-linear-layer/">#3.1 Metrizing the Linear Layer|3.1 Metrizing the Linear Layer</a></li>
+<li><a href="../../../notes/#3.2-steepest-descent-under-the-operator-norm%7C3.2-steepest-descent-under-the-operator-norm/">#3.2 Steepest Descent Under the Operator Norm|3.2 Steepest Descent Under the Operator Norm</a></li>
+<li><a href="../../../notes/#3.3-the-dual-solution-is-uv%5Et%7C3.3-the-dual-solution-is-uv%5Et/">#3.3 The Dual Solution is UV^T|3.3 The Dual Solution is UV^T</a></li>
+<li><a href="../../../notes/#3.4-learning-rate-transfer-across-width%7C3.4-learning-rate-transfer-across-width/">#3.4 Learning Rate Transfer Across Width|3.4 Learning Rate Transfer Across Width</a></li>
+</ul></li>
+<li><a href="../../../notes/#4.-connection-to-shampoo-and-second-order-methods%7C4.-connection-to-shampoo-and-second-order-methods/">#4. Connection to Shampoo and Second-Order Methods|4. Connection to Shampoo and Second-Order Methods</a></li>
+<li><a href="../../../notes/#5.-the-geometric-interpretation:-hyperball-optimization%7C5.-the-geometric-interpretation:-hyperball-optimization/">#5. The Geometric Interpretation: Hyperball Optimization|5. The Geometric Interpretation: Hyperball Optimization</a></li>
+<li><a href="../../../notes/#6.-the-explore-exploit-perspective%7C6.-the-explore-exploit-perspective/">#6. The Explore-Exploit Perspective|6. The Explore-Exploit Perspective</a></li>
+<li><a href="../../../notes/#7.-su-jianlin's-spectral-norm-perspective%7C7.-su-jianlin's-spectral-norm-perspective/">#7. Su Jianlin’s Spectral Norm Perspective|7. Su Jianlin’s Spectral Norm Perspective</a></li>
+<li><a href="../../../notes/#8.-why-orthogonalization-helps-in-practice%7C8.-why-orthogonalization-helps-in-practice/">#8. Why Orthogonalization Helps in Practice|8. Why Orthogonalization Helps in Practice</a></li>
+<li><a href="../../../notes/#9.-distributed-implementation%7C9.-distributed-implementation/">#9. Distributed Implementation|9. Distributed Implementation</a></li>
+<li><a href="../../../notes/#10.-practical-considerations-and-hyperparameters%7C10.-practical-considerations-and-hyperparameters/">#10. Practical Considerations and Hyperparameters|10. Practical Considerations and Hyperparameters</a></li>
+<li><a href="../../../notes/#11.-experimental-results%7C11.-experimental-results/">#11. Experimental Results|11. Experimental Results</a></li>
+<li><a href="../../../notes/#references%7Creferences/">#References|References</a></li>
+</ul>
+<hr />
+<h2 id="overview-and-motivation">1. Overview and Motivation</h2>
+<p>💡 The <em>Muon optimizer</em> (Momentum + Update Orthogonalization via Newton-Schulz) is a matrix-aware optimizer for neural network weight matrices. It was originally introduced by Keller Jordan for small-scale transformer training and scaled to production LLM pretraining by the Kimi/Moonshot AI team in the paper “Muon is Scalable for LLM Training” (Liu et al., 2025).</p>
+<p>The central operation is simple to state: after accumulating a standard Nesterov momentum gradient, Muon replaces the momentum buffer with its nearest <em>semi-orthogonal</em> matrix before applying the weight update. If the momentum matrix <span class="math inline">\(\mathbf{M} \in \mathbb{R}^{m \times n}\)</span> has <em>singular value decomposition</em> (SVD) <span class="math inline">\(\mathbf{M} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top\)</span>, then Muon uses:</p>
+<p><span class="math display">\[\mathbf{O} = \mathbf{U}\mathbf{V}^\top\]</span></p>
+<p>as the update direction, discarding all singular value magnitude information entirely.</p>
+<p>The central question is: why should this be a good idea? The answer, developed in the sections below, connects to:</p>
+<ol type="1">
+<li><strong>Steepest descent</strong> under the natural operator norm for linear layers.</li>
+<li><strong>Approximate second-order optimization</strong> via the connection to Shampoo.</li>
+<li><strong>Geometric</strong> intuitions about update isotropy across singular directions.</li>
+<li><strong>Explore-exploit trade-offs</strong> in traversing the loss landscape.</li>
+</ol>
+<div class="callout callout-info">
+<p> Historical note
+The original Muon implementation was released by Keller Jordan as a NanoGPT training speedrun optimizer in 2024. The name was coined then. The theoretical derivation connecting it to steepest descent under the RMS-to-RMS operator norm was later worked out by Jeremy Bernstein and further analyzed by Jianlin Su (Su Jianlin, known for the RoPE positional embedding). The Kimi Team’s 2025 paper constitutes the first rigorous large-scale validation.</p>
+</div>
+<hr />
+<h2 id="the-muon-algorithm">2. The Muon Algorithm</h2>
+<h3 id="core-update-rule">2.1 Core Update Rule</h3>
+<p>🔧 The Muon update for a weight matrix <span class="math inline">\(\mathbf{W}_t \in \mathbb{R}^{m \times n}\)</span> proceeds in three steps:</p>
+<p><strong>Step 1 — Momentum accumulation:</strong>
+<span class="math display">\[\mathbf{M}_t = \mu \mathbf{M}_{t-1} + \nabla_\mathbf{W} \mathcal{L}_t(\mathbf{W}_{t-1})\]</span></p>
+<p>where <span class="math inline">\(\mu \in [0, 1)\)</span> is the momentum coefficient (typically <span class="math inline">\(\mu = 0.95\)</span>).</p>
+<p><strong>Step 2 — Newton-Schulz orthogonalization:</strong>
+<span class="math display">\[\mathbf{O}_t = \operatorname{NS}(\mathbf{M}_t) \approx \mathbf{U}\mathbf{V}^\top \quad \text{where } \mathbf{M}_t = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top\]</span></p>
+<p><strong>Step 3 — Weight update:</strong>
+<span class="math display">\[\mathbf{W}_t = \mathbf{W}_{t-1} - \eta_t \mathbf{O}_t\]</span></p>
+<p>The key insight is that <span class="math inline">\(\operatorname{NS}(\cdot)\)</span> is a <em>matrix function</em> — it can be evaluated without computing an explicit SVD by iterating a polynomial approximation directly in matrix arithmetic.</p>
+<p><img src="figures/muon-optimizer/kellerjordan-muon-algo.png" alt="Muon algorithm pseudocode from Keller Jordan’s blog post" />
+<em>The Muon update rule as presented by Keller Jordan: momentum accumulation followed by Newton-Schulz orthogonalization, applied only to 2D weight matrices.</em></p>
+<div class="callout callout-note">
+<p> What does “nearest semi-orthogonal” mean?
+A matrix <span class="math inline">\(\mathbf{O} \in \mathbb{R}^{m \times n}\)</span> with <span class="math inline">\(m \geq n\)</span> is <em>semi-orthogonal</em> if <span class="math inline">\(\mathbf{O}^\top \mathbf{O} = \mathbf{I}_n\)</span>. Equivalently, all singular values equal 1. The nearest semi-orthogonal matrix to <span class="math inline">\(\mathbf{M}\)</span> (in Frobenius norm) is <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span> where <span class="math inline">\(\mathbf{M} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top\)</span>. This is the <em>polar factor</em> of <span class="math inline">\(\mathbf{M}\)</span>.</p>
+</div>
+<h3 id="newton-schulz-orthogonalization">2.2 Newton-Schulz Orthogonalization</h3>
+<p>📐 Computing the full SVD of <span class="math inline">\(\mathbf{M}_t\)</span> at every step is prohibitively expensive for large matrices (<span class="math inline">\(O(mn\min(m,n))\)</span> per step). The Newton-Schulz iteration provides a polynomial approximation that converges to the polar factor using only matrix multiplications.</p>
+<p><strong>Definition (Newton-Schulz Iteration).</strong> Given an initial matrix <span class="math inline">\(\mathbf{X}_0 = \mathbf{M}_t / \|\mathbf{M}_t\|_F\)</span>, the quintic Newton-Schulz update is:</p>
+<p><span class="math display">\[\mathbf{X}_{k+1} = a\mathbf{X}_k + b(\mathbf{X}_k\mathbf{X}_k^\top)\mathbf{X}_k + c(\mathbf{X}_k\mathbf{X}_k^\top)^2\mathbf{X}_k\]</span></p>
+<p>with coefficients <span class="math inline">\((a, b, c) = (3.4445, -4.7750, 2.0315)\)</span>.</p>
+<p><em>Convergence mechanism:</em> Observe that if <span class="math inline">\(\mathbf{X}_k = \mathbf{U}\boldsymbol{\Sigma}_k\mathbf{V}^\top\)</span>, then <span class="math inline">\(\mathbf{X}_{k+1} = \mathbf{U}\phi(\boldsymbol{\Sigma}_k)\mathbf{V}^\top\)</span> where <span class="math inline">\(\phi(s) = as + bs^3 + cs^5\)</span> acts scalar-wise on each singular value. The singular vectors <span class="math inline">\(\mathbf{U}, \mathbf{V}\)</span> are preserved. The polynomial <span class="math inline">\(\phi\)</span> is chosen so that:</p>
+<p><span class="math display">\[\phi^{(N)}(s) \to 1 \quad \forall s \in (0, 1] \text{ as } N \to \infty\]</span></p>
+<p>The Frobenius-normalization of <span class="math inline">\(\mathbf{M}_t\)</span> ensures all singular values land in <span class="math inline">\([0, 1]\)</span>, so <span class="math inline">\(\phi\)</span> acts as a contracting map toward 1 on the singular value spectrum.</p>
+<p><strong>Proposition.</strong> After <span class="math inline">\(N = 5\)</span> iterations with the optimized quintic coefficients, the approximation error is within <span class="math inline">\(\pm 0.3\)</span> for all singular values, which is empirically sufficient (loss curves are unaffected by errors of this magnitude).</p>
+<p><img src="figures/muon-optimizer/kellerjordan-ns-poly-baseline.png" alt="Baseline Newton-Schulz polynomial convergence (Keller Jordan)" />
+<em>Baseline quintic polynomial <span class="math inline">\(\phi(s) = as + bs^3 + cs^5\)</span> applied iteratively: singular values converge toward 1 but require several iterations with the default coefficients.</em></p>
+<p><img src="figures/muon-optimizer/kellerjordan-ns-poly-tuned.png" alt="Tuned Newton-Schulz polynomial convergence (Keller Jordan)" />
+<em>Optimized Newton-Schulz coefficients exhibiting steeper growth near <span class="math inline">\(s = 0\)</span>, achieving faster convergence to 1 in fewer iterations — the coefficients <span class="math inline">\((a, b, c) = (3.4445, -4.7750, 2.0315)\)</span> used in practice.</em></p>
+<div class="callout callout-tip">
+<p> Why quintic and not cubic?
+A cubic polynomial <span class="math inline">\(\phi(s) = as + bs^3\)</span> only has two degrees of freedom, limiting convergence speed. The quintic adds a fifth-degree term, giving faster convergence toward sign<span class="math inline">\((s) = 1\)</span> for <span class="math inline">\(s &gt; 0\)</span>. The coefficients <span class="math inline">\((a, b, c)\)</span> are optimized numerically to minimize the number of iterations required for convergence to within 0.3 over <span class="math inline">\([0, 1]\)</span>.</p>
+</div>
+<p><strong>FLOP overhead.</strong> Each Newton-Schulz step requires computing <span class="math inline">\(\mathbf{X}_k\mathbf{X}_k^\top \in \mathbb{R}^{m \times m}\)</span> and then two subsequent multiplications. The total FLOP overhead relative to the forward/backward pass is:</p>
+<p><span class="math display">\[\text{overhead} = \frac{T \cdot m}{B}\]</span></p>
+<p>where <span class="math inline">\(T = 5\)</span> is the number of NS iterations, <span class="math inline">\(m\)</span> is the model dimension, and <span class="math inline">\(B\)</span> is the batch size in tokens. For typical settings (NanoGPT: <span class="math inline">\(\sim 0.7\%\)</span>; Llama 405B: <span class="math inline">\(\sim 0.5\%\)</span>).</p>
+<h3 id="scaled-muon-for-large-models">2.3 Scaled Muon for Large Models</h3>
+<p>⚠️ The basic Muon algorithm produces updates of inconsistent <em>root-mean-square</em> (RMS) magnitude depending on the shape of the parameter matrix. The Kimi team identifies this as the primary obstacle to scalability.</p>
+<p><strong>Lemma (Liu et al., 2025).</strong> For a full-rank weight matrix <span class="math inline">\(\mathbf{W} \in \mathbb{R}^{A \times B}\)</span>, the theoretical update RMS under the basic Muon rule is:</p>
+<p><span class="math display">\[\operatorname{RMS}(\mathbf{O}) = \frac{1}{\sqrt{\max(A, B)}}\]</span></p>
+<p><em>Proof sketch.</em> <span class="math inline">\(\mathbf{O} = \mathbf{U}\mathbf{V}^\top\)</span> has <span class="math inline">\(\min(A, B)\)</span> singular values all equal to 1. The Frobenius norm is <span class="math inline">\(\|\mathbf{O}\|_F = \sqrt{\min(A, B)}\)</span>. The RMS is <span class="math inline">\(\|\mathbf{O}\|_F / \sqrt{AB} = \sqrt{\min(A,B)/AB} = 1/\sqrt{\max(A,B)}\)</span>.</p>
+<p>This means Muon naturally applies smaller-RMS updates to larger matrices — a shape-dependent bias. The fix is a rescaling:</p>
+<p><strong>The scaled Muon update (MuonW):</strong></p>
+<p><span class="math display">\[\mathbf{W}_t = \mathbf{W}_{t-1} - \eta_t \left(0.2 \cdot \mathbf{O}_t \cdot \sqrt{\max(A, B)} + \lambda \mathbf{W}_{t-1}\right)\]</span></p>
+<p>The factor <span class="math inline">\(0.2\sqrt{\max(A,B)}\)</span> restores a target RMS of <span class="math inline">\(0.2\)</span>, matching AdamW’s typical effective update scale. The <span class="math inline">\(\lambda \mathbf{W}_{t-1}\)</span> term is standard <em>decoupled weight decay</em>.</p>
+<div class="callout callout-warning">
+<p> Which parameters get Muon?
+Muon is designed for 2D weight matrices in linear layers. Embedding tables, classifier heads, 1D bias vectors, and layer norm parameters should use AdamW instead. The QKV projection matrices should have their Q, K, V portions treated as separate matrices (not concatenated) if their feature spaces are semantically distinct.</p>
+</div>
+<hr />
+<h2 id="derivation-from-first-principles">3. Derivation from First Principles</h2>
+<p>📐 The following derivation, due to Jeremy Bernstein, shows that the Muon update is <em>not</em> heuristic — it is the exact solution to a principled constrained optimization problem.</p>
+<h3 id="metrizing-the-linear-layer">3.1 Metrizing the Linear Layer</h3>
+<p><strong>Definition (RMS norm).</strong> For a vector <span class="math inline">\(\mathbf{v} \in \mathbb{R}^d\)</span>, the <em>root-mean-square norm</em> is:
+<span class="math display">\[\|\mathbf{v}\|_{\text{RMS}} := \sqrt{\frac{1}{d} \sum_{i=1}^d v_i^2} = \frac{\|\mathbf{v}\|_2}{\sqrt{d}}\]</span></p>
+<p>The RMS norm measures “average entry size” rather than total magnitude. For activations in a well-initialized network, <span class="math inline">\(\|\mathbf{x}\|_{\text{RMS}} \approx 1\)</span> throughout training.</p>
+<p><strong>Definition (RMS-to-RMS operator norm).</strong> For a linear map <span class="math inline">\(\mathbf{W} : \mathbb{R}^{d_{\text{in}}} \to \mathbb{R}^{d_{\text{out}}}\)</span>, define:
+<span class="math display">\[\|\mathbf{W}\|_{\text{RMS}\to\text{RMS}} := \max_{\mathbf{x} \neq 0} \frac{\|\mathbf{W}\mathbf{x}\|_{\text{RMS}}}{\|\mathbf{x}\|_{\text{RMS}}} = \sqrt{\frac{d_{\text{in}}}{d_{\text{out}}}} \cdot \|\mathbf{W}\|_{\text{op}}\]</span></p>
+<p>where <span class="math inline">\(\|\mathbf{W}\|_{\text{op}} = \sigma_{\max}(\mathbf{W})\)</span> is the <em>spectral norm</em> (largest singular value).</p>
+<p><em>Derivation.</em> Write <span class="math inline">\(\|\mathbf{W}\mathbf{x}\|_{\text{RMS}} = \|\mathbf{W}\mathbf{x}\|_2 / \sqrt{d_{\text{out}}}\)</span> and <span class="math inline">\(\|\mathbf{x}\|_{\text{RMS}} = \|\mathbf{x}\|_2 / \sqrt{d_{\text{in}}}\)</span>. The ratio is <span class="math inline">\(({\sqrt{d_{\text{in}}}}/{\sqrt{d_{\text{out}}}}) \cdot (\|\mathbf{W}\mathbf{x}\|_2 / \|\mathbf{x}\|_2)\)</span>. Maximizing over <span class="math inline">\(\mathbf{x}\)</span> gives <span class="math inline">\(\sqrt{d_{\text{in}}/d_{\text{out}}} \cdot \sigma_{\max}(\mathbf{W})\)</span>.</p>
+<p><img src="figures/muon-optimizer/bernstein-standoff.png" alt="Operator norm as maximum stretch factor (Bernstein, 2025)" />
+<em>The operator norm (spectral norm) measures the maximum factor by which a matrix can stretch an input vector — geometrically, the radius of the ellipsoid image of the unit sphere.</em></p>
+<h3 id="steepest-descent-under-the-operator-norm">3.2 Steepest Descent Under the Operator Norm</h3>
+<p>The standard gradient descent update <span class="math inline">\(\mathbf{W} \leftarrow \mathbf{W} - \eta \nabla_\mathbf{W} \mathcal{L}\)</span> is steepest descent under the <em>Frobenius norm</em> constraint <span class="math inline">\(\|\Delta\mathbf{W}\|_F \leq \eta\)</span>. Muon instead uses steepest descent under the RMS-to-RMS operator norm constraint.</p>
+<p><img src="figures/muon-optimizer/bernstein-geometry.png" alt="Different distance notions lead to different optimization theories (Bernstein, 2025)" />
+<em>Choosing the right geometry for weight updates: Frobenius norm (SGD), element-wise <span class="math inline">\(\ell^\infty\)</span> (Adam), or operator norm (Muon) each induce different steepest descent directions and distinct optimization theories.</em></p>
+<p><strong>Problem formulation.</strong> Given the linearized loss <span class="math inline">\(\langle \nabla_\mathbf{W}\mathcal{L}, \Delta\mathbf{W}\rangle\)</span>, find:</p>
+<p><span class="math display">\[\Delta\mathbf{W}^* = \arg\min_{\Delta\mathbf{W}} \langle \nabla_\mathbf{W}\mathcal{L}, \Delta\mathbf{W}\rangle \quad \text{subject to} \quad \|\Delta\mathbf{W}\|_{\text{RMS}\to\text{RMS}} \leq \eta\]</span></p>
+<p>Since <span class="math inline">\(\|\Delta\mathbf{W}\|_{\text{RMS}\to\text{RMS}} = \sqrt{d_{\text{in}}/d_{\text{out}}} \cdot \sigma_{\max}(\Delta\mathbf{W})\)</span>, this is equivalent to constraining the spectral norm <span class="math inline">\(\sigma_{\max}(\Delta\mathbf{W}) \leq \eta \sqrt{d_{\text{out}}/d_{\text{in}}}\)</span>.</p>
+<h3 id="the-dual-solution-is-uvt">3.3 The Dual Solution is UV^T</h3>
+<p><strong>Proposition.</strong> Let <span class="math inline">\(\mathbf{G} = \nabla_\mathbf{W}\mathcal{L} \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}\)</span> with SVD <span class="math inline">\(\mathbf{G} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top\)</span>. The solution to the constrained steepest descent problem is:</p>
+<p><span class="math display">\[\Delta\mathbf{W}^* = -\eta \sqrt{\frac{d_{\text{out}}}{d_{\text{in}}}} \cdot \mathbf{U}\mathbf{V}^\top\]</span></p>
+<p><strong>Proof.</strong> The dual norm of <span class="math inline">\(\|\cdot\|_{\text{op}}\)</span> (spectral norm) is the <em>nuclear norm</em> <span class="math inline">\(\|\cdot\|_* = \sum_i \sigma_i\)</span>. By the duality of norms, the steepest descent direction under spectral norm constraint is the maximizer of:</p>
+<p><span class="math display">\[\langle \mathbf{G}, \Delta\mathbf{W}\rangle \quad \text{subject to} \quad \|\Delta\mathbf{W}\|_{\text{op}} \leq c\]</span></p>
+<p>The nuclear norm/spectral norm duality gives: <span class="math inline">\(\langle \mathbf{G}, \Delta\mathbf{W}\rangle \leq \|\mathbf{G}\|_* \cdot \|\Delta\mathbf{W}\|_{\text{op}}\)</span>, with equality when <span class="math inline">\(\Delta\mathbf{W} \propto \mathbf{U}\mathbf{V}^\top\)</span>. To see this: <span class="math inline">\(\langle \mathbf{G}, \mathbf{U}\mathbf{V}^\top\rangle = \operatorname{tr}(\mathbf{V}\mathbf{U}^\top \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top) = \operatorname{tr}(\boldsymbol{\Sigma}) = \|\mathbf{G}\|_*\)</span>, which is maximal. The scaling <span class="math inline">\(\sqrt{d_{\text{out}}/d_{\text{in}}}\)</span> comes from the RMS-to-RMS normalization factor. <span class="math inline">\(\square\)</span></p>
+<p><strong>Key conclusion: the Muon update direction <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span> is the exact steepest descent direction under the RMS-to-RMS operator norm constraint on weight perturbations.</strong></p>
+<div class="callout callout-example">
+<p> Intuition via 2x2 matrices
+Suppose <span class="math inline">\(\mathbf{G} = \begin{pmatrix} 10 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}\)</span>. Standard gradient descent takes a large step in the first singular direction and a tiny step in the second. Muon takes <span class="math inline">\(\mathbf{O} = \mathbf{I}\)</span>, an equal step in both directions. Under the spectral norm constraint, the second direction is “free” — we can take a full unit step there at no cost to the constraint budget.</p>
+</div>
+<h3 id="learning-rate-transfer-across-width">3.4 Learning Rate Transfer Across Width</h3>
+<p>🔑 A critical practical consequence: <strong>steepest descent under the RMS-to-RMS operator norm automatically achieves maximal update parameterization (muP) learning rate transfer across model width.</strong></p>
+<p><em>Heuristic argument.</em> In muP, the correct learning rate for a weight matrix scales as <span class="math inline">\(1/\text{fan\_in}\)</span>. The RMS-to-RMS operator norm includes a factor <span class="math inline">\(\sqrt{d_{\text{in}}/d_{\text{out}}}\)</span>, which under the steepest descent normalization produces a <span class="math inline">\(\sqrt{d_{\text{out}}/d_{\text{in}}}\)</span> scaling in <span class="math inline">\(\Delta\mathbf{W}^*\)</span>. This matches the muP prescription: updates should be <span class="math inline">\(O(1/\sqrt{d_{\text{in}}})\)</span> in RMS, independent of width, which is achieved by the polar factor <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span> (whose RMS is <span class="math inline">\(\sim 1/\sqrt{\max(d_{\text{out}}, d_{\text{in}})}\)</span> — the Lemma from §2.3).</p>
+<p><img src="figures/muon-optimizer/bernstein-transfer.png" alt="Dualized vs. conventional training on CIFAR across model widths (Bernstein, 2025)" />
+<em>Empirical validation of learning rate transfer: dualized training (operator-norm steepest descent, equivalent to Muon) maintains consistent loss across model widths without retuning, while conventional training requires width-specific learning rates.</em></p>
+<hr />
+<h2 id="connection-to-shampoo-and-second-order-methods">4. Connection to Shampoo and Second-Order Methods</h2>
+<p>🔗 The <em>Shampoo</em> optimizer maintains Kronecker-factored approximations of the gradient covariance and applies their inverse square-root as a preconditioner. Concretely, for <span class="math inline">\(\mathbf{G} \in \mathbb{R}^{m \times n}\)</span>, Shampoo computes:</p>
+<p><img src="figures/muon-optimizer/kellerjordan-shampoo-algo.png" alt="Shampoo algorithm (Keller Jordan’s blog)" />
+<em>The Shampoo update rule: accumulate gradient outer products <span class="math inline">\(\mathbf{L}_t, \mathbf{R}_t\)</span> and precondition with their inverse fourth roots. Muon recovers this update in the limiting case where all gradient history is discarded.</em></p>
+<p><span class="math display">\[\mathbf{L}_t = \sum_{s \leq t} \mathbf{G}_s \mathbf{G}_s^\top \in \mathbb{R}^{m \times m}, \quad \mathbf{R}_t = \sum_{s \leq t} \mathbf{G}_s^\top \mathbf{G}_s \in \mathbb{R}^{n \times n}\]</span></p>
+<p>and applies the update:</p>
+<p><span class="math display">\[\Delta\mathbf{W} \propto -\mathbf{L}_t^{-1/4} \mathbf{G}_t \mathbf{R}_t^{-1/4}\]</span></p>
+<p><strong>Connection to Muon.</strong> Now suppose the gradient has no memory across steps: <span class="math inline">\(\mathbf{G}_s \approx \mathbf{G}_t\)</span> for all <span class="math inline">\(s\)</span>. Then:</p>
+<p><span class="math display">\[\mathbf{L}_t \approx T \cdot \mathbf{G}_t\mathbf{G}_t^\top = T \cdot \mathbf{U}\boldsymbol{\Sigma}^2\mathbf{U}^\top\]</span></p>
+<p><span class="math display">\[\mathbf{L}_t^{-1/4} \approx T^{-1/4} \cdot \mathbf{U}\boldsymbol{\Sigma}^{-1/2}\mathbf{U}^\top\]</span></p>
+<p>Similarly, <span class="math inline">\(\mathbf{R}_t^{-1/4} \approx T^{-1/4} \cdot \mathbf{V}\boldsymbol{\Sigma}^{-1/2}\mathbf{V}^\top\)</span>. Substituting:</p>
+<p><span class="math display">\[\mathbf{L}_t^{-1/4}\mathbf{G}_t\mathbf{R}_t^{-1/4} \approx T^{-1/2} \cdot \mathbf{U}\boldsymbol{\Sigma}^{-1/2}\mathbf{U}^\top \cdot \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top \cdot \mathbf{V}\boldsymbol{\Sigma}^{-1/2}\mathbf{V}^\top = T^{-1/2} \cdot \mathbf{U}\mathbf{V}^\top\]</span></p>
+<p><em>Muon is a limiting case of Shampoo</em> where gradient memory is reset each step. This connection shows that Muon is implicitly doing approximate second-order preconditioning.</p>
+<div class="callout callout-note">
+<p> Why Muon is faster than Shampoo
+Shampoo requires maintaining and inverting the <span class="math inline">\(m \times m\)</span> and <span class="math inline">\(n \times n\)</span> covariance matrices, costing <span class="math inline">\(O(m^3 + n^3)\)</span> per step (or using approximations). Muon’s Newton-Schulz iteration acts directly on <span class="math inline">\(\mathbf{G} \in \mathbb{R}^{m \times n}\)</span> using matrix multiplications, with no explicit covariance accumulation. The computational savings are substantial for large matrices.</p>
+</div>
+<div class="callout callout-question">
+<p> Open question: can Muon recover Shampoo’s benefits from gradient memory?
+Muon discards all history of the gradient direction and uses only the current momentum buffer. Shampoo accumulates gradient outer products over many steps. Whether a variant of Muon that accumulates some spectral memory across steps could improve further is an open research direction.</p>
+</div>
+<hr />
+<h2 id="the-geometric-interpretation-hyperball-optimization">5. The Geometric Interpretation: Hyperball Optimization</h2>
+<p>🔵 The <em>hyperball</em> perspective, developed by Wen (2025), frames Muon as optimizing on a constrained manifold to achieve <em>designed</em> rather than <em>accidental</em> update-to-weight ratios.</p>
+<p><strong>The instability of standard optimizers.</strong> In AdamW and SGD, the ratio <span class="math inline">\(\|\mathbf{u}_t\|_F / \|\mathbf{W}_t\|_F\)</span> (where <span class="math inline">\(\mathbf{u}_t\)</span> is the raw update before scaling by <span class="math inline">\(\eta\)</span>) evolves unpredictably across layers, widths, and depths. The effective step size along each eigen-direction depends on accumulated gradient statistics in ways that are hard to control.</p>
+<p><strong>The hyperball normalization scheme.</strong> Define normalization to a sphere of radius <span class="math inline">\(R\)</span> as:</p>
+<p><span class="math display">\[\operatorname{Normalize}_R(\mathbf{X}) := R \cdot \frac{\mathbf{X}}{\|\mathbf{X}\|_F}\]</span></p>
+<p>The hyperball update rule is:</p>
+<p><span class="math display">\[\mathbf{W}_{t+1} = \operatorname{Normalize}_R\!\left(\mathbf{W}_t - \eta \cdot \operatorname{Normalize}_R(\mathbf{u}_t)\right)\]</span></p>
+<p>where <span class="math inline">\(R = \|\mathbf{W}_0\|_F\)</span> is fixed at initialization. This ensures:</p>
+<ol type="1">
+<li><strong>Weight norms are pinned:</strong> <span class="math inline">\(\|\mathbf{W}_t\|_F = R\)</span> for all <span class="math inline">\(t\)</span>.</li>
+<li><strong>Update norms are pinned:</strong> <span class="math inline">\(\|\text{applied update}\|_F = \eta\)</span> for all <span class="math inline">\(t\)</span>.</li>
+<li><strong>The ratio <span class="math inline">\(\eta / R\)</span> is the designed step size</strong>, predictable and transferable.</li>
+</ol>
+<p><strong>Connection to Muon.</strong> The “normalize the update” step <span class="math inline">\(\operatorname{Normalize}_R(\mathbf{u}_t)\)</span> applied to a matrix generalizes naturally to <em>matching the singular vectors</em> rather than just the Frobenius norm. Specifically, if one further constrains the update to lie on the <em>Stiefel manifold</em> (the set of semi-orthogonal matrices), the minimum-distortion lift from a vector update to a matrix update is exactly <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span>.</p>
+<p><strong>Practical benefit.</strong> By pinning the update-to-weight ratio to a designed constant, hyperball optimization enables hyperparameter transfer across model width and depth without muP reparameterization.</p>
+<p><img src="figures/muon-optimizer/hyperball-speedup.png" alt="Hyperball optimizer speedup vs. AdamW and MuonW baselines (Wen, 2025)" />
+<em>Empirical performance of the Hyperball optimizer relative to AdamW and MuonW: by enforcing a hard norm constraint on both weights and updates, Hyperball achieves faster convergence and improved sample efficiency.</em></p>
+<div class="callout callout-warning">
+<p> Hyperball vs. Muon
+Hyperball normalization also normalizes the <em>weights</em> themselves (projecting <span class="math inline">\(\mathbf{W}_t\)</span> back onto a sphere at each step). Standard Muon does not do this — it only orthogonalizes the update, not the weights. The weight decay term in MuonW provides a soft analogue: it prevents weight norms from growing unboundedly, but does not enforce a hard norm constraint.</p>
+</div>
+<hr />
+<h2 id="the-explore-exploit-perspective">6. The Explore-Exploit Perspective</h2>
+<p>🗺️ An alternative lens, developed by Paperplanet (2025), interprets Muon’s update as balancing <em>exploration</em> of gradient directions against <em>exploitation</em> of the steepest-descent path.</p>
+<p><strong>The exploit-only baseline.</strong> Standard gradient descent (and Adam) follow the gradient direction, concentrating the update budget on singular directions with large singular values. If <span class="math inline">\(\mathbf{G} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^\top\)</span>, then:</p>
+<p><span class="math display">\[\text{Adam update} \approx -\mathbf{U}\operatorname{sign}(\boldsymbol{\Sigma})\mathbf{V}^\top \quad \text{(element-wise sign adaptation)}\]</span></p>
+<p>In practice, Adam’s sign operation on individual entries does not align with the SVD structure, but the effect is qualitatively similar: it amplifies directions according to gradient magnitude.</p>
+<p><strong>Muon’s exploration.</strong> By normalizing <em>all</em> singular values to 1:</p>
+<p><span class="math display">\[\mathbf{O}_t = \sum_{i=1}^r \mathbf{u}_i \mathbf{v}_i^\top\]</span></p>
+<p>Muon assigns <em>equal priority</em> to every singular direction, regardless of whether the corresponding singular value is large or small. This forces the optimizer to explore directions where the current gradient signal is weak — which may correspond to important but currently dormant features.</p>
+<p><strong>Why exploitation is still present.</strong> The gradient <span class="math inline">\(\mathbf{G}\)</span> determines the singular <em>vectors</em> <span class="math inline">\(\mathbf{u}_i, \mathbf{v}_i\)</span>. These encode the <em>direction</em> of the gradient in the input/output feature spaces. Muon exploits this directional information fully while ignoring the magnitude information. Subsequent gradient computations (at the next step) naturally correct any overshooting from over-weighted minor directions.</p>
+<p><strong>Empirical signature.</strong> The Kimi team observes that “SVD entropy of Muon is higher than that of AdamW” across training checkpoints — confirming that Muon uses more of the available singular directions, consistent with the exploration interpretation.</p>
+<p><img src="figures/muon-optimizer/paperplanet-muon-diagram.png" alt="Muon optimizer computational flow: gradient to orthogonalized update (Paperplanet, 2025)" />
+<em>The end-to-end computational process of Muon: the gradient is smoothed via momentum, normalized to unit Frobenius norm, passed through Newton-Schulz iteration to recover the polar factor <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span>, and scaled before application.</em></p>
+<div class="callout callout-note">
+<p> Why does exploration help for MoE models?
+In mixture-of-experts architectures, the router weight matrices have strongly peaked singular value spectra: a few directions dominate expert routing. Adam reinforces these dominant directions, while Muon forces exploration of alternative routing patterns. This may explain why Moonlight (trained with Muon) shows particularly large gains on reasoning tasks like MATH, which may require activating diverse expert combinations.</p>
+</div>
+<hr />
+<h2 id="su-jianlins-spectral-norm-perspective">7. Su Jianlin’s Spectral Norm Perspective</h2>
+<p>📐 Jianlin Su’s analysis (kexue.fm) provides an independent angle: characterizing <em>what norm Muon is steepest descent under</em> and contrasting it with AdamW.</p>
+<p><strong>AdamW’s implicit norm.</strong> AdamW with element-wise second-moment normalization is approximately steepest descent under the <em>max-of-max norm</em> — which normalizes each parameter element individually. This is a very weak norm that treats all matrix entries symmetrically.</p>
+<p><strong>Muon’s implicit norm.</strong> As derived in §3, Muon is steepest descent under the spectral norm (or equivalently, the RMS-to-RMS operator norm). The spectral norm is <em>the natural norm for linear operators acting on Euclidean space</em>, since it measures the maximum amplification factor applied to inputs.</p>
+<p><strong>Why the spectral norm is the right choice.</strong> Weight matrices in neural networks function as <em>linear operators</em>: they map activation vectors from one representation space to another. The spectral norm measures the worst-case distortion of this mapping. An update constrained to be small in spectral norm guarantees that the network’s input-output behavior changes in a controlled way, regardless of the direction.</p>
+<p>The Frobenius norm (used by SGD) treats all singular directions equally and may allow large changes in the network’s behavior (by making a large change in a dominant singular direction). The spectral norm provides a tighter coupling between weight change and behavioral change.</p>
+<div class="callout callout-info">
+<p> The nuclear norm dual
+The dual norm of the spectral norm is the <em>nuclear norm</em> <span class="math inline">\(\|\mathbf{G}\|_* = \sum_i \sigma_i(\mathbf{G})\)</span>. The steepest descent direction under a norm constraint <span class="math inline">\(\|\Delta\mathbf{W}\|_{\text{op}} \leq \eta\)</span> is the subdifferential of the dual norm at <span class="math inline">\(\mathbf{G}\)</span>, which is exactly <span class="math inline">\(\mathbf{U}\mathbf{V}^\top\)</span> (a subgradient of the nuclear norm). This is a standard result in convex analysis.</p>
+</div>
+<p><strong>Frobenius vs. spectral norm comparison:</strong></p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 46%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Constraint</th>
+<th>Dual norm</th>
+<th>Steepest descent direction</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\|\Delta\mathbf{W}\|_F \leq \eta\)</span></td>
+<td>Frobenius</td>
+<td><span class="math inline">\(-\mathbf{G}\)</span></td>
+<td>SGD</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\|\Delta\mathbf{W}\|_{\text{op}} \leq \eta\)</span></td>
+<td>Nuclear</td>
+<td><span class="math inline">\(-\mathbf{U}\mathbf{V}^\top\)</span></td>
+<td>Muon</td>
+</tr>
+<tr class="odd">
+<td>Element-wise <span class="math inline">\(\ell^\infty\)</span></td>
+<td><span class="math inline">\(\ell^1\)</span></td>
+<td><span class="math inline">\(-\operatorname{sign}(\mathbf{G})\)</span></td>
+<td>Adam (approx.)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="why-orthogonalization-helps-in-practice">8. Why Orthogonalization Helps in Practice</h2>
+<p>💡 Several independent empirical and theoretical observations explain why replacing the gradient with its polar factor improves training.</p>
+<p><strong>High condition numbers of transformer gradients.</strong> Gradient matrices in transformers tend to have <em>high condition numbers</em> — the ratio of largest to smallest singular value is very large. This means gradient descent allocates almost all of its update budget to a few dominant directions, making extremely slow progress in the remaining directions.</p>
+<p>Orthogonalization effectively sets the condition number of the update to 1. Every singular direction receives equal treatment. This counters the “gradient concentration” pathology.</p>
+<p><strong>Rare but important directions.</strong> The minor singular directions of the gradient (those with small <span class="math inline">\(\sigma_i\)</span>) correspond to weight perturbations that the loss is currently insensitive to — but they may be highly relevant for long-range optimization. By amplifying these directions equally with the dominant ones, Muon ensures they are not neglected.</p>
+<p><strong>Watermark erasure as a diagnostic.</strong> Bernstein’s analysis notes that models trained with Muon show faster erasure of training data watermarks — meaning the weights move substantially from initialization. This indicates that Muon is genuinely exploring the weight space rather than staying near the NTK (neural tangent kernel) regime.</p>
+<p><strong>SVD entropy.</strong> The Kimi team measures that Muon-trained models consistently have higher SVD entropy (defined as <span class="math inline">\(-\sum_i \bar\sigma_i \log \bar\sigma_i\)</span> where <span class="math inline">\(\bar\sigma_i = \sigma_i / \sum_j \sigma_j\)</span> are normalized singular values) in their weight matrices. Higher entropy means more evenly distributed singular value spectra — the model is using more of its representational capacity.</p>
+<p><img src="figures/muon-optimizer/hyperball-svd-dist.png" alt="Empirical singular value distribution of attention weight matrices (Wen, 2025)" />
+<em>Singular value distributions of transformer attention weight matrices across training: weights remain close to full rank rather than collapsing to a low-rank structure, supporting the claim that orthogonalization encourages uniform use of representational capacity.</em></p>
+<div class="callout callout-danger">
+<p> Common misconception: Muon does not improve conditioning of the weights
+Muon orthogonalizes the <em>update</em>, not the <em>weights</em>. After one Muon step, <span class="math inline">\(\mathbf{W}_t - \eta \mathbf{U}\mathbf{V}^\top\)</span> is not in general a well-conditioned matrix. What Muon controls is the <em>update direction</em> — ensuring that the step taken in weight space is balanced across singular directions.</p>
+</div>
+<hr />
+<h2 id="distributed-implementation">9. Distributed Implementation</h2>
+<p>🖥️ A significant engineering contribution of Liu et al. (2025) is a memory-optimal, communication-efficient distributed implementation for Megatron-LM.</p>
+<p>The challenge is that Newton-Schulz requires the <em>full</em> gradient matrix <span class="math inline">\(\mathbf{M}_t \in \mathbb{R}^{m \times n}\)</span> for orthogonalization, but in distributed training each device holds only a <em>shard</em> of each parameter matrix. Naive approaches would either (a) replicate the full gradient on all devices (memory-prohibitive) or (b) apply NS to each shard independently (mathematically incorrect — the polar factor of a submatrix is not a submatrix of the polar factor).</p>
+<p><strong>Algorithm (Distributed Muon):</strong></p>
+<pre class="mermaid"><code>flowchart TD
+    A[&quot;Gradient shards G_i&lt;br/&gt;on each DP rank&quot;] --&gt; B[&quot;AllGather across DP group&lt;br/&gt;assembles full G&quot;]
+    B --&gt; C[&quot;Newton-Schulz on full G&lt;br/&gt;produces full O = UV^T&quot;]
+    C --&gt; D[&quot;Each rank discards&lt;br/&gt;non-local rows/cols of O&quot;]
+    D --&gt; E[&quot;Apply local shard&lt;br/&gt;of O to local W shard&quot;]</code></pre>
+<ol type="1">
+<li><strong>DP Gather:</strong> Assemble partitioned gradient shards into the full gradient <span class="math inline">\(\mathbf{G}\)</span>.</li>
+<li><strong>Full NS:</strong> Compute <span class="math inline">\(\mathbf{O} = \operatorname{NS}(\mathbf{G})\)</span> on each device (redundant but necessary for correctness).</li>
+<li><strong>Selective discard:</strong> Each device retains only the rows/columns of <span class="math inline">\(\mathbf{O}\)</span> corresponding to its local parameter shard.</li>
+</ol>
+<p><strong>Communication cost.</strong> The only extra communication is the AllGather of gradients within DP groups. The additional overhead is <span class="math inline">\([1, 1.25]\times\)</span> that of AdamW, with practical overhead near the lower bound <span class="math inline">\(1\times\)</span> when multiple DP groups are used.</p>
+<div class="callout callout-note">
+<p> Memory comparison with AdamW
+AdamW requires storing two optimizer states (first and second moment) per parameter. Muon requires storing only the momentum buffer (one state per parameter). The orthogonalized update <span class="math inline">\(\mathbf{O}\)</span> is computed on-the-fly and not stored. <strong>Muon therefore uses approximately half the optimizer state memory of AdamW.</strong></p>
+</div>
+<hr />
+<h2 id="practical-considerations-and-hyperparameters">10. Practical Considerations and Hyperparameters</h2>
+<p>🔧 The following table summarizes recommended hyperparameters for MuonW (the scaled, weight-decayed Muon variant):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Hyperparameter</th>
+<th>Recommended Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Momentum <span class="math inline">\(\mu\)</span></td>
+<td>0.95</td>
+<td>Higher than typical 0.9 for SGD</td>
+</tr>
+<tr class="even">
+<td>NS iterations <span class="math inline">\(N\)</span></td>
+<td>5</td>
+<td><span class="math inline">\(N = 10\)</span> gives negligible improvement</td>
+</tr>
+<tr class="odd">
+<td>NS coefficients <span class="math inline">\((a,b,c)\)</span></td>
+<td><span class="math inline">\((3.4445, -4.7750, 2.0315)\)</span></td>
+<td>Optimized quintic</td>
+</tr>
+<tr class="even">
+<td>Update RMS scale</td>
+<td>0.2</td>
+<td>Matches AdamW’s typical effective scale</td>
+</tr>
+<tr class="odd">
+<td>Weight decay <span class="math inline">\(\lambda\)</span></td>
+<td>0.1</td>
+<td>Critical for stability at scale</td>
+</tr>
+<tr class="even">
+<td>Learning rate</td>
+<td>Reuse AdamW’s</td>
+<td>Transfers directly with the RMS scaling</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Which parameters to apply Muon to:</strong></p>
+<pre class="mermaid"><code>flowchart TD
+    P[&quot;Parameter tensor&quot;] --&gt; D{&quot;2D weight matrix?&quot;}
+    D --&gt;|&quot;yes&quot;| E{&quot;Embedding or&lt;br/&gt;classifier head?&quot;}
+    E --&gt;|&quot;no&quot;| F[&quot;Apply MuonW&quot;]
+    E --&gt;|&quot;yes&quot;| G[&quot;Apply AdamW&quot;]
+    D --&gt;|&quot;no&quot;| H[&quot;Apply AdamW&lt;br/&gt;(biases, norms, 1D params)&quot;]</code></pre>
+<p><strong>QKV handling.</strong> For attention QKV projections stored as a single concatenated matrix <span class="math inline">\([\mathbf{W}_Q; \mathbf{W}_K; \mathbf{W}_V]\)</span>, apply NS to each of the three sub-matrices independently. Treating the full concatenation as a single matrix is incorrect because Q, K, V operate in different semantic spaces.</p>
+<p><strong>SFT compatibility.</strong> <em>Models pretrained with Muon should also be fine-tuned with Muon</em>. The Kimi team observes that switching from Muon pretraining to AdamW fine-tuning yields no significant advantage over AdamW-pretrained models. The optimizer mismatch degrades the Muon pretraining benefits.</p>
+<div class="callout callout-tip">
+<p> Implementation tip: NS normalization
+Always normalize <span class="math inline">\(\mathbf{M}_t\)</span> to unit Frobenius norm before running the NS iteration. Without normalization, singular values outside <span class="math inline">\([0, 1]\)</span> cause the polynomial to diverge. The normalization factor is discarded after NS (the output <span class="math inline">\(\mathbf{O}\)</span> has Frobenius norm <span class="math inline">\(\approx \sqrt{\min(m,n)}\)</span>, which is then corrected by the <span class="math inline">\(0.2\sqrt{\max(m,n)}\)</span> scaling).</p>
+</div>
+<hr />
+<h2 id="experimental-results">11. Experimental Results</h2>
+<p>📊 The Kimi team validates Muon on two axes: scaling law experiments (controlled FLOP comparisons) and the Moonlight production model.</p>
+<p><strong>Scaling law comparison.</strong> Under compute-optimal training (following Chinchilla scaling), Muon achieves:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{Muon}}(C) = 2.506 \times C^{-0.052}\]</span>
+<span class="math display">\[\mathcal{L}_{\text{AdamW}}(C) = 2.608 \times C^{-0.054}\]</span></p>
+<p><strong>At any fixed compute budget <span class="math inline">\(C\)</span>, Muon requires approximately 52% of AdamW’s FLOPs to reach the same loss.</strong> This is the headline 2x efficiency result.</p>
+<p><img src="figures/muon-optimizer/kellerjordan-nanogpt-sample-efficiency.png" alt="NanoGPT speedrun: optimizer comparison by sample efficiency (Keller Jordan)" />
+<em>Sample efficiency comparison across optimizers on the NanoGPT speedrun benchmark: Muon reaches target validation loss with significantly fewer training tokens than AdamW, SGD, and other baselines.</em></p>
+<p><img src="figures/muon-optimizer/kellerjordan-nanogpt-wallclock.png" alt="NanoGPT speedrun: optimizer comparison by wallclock time (Keller Jordan)" />
+<em>Wallclock training time comparison: despite the overhead of Newton-Schulz iterations (~0.7% extra FLOPs at NanoGPT scale), Muon reaches target loss faster in wall time due to its superior per-token progress.</em></p>
+<p><img src="figures/muon-optimizer/kellerjordan-muon-vs-adamw-1b5.jpeg" alt="Muon vs. AdamW at 1.5B parameter scale (Keller Jordan)" />
+<em>Scaling validation at 1.5B parameters: Muon maintains its loss advantage over AdamW at larger scale, establishing that the efficiency gain is not limited to small models.</em></p>
+<p><strong>Moonlight results (3B active / 16B total MoE, 5.7T tokens):</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Benchmark</th>
+<th>DeepSeek-V2-Lite (AdamW)</th>
+<th>Moonlight (Muon)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MMLU</td>
+<td>58.3</td>
+<td>70.0</td>
+</tr>
+<tr class="even">
+<td>MATH</td>
+<td>17.1</td>
+<td>45.3</td>
+</tr>
+<tr class="odd">
+<td>HumanEval</td>
+<td>29.9</td>
+<td>48.1</td>
+</tr>
+</tbody>
+</table>
+<p>The comparison is same architecture, same number of training tokens.</p>
+<p><strong>Spectral analysis.</strong> Muon-trained models exhibit higher SVD entropy in weight matrices throughout training, with the effect most pronounced in MoE router weights. This is consistent with the explore-exploit analysis: Muon encourages more diverse routing patterns, which may underlie the large MATH and reasoning gains.</p>
+<div class="callout callout-note">
+<p> Caveat on the 2x claim
+The 2x compute efficiency is measured under compute-<em>optimal</em> training, where both model size and token count are simultaneously optimized for a given FLOP budget. At fixed model size with increasing tokens (beyond the compute-optimal point), the advantage may differ. The paper does not report this regime.</p>
+</div>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2502.16982">Muon is Scalable for LLM Training (Liu et al., 2025)</a></td>
+<td>Primary paper; introduces MuonW with weight decay and per-parameter scaling, validates on Moonlight 3B/16B MoE, establishes 2x compute efficiency over AdamW</td>
+<td><a href="https://arxiv.org/abs/2502.16982">https://arxiv.org/abs/2502.16982</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://kellerjordan.github.io/posts/muon/">Keller Jordan: Muon blog post</a></td>
+<td>Original Muon description; explains Newton-Schulz iteration, why orthogonalization helps, connection to Shampoo, FLOP overhead analysis</td>
+<td><a href="https://kellerjordan.github.io/posts/muon/">https://kellerjordan.github.io/posts/muon/</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://jeremybernste.in/writing/deriving-muon">Jeremy Bernstein: Deriving Muon</a></td>
+<td>First-principles derivation of Muon as steepest descent under the RMS-to-RMS operator norm; proves UV^T is the exact dual solution; derives learning rate transfer</td>
+<td><a href="https://jeremybernste.in/writing/deriving-muon">https://jeremybernste.in/writing/deriving-muon</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://whenwen.github.io/wd_blog/public/hyperball-part-1.html">Wen: Hyperball Optimizer (Part 1)</a></td>
+<td>Geometric interpretation of Muon as optimization on a hypersphere; normalization scheme for designed update-to-weight ratios; hyperparameter transfer results</td>
+<td><a href="https://whenwen.github.io/wd_blog/public/hyperball-part-1.html">https://whenwen.github.io/wd_blog/public/hyperball-part-1.html</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://paperplanet.github.io/posts/muon-a-explore-exploit-perspective/">Paperplanet: Muon — An Explore-Exploit Perspective</a></td>
+<td>Interprets singular value normalization as exploration of gradient directions; explains SVD entropy observations; practical notes on QKV handling</td>
+<td><a href="https://paperplanet.github.io/posts/muon-a-explore-exploit-perspective/">https://paperplanet.github.io/posts/muon-a-explore-exploit-perspective/</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://kexue.fm/archives/10592">Su Jianlin: Muon Analysis (kexue.fm/10592)</a></td>
+<td>Characterizes Muon as steepest descent under spectral norm; contrasts with AdamW’s max-of-max norm; nuclear norm duality perspective</td>
+<td><a href="https://kexue.fm/archives/10592">https://kexue.fm/archives/10592</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://kexue.fm/archives/10739">Su Jianlin: Muon Analysis II (kexue.fm/10739)</a></td>
+<td>Extended analysis and connections to other optimizers from Su Jianlin</td>
+<td><a href="https://kexue.fm/archives/10739">https://kexue.fm/archives/10739</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1802.09568">Shampoo: Preconditioned Stochastic Tensor Optimization (Gupta et al., 2018)</a></td>
+<td>Introduces Kronecker-factored gradient preconditioning; Muon is a limiting case of Shampoo with single-step gradient memory</td>
+<td><a href="https://arxiv.org/abs/1802.09568">https://arxiv.org/abs/1802.09568</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2002.09018">Scalable Second Order Optimization for Deep Learning (Anil et al., 2020)</a></td>
+<td>Practical Shampoo implementation at scale; comparison point for Muon’s computational efficiency</td>
+<td><a href="https://arxiv.org/abs/2002.09019">https://arxiv.org/abs/2002.09019</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

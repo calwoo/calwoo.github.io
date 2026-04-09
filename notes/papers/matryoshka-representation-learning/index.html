@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>matryoshka-representation-learning - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>matryoshka-representation-learning</h1>
+            <article>
+    <section>
+        <p><strong>Kusupati et al., NeurIPS 2022</strong> — Aditya Kusupati, Gantavya Bhatt, Aniket Rege, Matthew Wallingford, Aditya Sinha, Vivek Ramanujan, William Howard-Snyder, Kaifeng Chen, Sham Kakade, Prateek Jain, Ali Farhadi</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Embedding flexibility</td>
+<td>Fixed-size embeddings; separate models per dimension</td>
+<td>Single model producing nested embeddings at <span class="math inline">\(O(\log d)\)</span> granularities</td>
+<td>Adaptive cascade: <strong>14× smaller representation</strong> (37-dim vs. 512-dim) at same 76.3% ImageNet top-1</td>
+</tr>
+<tr class="even">
+<td>Low-dim quality</td>
+<td>Post-hoc PCA/SVD: 2.3% top-1 at 8-dim</td>
+<td>MRL trained prefix: 66.6% top-1 at 8-dim</td>
+<td><strong>29× accuracy gain</strong> over SVD at minimum granularity</td>
+</tr>
+<tr class="odd">
+<td>Retrieval throughput</td>
+<td>Single-shot 2048-dim ANN search</td>
+<td>Adaptive shortlisting (16-dim) + re-ranking (2048-dim)</td>
+<td><strong>128× theoretical FLOP reduction</strong>, 14× wall-clock speedup, no mAP@10 loss</td>
+</tr>
+<tr class="even">
+<td>Backbone compatibility</td>
+<td>Task-specific training pipelines</td>
+<td>Loss-level modification; any backbone</td>
+<td>Works with ResNet, ViT, BERT, ALIGN with no extra hyperparameter tuning</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Extended by:</strong> <a href="../../../notes/papers/2d-matryoshka-sentence-embeddings%7C2d-matryoshka-sentence-embeddings/">papers/2d-matryoshka-sentence-embeddings|2D Matryoshka Sentence Embeddings</a> <em>(no note yet)</em>, <a href="../../../notes/papers/matryoshka-adaptor%7Cmatryoshka-adaptor-(emnlp-2024)/">papers/matryoshka-adaptor|Matryoshka-Adaptor (EMNLP 2024)</a> <em>(no note yet)</em>, <a href="../../../notes/papers/matformer%7Cmatformer-(neurips-2024)/">papers/matformer|MatFormer (NeurIPS 2024)</a> <em>(no note yet)</em>
+<strong>Concepts used:</strong> <a href="../../../notes/concepts/neural-scaling-laws/note%7Cneural-scaling-laws/">concepts/neural-scaling-laws/note|Neural Scaling Laws</a></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#1.-motivation-and-background%7C1.-motivation-and-background/">#1. Motivation and Background|1. Motivation and Background</a>
+<ul>
+<li><a href="../../../notes/#1.1-the-fixed-capacity-problem%7C1.1-the-fixed-capacity-problem/">#1.1 The Fixed-Capacity Problem|1.1 The Fixed-Capacity Problem</a></li>
+<li><a href="../../../notes/#1.2-the-matryoshka-doll-intuition%7C1.2-the-matryoshka-doll-intuition/">#1.2 The Matryoshka Doll Intuition|1.2 The Matryoshka Doll Intuition</a></li>
+</ul></li>
+<li><a href="../../../notes/#2.-the-mrl-objective%7C2.-the-mrl-objective/">#2. The MRL Objective|2. The MRL Objective</a>
+<ul>
+<li><a href="../../../notes/#2.1-notation-and-setup%7C2.1-notation-and-setup/">#2.1 Notation and Setup|2.1 Notation and Setup</a></li>
+<li><a href="../../../notes/#2.2-the-nesting-constraint-and-multi-granularity-loss%7C2.2-the-nesting-constraint-and-multi-granularity-loss/">#2.2 The Nesting Constraint and Multi-Granularity Loss|2.2 The Nesting Constraint and Multi-Granularity Loss</a></li>
+<li><a href="../../../notes/#2.3-efficient-mrl-via-weight-tying%7C2.3-efficient-mrl-via-weight-tying/">#2.3 Efficient MRL via Weight Tying|2.3 Efficient MRL via Weight Tying</a></li>
+<li><a href="../../../notes/#2.4-relationship-to-standard-representation-learning%7C2.4-relationship-to-standard-representation-learning/">#2.4 Relationship to Standard Representation Learning|2.4 Relationship to Standard Representation Learning</a></li>
+</ul></li>
+<li><a href="../../../notes/#3.-training-mrl-models%7C3.-training-mrl-models/">#3. Training MRL Models|3. Training MRL Models</a>
+<ul>
+<li><a href="../../../notes/#3.1-what-changes-in-the-training-loop%7C3.1-what-changes-in-the-training-loop/">#3.1 What Changes in the Training Loop|3.1 What Changes in the Training Loop</a></li>
+<li><a href="../../../notes/#3.2-importance-weights-and-hyperparameter-choices%7C3.2-importance-weights-and-hyperparameter-choices/">#3.2 Importance Weights and Hyperparameter Choices|3.2 Importance Weights and Hyperparameter Choices</a></li>
+<li><a href="../../../notes/#3.3-contrastive-and-generative-extensions%7C3.3-contrastive-and-generative-extensions/">#3.3 Contrastive and Generative Extensions|3.3 Contrastive and Generative Extensions</a></li>
+</ul></li>
+<li><a href="../../../notes/#4.-inference-time-flexibility%7C4.-inference-time-flexibility/">#4. Inference-Time Flexibility|4. Inference-Time Flexibility</a>
+<ul>
+<li><a href="../../../notes/#4.1-adaptive-classification%7C4.1-adaptive-classification/">#4.1 Adaptive Classification|4.1 Adaptive Classification</a></li>
+<li><a href="../../../notes/#4.2-adaptive-retrieval:-shortlisting-and-re-ranking%7C4.2-adaptive-retrieval:-shortlisting-and-re-ranking/">#4.2 Adaptive Retrieval: Shortlisting and Re-ranking|4.2 Adaptive Retrieval: Shortlisting and Re-ranking</a></li>
+<li><a href="../../../notes/#4.3-the-flop/accuracy-pareto-frontier%7C4.3-the-flop/accuracy-pareto-frontier/">#4.3 The FLOP/Accuracy Pareto Frontier|4.3 The FLOP/Accuracy Pareto Frontier</a></li>
+</ul></li>
+<li><a href="../../../notes/#5.-theoretical-grounding%7C5.-theoretical-grounding/">#5. Theoretical Grounding|5. Theoretical Grounding</a>
+<ul>
+<li><a href="../../../notes/#5.1-why-prefixes-retain-information-under-mrl%7C5.1-why-prefixes-retain-information-under-mrl/">#5.1 Why Prefixes Retain Information Under MRL|5.1 Why Prefixes Retain Information Under MRL</a></li>
+<li><a href="../../../notes/#5.2-interpolation-across-intermediate-dimensions%7C5.2-interpolation-across-intermediate-dimensions/">#5.2 Interpolation Across Intermediate Dimensions|5.2 Interpolation Across Intermediate Dimensions</a></li>
+<li><a href="../../../notes/#5.3-capacity-arguments-and-the-information-bottleneck-view%7C5.3-capacity-arguments-and-the-information-bottleneck-view/">#5.3 Capacity Arguments and the Information Bottleneck View|5.3 Capacity Arguments and the Information Bottleneck View</a></li>
+</ul></li>
+<li><a href="../../../notes/#6.-empirical-results%7C6.-empirical-results/">#6. Empirical Results|6. Empirical Results</a>
+<ul>
+<li><a href="../../../notes/#6.1-imagenet-classification%7C6.1-imagenet-classification/">#6.1 ImageNet Classification|6.1 ImageNet Classification</a></li>
+<li><a href="../../../notes/#6.2-image-retrieval%7C6.2-image-retrieval/">#6.2 Image Retrieval|6.2 Image Retrieval</a></li>
+<li><a href="../../../notes/#6.3-few-shot-and-long-tail-learning%7C6.3-few-shot-and-long-tail-learning/">#6.3 Few-Shot and Long-Tail Learning|6.3 Few-Shot and Long-Tail Learning</a></li>
+<li><a href="../../../notes/#6.4-robustness-benchmarks%7C6.4-robustness-benchmarks/">#6.4 Robustness Benchmarks|6.4 Robustness Benchmarks</a></li>
+</ul></li>
+<li><a href="../../../notes/#7.-extensions-and-follow-up-work%7C7.-extensions-and-follow-up-work/">#7. Extensions and Follow-up Work|7. Extensions and Follow-up Work</a>
+<ul>
+<li><a href="../../../notes/#7.1-2d-matryoshka-sentence-embeddings%7C7.1-2d-matryoshka-sentence-embeddings/">#7.1 2D Matryoshka Sentence Embeddings|7.1 2D Matryoshka Sentence Embeddings</a></li>
+<li><a href="../../../notes/#7.2-matryoshka-adaptor%7C7.2-matryoshka-adaptor/">#7.2 Matryoshka-Adaptor|7.2 Matryoshka-Adaptor</a></li>
+<li><a href="../../../notes/#7.3-multimodal-extensions%7C7.3-multimodal-extensions/">#7.3 Multimodal Extensions|7.3 Multimodal Extensions</a></li>
+<li><a href="../../../notes/#7.4-mrl-in-production:-openai-text-embedding-3%7C7.4-mrl-in-production:-openai-text-embedding-3/">#7.4 MRL in Production: OpenAI text-embedding-3|7.4 MRL in Production: OpenAI text-embedding-3</a></li>
+<li><a href="../../../notes/#7.5-matformer:-nesting-at-the-architecture-level%7C7.5-matformer:-nesting-at-the-architecture-level/">#7.5 MatFormer: Nesting at the Architecture Level|7.5 MatFormer: Nesting at the Architecture Level</a></li>
+</ul></li>
+<li><a href="../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-and-background">1. Motivation and Background 🎯</h2>
+<h3 id="the-fixed-capacity-problem">1.1 The Fixed-Capacity Problem</h3>
+<p>Modern ML pipelines decouple representation learning from downstream use. A model <span class="math inline">\(F(\cdot\,;\theta_F): \mathcal{X} \to \mathbb{R}^d\)</span> is trained once — on ImageNet, a web-crawled corpus, or a contrastive multimodal dataset — and its frozen embeddings are reused across an open-ended collection of tasks. This decoupling is efficient but hides a structural mismatch: the embedding dimension <span class="math inline">\(d\)</span> is chosen at training time, yet downstream tasks have heterogeneous and often unknown computational budgets.</p>
+<p>Consider two concrete failure modes:</p>
+<ol type="1">
+<li><p><strong>Over-provisioning.</strong> A product search system ingests 100 billion items, each embedded at <span class="math inline">\(d = 2048\)</span>. Even at float16, the index occupies $$400 GB. Halving <span class="math inline">\(d\)</span> would cut memory and ANN query cost by 2×, but no post-hoc compression method does so without catastrophic accuracy loss (see §5.1 for why).</p></li>
+<li><p><strong>Under-provisioning.</strong> A low-latency real-time retrieval path needs <span class="math inline">\(d = 32\)</span>, while a high-accuracy offline re-ranking path can afford <span class="math inline">\(d = 512\)</span>. Training two separate models wastes compute and introduces representation drift between the stages.</p></li>
+</ol>
+<p>The paper identifies this as a <em>capacity-vs-cost</em> tradeoff: fixed-size embeddings are either over- or under-accommodating relative to any given deployment context.</p>
+<div class="callout callout-info">
+<p> The fundamental asymmetry
+Training is done once; inference is done billions of times. The correct design point is to amortize the training cost of learning flexible representations over the many downstream deployments that benefit from different granularities.</p>
+</div>
+<h3 id="the-matryoshka-doll-intuition">1.2 The Matryoshka Doll Intuition</h3>
+<p>The paper’s central metaphor is the <em>Matryoshka doll</em> (Russian nesting doll): a set of wooden figures each concealed inside the next larger one. MRL encodes information at multiple levels of granularity within a single vector <span class="math inline">\(z \in \mathbb{R}^d\)</span>, arranged so that:</p>
+<p><span class="math display">\[z_{1:8} \;\subset\; z_{1:16} \;\subset\; z_{1:32} \;\subset\; \cdots \;\subset\; z_{1:d}\]</span></p>
+<p>where <span class="math inline">\(z_{1:m}\)</span> denotes the first <span class="math inline">\(m\)</span> coordinates of <span class="math inline">\(z\)</span>. Each prefix <span class="math inline">\(z_{1:m}\)</span> is a <em>standalone</em> representation — independently useful for classification, retrieval, or any downstream task — and the prefix relationship is not imposed post-hoc but baked into training via the loss.</p>
+<div class="callout callout-tip">
+<p> Coarse-to-fine semantics
+Lower-dimensional prefixes capture coarse semantic structure (superclass identity, rough topic), while higher-dimensional extensions refine this into finer distinctions (fine-grained class, subtle sentiment). This mirrors the classical <em>information bottleneck</em> view: tight bottlenecks preserve class-level signal and discard instance-level noise.</p>
+</div>
+<p><img src="https://arxiv.org/html/2205.13147v4/x3.png" alt="Figure 1 from Kusupati et al. (2022): MRL overview showing adaptive inference and training" />
+<em>Figure 1 (Kusupati et al., 2022): Left — adaptive inference and retrieval pipeline at varying representation sizes. Center — a single MRL-trained embedding vector acts as a nested set of dolls; each prefix <span class="math inline">\(z_{1:m}\)</span> is independently usable. Right — the MRL training objective applies the loss at each of <span class="math inline">\(O(\log d)\)</span> nested dimensions.</em></p>
+<div class="callout callout-question">
+<p> Exercise 1: Nesting as a geometric constraint
+<em>This exercise establishes that the nesting structure imposes an inclusion constraint on the subspaces used by each granularity.</em></p>
+<p>Let <span class="math inline">\(V_m = \text{span}(e_1, \ldots, e_m) \subseteq \mathbb{R}^d\)</span> denote the coordinate subspace corresponding to the first <span class="math inline">\(m\)</span> dimensions. Show that MRL’s prefix structure enforces <span class="math inline">\(V_{m_1} \subseteq V_{m_2}\)</span> whenever <span class="math inline">\(m_1 \leq m_2\)</span>. Contrast this with PCA, where the <span class="math inline">\(m_1\)</span>-dimensional subspace is not generally a subspace of the <span class="math inline">\(m_2\)</span>-dimensional subspace when <span class="math inline">\(m_2 &gt; m_1\)</span>. Why does this difference make MRL suitable for adaptive retrieval pipelines while PCA is not?</p>
+</div>
+<hr />
+<h2 id="the-mrl-objective">2. The MRL Objective 📐</h2>
+<h3 id="notation-and-setup">2.1 Notation and Setup</h3>
+<p><strong>Definition (MRL Setup).</strong> Let:
+- <span class="math inline">\(\mathcal{X}\)</span> be the input space (e.g., images, text).
+- <span class="math inline">\(F(\cdot\,; \theta_F): \mathcal{X} \to \mathbb{R}^d\)</span> be a neural encoder parameterized by <span class="math inline">\(\theta_F\)</span>, producing a <span class="math inline">\(d\)</span>-dimensional embedding <span class="math inline">\(z = F(x; \theta_F)\)</span>.
+- <span class="math inline">\(\mathcal{M} \subset [d]\)</span> be a set of <em>nesting dimensions</em> with <span class="math inline">\(|\mathcal{M}| \leq \lfloor \log_2 d \rfloor\)</span>. The standard choice is <span class="math inline">\(\mathcal{M} = \{8, 16, 32, 64, 128, 256, 512, 1024, 2048\}\)</span> for <span class="math inline">\(d = 2048\)</span>.
+- <span class="math inline">\(z_{1:m} \in \mathbb{R}^m\)</span> denote the first <span class="math inline">\(m\)</span> coordinates of <span class="math inline">\(z\)</span> — the <em><span class="math inline">\(m\)</span>-dimensional prefix</em> embedding.
+- <span class="math inline">\(\mathcal{D} = \{(x_i, y_i)\}_{i=1}^N\)</span> be a labeled training dataset with <span class="math inline">\(L\)</span> classes.
+- <span class="math inline">\(\mathbf{W}^{(m)} \in \mathbb{R}^{L \times m}\)</span> be a linear classification head for dimension <span class="math inline">\(m\)</span>.
+- <span class="math inline">\(\ell: \mathbb{R}^L \times [L] \to \mathbb{R}\)</span> be the multi-class softmax cross-entropy loss.
+- <span class="math inline">\(c_m \geq 0\)</span> be a scalar <em>importance weight</em> for dimension <span class="math inline">\(m \in \mathcal{M}\)</span>.</p>
+<h3 id="the-nesting-constraint-and-multi-granularity-loss">2.2 The Nesting Constraint and Multi-Granularity Loss</h3>
+<p><strong>Definition (MRL Loss).</strong> The Matryoshka Representation Learning objective jointly optimizes over the encoder parameters <span class="math inline">\(\theta_F\)</span> and all classification heads <span class="math inline">\(\{\mathbf{W}^{(m)}\}_{m \in \mathcal{M}}\)</span>:</p>
+<p><span class="math display">\[\min_{\{\mathbf{W}^{(m)}\}_{m \in \mathcal{M}},\, \theta_F} \;\frac{1}{N} \sum_{i=1}^{N} \sum_{m \in \mathcal{M}} c_m \cdot \ell\!\left(\mathbf{W}^{(m)} \cdot F(x_i;\theta_F)_{1:m};\; y_i\right) \tag{1}\]</span></p>
+<p>The nesting constraint is implicit: by always taking the <em>prefix</em> <span class="math inline">\(z_{1:m}\)</span> (not an arbitrary <span class="math inline">\(m\)</span>-dimensional projection), the loss forces the encoder to arrange semantically useful information in the first coordinates of <span class="math inline">\(z\)</span>. There is no explicit regularizer enforcing nesting — it emerges from the shared-encoder, prefix-indexing structure of the loss itself.</p>
+<div class="callout callout-info">
+<p> Why prefixes and not arbitrary subsets?
+One could, in principle, train with arbitrary <span class="math inline">\(m\)</span>-element subsets of coordinates. Prefixes are the specific choice that enables zero-overhead inference: to obtain a <span class="math inline">\(m\)</span>-dimensional representation, simply truncate the embedding. No secondary projection matrix needs to be stored or applied at query time.</p>
+</div>
+<p>The key structural insight is that <strong>a single forward pass through <span class="math inline">\(F\)</span> produces all granularities simultaneously.</strong> The <span class="math inline">\(O(\log d)\)</span> heads <span class="math inline">\(\mathbf{W}^{(m)}\)</span> are small and add negligible overhead; they are discarded after training. At inference, one uses <span class="math inline">\(z_{1:m}\)</span> directly.</p>
+<div class="callout callout-question">
+<p> Exercise 2: MRL loss upper-bounds the standard loss
+<em>This exercise shows that the standard single-granularity training objective is a special case of MRL, so MRL is no harder to optimize in a minimax sense.</em></p>
+<p>Let <span class="math inline">\(\mathcal{M}_{\text{std}} = \{d\}\)</span> (the full dimension only) and <span class="math inline">\(c_d = 1\)</span>. Show that the MRL loss (Eq. 1) reduces exactly to the standard cross-entropy loss on <span class="math inline">\(z_{1:d} = z\)</span>. Now let <span class="math inline">\(\mathcal{M}\)</span> contain <span class="math inline">\(|\mathcal{M}|\)</span> elements, all with <span class="math inline">\(c_m = 1/|\mathcal{M}|\)</span>. Show that the MRL loss is a convex combination of per-dimension losses. Conclude that any solution to the standard problem is also feasible for MRL, and that the MRL optimum achieves loss <span class="math inline">\(\leq\)</span> the average of the per-dimension optima.</p>
+</div>
+<h3 id="efficient-mrl-via-weight-tying">2.3 Efficient MRL via Weight Tying</h3>
+<p>The <em>Efficient MRL</em> (MRL-E) variant ties the classification heads across dimensions:</p>
+<p><span class="math display">\[\mathbf{W}^{(m)} = \mathbf{W}_{1:m} \quad \text{for all } m \in \mathcal{M}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W} \in \mathbb{R}^{L \times d}\)</span> is a single full-dimensional head and <span class="math inline">\(\mathbf{W}_{1:m}\)</span> denotes its first <span class="math inline">\(m\)</span> columns. This reduces classifier memory from <span class="math inline">\(O(L \cdot \sum_{m \in \mathcal{M}} m)\)</span> to <span class="math inline">\(O(L \cdot d)\)</span>, approximately a 2× reduction for the standard logarithmically-spaced <span class="math inline">\(\mathcal{M}\)</span>.</p>
+<p><em>Weight tying introduces a coupling between the gradient signals from different granularities</em>: the gradient of <span class="math inline">\(\ell(\mathbf{W}_{1:m} \cdot z_{1:m}; y)\)</span> with respect to <span class="math inline">\(\mathbf{W}_{1:m}\)</span> propagates into the smaller-<span class="math inline">\(m\)</span> columns of <span class="math inline">\(\mathbf{W}\)</span>, while larger-<span class="math inline">\(m\)</span> losses add updates to the additional columns. The paper reports that MRL-E matches MRL accuracy at mid-to-high dimensions but degrades slightly at the extreme low end (e.g., 56.7% vs. 66.6% at <span class="math inline">\(d=8\)</span> for ResNet50 on ImageNet).</p>
+<div class="callout callout-question">
+<p> Exercise 3: Gradient decomposition in MRL-E
+<em>This exercise makes explicit how the weight-tying in MRL-E creates gradient interference between granularities.</em></p>
+<p>In MRL-E, write out <span class="math inline">\(\frac{\partial}{\partial \mathbf{W}_{1:m_1}} \sum_{m \in \mathcal{M}} c_m \cdot \ell(\mathbf{W}_{1:m} \cdot z_{1:m}; y)\)</span> for a fixed <span class="math inline">\(m_1 \in \mathcal{M}\)</span>. Show that this gradient receives contributions from all <span class="math inline">\(m \geq m_1\)</span>. Does larger-<span class="math inline">\(m\)</span> signal help or hurt the <span class="math inline">\(m_1\)</span>-dimensional objective? Argue heuristically for why this explains the accuracy gap between MRL-E and MRL at small <span class="math inline">\(m\)</span>.</p>
+</div>
+<h3 id="relationship-to-standard-representation-learning">2.4 Relationship to Standard Representation Learning</h3>
+<p>The MRL loss (Eq. 1) differs from standard representation learning in exactly one way: it sums the classification loss over <span class="math inline">\(|\mathcal{M}|\)</span> prefix lengths, each with its own head. Everything else — the backbone <span class="math inline">\(F\)</span>, the optimizer, the data pipeline, the augmentation schedule — remains unchanged.</p>
+<p>This minimal-modification property is a design goal. The paper explicitly validates that using the same hyperparameters as the corresponding independently-trained baseline suffices; no additional tuning is required.</p>
+<div class="callout callout-example">
+<p> MRL loss for ResNet50 on ImageNet
+For ResNet50 (<span class="math inline">\(d = 2048\)</span>) with <span class="math inline">\(\mathcal{M} = \{8, 16, 32, 64, 128, 256, 512, 1024, 2048\}\)</span> and uniform <span class="math inline">\(c_m = 1\)</span>:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{MRL}} = \frac{1}{N} \sum_{i=1}^N \left[ \ell(\mathbf{W}^{(8)} z_{1:8}^{(i)}; y_i) + \ell(\mathbf{W}^{(16)} z_{1:16}^{(i)}; y_i) + \cdots + \ell(\mathbf{W}^{(2048)} z_{1:2048}^{(i)}; y_i) \right]\]</span></p>
+<p>Nine classification heads are added. The 8-dimensional head has <span class="math inline">\(1000 \times 8 = 8000\)</span> parameters; the full-dimensional head has <span class="math inline">\(1000 \times 2048 \approx 2\text{M}\)</span> parameters. Total added parameters are dominated by the largest head — negligible relative to ResNet50’s 25M.</p>
+</div>
+<hr />
+<h2 id="training-mrl-models">3. Training MRL Models 🔧</h2>
+<h3 id="what-changes-in-the-training-loop">3.1 What Changes in the Training Loop</h3>
+<p>The training loop modification is surgical. Below is a PyTorch pseudocode sketch:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MRLLoss(nn.Module):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, nesting_dims, num_classes, importance_weights<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.nesting_dims <span class="op">=</span> nesting_dims  <span class="co"># e.g., [8, 16, 32, ..., 2048]</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.heads <span class="op">=</span> nn.ModuleList([</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            nn.Linear(m, num_classes, bias<span class="op">=</span><span class="va">False</span>) <span class="cf">for</span> m <span class="kw">in</span> nesting_dims</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        ])</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> importance_weights <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Uniform weighting by default</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.c <span class="op">=</span> [<span class="fl">1.0</span>] <span class="op">*</span> <span class="bu">len</span>(nesting_dims)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.c <span class="op">=</span> importance_weights</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ce <span class="op">=</span> nn.CrossEntropyLoss()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, z, targets):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">        z: (batch_size, d) full-dimensional embedding from backbone</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">        targets: (batch_size,) integer class labels</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        total_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> m, head, c_m <span class="kw">in</span> <span class="bu">zip</span>(<span class="va">self</span>.nesting_dims, <span class="va">self</span>.heads, <span class="va">self</span>.c):</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Take the prefix of the embedding</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            z_prefix <span class="op">=</span> z[:, :m]</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            logits <span class="op">=</span> head(z_prefix)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            total_loss <span class="op">+=</span> c_m <span class="op">*</span> <span class="va">self</span>.ce(logits, targets)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> total_loss <span class="op">/</span> <span class="bu">len</span>(<span class="va">self</span>.nesting_dims)</span></code></pre></div>
+<p>The training loop itself is unchanged: compute loss, call <code>.backward()</code>, step the optimizer. The only modification is replacing the standard cross-entropy call with <code>MRLLoss.forward(z, targets)</code>.</p>
+<div class="callout callout-warning">
+<p> Normalization of the loss scale
+When <span class="math inline">\(c_m = 1\)</span> for all <span class="math inline">\(m\)</span>, the MRL loss is <span class="math inline">\(|\mathcal{M}|\)</span> times larger in magnitude than the standard loss. If learning rate was tuned for the standard loss, scale <span class="math inline">\(c_m \leftarrow 1/|\mathcal{M}|\)</span> or reduce the learning rate accordingly to avoid instability.</p>
+</div>
+<h3 id="importance-weights-and-hyperparameter-choices">3.2 Importance Weights and Hyperparameter Choices</h3>
+<p>The weights <span class="math inline">\(c_m\)</span> control the relative emphasis on each granularity. Three natural choices:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scheme</th>
+<th>Definition</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Uniform</td>
+<td><span class="math inline">\(c_m = 1/\|\mathcal{M}\|\)</span></td>
+<td>Equal training pressure at all granularities</td>
+</tr>
+<tr class="even">
+<td>Geometric</td>
+<td><span class="math inline">\(c_m \propto m\)</span></td>
+<td>Emphasizes high-dimensional, high-capacity representations</td>
+</tr>
+<tr class="odd">
+<td>Endpoint</td>
+<td><span class="math inline">\(c_m = 1\)</span> for <span class="math inline">\(m = d\)</span>, else <span class="math inline">\(0\)</span></td>
+<td>Degenerates to standard training</td>
+</tr>
+</tbody>
+</table>
+<p>The paper uses <strong>uniform weights (<span class="math inline">\(c_m = 1\)</span>)</strong> throughout and reports competitive results without sweeping this hyperparameter. This suggests the multi-granularity signal is robust to weighting.</p>
+<p><strong>Choice of <span class="math inline">\(\mathcal{M}\)</span>:</strong> The paper recommends logarithmically-spaced sizes, halving at each step. This ensures the nesting hierarchy is geometrically uniform: each step doubles the representational capacity, so the marginal information gain at each level is roughly equal. The constraint <span class="math inline">\(|\mathcal{M}| \leq \lfloor \log_2 d \rfloor\)</span> formalizes this.</p>
+<h3 id="contrastive-and-generative-extensions">3.3 Contrastive and Generative Extensions</h3>
+<p>MRL generalizes beyond supervised classification:</p>
+<ul>
+<li><strong>Contrastive learning (ALIGN):</strong> The loss <span class="math inline">\(\ell\)</span> is replaced by an InfoNCE contrastive loss. For a matched image-text pair <span class="math inline">\((x^v, x^t)\)</span>, the MRL loss applies the contrastive objective to each prefix pair <span class="math inline">\((z^v_{1:m}, z^t_{1:m})\)</span> independently:</li>
+</ul>
+<p><span class="math display">\[\mathcal{L}_{\text{MRL-contrastive}} = \sum_{m \in \mathcal{M}} c_m \cdot \ell_{\text{NCE}}\!\left(z^v_{1:m} / \|z^v_{1:m}\|,\; z^t_{1:m} / \|z^t_{1:m}\|\right)\]</span></p>
+<p>Note the per-prefix <span class="math inline">\(\ell_2\)</span>-normalization — necessary because cosine similarity is not scale-invariant.</p>
+<ul>
+<li><strong>Masked language modeling (BERT):</strong> MRL-E with weight-tied heads reduces naturally to the standard MLM objective on the prefix. Specifically, BERT’s output embedding matrix plays the role of <span class="math inline">\(\mathbf{W}\)</span>; taking <span class="math inline">\(\mathbf{W}_{1:m}\)</span> produces the <span class="math inline">\(m\)</span>-dimensional head automatically.</li>
+</ul>
+<div class="callout callout-question">
+<p> Exercise 4: MRL contrastive loss
+<em>This exercise derives the gradient signal from the contrastive MRL loss at a small granularity <span class="math inline">\(m\)</span>.</em></p>
+<p>Let <span class="math inline">\(s_m = (z^v_{1:m})^\top (z^t_{1:m}) / (\|z^v_{1:m}\| \|z^t_{1:m}\|)\)</span> be the cosine similarity at dimension <span class="math inline">\(m\)</span>. Write the InfoNCE loss <span class="math inline">\(\ell_{\text{NCE}}\)</span> for a batch of <span class="math inline">\(B\)</span> pairs. Compute <span class="math inline">\(\partial \ell_{\text{NCE}} / \partial z^v_{1:m}\)</span> and show that this gradient lives in <span class="math inline">\(\mathbb{R}^m\)</span> and therefore only updates the first <span class="math inline">\(m\)</span> dimensions of <span class="math inline">\(z^v\)</span> via backpropagation through the prefix slice. What does this imply about the independence of gradient signals across different <span class="math inline">\(m\)</span> values?</p>
+</div>
+<hr />
+<h2 id="inference-time-flexibility">4. Inference-Time Flexibility 🚀</h2>
+<h3 id="adaptive-classification">4.1 Adaptive Classification</h3>
+<p>At inference, a single forward pass through <span class="math inline">\(F\)</span> yields <span class="math inline">\(z \in \mathbb{R}^d\)</span>. One then selects the appropriate prefix <span class="math inline">\(z_{1:m}\)</span> based on the available budget. Because the model was trained with the MRL loss, every prefix is a valid, calibrated representation — not a degraded truncation of an over-parameterized one.</p>
+<p><strong>Adaptive classification cascade:</strong> Rather than committing to a single dimension upfront, one can route individual examples to the appropriate dimension. The paper demonstrates that:</p>
+<p><span class="math display">\[\text{accuracy at 37-dim} \approx \text{accuracy at 512-dim (fixed-feature)} \approx 76.3\%\]</span></p>
+<p>A representation 13.8× smaller achieves the same accuracy, because easy examples (those with large margins at low dimension) never need the additional capacity.</p>
+<p><img src="https://arxiv.org/html/2205.13147v4/x13.png" alt="Figure 6 from Kusupati et al. (2022): Adaptive classification accuracy vs. expected representation size for MRL-AC vs. FF 2048" />
+<em>Figure 6 (Kusupati et al., 2022): Adaptive classification (MRL-AC) achieves the same top-1 accuracy as the FF-2048 baseline (dashed line) while using a dramatically smaller expected representation size — the Pareto-optimal tradeoff that motivates MRL for resource-constrained deployments.</em></p>
+<div class="callout callout-question">
+<p> Exercise 5: Oracle accuracy gain from perfect routing
+<em>This exercise quantifies the upper bound on accuracy achievable by an oracle adaptive classifier.</em></p>
+<p>Let <span class="math inline">\(\hat{y}_m(x)\)</span> denote the prediction of the <span class="math inline">\(m\)</span>-dimensional MRL head on input <span class="math inline">\(x\)</span>. Define the <em>oracle adaptive classifier</em> as the one that, for each <span class="math inline">\(x\)</span>, uses <span class="math inline">\(\hat{y}_{m^*}(x)\)</span> where <span class="math inline">\(m^* = \min\{m \in \mathcal{M} : \hat{y}_m(x) = y\}\)</span> (i.e., the smallest dimension that gets it right). The paper reports a 4.6% accuracy gain over the full-dimensional baseline for this oracle. Formalize why this gain is positive: argue that there must exist examples where <span class="math inline">\(\hat{y}_d(x) \neq y\)</span> but <span class="math inline">\(\hat{y}_m(x) = y\)</span> for some <span class="math inline">\(m &lt; d\)</span>. What does this suggest about the relationship between embedding capacity and difficulty of classification?</p>
+</div>
+<h3 id="adaptive-retrieval-shortlisting-and-re-ranking">4.2 Adaptive Retrieval: Shortlisting and Re-ranking</h3>
+<p>Nearest-neighbor retrieval over a database of <span class="math inline">\(N\)</span> items with <span class="math inline">\(d\)</span>-dimensional embeddings costs <span class="math inline">\(O(Nd)\)</span> per query for exact search (or dominates the ANN index building cost). MRL enables a <em>funnel retrieval</em> strategy:</p>
+<p><strong>Definition (Adaptive Retrieval).</strong> Given query <span class="math inline">\(q\)</span> with embedding <span class="math inline">\(z^q \in \mathbb{R}^d\)</span>, shortlisting dimension <span class="math inline">\(D_s \in \mathcal{M}\)</span>, re-ranking dimension <span class="math inline">\(D_r \in \mathcal{M}\)</span> (<span class="math inline">\(D_s &lt; D_r\)</span>), and shortlist size <span class="math inline">\(K\)</span>:</p>
+<ol type="1">
+<li><strong>Shortlist:</strong> Retrieve the top-<span class="math inline">\(K\)</span> candidates by <span class="math inline">\(\ell_2\)</span> distance in <span class="math inline">\(\mathbb{R}^{D_s}\)</span> using the prefix embeddings <span class="math inline">\(\{z^{(j)}_{1:D_s}\}_{j=1}^N\)</span>.</li>
+<li><strong>Re-rank:</strong> Score the <span class="math inline">\(K\)</span> shortlisted items using <span class="math inline">\(\{z^{(j)}_{1:D_r}\}_{j=1}^K\)</span>; return the top result.</li>
+</ol>
+<p>The key observation: because <span class="math inline">\(z^{(j)}_{1:D_s}\)</span> and <span class="math inline">\(z^{(j)}_{1:D_r}\)</span> are prefixes of the same stored vector <span class="math inline">\(z^{(j)}\)</span>, <strong>a single database index suffices.</strong> No separate low-dimensional and high-dimensional indices are needed.</p>
+<pre class="mermaid"><code>flowchart LR
+    Q[&quot;Query z^q_1:D_s&lt;br/&gt;low-dim prefix&quot;] --&gt; S[&quot;ANN shortlist&lt;br/&gt;top-K from N items&quot;]
+    S --&gt; R[&quot;Re-rank with z^q_1:D_r&lt;br/&gt;high-dim prefix&quot;]
+    R --&gt; Out[&quot;Final top-k&lt;br/&gt;results&quot;]</code></pre>
+<p><strong>Funnel retrieval</strong> extends this to a multi-stage cascade, halving the shortlist size at each step while doubling the dimension:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Shortlist size</th>
+<th>Dimension</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>200</td>
+<td>16</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>100</td>
+<td>32</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>50</td>
+<td>64</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>25</td>
+<td>128</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>10</td>
+<td>256</td>
+</tr>
+<tr class="even">
+<td>Final</td>
+<td>10</td>
+<td>2048</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-question">
+<p> Exercise 6: FLOP analysis of funnel retrieval
+<em>This exercise derives the theoretical speedup of funnel retrieval relative to single-shot full-dimensional search.</em></p>
+<p>Assume a database of <span class="math inline">\(N = 10^6\)</span> items. Single-shot retrieval at dimension <span class="math inline">\(d = 2048\)</span> costs <span class="math inline">\(2Nd = 4 \times 10^9\)</span> multiply-add operations per query. Compute the total cost of the 6-stage funnel above (assume each stage computes exact inner products over its shortlist). Show the claimed $$128× reduction. Under what conditions on the shortlist size <span class="math inline">\(K\)</span> relative to <span class="math inline">\(N\)</span> does the leading-order term come from the first stage?</p>
+</div>
+<h3 id="the-flopaccuracy-pareto-frontier">4.3 The FLOP/Accuracy Pareto Frontier</h3>
+<p>The MRL family traces a Pareto frontier in the (FLOPs, accuracy) plane that dominates both:
+- <strong>Fixed-feature (FF) baselines:</strong> independently trained <span class="math inline">\(m\)</span>-dimensional models.
+- <strong>Post-hoc compression (SVD/PCA):</strong> principal components of the full-dimensional embedding.</p>
+<p>The fundamental reason for MRL’s dominance over SVD/PCA is elaborated in §5.1. The fundamental reason for MRL’s dominance over FF models is that the multi-granularity training signal acts as an <em>implicit regularizer</em> on the low-dimensional prefixes, making them more structured than what a standalone low-dimensional model learns from scratch.</p>
+<hr />
+<h2 id="theoretical-grounding">5. Theoretical Grounding 🔬</h2>
+<h3 id="why-prefixes-retain-information-under-mrl">5.1 Why Prefixes Retain Information Under MRL</h3>
+<p>The catastrophic failure of SVD/PCA at low dimensions (<span class="math inline">\(2.3\%\)</span> top-1 at <span class="math inline">\(d=8\)</span> vs. <span class="math inline">\(66.6\%\)</span> for MRL) is not simply a matter of information loss — it reflects a <em>structural mismatch</em>.</p>
+<p><strong>PCA is not hierarchically nested.</strong> Given a <span class="math inline">\(d\)</span>-dimensional embedding <span class="math inline">\(z\)</span>, PCA finds the <span class="math inline">\(m\)</span>-dimensional subspace of maximum variance. Call it <span class="math inline">\(V^{\text{PCA}}_m\)</span>. For <span class="math inline">\(m' &gt; m\)</span>, the PCA subspace <span class="math inline">\(V^{\text{PCA}}_{m'}\)</span> contains <span class="math inline">\(V^{\text{PCA}}_m\)</span> (by the nested eigenspace property of PCA). So PCA <em>is</em> nested — but the basis is data-dependent and requires a separate projection matrix <span class="math inline">\(P_m \in \mathbb{R}^{d \times m}\)</span> to apply.</p>
+<p>The problem: the PCA projection <span class="math inline">\(P_m\)</span> is computed from the covariance of an embedding <span class="math inline">\(z\)</span> that was trained with <em>no knowledge</em> that it would be truncated. High-variance directions in <span class="math inline">\(z\)</span> are not necessarily semantically meaningful; they may reflect scale differences between coordinate dimensions induced by the arbitrary parameterization of <span class="math inline">\(F\)</span>.</p>
+<div class="callout callout-example">
+<p> Why PCA fails
+Suppose the encoder places most class-discriminative information in the last 100 dimensions of <span class="math inline">\(z\)</span> (a natural outcome of a randomly initialized final linear layer). PCA on the full embedding finds high-variance directions that are linear combinations of all dimensions. At <span class="math inline">\(m = 8\)</span>, the top-8 PCA components are dominated by whatever directions happen to have large variance — which may encode coordinate scaling, not class identity. MRL explicitly penalizes <em>prefix accuracy</em>, forcing the encoder to place class-relevant information in early coordinates.</p>
+</div>
+<p><strong>Formal statement (informal):</strong> MRL’s objective directly minimizes classification loss using <span class="math inline">\(z_{1:m}\)</span> for all <span class="math inline">\(m \in \mathcal{M}\)</span>. Any local optimum therefore satisfies: <span class="math inline">\(z_{1:m}\)</span> is a sufficient statistic for <span class="math inline">\(y\)</span> at granularity <span class="math inline">\(m\)</span>, in the sense that the optimal <span class="math inline">\(m\)</span>-dimensional linear classifier applied to <span class="math inline">\(z_{1:m}\)</span> achieves minimum Bayes-consistent loss for that dimension. Post-hoc SVD has no such guarantee because the embedding was trained only for <span class="math inline">\(z_{1:d} = z\)</span>.</p>
+<div class="callout callout-question">
+<p> Exercise 7: MRL vs. PCA on a toy dataset
+<em>This exercise demonstrates empirically that MRL prefixes outperform PCA truncation at low dimension.</em></p>
+<p>Generate a 2D Gaussian mixture with 4 classes in <span class="math inline">\(\mathbb{R}^{10}\)</span> where the discriminative signal lies in the last 2 dimensions. Train a linear encoder <span class="math inline">\(z = Wx + b \in \mathbb{R}^{10}\)</span> with (a) standard cross-entropy on <span class="math inline">\(z\)</span> and (b) MRL loss on prefixes <span class="math inline">\(z_{1:2}, z_{1:4}, z_{1:6}, z_{1:8}, z_{1:10}\)</span>. Compare the 2-dimensional test accuracy of: (i) PCA applied to the standard embedding, (ii) the MRL prefix <span class="math inline">\(z_{1:2}\)</span>. Show that MRL prefix dominates PCA.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch, torch.nn <span class="im">as</span> nn</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: generate data, train both models, compare 2-dim accuracy</span></span></code></pre></div>
+</div>
+<h3 id="interpolation-across-intermediate-dimensions">5.2 Interpolation Across Intermediate Dimensions</h3>
+<p>A remarkable empirical finding: though MRL explicitly optimizes only <span class="math inline">\(|\mathcal{M}| = O(\log d)\)</span> nesting sizes, <em>accuracy interpolates smoothly at all intermediate dimensions</em> (i.e., dimensions not in <span class="math inline">\(\mathcal{M}\)</span>).</p>
+<p>This implies the encoder does not place information in discrete “packets” aligned with the elements of <span class="math inline">\(\mathcal{M}\)</span>. Instead, the gradient signal from the <span class="math inline">\(O(\log d)\)</span> objectives diffuses across all <span class="math inline">\(d\)</span> coordinates, producing a smooth coarse-to-fine hierarchy. The paper verifies this empirically (Figure 5): for a ResNet50 trained with <span class="math inline">\(\mathcal{M} = \{8, 16, \ldots, 2048\}\)</span>, accuracy at dimension 96 (not in <span class="math inline">\(\mathcal{M}\)</span>, lying between 64 and 128) matches the value predicted by linear interpolation in log-dimension space.</p>
+<p><em>This interpolation property is not theoretically guaranteed</em> — it is an empirical regularity. One heuristic explanation: the SGD dynamics that minimize the sum of losses at <span class="math inline">\(O(\log d)\)</span> checkpoints implicitly regularize the loss landscape to be smooth between those checkpoints, analogous to how polynomial fitting at <span class="math inline">\(k\)</span> points produces a smooth curve.</p>
+<p><img src="https://arxiv.org/html/2205.13147v4/x12.png" alt="Figure 4 from Kusupati et al. (2022): 1-NN accuracy on ImageNet-1K for MRL models at varying representation sizes including ViT-JFT and ViT-ALIGN" />
+<em>Figure 4 (Kusupati et al., 2022): 1-NN accuracy on ImageNet-1K as a function of representation size, comparing MRL (solid lines) against independently trained fixed-feature baselines (dashed “Int” lines). Results span ResNet50-IN1K, ViT-B/16-JFT, and ViT-B/16-ALIGN — the smooth interpolation holds across all scales and architectures.</em></p>
+<h3 id="capacity-arguments-and-the-information-bottleneck-view">5.3 Capacity Arguments and the Information Bottleneck View</h3>
+<p><strong>Definition (Representational capacity at dimension <span class="math inline">\(m\)</span>).</strong> The <span class="math inline">\(m\)</span>-dimensional prefix <span class="math inline">\(z_{1:m}\)</span> is an information bottleneck: it is the only information available to the classifier <span class="math inline">\(\mathbf{W}^{(m)}\)</span>. The bottleneck forces the encoder to maximize <span class="math inline">\(I(z_{1:m}; y)\)</span> — the mutual information between the prefix and the label.</p>
+<p>By the data-processing inequality, <span class="math inline">\(I(z_{1:m}; y) \leq I(z_{1:m'}; y)\)</span> for <span class="math inline">\(m \leq m'\)</span> if <span class="math inline">\(z_{1:m}\)</span> is obtained deterministically from <span class="math inline">\(z_{1:m'}\)</span> (which it is, as a prefix). <strong>The MRL training objective enforces that this chain of mutual information values is as large as possible at each checkpoint <span class="math inline">\(m \in \mathcal{M}\)</span>.</strong></p>
+<p>A formal capacity bound: for a linear classification head <span class="math inline">\(\mathbf{W}^{(m)} \in \mathbb{R}^{L \times m}\)</span> and softmax loss, the minimum achievable loss is lower bounded by <span class="math inline">\(H(y | z_{1:m}) \geq H(y) - I(z_{1:m}; y)\)</span>. The MRL objective is thus equivalent (at the optimum) to maximizing <span class="math inline">\(\sum_{m \in \mathcal{M}} c_m \cdot I(z_{1:m}; y)\)</span> subject to the prefix structure.</p>
+<div class="callout callout-warning">
+<p> Linear classifier limitation
+The capacity bound assumes a <em>linear</em> classifier head <span class="math inline">\(\mathbf{W}^{(m)}\)</span>. Nonlinear downstream tasks may extract more information from <span class="math inline">\(z_{1:m}\)</span>. The empirical results in §6 use linear probes throughout, which is the conventional evaluation but may underestimate the value of low-dimensional MRL representations for nonlinear tasks.</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 8: Capacity monotonicity under the prefix constraint
+<em>This exercise formalizes why adding dimensions cannot hurt under the MRL nesting structure.</em></p>
+<p>Let <span class="math inline">\(f^*(m)\)</span> denote the optimal MRL classification loss using only <span class="math inline">\(z_{1:m}\)</span>. Prove that <span class="math inline">\(f^*(m)\)</span> is non-increasing in <span class="math inline">\(m\)</span> for MRL (i.e., adding more prefix dimensions cannot increase the optimal loss). Does this guarantee hold for SVD/PCA truncation of a standard fixed-feature embedding? Explain why or why not. (<em>Hint:</em> Consider whether the feasible set for the <span class="math inline">\((m+1)\)</span>-dimensional problem contains the <span class="math inline">\(m\)</span>-dimensional optimum as a special case.)</p>
+</div>
+<hr />
+<h2 id="empirical-results">6. Empirical Results 📊</h2>
+<h3 id="imagenet-classification">6.1 ImageNet Classification</h3>
+<p>The primary benchmark is linear probing on ImageNet-1K (1000 classes, 1.28M training images). Results for ResNet50 (<span class="math inline">\(d = 2048\)</span>) with MRL vs. fixed-feature (FF) independently trained baselines and SVD compression:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Embedding dim</th>
+<th>FF top-1</th>
+<th>MRL top-1</th>
+<th>MRL-E top-1</th>
+<th>SVD of full FF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>8</td>
+<td>65.3%</td>
+<td><strong>66.6%</strong></td>
+<td>56.7%</td>
+<td>2.3%</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>67.5%</td>
+<td><strong>68.3%</strong></td>
+<td>67.5%</td>
+<td>14.1%</td>
+</tr>
+<tr class="odd">
+<td>32</td>
+<td>70.2%</td>
+<td><strong>71.4%</strong></td>
+<td>70.9%</td>
+<td>41.7%</td>
+</tr>
+<tr class="even">
+<td>64</td>
+<td>75.3%</td>
+<td><strong>75.8%</strong></td>
+<td>75.4%</td>
+<td>62.0%</td>
+</tr>
+<tr class="odd">
+<td>128</td>
+<td>76.0%</td>
+<td><strong>76.4%</strong></td>
+<td>76.2%</td>
+<td>70.2%</td>
+</tr>
+<tr class="even">
+<td>512</td>
+<td>76.2%</td>
+<td><strong>76.7%</strong></td>
+<td>76.4%</td>
+<td>75.8%</td>
+</tr>
+<tr class="odd">
+<td>2048</td>
+<td><strong>76.9%</strong></td>
+<td>76.8%</td>
+<td>76.5%</td>
+<td>76.9%</td>
+</tr>
+</tbody>
+</table>
+<p>Key observations:
+- <strong>MRL matches or exceeds FF at every dimension.</strong> At small <span class="math inline">\(m\)</span>, the MRL signal improves prefix quality; at full <span class="math inline">\(d\)</span>, the extra objectives act as mild regularization.
+- <strong>SVD collapses at small <span class="math inline">\(m\)</span>.</strong> Without structured training, post-hoc compression is catastrophic at <span class="math inline">\(d &lt; 128\)</span>.
+- <strong>MRL-E is competitive above <span class="math inline">\(m = 32\)</span> but weaker at <span class="math inline">\(m = 8\)</span></strong>, consistent with the gradient interference analysis in §2.3.</p>
+<p><img src="https://arxiv.org/html/2205.13147v4/x9.png" alt="Figure 3 from Kusupati et al. (2022): Top-1 linear classification accuracy on ImageNet-1K for ResNet50" />
+<em>Figure 3 (Kusupati et al., 2022): Top-1 linear classification accuracy on ImageNet-1K as a function of representation size for ResNet50. MRL and MRL-E (labeled “Int” variants) consistently match or exceed FF baselines, while SVD and random projections collapse at low dimension.</em></p>
+<div class="callout callout-question">
+<p> Exercise 9: Accuracy-dimension scaling
+<em>This exercise explores the empirical scaling of accuracy with dimension and relates it to the information-theoretic bound from §5.3.</em></p>
+<p>Using the table above, fit a log-linear model <span class="math inline">\(\text{accuracy}(m) \approx \alpha \log(m) + \beta\)</span> to the MRL top-1 results. Estimate <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> via least squares. Does this fit hold for SVD? At what dimension does SVD “catch up” to the log-linear MRL trend? Interpret the difference in terms of the capacity arguments from §5.3.</p>
+</div>
+<h3 id="image-retrieval">6.2 Image Retrieval</h3>
+<p>For 1-NN retrieval (find the nearest neighbor in embedding space and report its class label), MRL outperforms FF baselines by up to 2% at low dimensions while remaining competitive at full capacity. The adaptive retrieval results are particularly striking:</p>
+<ul>
+<li><strong>Shortlist <span class="math inline">\(D_s = 16\)</span>, re-rank <span class="math inline">\(D_r = 2048\)</span>:</strong> achieves the same mAP@10 as single-shot 2048-dim retrieval, while reducing theoretical FLOPs by $$128× and wall-clock time by 14×.</li>
+<li><strong>Funnel retrieval</strong> (multi-stage cascade, see §4.2) achieves the same accuracy at approximately 1% of the computational cost of brute-force exact search.</li>
+</ul>
+<p><strong>Why does shortlisting at <span class="math inline">\(D_s = 16\)</span> work?</strong> Because MRL’s 16-dimensional prefix captures coarse semantic structure (superclass identity), sufficient to eliminate 99.9% of clearly irrelevant items from the database. The re-ranking step then applies fine-grained discrimination only to the small shortlist.</p>
+<p><img src="https://arxiv.org/html/2205.13147v4/x14.png" alt="Figure 5 from Kusupati et al. (2022): mAP@10 image retrieval on ImageNet-1K across representation sizes" />
+<em>Figure 5 (Kusupati et al., 2022): mAP@10 for image retrieval on ImageNet-1K as a function of representation size. MRL significantly outperforms FF, SVD, and random baselines at low dimensions. The MRL-Int (interpolated) curve confirms smooth accuracy across all intermediate dimensions.</em></p>
+<h3 id="few-shot-and-long-tail-learning">6.3 Few-Shot and Long-Tail Learning</h3>
+<p>MRL is evaluated on the FLUID benchmark (long-tail distribution, few-shot novel classes):</p>
+<ul>
+<li><strong>Head classes:</strong> MRL matches FF accuracy, with no degradation from the multi-granularity objective.</li>
+<li><strong>Novel tail classes:</strong> MRL gains up to 2% over FF. Hypothesis: the coarse-to-fine structure learned by MRL generalizes better to low-shot regimes, where fine-grained distinctions are less learnable from few examples.</li>
+</ul>
+<h3 id="robustness-benchmarks">6.4 Robustness Benchmarks</h3>
+<p>MRL representations are tested on distribution-shifted ImageNet variants:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Benchmark</th>
+<th>Shift type</th>
+<th>MRL vs. FF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ImageNet-V2</td>
+<td>Natural variation</td>
+<td>Comparable</td>
+</tr>
+<tr class="even">
+<td>ImageNet-A</td>
+<td>Adversarial examples</td>
+<td>+0.6%</td>
+</tr>
+<tr class="odd">
+<td>ImageNet-R</td>
+<td>Renditions</td>
+<td>Comparable</td>
+</tr>
+<tr class="even">
+<td>ImageNet-Sketch</td>
+<td>Sketch domain</td>
+<td>Comparable</td>
+</tr>
+</tbody>
+</table>
+<p><em>The +0.6% improvement on ImageNet-A suggests that multi-granularity training produces representations that are more robust to adversarial perturbations</em>, possibly because the lower-dimensional prefix training implicitly encourages smoother, more class-aligned intermediate representations.</p>
+<hr />
+<h2 id="extensions-and-follow-up-work">7. Extensions and Follow-up Work 🌐</h2>
+<h3 id="d-matryoshka-sentence-embeddings">7.1 2D Matryoshka Sentence Embeddings</h3>
+<p><strong><a href="https://arxiv.org/abs/2402.14776">2D-MRL (Chen et al., 2024)</a></strong> identifies a limitation in the original MRL formulation: even with a 32-dimensional prefix, the encoder <span class="math inline">\(F\)</span> still requires a full forward pass through all transformer layers, which dominates inference time and memory. 2D-MRL extends nesting to a second axis: <em>both embedding dimension and transformer depth.</em></p>
+<p><strong>Definition (2D Nesting).</strong> Let <span class="math inline">\(\mathcal{L} = \{l_1 &lt; l_2 &lt; \cdots &lt; l_T\} \subset [L]\)</span> be a set of intermediate transformer layer indices. The 2D-MRL loss is:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{2D-MRL}} = \sum_{l \in \mathcal{L}} \sum_{m \in \mathcal{M}} c_{l,m} \cdot \ell\!\left(\mathbf{W}^{(l,m)} \cdot h^{(l)}_{1:m};\; y\right)\]</span></p>
+<p>where <span class="math inline">\(h^{(l)} \in \mathbb{R}^d\)</span> is the CLS-token hidden state at transformer layer <span class="math inline">\(l\)</span>. This allows deployment at <span class="math inline">\((l, m)\)</span> pairs: e.g., use only the first 6 layers and 128-dimensional prefix for fast inference, or all 12 layers and 768-dimensional embedding for maximum accuracy.</p>
+<h3 id="matryoshka-adaptor">7.2 Matryoshka-Adaptor</h3>
+<p><strong><a href="https://arxiv.org/abs/2407.20243">Matryoshka-Adaptor (Zhu et al., EMNLP 2024)</a></strong> addresses the case where a practitioner has a fixed, already-trained LLM embedding model (e.g., a deployed production model) and wants to add MRL flexibility without full retraining. The approach inserts a lightweight adapter module after the frozen LLM, trained with the MRL objective.</p>
+<p>Results: $$2× dimensionality reduction (unsupervised) and $$6× reduction (supervised) with no loss in retrieval performance on BEIR benchmarks, demonstrating that the MRL signal can be injected post-hoc with substantially less compute than full retraining.</p>
+<h3 id="multimodal-extensions">7.3 Multimodal Extensions</h3>
+<p><strong>Matryoshka Multimodal Models (M3, Cai et al., 2024)</strong> and the <strong>Matryoshka Query Transformer (MQT, NeurIPS 2024)</strong> extend MRL to the visual token dimension of vision-language models (VLMs). Rather than nesting embedding <em>coordinates</em>, these methods nest the <em>number of visual tokens</em>: a VLM can process an image as <span class="math inline">\(m\)</span> tokens (for any <span class="math inline">\(m\)</span> up to a maximum), enabling adaptive compute based on image complexity.</p>
+<p>The nesting structure is analogous: the first <span class="math inline">\(m\)</span> visual tokens capture coarse spatial structure, and additional tokens refine the representation. This enables a 4× or greater reduction in visual token count for many queries with minimal answer quality degradation.</p>
+<h3 id="mrl-in-production-openai-text-embedding-3">7.4 MRL in Production: OpenAI text-embedding-3</h3>
+<p>OpenAI’s <strong>text-embedding-3-small</strong> and <strong>text-embedding-3-large</strong> models (announced January 2024) explicitly adopt MRL training to enable dimension shortening at inference. Key facts:</p>
+<ul>
+<li>text-embedding-3-large has native dimension <span class="math inline">\(d = 3072\)</span> but can be shortened to any <span class="math inline">\(m \leq 3072\)</span>.</li>
+<li><em>Surprisingly,</em> text-embedding-3-large truncated to <span class="math inline">\(m = 256\)</span> <strong>outperforms</strong> text-embedding-ada-002 at <span class="math inline">\(m = 1536\)</span> on the <a href="https://huggingface.co/spaces/mteb/leaderboard">MTEB benchmark</a> — a 6× dimension reduction with improved accuracy, achieved purely through MRL training.</li>
+<li>Nomic’s <code>nomic-embed-text-v1</code> and Alibaba’s <code>gte-multilingual-base</code> have since adopted the same approach.</li>
+</ul>
+<p><strong>This industrial adoption validates MRL’s core thesis at billion-parameter scale.</strong> The flexibility to shorten embeddings reduces storage costs for large-scale retrieval systems (e.g., 6× reduction in vector database storage for equivalent accuracy).</p>
+<h3 id="matformer-nesting-at-the-architecture-level">7.5 MatFormer: Nesting at the Architecture Level</h3>
+<p><strong><a href="https://arxiv.org/abs/2310.07707">MatFormer (Devvrit et al., NeurIPS 2024)</a></strong> from Google DeepMind extends the Matryoshka nesting principle to transformer <em>widths</em> rather than embedding prefixes. A large E4B model is trained so that the E2B, E1B, etc. sub-models are nested inside it — enabling elastic deployment from a single set of weights. This is architecturally distinct from MRL (which operates on the output embedding space) but shares the same nesting philosophy.</p>
+<div class="callout callout-question">
+<p> Exercise 10: Matryoshka principle unification
+<em>This exercise situates MRL within a broader framework of nested model families.</em></p>
+<p>Identify the common abstract structure shared by: (a) MRL on embedding prefixes, (b) 2D-MRL on transformer layers × embedding dimensions, (c) MatFormer on transformer widths. Formalize this as a partial order on computational budgets <span class="math inline">\((b_1, b_2, \ldots)\)</span> and a family of models indexed by that order. What property must the training loss satisfy for “nesting” to be beneficial? (Hint: consider what happens to the gradient when a larger model subsumes a smaller one.)</p>
+</div>
+<div class="callout callout-question">
+<p> Exercise 11: Implementing adaptive retrieval in NumPy
+<em>This exercise implements the shortlisting and re-ranking pipeline and measures its empirical speedup.</em></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adaptive_retrieval(query, database, D_s, D_r, K, top_k<span class="op">=</span><span class="dv">10</span>):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    query: (d,) float array — full-dimensional query embedding</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    database: (N, d) float array — N full-dimensional database embeddings</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">    D_s: int — shortlisting dimension (&lt; D_r)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    D_r: int — re-ranking dimension</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">    K: int — shortlist size</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns: indices of top_k nearest neighbors by D_r distance</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: implement shortlisting phase (use query[:D_s] and database[:, :D_s])</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: implement re-ranking phase (use query[:D_r] and shortlist[:, :D_r])</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate random data (N=100000, d=2048)</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>N, d <span class="op">=</span> <span class="dv">100_000</span>, <span class="dv">2048</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> np.random.randn(N, d).astype(np.float32)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> np.random.randn(d).astype(np.float32)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Measure and compare wall-clock times for:</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># (a) Brute-force search at d=2048</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># (b) Adaptive retrieval with D_s=32, D_r=2048, K=1000</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Report the speedup ratio</span></span></code></pre></div>
+</div>
+<div class="callout callout-question">
+<p> Exercise 12: Sensitivity of MRL to the choice of M
+<em>This exercise investigates whether the geometric halving schedule for M is necessary or merely conventional.</em></p>
+<p>Consider training MRL on a small dataset (e.g., CIFAR-10 with a ResNet-18 backbone, <span class="math inline">\(d = 512\)</span>) with three choices of <span class="math inline">\(\mathcal{M}\)</span>:
+(a) Geometric: <span class="math inline">\(\mathcal{M} = \{8, 16, 32, 64, 128, 256, 512\}\)</span>
+(b) Arithmetic: <span class="math inline">\(\mathcal{M} = \{73, 146, 219, 292, 365, 438, 512\}\)</span> (linear spacing)
+(c) Endpoint-heavy: <span class="math inline">\(\mathcal{M} = \{8, 16, 256, 512\}\)</span> (only 4 checkpoints)</p>
+<p>For each, measure test accuracy at all intermediate dimensions <span class="math inline">\(m \notin \mathcal{M}\)</span> (e.g., <span class="math inline">\(m = 24, 48, \ldots\)</span>). Does the interpolation property from §5.2 hold for all three? Which schedule produces the smoothest interpolation, and why?</p>
+</div>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2205.13147">Kusupati et al., NeurIPS 2022 — Matryoshka Representation Learning</a></td>
+<td>Original MRL paper; introduces the nested embedding framework, MRL-E, adaptive retrieval, and empirical benchmarks across vision, language, and multimodal models</td>
+<td><a href="https://arxiv.org/abs/2205.13147">arxiv.org/abs/2205.13147</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://aniketrege.github.io/blog/2024/mrl/">Rege, 2024 — MRL from the Ground Up (blog)</a></td>
+<td>Pedagogical blog post with the Matryoshka doll analogy, t-SNE visualizations, and intuitions for why MRL outperforms PCA</td>
+<td><a href="https://aniketrege.github.io/blog/2024/mrl/">aniketrege.github.io/blog/2024/mrl/</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2402.14776">Chen et al., 2024 — 2D Matryoshka Sentence Embeddings</a></td>
+<td>Extends MRL to nest across both embedding dimension and transformer depth; enables layer-level adaptive inference</td>
+<td><a href="https://arxiv.org/abs/2402.14776">arxiv.org/abs/2402.14776</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2407.20243">Zhu et al., EMNLP 2024 — Matryoshka-Adaptor</a></td>
+<td>Post-hoc MRL adapter for frozen LLMs; achieves 2–6× dimensionality reduction with no retrieval performance loss</td>
+<td><a href="https://arxiv.org/abs/2407.20243">arxiv.org/abs/2407.20243</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2405.17430">Cai et al., 2024 — Matryoshka Multimodal Models (M3)</a></td>
+<td>Extends nesting to visual token count in VLMs; 4× token reduction with minimal quality loss</td>
+<td><a href="https://arxiv.org/abs/2405.17430">arxiv.org/abs/2405.17430</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/59c147c7d4fdb732daea3064eab949bf-Paper-Conference.pdf">MQT — Matryoshka Query Transformer, NeurIPS 2024</a></td>
+<td>Encodes images into variable numbers of visual tokens; nests token count for compute-adaptive VLM inference</td>
+<td><a href="https://openreview.net/forum?id=B1vGiSgELw">openreview.net/forum?id=B1vGiSgELw</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2310.07707">Devvrit et al., NeurIPS 2024 — MatFormer</a></td>
+<td>Nests transformer widths; trains E4B so that E2B, E1B sub-models are embedded inside it for elastic deployment</td>
+<td><a href="https://arxiv.org/abs/2310.07707">arxiv.org/abs/2310.07707</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://openai.com/blog/new-embedding-models-and-api-updates">OpenAI text-embedding-3 announcement, 2024</a></td>
+<td>Production deployment of MRL in OpenAI’s embedding API; text-embedding-3-large at 256-dim outperforms ada-002 at 1536-dim</td>
+<td><a href="https://openai.com/blog/new-embedding-models-and-api-updates">openai.com/blog/new-embedding-models-and-api-updates</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/RAIVNLab/MRL">RAIVNLab/MRL — Official GitHub</a></td>
+<td>Official code and pretrained models for MRL</td>
+<td><a href="https://github.com/RAIVNLab/MRL">github.com/RAIVNLab/MRL</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://huggingface.co/blog/matryoshka">HuggingFace — Introduction to Matryoshka Embedding Models</a></td>
+<td>Tutorial on training Matryoshka embedding models with sentence-transformers; practical guide with code</td>
+<td><a href="https://huggingface.co/blog/matryoshka">huggingface.co/blog/matryoshka</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

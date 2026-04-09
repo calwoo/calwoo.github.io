@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>qjl - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>qjl</h1>
+            <article>
+    <section>
+        <p><strong>Amir Zandieh, Majid Daliri, Insu Han</strong> — arXiv:2406.03482 [cs.LG], July 2024</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 27%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quantization overhead</td>
+<td>Methods store a zero-point + scale per block, adding ~1–2 extra bits per quantized number</td>
+<td>JL transform + sign-bit: no stored normalization constants</td>
+<td>Zero memory overhead</td>
+</tr>
+<tr class="even">
+<td>Inner product estimator</td>
+<td>Symmetric sign-bit estimator estimates angle, not inner product (biased)</td>
+<td>Asymmetric: quantize only the key; leave the query unquantized</td>
+<td>Unbiased with same distortion guarantee as standard JL</td>
+</tr>
+<tr class="odd">
+<td>Compression ratio</td>
+<td>KIVI / KVQuant at 3–4.3 bits with overhead</td>
+<td>3 bits effective per FPN</td>
+<td>&gt;5× reduction vs. FP16 baseline</td>
+</tr>
+<tr class="even">
+<td>Attention accuracy</td>
+<td>—</td>
+<td>Theorem 3.6: relative error ≤ 3ε on all attention scores simultaneously</td>
+<td><span class="math inline">\(m = O(\varepsilon^{-2} \log n)\)</span> bits per token, independent of embedding dimension <span class="math inline">\(d\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../../notes/papers/kv-cache-quantization/turboquant%7Cturboquant/">papers/kv-cache-quantization/turboquant|TurboQuant</a> <em>(see also; QJL is the primitive used there)</em>
+<strong>Extended by:</strong> <a href="../../../../notes/papers/kv-cache-quantization/polarquant%7Cpolarquant/">papers/kv-cache-quantization/polarquant|PolarQuant</a>, <a href="../../../../notes/papers/kv-cache-quantization/turboquant%7Cturboquant/">papers/kv-cache-quantization/turboquant|TurboQuant</a>
+<strong>Concepts used:</strong> <a href="../../../../notes/concepts/randomized-algorithms/metric-geometry-and-dimension-reduction%7Cjl-transform-and-metric-dimension-reduction/">concepts/randomized-algorithms/metric-geometry-and-dimension-reduction|JL Transform and Metric Dimension Reduction</a></p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-the-kv-cache-overhead-problem%7C1.-the-kv-cache-overhead-problem/">#1. The KV Cache Overhead Problem|1. The KV Cache Overhead Problem</a></li>
+<li><a href="../../../../notes/#2.-the-qjl-transform%7C2.-the-qjl-transform/">#2. The QJL Transform|2. The QJL Transform</a>
+<ul>
+<li><a href="../../../../notes/#2.1-definition%7C2.1-definition/">#2.1 Definition|2.1 Definition</a></li>
+<li><a href="../../../../notes/#2.2-unbiasedness-(lemma-3.2)%7C2.2-unbiasedness-(lemma-3.2)/">#2.2 Unbiasedness (Lemma 3.2)|2.2 Unbiasedness (Lemma 3.2)</a></li>
+<li><a href="../../../../notes/#2.3-distortion-bound-(lemma-3.5)%7C2.3-distortion-bound-(lemma-3.5)/">#2.3 Distortion Bound (Lemma 3.5)|2.3 Distortion Bound (Lemma 3.5)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-attention-score-approximation%7C3.-attention-score-approximation/">#3. Attention Score Approximation|3. Attention Score Approximation</a></li>
+<li><a href="../../../../notes/#4.-algorithm-and-implementation%7C4.-algorithm-and-implementation/">#4. Algorithm and Implementation|4. Algorithm and Implementation</a>
+<ul>
+<li><a href="../../../../notes/#4.1-key-cache-quantization-algorithm%7C4.1-key-cache-quantization-algorithm/">#4.1 Key Cache Quantization Algorithm|4.1 Key Cache Quantization Algorithm</a></li>
+<li><a href="../../../../notes/#4.2-practical-considerations%7C4.2-practical-considerations/">#4.2 Practical Considerations|4.2 Practical Considerations</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-experiments%7C5.-experiments/">#5. Experiments|5. Experiments</a></li>
+<li><a href="../../../../notes/#6.-references%7C6.-references/">#6. References|6. References</a></li>
+</ul>
+<hr />
+<h2 id="the-kv-cache-overhead-problem">1. The KV Cache Overhead Problem</h2>
+<p>📐 In autoregressive transformer decoding, the attention output at step <span class="math inline">\(n\)</span> is</p>
+<p><span class="math display">\[o_n = \sum_{i \in [n]} \text{Score}(i) \cdot v_i, \qquad \text{Score} := \text{softmax}\bigl([\langle q_n, k_1\rangle, \ldots, \langle q_n, k_n\rangle]\bigr).\]</span></p>
+<p>To avoid recomputing all keys and values from scratch, the model caches <span class="math inline">\(\{k_i, v_i\}_{i \in [n]}\)</span> — the <em>KV cache</em>. For long contexts this cache dominates GPU memory.</p>
+<p>The natural fix is quantization: store each FP16/BF16 number in fewer bits. But every existing method (KIVI, KVQuant, etc.) groups coordinates into blocks and stores a <em>zero point</em> and <em>scale</em> per block. <strong>Depending on block size, this metadata adds ≈1–2 extra bits per quantized value</strong>, nearly doubling the apparent saving.</p>
+<div class="callout callout-note">
+<p> Why metadata overhead is unavoidable in classical quantization
+Classical uniform quantizers map <span class="math inline">\([x_{\min}, x_{\max}]\)</span> to <span class="math inline">\(\{0, 1, \ldots, 2^b - 1\}\)</span>. To dequantize you need <span class="math inline">\(x_{\min}\)</span> and the step size <span class="math inline">\(\Delta = (x_{\max} - x_{\min})/2^b\)</span>. Storing these two FP16 numbers per block of <span class="math inline">\(G\)</span> coordinates adds <span class="math inline">\(32/G\)</span> bits per coordinate. For <span class="math inline">\(G = 16\)</span>, this is <span class="math inline">\(+2\)</span> bits — a major fraction of a 3-bit quantizer.</p>
+</div>
+<p>QJL sidesteps metadata entirely by replacing the classical quantizer with a <em>sketching</em> operation whose output distribution is analytically known from the design of the sketch.</p>
+<p><img src="figures/qjl/qjl-fig1-overview-pipeline.png" alt="Figure 1 from Zandieh et al. (2024): Overview of the KV cache quantization pipeline via the QJL transform" />
+<em>Figure 1 (Zandieh et al., 2024): The QJL pipeline. During prompt encoding (left), key embeddings are projected via a random JL matrix S, sign-quantized to 1 bit, and cached together with the scalar norm. During token generation (right), the query is projected by the same S and its inner product with each cached sign vector is computed, yielding an unbiased estimate of the full-precision attention score — with no stored quantization constants.</em></p>
+<hr />
+<h2 id="the-qjl-transform">2. The QJL Transform</h2>
+<h3 id="definition">2.1 Definition</h3>
+<p>🔑 <strong>Definition (QJL and inner product estimator).</strong> For positive integers <span class="math inline">\(d, m\)</span>, let <span class="math inline">\(S \in \mathbb{R}^{m \times d}\)</span> be a JL matrix with i.i.d. entries <span class="math inline">\(S_{ij} \sim \mathcal{N}(0, 1)\)</span>. The <em>Quantized JL</em> (QJL) transform is</p>
+<p><span class="math display">\[H_S(k) := \operatorname{sign}(Sk) \in \{-1, +1\}^m.\]</span></p>
+<p>For any pair <span class="math inline">\(q, k \in \mathbb{R}^d\)</span>, the <strong>asymmetric inner product estimator</strong> is</p>
+<p><span class="math display">\[\operatorname{ProdQJL}(q, k) := \frac{\sqrt{\pi/2}}{m} \cdot \|k\|_2 \cdot \langle Sq,\; H_S(k)\rangle.\]</span></p>
+<div class="callout callout-info">
+<p> Why asymmetric?
+If we applied QJL to <em>both</em> vectors we would obtain an unbiased estimator of the <em>angle</em> <span class="math inline">\(\theta(q,k)\)</span>, not the inner product <span class="math inline">\(\langle q, k\rangle = \|q\|\|k\|\cos\theta\)</span>. Recovering the cosine from the angle estimate via <span class="math inline">\(\cos(\hat\theta)\)</span> introduces bias. The fix: quantize only <span class="math inline">\(k\)</span> (the cached vector), leave <span class="math inline">\(q\)</span> (the fresh query vector, already in memory) unquantized.</p>
+</div>
+<h3 id="unbiasedness-lemma-3.2">2.2 Unbiasedness (Lemma 3.2)</h3>
+<p><strong>Lemma (Inner product estimator ProdQJL is unbiased).</strong> For any <span class="math inline">\(q, k \in \mathbb{R}^d\)</span>,</p>
+<p><span class="math display">\[\mathbb{E}_S[\operatorname{ProdQJL}(q, k)] = \langle q, k\rangle.\]</span></p>
+<p>📐 <em>Proof sketch.</em> Decompose <span class="math inline">\(q = \frac{\langle q,k\rangle}{\|k\|_2^2} k + q^{\perp k}\)</span> where <span class="math inline">\(\langle q^{\perp k}, k\rangle = 0\)</span>. Then</p>
+<p><span class="math display">\[\operatorname{ProdQJL}(q,k) = \frac{\sqrt{\pi/2}}{m} \sum_{i \in [m]} \Bigl[\frac{\langle q,k\rangle}{\|k\|_2} |s_i^\top k| + \|k\|_2 \cdot s_i^\top q^{\perp k} \cdot \operatorname{sign}(s_i^\top k)\Bigr].\]</span></p>
+<p>Each <span class="math inline">\(s_i\)</span> is a standard Gaussian row. Because <span class="math inline">\(k \perp q^{\perp k}\)</span>, the projections <span class="math inline">\(s_i^\top k\)</span> and <span class="math inline">\(s_i^\top q^{\perp k}\)</span> are <strong>independent</strong> Gaussians (Fact: jointly Gaussian, uncorrelated ⟹ independent). Therefore the cross term vanishes: <span class="math inline">\(\mathbb{E}[s_i^\top q^{\perp k} \cdot \operatorname{sign}(s_i^\top k)] = 0\)</span>.</p>
+<p>For the first term, <span class="math inline">\(x := s_i^\top k \sim \mathcal{N}(0, \|k\|_2^2)\)</span>, so <span class="math inline">\(\mathbb{E}[|x|] = \sqrt{2/\pi}\,\|k\|_2\)</span> by the half-normal formula. Substituting:</p>
+<p><span class="math display">\[\mathbb{E}[\operatorname{ProdQJL}(q,k)] = \sqrt{\pi/2} \cdot \frac{\langle q,k\rangle}{\|k\|_2} \cdot \sqrt{2/\pi}\,\|k\|_2 = \langle q,k\rangle. \quad \square\]</span></p>
+<blockquote>
+<p>[!TIP]- Key contrast with the standard JL estimator
+The standard JL estimator <span class="math inline">\(\frac{1}{m}\langle Sq, Sk\rangle\)</span> is also unbiased for <span class="math inline">\(\langle q,k\rangle\)</span> (the JL lemma). QJL replaces <span class="math inline">\(Sk \in \mathbb{R}^m\)</span> (32 bits per entry) with <span class="math inline">\(\operatorname{sign}(Sk) \in \{-1,+1\}^m\)</span> (1 bit per entry), <strong>at the cost of one stored scalar <span class="math inline">\(\|k\|_2\)</span> (FP16)</strong>. The <span class="math inline">\(\sqrt{\pi/2}\)</span> prefactor corrects for the sign-collapse that shrinks the expected magnitude.</p>
+</blockquote>
+<h3 id="distortion-bound-lemma-3.5">2.3 Distortion Bound (Lemma 3.5)</h3>
+<p><strong>Lemma (Distortion of ProdQJL).</strong> For any <span class="math inline">\(q, k \in \mathbb{R}^d\)</span>, if <span class="math inline">\(m \geq \frac{4}{3} \cdot \frac{1+\varepsilon}{\varepsilon^2} \log\frac{2}{\delta}\)</span>, then</p>
+<p><span class="math display">\[\Pr_S\!\bigl[|\operatorname{ProdQJL}(q,k) - \langle q,k\rangle| &gt; \varepsilon\|q\|_2\|k\|_2\bigr] \leq \delta.\]</span></p>
+<p><em>Proof sketch.</em> Each term <span class="math inline">\(z_i := \sqrt{\pi/2}\,\|k\|_2 \cdot s_i^\top q \cdot \operatorname{sign}(s_i^\top k)\)</span> is i.i.d. with <span class="math inline">\(\mathbb{E}[z_i] = \langle q,k\rangle/m\)</span> (by unbiasedness). Its <span class="math inline">\(\ell\)</span>-th moment obeys <span class="math inline">\(\mathbb{E}[|z_i|^\ell] = (\pi/2)^{\ell/2} \|k\|_2^\ell \mathbb{E}[|s_i^\top q|^\ell]\)</span>. Because <span class="math inline">\(s_i^\top q \sim \mathcal{N}(0, \|q\|_2^2)\)</span>, the moments are <span class="math inline">\(\sigma^\ell \cdot 2^{\ell/2}\Gamma((\ell+1)/2)/\sqrt{\pi}\)</span>. A Bernstein inequality applied to the mean <span class="math inline">\(\frac{1}{m}\sum z_i\)</span> gives the stated tail bound. Notably, the constants are <em>smaller</em> than those for the unquantized JL estimator.</p>
+<hr />
+<h2 id="attention-score-approximation">3. Attention Score Approximation</h2>
+<p>🔑 <strong>Theorem 3.6 (Distortion bound on QJL key cache quantizer).</strong> Suppose all key and query embeddings have bounded norm <span class="math inline">\(\max_i \|k_i\|_2, \|q_n\|_2 \leq r\)</span>. If <span class="math inline">\(m \geq 2r^2\varepsilon^{-2}\log n\)</span>, then with probability <span class="math inline">\(1 - 1/\text{poly}(n)\)</span>, simultaneously for all <span class="math inline">\(i \in [n]\)</span>:</p>
+<p><span class="math display">\[|\widehat{\text{Score}}(i) - \text{Score}(i)| \leq 3\varepsilon \cdot \text{Score}(i).\]</span></p>
+<p><em>Proof sketch.</em> By Lemma 3.5 with union bound over <span class="math inline">\(n\)</span> token pairs, all estimated inner products <span class="math inline">\(\widehat{qK}(j)\)</span> satisfy <span class="math inline">\(|\widehat{qK}(j) - \langle q_n, k_j\rangle| \leq \varepsilon\)</span> simultaneously with high probability. Applying the softmax map turns additive errors into <span class="math inline">\((1 \pm 3\varepsilon)\)</span> multiplicative errors on the scores.</p>
+<div class="callout callout-note">
+<p> Bit budget is independent of <span class="math inline">\(d\)</span>
+The key insight: only <span class="math inline">\(m = O(\varepsilon^{-2}\log n)\)</span> <strong>sign bits</strong> per token are needed, regardless of the embedding dimension <span class="math inline">\(d\)</span>. In practice, with <span class="math inline">\(n = 32{,}000\)</span> tokens and <span class="math inline">\(\varepsilon = 0.2\)</span>, this means <span class="math inline">\(m \approx 750\)</span> bits per key — about 3 bits/coordinate for <span class="math inline">\(d = 256\)</span>.</p>
+</div>
+<hr />
+<h2 id="algorithm-and-implementation">4. Algorithm and Implementation</h2>
+<h3 id="key-cache-quantization-algorithm">4.1 Key Cache Quantization Algorithm</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># QJL Key Cache Quantizer</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> setup(d, m):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    S <span class="op">=</span> np.random.randn(m, d)          <span class="co"># JL matrix, i.i.d. N(0,1)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    Q, _ <span class="op">=</span> np.linalg.qr(S.T)          <span class="co"># orthogonalize rows</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    S <span class="op">=</span> Q.T[:m]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> S</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quantize_key(S, k):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    projected <span class="op">=</span> S <span class="op">@</span> k                  <span class="co"># shape (m,)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    k_tilde <span class="op">=</span> np.sign(projected)       <span class="co"># 1-bit quantization</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    nu <span class="op">=</span> np.linalg.norm(k)             <span class="co"># store only the norm</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> k_tilde, nu                 <span class="co"># (m bits) + (1 FP16)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_scores(S, q, cache):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    Sq <span class="op">=</span> S <span class="op">@</span> q                         <span class="co"># m-dim vector, computed once</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> []</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k_tilde, nu <span class="kw">in</span> cache:</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        inner <span class="op">=</span> np.dot(Sq, k_tilde)    <span class="co"># fast int dot product</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        est <span class="op">=</span> (np.sqrt(np.pi <span class="op">/</span> <span class="dv">2</span>) <span class="op">/</span> <span class="bu">len</span>(k_tilde)) <span class="op">*</span> nu <span class="op">*</span> inner</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        scores.append(est)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> softmax(np.array(scores))</span></code></pre></div>
+<p>The key cache stores: <span class="math inline">\(m\)</span> sign bits + 1 FP16 scalar <span class="math inline">\(\|k\|_2\)</span> per token. Value cache uses standard token-wise quantization (effective and well-studied separately).</p>
+<h3 id="practical-considerations">4.2 Practical Considerations</h3>
+<p><strong>Outlier channels.</strong> In deeper layers of LLMs like Llama-2, a small number of fixed channels (≈4 out of 128) have much larger magnitudes than the rest. Because Theorem 3.6’s distortion scales as <span class="math inline">\(r^2\)</span> (the max embedding norm), these outliers disproportionately increase error. Fix: detect outlier channels during the prefill phase and quantize them with a separate, lower-compression QJL instance.</p>
+<p><img src="figures/qjl/qjl-fig2-key-cache-outliers.png" alt="Figure 2 from Zandieh et al. (2024): Magnitude of key cache entries across layers of Llama-2" />
+<em>Figure 2 (Zandieh et al., 2024): Key cache entry magnitudes for three representative layers of Llama-2. In the early layer (Layer 0), magnitudes are roughly uniform across channels. By Layer 15 and especially Layer 31, a small number of channels (≈4) exhibit magnitudes orders of magnitude larger than the rest — these are the outlier channels whose large <span class="math inline">\(r^2\)</span> would inflate QJL’s distortion bound if left unhandled.</em></p>
+<p><strong>Orthogonalizing <span class="math inline">\(S\)</span>.</strong> Empirically, QR-decomposing the Gaussian matrix <span class="math inline">\(S\)</span> (so its rows are orthonormal) almost always improves performance. This is consistent with results on orthogonal random features and super-bit LSH — orthogonality reduces variance.</p>
+<div class="callout callout-info">
+<p> Why orthogonalization helps
+With i.i.d. Gaussian rows, the dot products <span class="math inline">\(\{s_i^\top q\}\)</span> are correlated because the rows themselves are correlated (though only weakly, by concentration). Orthogonalized rows make these dot products exactly uncorrelated and suppress variance by the same factor as in orthogonal JL transforms.</p>
+</div>
+<hr />
+<h2 id="experiments">5. Experiments</h2>
+<p>Tested on LongBench (long-range QA) and LM-eval (standard benchmarks) with Llama-2-7B and Llama-3-8B.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Bits</th>
+<th>NarrativeQA</th>
+<th>Qasper</th>
+<th>HotpotQA</th>
+<th>2WikiMultiQA</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FP16</td>
+<td>16</td>
+<td>20.79</td>
+<td>29.42</td>
+<td>33.05</td>
+<td>24.14</td>
+</tr>
+<tr class="even">
+<td>KIVI</td>
+<td>3</td>
+<td>20.96</td>
+<td>29.01</td>
+<td>32.79</td>
+<td>23.01</td>
+</tr>
+<tr class="odd">
+<td>KVQuant</td>
+<td>4.3</td>
+<td>20.14</td>
+<td>28.77</td>
+<td>34.06</td>
+<td>23.05</td>
+</tr>
+<tr class="even">
+<td><strong>QJL</strong></td>
+<td><strong>3</strong></td>
+<td><strong>21.83</strong></td>
+<td><strong>29.44</strong></td>
+<td><strong>35.62</strong></td>
+<td><strong>23.60</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key result:</strong> QJL at 3 bits matches or exceeds FP16 on most tasks, while KIVI/KVQuant degrade. KVQuant is significantly slower during prompting, while QJL matches FP16 decoding speed and reduces memory by &gt;5×.</p>
+<p><img src="figures/qjl/qjl-fig3-wall-clock-time.png" alt="Figure 3 from Zandieh et al. (2024): Wall-clock time comparison for prompt encoding and token generation" />
+<em>Figure 3 (Zandieh et al., 2024): Wall-clock time (ms) as a function of input sequence length (1k–128k tokens). Left: prompt encoding time — KVQuant is significantly slower due to preprocessing overhead, while QJL and KIVI match FP16. Middle: token generation time — QJL and KIVI are faster than FP16 due to reduced KV cache size; KVQuant is slower. Right: combined encode-and-generate time on Llama3 — QJL achieves at least 5× memory reduction with no runtime overhead.</em></p>
+<hr />
+<h2 id="references">6. References</h2>
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 46%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Brief Summary</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Zandieh et al. (QJL, 2024)</td>
+<td>This paper</td>
+<td><a href="https://arxiv.org/abs/2406.03482">arXiv:2406.03482</a></td>
+</tr>
+<tr class="even">
+<td>Dasgupta &amp; Gupta (2003)</td>
+<td>Elementary proof of JL lemma</td>
+<td><a href="https://onlinelibrary.wiley.com/doi/10.1002/rsa.10073">Paper</a></td>
+</tr>
+<tr class="odd">
+<td>Charikar (2002)</td>
+<td>SimHash / sign-bit angle estimator</td>
+<td><a href="https://dl.acm.org/doi/10.1145/509907.509965">STOC 2002</a></td>
+</tr>
+<tr class="even">
+<td>Liu et al. (KIVI, 2024)</td>
+<td>Asymmetric 2-bit KV cache quantization</td>
+<td><a href="https://arxiv.org/abs/2402.02750">arXiv:2402.02750</a></td>
+</tr>
+<tr class="odd">
+<td>Hooper et al. (KVQuant, 2024)</td>
+<td>Per-channel quantization for KV cache</td>
+<td><a href="https://arxiv.org/abs/2401.18079">arXiv:2401.18079</a></td>
+</tr>
+<tr class="even">
+<td>Bai et al. (LongBench, 2023)</td>
+<td>Long-context bilingual benchmark</td>
+<td><a href="https://arxiv.org/abs/2308.14508">arXiv:2308.14508</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

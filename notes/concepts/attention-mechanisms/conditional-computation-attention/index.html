@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>conditional-computation-attention - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>conditional-computation-attention</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-motivation:-unequal-token-importance-and-layer-redundancy%7C1.-motivation:-unequal-token-importance-and-layer-redundancy/">#1. Motivation: Unequal Token Importance and Layer Redundancy|1. Motivation: Unequal Token Importance and Layer Redundancy</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-uniform-compute-assumption%7C1.1-the-uniform-compute-assumption/">#1.1 The Uniform-Compute Assumption|1.1 The Uniform-Compute Assumption</a></li>
+<li><a href="../../../../notes/#1.2-two-failure-modes:-wasted-flops-and-signal-dilution%7C1.2-two-failure-modes:-wasted-flops-and-signal-dilution/">#1.2 Two Failure Modes: Wasted FLOPs and Signal Dilution|1.2 Two Failure Modes: Wasted FLOPs and Signal Dilution</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-mixture-of-depths:-routing-tokens-around-blocks%7C2.-mixture-of-depths:-routing-tokens-around-blocks/">#2. Mixture-of-Depths: Routing Tokens Around Blocks|2. Mixture-of-Depths: Routing Tokens Around Blocks</a>
+<ul>
+<li><a href="../../../../notes/#2.1-setup-and-notation%7C2.1-setup-and-notation/">#2.1 Setup and Notation|2.1 Setup and Notation</a></li>
+<li><a href="../../../../notes/#2.2-the-routing-decision%7C2.2-the-routing-decision/">#2.2 The Routing Decision|2.2 The Routing Decision</a></li>
+<li><a href="../../../../notes/#2.3-expert-choice-vs.-token-choice-routing%7C2.3-expert-choice-vs.-token-choice-routing/">#2.3 Expert-Choice vs. Token-Choice Routing|2.3 Expert-Choice vs. Token-Choice Routing</a></li>
+<li><a href="../../../../notes/#2.4-gradient-flow-through-the-router%7C2.4-gradient-flow-through-the-router/">#2.4 Gradient Flow Through the Router|2.4 Gradient Flow Through the Router</a></li>
+<li><a href="../../../../notes/#2.5-autoregressive-inference:-the-top-k-causality-problem%7C2.5-autoregressive-inference:-the-top-k-causality-problem/">#2.5 Autoregressive Inference: The Top-k Causality Problem|2.5 Autoregressive Inference: The Top-k Causality Problem</a></li>
+<li><a href="../../../../notes/#2.6-isoflop-analysis-and-empirical-results%7C2.6-isoflop-analysis-and-empirical-results/">#2.6 IsoFLOP Analysis and Empirical Results|2.6 IsoFLOP Analysis and Empirical Results</a></li>
+<li><a href="../../../../notes/#2.7-mixture-of-depths-and-experts-(mode)%7C2.7-mixture-of-depths-and-experts-(mode)/">#2.7 Mixture-of-Depths-and-Experts (MoDE)|2.7 Mixture-of-Depths-and-Experts (MoDE)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-mixture-of-depths-attention:-attending-across-layers%7C3.-mixture-of-depths-attention:-attending-across-layers/">#3. Mixture-of-Depths Attention: Attending Across Layers|3. Mixture-of-Depths Attention: Attending Across Layers</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-signal-dilution-problem%7C3.1-the-signal-dilution-problem/">#3.1 The Signal Dilution Problem|3.1 The Signal Dilution Problem</a></li>
+<li><a href="../../../../notes/#3.2-depth-stream-mechanisms:-a-taxonomy%7C3.2-depth-stream-mechanisms:-a-taxonomy/">#3.2 Depth-Stream Mechanisms: A Taxonomy|3.2 Depth-Stream Mechanisms: A Taxonomy</a></li>
+<li><a href="../../../../notes/#3.3-moda:-formal-definition%7C3.3-moda:-formal-definition/">#3.3 MoDA: Formal Definition|3.3 MoDA: Formal Definition</a></li>
+<li><a href="../../../../notes/#3.4-visible-relationships-and-causal-structure%7C3.4-visible-relationships-and-causal-structure/">#3.4 Visible Relationships and Causal Structure|3.4 Visible Relationships and Causal Structure</a></li>
+<li><a href="../../../../notes/#3.5-complexity-analysis%7C3.5-complexity-analysis/">#3.5 Complexity Analysis|3.5 Complexity Analysis</a></li>
+<li><a href="../../../../notes/#3.6-hardware-efficient-implementation%7C3.6-hardware-efficient-implementation/">#3.6 Hardware-Efficient Implementation|3.6 Hardware-Efficient Implementation</a></li>
+<li><a href="../../../../notes/#3.7-empirical-results%7C3.7-empirical-results/">#3.7 Empirical Results|3.7 Empirical Results</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-connections-and-contrasts%7C4.-connections-and-contrasts/">#4. Connections and Contrasts|4. Connections and Contrasts</a>
+<ul>
+<li><a href="../../../../notes/#4.1-mod-vs.-moda:-orthogonal-axes-of-conditionality%7C4.1-mod-vs.-moda:-orthogonal-axes-of-conditionality/">#4.1 MoD vs. MoDA: Orthogonal Axes of Conditionality|4.1 MoD vs. MoDA: Orthogonal Axes of Conditionality</a></li>
+<li><a href="../../../../notes/#4.2-relation-to-cross-layer-attention-and-deep-supervision%7C4.2-relation-to-cross-layer-attention-and-deep-supervision/">#4.2 Relation to Cross-Layer Attention and Deep Supervision|4.2 Relation to Cross-Layer Attention and Deep Supervision</a></li>
+<li><a href="../../../../notes/#4.3-relation-to-mixture-of-experts%7C4.3-relation-to-mixture-of-experts/">#4.3 Relation to Mixture-of-Experts|4.3 Relation to Mixture-of-Experts</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-references%7C5.-references/">#5. References|5. References</a></li>
+</ul>
+<hr />
+<h2 id="motivation-unequal-token-importance-and-layer-redundancy">1. Motivation: Unequal Token Importance and Layer Redundancy 🔍</h2>
+<h3 id="the-uniform-compute-assumption">1.1 The Uniform-Compute Assumption</h3>
+<p>Standard transformer architectures apply an identical sequence of operations — layer normalization, self-attention, layer normalization, feed-forward network — to every token at every layer. Formally, for a sequence <span class="math inline">\(X^{(0)} \in \mathbb{R}^{T \times D}\)</span> of <span class="math inline">\(T\)</span> tokens each with embedding dimension <span class="math inline">\(D\)</span>, the residual update at layer <span class="math inline">\(l\)</span> is:</p>
+<p><span class="math display">\[X^{(l)} = X^{(l-1)} + \text{Block}^{(l)}(X^{(l-1)})\]</span></p>
+<p>where <span class="math inline">\(\text{Block}^{(l)}\)</span> denotes the composed attention-plus-MLP sub-block. The total compute scales as <span class="math inline">\(O(T \cdot L \cdot D^2)\)</span> (ignoring the quadratic attention term), and every token <span class="math inline">\(t\)</span> incurs exactly the same cost regardless of how semantically rich or computationally trivial it is.</p>
+<p>This <em>uniform-compute assumption</em> is a significant inductive bias. Consider a sentence like “The cat, which had been sleeping since early morning and had not eaten, sat on the mat.” The tokens “The”, “,”, and “on” arguably require far less representational work than “sleeping” or “eaten” — yet a vanilla transformer allocates identical FLOPs to each.</p>
+<h3 id="two-failure-modes-wasted-flops-and-signal-dilution">1.2 Two Failure Modes: Wasted FLOPs and Signal Dilution</h3>
+<p>The uniform-compute assumption gives rise to two distinct failure modes that the papers in this note address:</p>
+<div class="callout callout-info">
+<p>
+These two failure modes motivate two different interventions, studied in separate papers:
+- <strong>Wasted FLOPs</strong> (trivial tokens still processed) → addressed by <a href="../../../../notes/#2.-mixture-of-depths:-routing-tokens-around-blocks%7Cmixture-of-depths-(mod)/">#2. Mixture-of-Depths: Routing Tokens Around Blocks|Mixture-of-Depths (MoD)</a> (Raposo et al., 2024)
+- <strong>Signal dilution</strong> (informative features re-weighted away in deep residual stacks) → addressed by <a href="../../../../notes/#3.-mixture-of-depths-attention:-attending-across-layers%7Cmixture-of-depths-attention-(moda)/">#3. Mixture-of-Depths Attention: Attending Across Layers|Mixture-of-Depths Attention (MoDA)</a> (Zhu et al., 2025)</p>
+</div>
+<p><strong>Wasted FLOPs.</strong> In a well-trained model, many tokens at many layers contribute negligibly to the final output. The residual stream for these tokens undergoes only a small perturbation from <span class="math inline">\(\text{Block}^{(l)}\)</span>, yet the full <span class="math inline">\(O(D^2)\)</span> computation was still executed. If the model could instead learn to route trivial tokens around these blocks via a shortcut (the identity residual), the same final representation could be approximated with strictly fewer FLOPs.</p>
+<p><strong>Signal dilution.</strong> In a deep residual network, an informative feature formed at layer <span class="math inline">\(l_0\)</span> is propagated forward as <span class="math inline">\(x^{(l)} = x^{(l_0)} + \sum_{k=l_0}^{l-1} \delta^{(k)}\)</span> where <span class="math inline">\(\delta^{(k)}\)</span> are residual updates from subsequent layers. Over many layers, these updates accumulate noise and compress the original signal, making it harder for later layers to recover the exact representation from <span class="math inline">\(l_0\)</span>. A mechanism that gives late layers direct read-access to early-layer KV pairs — bypassing the lossy residual integration — could recover this signal.</p>
+<hr />
+<h2 id="mixture-of-depths-routing-tokens-around-blocks">2. Mixture-of-Depths: Routing Tokens Around Blocks 🔀</h2>
+<div class="callout callout-info">
+<p>
+<strong>Paper:</strong> Raposo et al. (2024), “Mixture-of-Depths: Dynamically allocating compute in transformer-based language models.” Google DeepMind.</p>
+</div>
+<h3 id="setup-and-notation">2.1 Setup and Notation</h3>
+<p>Let <span class="math inline">\(L\)</span> denote the number of transformer layers, <span class="math inline">\(T\)</span> the sequence length, and <span class="math inline">\(S = T\)</span> the number of tokens per sequence. At each <em>routing layer</em> <span class="math inline">\(l\)</span>, we have token representations <span class="math inline">\(\{x_i^l\}_{i=1}^S\)</span> with <span class="math inline">\(x_i^l \in \mathbb{R}^D\)</span>. The user specifies a <em>capacity</em> <span class="math inline">\(C \in \{1, \ldots, S\}\)</span> — the maximum number of tokens that will process through the full self-attention and MLP block at layer <span class="math inline">\(l\)</span>.</p>
+<p><strong>Definition (Capacity Factor).</strong> The <em>capacity factor</em> <span class="math inline">\(\beta \in (0, 1)\)</span> is:</p>
+<p><span class="math display">\[\beta = 1 - \frac{C}{S}\]</span></p>
+<p><span class="math inline">\(\beta\)</span> is the fraction of tokens that bypass the block. At <span class="math inline">\(\beta = 0.875\)</span> (the optimal setting found empirically), only 12.5% of tokens (<span class="math inline">\(C = S/8\)</span>) process through each routed block.</p>
+<h3 id="the-routing-decision">2.2 The Routing Decision</h3>
+<p><strong>Definition (Router).</strong> At routing layer <span class="math inline">\(l\)</span>, a learned linear projection <span class="math inline">\(w_\theta \in \mathbb{R}^D\)</span> produces a scalar <em>router weight</em> for each token:</p>
+<p><span class="math display">\[r_i^l = w_\theta^\top x_i^l \in \mathbb{R}\]</span></p>
+<p>Let <span class="math inline">\(R^l = (r_1^l, \ldots, r_S^l)\)</span> and let <span class="math inline">\(P_\beta(R^l)\)</span> denote the <span class="math inline">\(\beta\)</span>-th percentile of router weights at layer <span class="math inline">\(l\)</span>. The block output for token <span class="math inline">\(i\)</span> is:</p>
+<p><span class="math display">\[x_i^{l+1} = \begin{cases} r_i^l \cdot f_i(\widetilde{X}^l) + x_i^l &amp; \text{if } r_i^l &gt; P_\beta(R^l) \\ x_i^l &amp; \text{if } r_i^l \leq P_\beta(R^l) \end{cases}\]</span></p>
+<p>where <span class="math inline">\(f_i(\widetilde{X}^l)\)</span> is the output of the self-attention and MLP block applied to the top-<span class="math inline">\(C\)</span> tokens <span class="math inline">\(\widetilde{X}^l\)</span> (the subset of tokens with <span class="math inline">\(r_i^l &gt; P_\beta(R^l)\)</span>), and the multiplication by <span class="math inline">\(r_i^l\)</span> is critical for gradient flow (see §2.4).</p>
+<p>Tokens with <span class="math inline">\(r_i^l \leq P_\beta(R^l)\)</span> receive only the identity update: <span class="math inline">\(x_i^{l+1} = x_i^l\)</span>.</p>
+<figure>
+<img src="../../../../notes/concepts/attention-mechanisms/figures/raposo2024-fig1-mod-architecture.png/" alt="concepts/attention-mechanisms/figures/raposo2024-fig1-mod-architecture.png" />
+<figcaption aria-hidden="true">concepts/attention-mechanisms/figures/raposo2024-fig1-mod-architecture.png</figcaption>
+</figure>
+<div class="callout callout-note">
+<p>
+<em>Figure 1 from Raposo et al. (2024): Left — two adjacent MoD blocks, each with a router gate that either routes a token through the full self-attention + MLP sub-block (multiplying by weight <span class="math inline">\(w\)</span>) or passes it through via identity. Right — routing decisions as a heatmap across layers and sequence positions, contrasted with vanilla (all purple) and early-exit (only first few layers active) patterns. The MoD pattern is irregular and input-dependent.</em></p>
+</div>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 1 (Mathematical).</strong> Show that if all router weights are equal (<span class="math inline">\(r_i^l = c\)</span> for all <span class="math inline">\(i\)</span>), the top-<span class="math inline">\(C\)</span> selection is ill-defined (tie-breaking arbitrary) and the gradient of the loss with respect to <span class="math inline">\(w_\theta\)</span> vanishes through the routing decision. What does this imply about initialization strategies?</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> With <span class="math inline">\(r_i^l = c\)</span> for all <span class="math inline">\(i\)</span>, the indicator <span class="math inline">\(\mathbf{1}[r_i^l &gt; P_\beta(R^l)]\)</span> is a step function of a constant — its value depends entirely on tie-breaking, not on <span class="math inline">\(w_\theta\)</span>. The gradient <span class="math inline">\(\partial \mathbf{1}[\cdot]/\partial w_\theta = 0\)</span> almost everywhere (the indicator is piecewise constant in <span class="math inline">\(w_\theta\)</span>). The only gradient path that survives is through the multiplicative <span class="math inline">\(r_i^l\)</span> term for selected tokens, but when all weights are equal this gives <span class="math inline">\(\partial (r_i^l \cdot f_i)/\partial w_\theta = f_i\)</span> uniformly — a signal, but with no routing specificity, so the model cannot learn which tokens to prioritize.</p>
+<p><strong>Sketch:</strong> This implies that random initialization breaking symmetry is important. Initializing <span class="math inline">\(w_\theta\)</span> with small noise ensures that <span class="math inline">\(r_i^l\)</span> values differ immediately, creating a gradient signal that propagates routing preferences. Initializing <span class="math inline">\(w_\theta = 0\)</span> leads to a flat loss landscape for the routing subnetwork at step 0.</p>
+</blockquote>
+<h3 id="expert-choice-vs.-token-choice-routing">2.3 Expert-Choice vs. Token-Choice Routing</h3>
+<p>The key design decision in MoD is which party — the token or the block — decides who gets processed. This mirrors the <em>expert-choice</em> vs. <em>token-choice</em> distinction in <em>Mixture-of-Experts</em> (MoE) routing.</p>
+<figure>
+<img src="../../../../notes/concepts/attention-mechanisms/figures/raposo2024-fig2-routing-schemes.png/" alt="concepts/attention-mechanisms/figures/raposo2024-fig2-routing-schemes.png" />
+<figcaption aria-hidden="true">concepts/attention-mechanisms/figures/raposo2024-fig2-routing-schemes.png</figcaption>
+</figure>
+<div class="callout callout-note">
+<p>
+<em>Figure 2 from Raposo et al. (2024): Token-choice routing (left) — tokens select among multiple experts, potentially overloading some; expert-choice routing (center) — each expert selects the top-<span class="math inline">\(k\)</span> tokens, guaranteeing load balance; expert-choice MoD (right) — a single block selects the top-<span class="math inline">\(k\)</span> tokens, all others pass via residual.</em></p>
+</div>
+<p><strong>Definition (Token-Choice Routing).</strong> Each token independently selects a computational path using a softmax over path logits. Tokens are processed by whichever path they select. <em>Disadvantage:</em> tokens can “crowd” into one path, causing load imbalance and requiring auxiliary balancing losses.</p>
+<p><strong>Definition (Expert-Choice Routing).</strong> Each computational path selects the top-<span class="math inline">\(k\)</span> tokens by router score. <em>Advantage:</em> exactly <span class="math inline">\(k\)</span> tokens process per block at every step, yielding a static computation graph with predictable tensor shapes — critical for hardware efficiency.</p>
+<p>MoD uses expert-choice routing. With <span class="math inline">\(C = k\)</span>, the top-<span class="math inline">\(C\)</span> tokens by <span class="math inline">\(r_i^l\)</span> are selected, guaranteeing:
+1. No auxiliary load-balancing loss is needed.
+2. Tensor shapes are constant across training steps, enabling XLA/CUDA kernel fusion.
+3. The routing decision is differentiable through the multiplicative <span class="math inline">\(r_i^l\)</span> weight.</p>
+<div class="callout callout-warning">
+<p>
+<em>Expert-choice routing violates causality during autoregressive inference: selecting the top-<span class="math inline">\(C\)</span> tokens requires seeing all <span class="math inline">\(S\)</span> router weights simultaneously, which is impossible when generating token <span class="math inline">\(t\)</span> without tokens <span class="math inline">\(t+1, \ldots, S\)</span> (see §2.5).</em></p>
+</div>
+<h3 id="gradient-flow-through-the-router">2.4 Gradient Flow Through the Router</h3>
+<p>The routing indicator <span class="math inline">\(\mathbf{1}[r_i^l &gt; P_\beta(R^l)]\)</span> is a discrete operation with zero gradient almost everywhere. Without the multiplicative <span class="math inline">\(r_i^l\)</span> factor, gradient descent cannot adjust <span class="math inline">\(w_\theta\)</span> based on routing decisions. The product <span class="math inline">\(r_i^l \cdot f_i(\widetilde{X}^l)\)</span> solves this:</p>
+<p><span class="math display">\[\frac{\partial \ell}{\partial w_\theta} = \sum_{i : r_i^l &gt; P_\beta} \frac{\partial \ell}{\partial x_i^{l+1}} \cdot f_i(\widetilde{X}^l) \cdot x_i^l\]</span></p>
+<p>This gradient is nonzero for every selected token, giving a continuous learning signal for the router. The router learns to assign high weights to tokens that, when processed by the block, produce outputs that reduce loss — i.e., tokens for which the block is genuinely useful.</p>
+<div class="callout callout-tip">
+<p>
+This is analogous to the REINFORCE-without-baseline trick: multiplying by the router weight <span class="math inline">\(r_i^l\)</span> “scores” each routing decision, enabling gradient-based refinement without requiring a discrete reparameterization.</p>
+</div>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 2 (Mathematical).</strong> Consider the MoD update <span class="math inline">\(x_i^{l+1} = r_i^l \cdot f_i(\widetilde{X}^l) + x_i^l\)</span> for a selected token. Suppose the block output satisfies <span class="math inline">\(f_i(\widetilde{X}^l) = \mathbf{v}\)</span> (constant). Show that the fixed point of gradient descent on <span class="math inline">\(r_i^l\)</span> (with loss <span class="math inline">\(\ell = \|x_i^{l+1} - x^*\|^2\)</span> for some target <span class="math inline">\(x^*\)</span>) is <span class="math inline">\(r_i^l = \frac{(x^* - x_i^l)^\top \mathbf{v}}{\|\mathbf{v}\|^2}\)</span>. Interpret this in terms of how much the block output should be “mixed in.”</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> The optimal <span class="math inline">\(r\)</span> is the scalar projection of the residual error onto <span class="math inline">\(\mathbf{v}\)</span>, normalized by <span class="math inline">\(\|\mathbf{v}\|^2\)</span>.</p>
+<p><strong>Sketch:</strong> Expand <span class="math inline">\(\ell = \|r \mathbf{v} + x_i^l - x^*\|^2 = \|r \mathbf{v} - (x^* - x_i^l)\|^2\)</span>. Setting <span class="math inline">\(\partial \ell / \partial r = 2\mathbf{v}^\top(r\mathbf{v} - (x^* - x_i^l)) = 0\)</span> gives <span class="math inline">\(r^* = \mathbf{v}^\top(x^* - x_i^l)/\|\mathbf{v}\|^2\)</span>. Interpretation: the router weight measures how much the block correction <span class="math inline">\(\mathbf{v}\)</span> aligns with the residual error <span class="math inline">\(x^* - x_i^l\)</span>. A token that is already close to its “ideal” representation (small <span class="math inline">\(\|x^* - x_i^l\|\)</span>) gets a small router weight, causing it to be deprioritized — consistent with the intuition that trivial tokens should bypass the block.</p>
+</blockquote>
+<h3 id="autoregressive-inference-the-top-k-causality-problem">2.5 Autoregressive Inference: The Top-k Causality Problem</h3>
+<p>During training, the model sees all <span class="math inline">\(S\)</span> tokens in a batch simultaneously. The top-<span class="math inline">\(C\)</span> selection over <span class="math inline">\(r_1^l, \ldots, r_S^l\)</span> is globally consistent. During autoregressive inference, token <span class="math inline">\(t\)</span> is generated without access to the router weights of future tokens <span class="math inline">\(r_{t+1}^l, \ldots, r_S^l\)</span>, so the global percentile threshold <span class="math inline">\(P_\beta(R^l)\)</span> cannot be computed.</p>
+<p>Raposo et al. present two solutions:</p>
+<p><strong>Solution 1: Auxiliary Loss (Training-Time Supervision).</strong> Train a secondary binary classifier <span class="math inline">\(\hat{r}_i^l \in [0,1]\)</span> to predict whether token <span class="math inline">\(i\)</span> would be selected by the global top-<span class="math inline">\(C\)</span> rule. During inference, apply a fixed threshold (e.g., 0.5) to <span class="math inline">\(\hat{r}_i^l\)</span> instead of the global percentile. <em>Cost:</em> a small binary cross-entropy loss term; performance degradation of 0.2–0.3%.</p>
+<p><strong>Solution 2: Auxiliary MLP Predictor.</strong> Train a small MLP <span class="math inline">\(g_\phi\)</span> with stop-gradient on the router input:</p>
+<p><span class="math display">\[\hat{p}_i^l = g_\phi(\text{sg}(x_i^l)) \in [0, 1]\]</span></p>
+<p>where <span class="math inline">\(\text{sg}(\cdot)\)</span> denotes stop-gradient. The predictor <span class="math inline">\(\hat{p}_i^l\)</span> approximates <span class="math inline">\(\mathbf{1}[r_i^l &gt; P_\beta(R^l)]\)</span> without influencing the main model’s gradient. During inference, the predictor replaces the non-causal top-<span class="math inline">\(C\)</span> operation, achieving <span class="math inline">\(&gt;97\%\)</span> accuracy within a few thousand training steps.</p>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 3 (Computational/Python).</strong> Implement the MoD routing step in Python. Given token representations <code>X</code> of shape <code>(S, D)</code>, router weights <code>w</code> of shape <code>(D,)</code>, and capacity <code>C</code>, compute the selected token indices using expert-choice routing and apply the block identity for non-selected tokens.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mod_routing_step(X: torch.Tensor, w: torch.Tensor, C: <span class="bu">int</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                      block_fn: <span class="bu">callable</span>) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    X: (S, D) token representations</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    w: (D,) router weight vector</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    C: capacity (number of tokens to process through block)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    block_fn: callable (C, D) -&gt; (C, D)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns: (S, D) updated representations</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># YOUR IMPLEMENTATION HERE</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mod_routing_step(X: torch.Tensor, w: torch.Tensor, C: <span class="bu">int</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                      block_fn: <span class="bu">callable</span>) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    S, D <span class="op">=</span> X.shape</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute scalar router weights for each token</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> X <span class="op">@</span> w  <span class="co"># (S,)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Expert-choice: select top-C tokens by router score</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    topk_vals, topk_idx <span class="op">=</span> torch.topk(r, k<span class="op">=</span>C, dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># (C,), (C,)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gather selected token representations</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    X_selected <span class="op">=</span> X[topk_idx]  <span class="co"># (C, D)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply block to selected tokens only</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    block_out <span class="op">=</span> block_fn(X_selected)  <span class="co"># (C, D)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Scale by router weight and apply residual update</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    r_selected <span class="op">=</span> r[topk_idx].unsqueeze(<span class="op">-</span><span class="dv">1</span>)  <span class="co"># (C, 1) for broadcasting</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    X_updated <span class="op">=</span> X.clone()</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    X_updated[topk_idx] <span class="op">=</span> r_selected <span class="op">*</span> block_out <span class="op">+</span> X[topk_idx]</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Non-selected tokens: identity (X_updated already holds X for those)</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> X_updated</span></code></pre></div>
+<p><strong>Key insight:</strong> The <code>.clone()</code> ensures non-selected token representations are copied as-is. The multiplication <code>r_selected * block_out</code> scales each block output by its router weight, providing the gradient path back to <code>w</code>.</p>
+</blockquote>
+<h3 id="isoflop-analysis-and-empirical-results">2.6 IsoFLOP Analysis and Empirical Results</h3>
+<p>Raposo et al. perform a systematic <em>isoFLOP analysis</em>: for a fixed training FLOP budget <span class="math inline">\(F \in \{6 \times 10^{18}, 2 \times 10^{19}, 10^{20}\}\)</span>, they sweep over model sizes (60M to 3B parameters) and measure final language modeling loss on a held-out set.</p>
+<figure>
+<img src="../../../../notes/concepts/attention-mechanisms/figures/raposo2024-fig4-isoflop.png/" alt="concepts/attention-mechanisms/figures/raposo2024-fig4-isoflop.png" />
+<figcaption aria-hidden="true">concepts/attention-mechanisms/figures/raposo2024-fig4-isoflop.png</figcaption>
+</figure>
+<div class="callout callout-note">
+<p>
+<em>Figure 4 from Raposo et al. (2024): Left — training loss versus parameter count for baseline and MoD models across three FLOP budgets. MoD models (blue) achieve lower loss at equivalent budgets, and the isoFLOP-optimal MoD model has more parameters than the optimal baseline. Right — normalized loss versus normalized FLOPs per forward pass: shaded region (lower-left) represents models that are simultaneously more accurate and cheaper to run than the isoFLOP-optimal baseline.</em></p>
+</div>
+<p>Key empirical findings:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Setting</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Optimal capacity factor</td>
+<td><span class="math inline">\(\beta = 0.875\)</span> (12.5% of tokens processed)</td>
+</tr>
+<tr class="even">
+<td>Optimal routing pattern</td>
+<td>Every other block routed (interleaved)</td>
+</tr>
+<tr class="odd">
+<td>isoFLOP improvement at <span class="math inline">\(6 \times 10^{18}\)</span></td>
+<td><span class="math inline">\(\approx 1.5\%\)</span> lower loss vs. baseline</td>
+</tr>
+<tr class="even">
+<td>Speed improvement (matched loss)</td>
+<td><span class="math inline">\(66\%\)</span> faster per training step</td>
+</tr>
+<tr class="odd">
+<td>Inference speedup</td>
+<td>Up to <span class="math inline">\(50\%\)</span> faster per forward pass</td>
+</tr>
+<tr class="even">
+<td>Autoregressive predictor accuracy</td>
+<td><span class="math inline">\(&gt;97\%\)</span> within early training</td>
+</tr>
+</tbody>
+</table>
+<p><strong>💡 Key design principle:</strong> Routing every other block (not every block) is critical. When all blocks are routed, the model loses too much representational capacity; interleaving full-attention blocks with routed blocks maintains model quality while cutting compute.</p>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 4 (Mathematical).</strong> Suppose a transformer with <span class="math inline">\(L\)</span> layers and uniform block cost <span class="math inline">\(c\)</span> per token per layer is converted to MoD with capacity <span class="math inline">\(\beta = 1 - C/S\)</span>. Half the layers are routed (the odd-numbered layers), half are full (even-numbered). Express the total FLOPs per forward pass for both architectures (ignoring attention’s quadratic term) and derive the speedup factor as a function of <span class="math inline">\(\beta\)</span>.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> Only the odd-numbered routed layers save compute; even layers are unaffected.</p>
+<p><strong>Sketch:</strong> Full transformer: <span class="math inline">\(F_\text{base} = L \cdot S \cdot c\)</span>. In MoD with half the layers routed: <span class="math inline">\(L/2\)</span> full layers contribute <span class="math inline">\(\frac{L}{2} \cdot S \cdot c\)</span>, and <span class="math inline">\(L/2\)</span> routed layers contribute <span class="math inline">\(\frac{L}{2} \cdot C \cdot c = \frac{L}{2} \cdot (1-\beta) \cdot S \cdot c\)</span>. Total: <span class="math inline">\(F_\text{MoD} = \frac{L \cdot S \cdot c}{2}(1 + (1-\beta))= \frac{L \cdot S \cdot c}{2}(2 - \beta)\)</span>.</p>
+<p>Speedup: <span class="math inline">\(\frac{F_\text{base}}{F_\text{MoD}} = \frac{2}{2-\beta}\)</span>. At <span class="math inline">\(\beta = 0.875\)</span>: <span class="math inline">\(\frac{2}{1.125} \approx 1.78\times\)</span> speedup in FLOPs. <em>Note this is a theoretical upper bound; attention costs (which are quadratic in <span class="math inline">\(S\)</span>, not <span class="math inline">\(C\)</span>) are not reduced proportionally, so actual wall-clock speedup is lower.</em></p>
+</blockquote>
+<h3 id="mixture-of-depths-and-experts-mode">2.7 Mixture-of-Depths-and-Experts (MoDE)</h3>
+<p>MoD composes naturally with <em>Mixture-of-Experts</em> (MoE). In a standard MoE layer, the MLP block is replaced by <span class="math inline">\(E\)</span> expert MLPs with a router selecting which 2–4 experts process each token. MoD can be layered on top to also allow tokens to skip the entire MoE block.</p>
+<p>Two integration strategies:</p>
+<p><strong>Staged MoDE.</strong> First decide whether each token enters the MoE block (MoD gate), then for tokens that enter, decide which experts process them (MoE gate). Two sequential routing decisions.</p>
+<p><strong>Integrated MoDE.</strong> A single routing step assigns each token to either an expert MLP or a no-op “identity expert.” The identity expert is a valid routing target, so tokens effectively opt out of computation by being routed to it. This collapses two routing steps into one.</p>
+<p><em>Surprisingly,</em> the integrated variant marginally outperforms the staged variant, suggesting that joint optimization of “should I compute?” and “which expert?” provides a beneficial inductive bias.</p>
+<hr />
+<h2 id="mixture-of-depths-attention-attending-across-layers">3. Mixture-of-Depths Attention: Attending Across Layers 📐</h2>
+<div class="callout callout-info">
+<p>
+<strong>Paper:</strong> Zhu et al. (2025), “Mixture-of-Depths Attention (MoDA).” Huazhong University of Science &amp; Technology and ByteDance.</p>
+</div>
+<h3 id="the-signal-dilution-problem">3.1 The Signal Dilution Problem</h3>
+<p>In a standard pre-norm or post-norm transformer, the residual stream at layer <span class="math inline">\(l\)</span> is:</p>
+<p><span class="math display">\[X^{(l)} = X^{(l-1)} + \text{Attn}^{(l)}(\text{Norm}(X^{(l-1)})) + \text{FFN}^{(l)}(\ldots)\]</span></p>
+<p>An informative feature <span class="math inline">\(f\)</span> computed at layer <span class="math inline">\(l_0\)</span> propagates forward as <span class="math inline">\(f + \sum_{k &gt; l_0} \delta_k\)</span>, where the <span class="math inline">\(\delta_k\)</span> are subsequent residual deltas. As <span class="math inline">\(l \to L\)</span>, this accumulation increasingly masks the original signal <span class="math inline">\(f\)</span>. A downstream attention head at layer <span class="math inline">\(l &gt; l_0\)</span> that needs to query <span class="math inline">\(f\)</span> directly must first “subtract out” all the accumulated noise — a task that requires spare capacity in the attention mechanism that might be better used for other purposes.</p>
+<div class="callout callout-tip">
+<p>
+This is the <em>depth-stream</em> analog of the sequence-length problem in attention: just as a long sequence makes it hard to attend to a specific early token, a deep residual stack makes it hard to retrieve a specific early-layer representation.</p>
+</div>
+<h3 id="depth-stream-mechanisms-a-taxonomy">3.2 Depth-Stream Mechanisms: A Taxonomy</h3>
+<p>Zhu et al. organize prior and new mechanisms by how they read from and write to the <em>depth stream</em> — the sequence of representations <span class="math inline">\(\{X^{(l)}\}_{l=0}^{L-1}\)</span> at the same token position across all layers.</p>
+<figure>
+<img src="../../../../notes/concepts/attention-mechanisms/figures/zhu2025-fig3-depth-stream-taxonomy.png/" alt="concepts/attention-mechanisms/figures/zhu2025-fig3-depth-stream-taxonomy.png" />
+<figcaption aria-hidden="true">concepts/attention-mechanisms/figures/zhu2025-fig3-depth-stream-taxonomy.png</figcaption>
+</figure>
+<div class="callout callout-note">
+<p>
+<em>Figure 3 from Zhu et al. (2025): Four depth-streaming mechanisms compared. (a) Depth Residual: standard residual addition — the identity connection writes the same hidden state forward unchanged. (b) Depth Dense: concatenates all previous layer outputs, enabling full history access at <span class="math inline">\(O(L^2 D^2)\)</span> parameter cost. (c) Depth Attention: a separate cross-layer attention module reads from all prior-layer KV pairs. (d) MoDA: the existing sequence attention head is extended to jointly attend over sequence KV and depth KV using a single unified softmax.</em></p>
+</div>
+<p><strong>Definition (Depth Residual).</strong> The standard residual connection: <span class="math inline">\(X^{(l)} = X^{(l-1)} + \delta^{(l)}\)</span>. Write operation: identity addition. Read operation: implicit (the summed stream contains all prior contributions).</p>
+<p><strong>Definition (Depth Dense).</strong> Concatenate all prior-layer outputs: <span class="math inline">\(X^{(l)} \leftarrow W^{(l)} \cdot \text{Concat}(X^{(0)}, \ldots, X^{(l-1)})\)</span>. This provides direct access to every earlier representation but introduces <span class="math inline">\(O(L^2 D^2)\)</span> parameters — prohibitive for deep models.</p>
+<p><strong>Definition (Depth Attention).</strong> Introduce a dedicated cross-layer attention module that uses <span class="math inline">\(X^{(l)}\)</span> as query and <span class="math inline">\(\{(K^{(i)}, V^{(i)})\}_{i=0}^{l-1}\)</span> (KV pairs from previous layers at the same token position) as keys and values. Separate from sequence attention. Parameter cost: <span class="math inline">\(O(L D^2)\)</span>, but adds an extra module.</p>
+<p><strong>Definition (MoDA).</strong> Reuse the existing attention head: jointly attend over both the current-layer sequence KV pairs <em>and</em> all prior-layer depth KV pairs within a single unified softmax normalization. No extra module required.</p>
+<h3 id="moda-formal-definition">3.3 MoDA: Formal Definition</h3>
+<p>Let <span class="math inline">\(H\)</span> be the number of query heads, <span class="math inline">\(G\)</span> the GQA grouping factor (so there are <span class="math inline">\(H/G\)</span> KV heads), <span class="math inline">\(d_k\)</span> the per-head key dimension, and <span class="math inline">\(d_v\)</span> the per-head value dimension.</p>
+<p>At layer <span class="math inline">\(l\)</span>, standard GQA attention computes:</p>
+<p><span class="math display">\[\text{Attn}(Q, K, V) = \text{Concat}_{h=1}^{H} \text{softmax}\!\left(\frac{Q_h K_{\varphi(h)}^\top}{\sqrt{d_k}} + M\right) V_{\varphi(h)}\]</span></p>
+<p>where <span class="math inline">\(M\)</span> is the causal mask and <span class="math inline">\(\varphi(h)\)</span> maps each query head to its KV group.</p>
+<p><strong>Definition (MoDA).</strong> Let <span class="math inline">\(\{K^{(i)}, V^{(i)}\}_{i=0}^{l-1}\)</span> be the KV pairs generated at all preceding layers at token position <span class="math inline">\(t\)</span> (the <em>depth KV cache</em>). MoDA extends the key and value sequences by concatenating depth KV pairs:</p>
+<p><span class="math display">\[K_{\varphi(h)}^{\text{MoDA}} = \text{Concat}\!\left(K_{\varphi(h)}^{(l)}, \; K_{\varphi(h)}^{(0)}, K_{\varphi(h)}^{(1)}, \ldots, K_{\varphi(h)}^{(l-1)}\right)\]</span></p>
+<p><span class="math display">\[V_{\varphi(h)}^{\text{MoDA}} = \text{Concat}\!\left(V_{\varphi(h)}^{(l)}, \; V_{\varphi(h)}^{(0)}, V_{\varphi(h)}^{(1)}, \ldots, V_{\varphi(h)}^{(l-1)}\right)\]</span></p>
+<p>and computes attention over this extended key-value set under a single softmax:</p>
+<p><span class="math display">\[\text{MoDA}(Q_h, K_{\varphi(h)}^{\text{MoDA}}, V_{\varphi(h)}^{\text{MoDA}}) = \text{softmax}\!\left(\frac{Q_h \left(K_{\varphi(h)}^{\text{MoDA}}\right)^\top}{\sqrt{d_k}} + M^{\text{MoDA}}\right) V_{\varphi(h)}^{\text{MoDA}}\]</span></p>
+<p>where <span class="math inline">\(M^{\text{MoDA}}\)</span> is an extended causal mask covering both sequence and depth dimensions.</p>
+<div class="callout callout-info">
+<p>
+Critically, MoDA does <strong>not</strong> introduce new query projections for depth retrieval. The same <span class="math inline">\(Q_h\)</span> that attends to the current-layer sequence KV also attends to prior-layer depth KV. This <em>reuse</em> of query projections is what keeps the parameter count at <span class="math inline">\(O(LD^2/G)\)</span> rather than <span class="math inline">\(O(LD^2)\)</span>.</p>
+</div>
+<figure>
+<img src="../../../../notes/concepts/attention-mechanisms/figures/zhu2025-fig1-moda-architecture.png/" alt="concepts/attention-mechanisms/figures/zhu2025-fig1-moda-architecture.png" />
+<figcaption aria-hidden="true">concepts/attention-mechanisms/figures/zhu2025-fig1-moda-architecture.png</figcaption>
+</figure>
+<div class="callout callout-note">
+<p>
+<em>Figure 1 from Zhu et al. (2025): Left — the MoDA decoder block. Each attention layer receives the standard sequence KV plus the accumulated depth KV cache <span class="math inline">\(\{K_i, V_i\}_{i=0}^{l-1}\)</span>. An optional FFN linear KV projection provides additional depth information from the feed-forward sub-block. Right — the visible relationships matrix: token <span class="math inline">\(Q_{3,6}\)</span> (layer 3, position 6) can attend to sequence KV at its current layer (causal window) plus depth KV from layers 0–2 at the same position, giving a richer field of view.</em></p>
+</div>
+<h3 id="visible-relationships-and-causal-structure">3.4 Visible Relationships and Causal Structure</h3>
+<p>A key subtlety is the causal structure of depth KV access. Token at position <span class="math inline">\(t\)</span>, layer <span class="math inline">\(l\)</span> should only access depth KV pairs from the same token position <span class="math inline">\(t\)</span> at layers <span class="math inline">\(0, \ldots, l-1\)</span>. This is the <em>depth causality</em> constraint: a layer can read from prior layers but not future layers (since forward passes proceed layer-by-layer).</p>
+<p>The resulting attention pattern for query <span class="math inline">\(Q_{l,t}\)</span> is:</p>
+<p><span class="math display">\[\text{Visible}(l, t) = \underbrace{\{(l', t') : l' = l,\; t' \leq t\}}_{\text{sequence KV (causal)}} \;\cup\; \underbrace{\{(l', t) : l' &lt; l\}}_{\text{depth KV (same position, prior layers)}}\]</span></p>
+<p>This is richer than standard attention: a single query can retrieve information from its current context window <em>and</em> from all of its own prior-layer representations simultaneously.</p>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 5 (Mathematical).</strong> Let <span class="math inline">\(T\)</span> be sequence length and <span class="math inline">\(L\)</span> the number of layers. In standard attention, the total number of (query, key) pairs at a given layer is <span class="math inline">\(T^2\)</span> (causal: <span class="math inline">\(T(T+1)/2\)</span> unique pairs). In MoDA, each query additionally attends to <span class="math inline">\(l\)</span> depth KV positions. Derive the total number of (query, key) pairs across all <span class="math inline">\(L\)</span> layers and compare to standard attention. Express the ratio as a function of <span class="math inline">\(L\)</span> and <span class="math inline">\(T\)</span>, and evaluate for <span class="math inline">\(L = 32\)</span>, <span class="math inline">\(T = 4096\)</span>.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> Depth KV adds <span class="math inline">\(l\)</span> extra key positions for each query at layer <span class="math inline">\(l\)</span>, so the overhead grows with layer depth.</p>
+<p><strong>Sketch:</strong></p>
+<p>Standard attention: <span class="math inline">\(\sum_{l=0}^{L-1} \frac{T(T+1)}{2} = L \cdot \frac{T(T+1)}{2}\)</span>.</p>
+<p>MoDA: at layer <span class="math inline">\(l\)</span>, each of <span class="math inline">\(T\)</span> queries attends to <span class="math inline">\(\frac{T+1}{2}\)</span> sequence positions (causal mean) plus <span class="math inline">\(l\)</span> depth positions. Total pairs: <span class="math inline">\(\sum_{l=0}^{L-1} T \cdot \left(\frac{T+1}{2} + l\right) = L \cdot \frac{T(T+1)}{2} + T \sum_{l=0}^{L-1} l = L \cdot \frac{T(T+1)}{2} + T \cdot \frac{L(L-1)}{2}\)</span>.</p>
+<p>Ratio (MoDA / standard): <span class="math inline">\(1 + \frac{L-1}{T+1}\)</span>.</p>
+<p>For <span class="math inline">\(L=32\)</span>, <span class="math inline">\(T=4096\)</span>: ratio <span class="math inline">\(= 1 + 31/4097 \approx 1.0076\)</span> — less than 1% overhead in attention pairs. This confirms MoDA’s claim that depth KV access is cheap relative to sequence attention at long context lengths.</p>
+</blockquote>
+<h3 id="complexity-analysis">3.5 Complexity Analysis</h3>
+<p><strong>Theorem (MoDA Parameter Count).</strong> MoDA has the same asymptotic parameter count as the baseline GQA transformer: <span class="math inline">\(O(LD^2/G)\)</span>. No new weight matrices are introduced because the depth KV pairs are cached from existing projection layers.</p>
+<p>The depth KV cache itself has size <span class="math inline">\(O(L \cdot d_k \cdot d_v)\)</span> per token — growing linearly in depth but constant in sequence length at inference time. This should be compared with the sequence KV cache, which grows as <span class="math inline">\(O(T \cdot d_k \cdot d_v)\)</span> per layer.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Mechanism</th>
+<th>Parameters</th>
+<th>Prefill FLOPs</th>
+<th>Decode FLOPs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Depth Residual (baseline)</td>
+<td><span class="math inline">\(O(LD^2)\)</span></td>
+<td><span class="math inline">\(O(TL D^2)\)</span></td>
+<td><span class="math inline">\(O(LD^2)\)</span></td>
+</tr>
+<tr class="even">
+<td>Depth Dense</td>
+<td><span class="math inline">\(O(L^2 D^2)\)</span></td>
+<td><span class="math inline">\(O(TL^2 D^2)\)</span></td>
+<td><span class="math inline">\(O(L^2 D^2)\)</span></td>
+</tr>
+<tr class="odd">
+<td>Depth Attention</td>
+<td><span class="math inline">\(O(LD^2)\)</span></td>
+<td><span class="math inline">\(O(TL^2 D)\)</span></td>
+<td><span class="math inline">\(O(L^2 D)\)</span></td>
+</tr>
+<tr class="even">
+<td>MoDA</td>
+<td><span class="math inline">\(O(LD^2/G)\)</span></td>
+<td><span class="math inline">\(O(TL^2 D)\)</span></td>
+<td><span class="math inline">\(O(L^2 D)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>💡 MoDA achieves the same parameter efficiency as Depth Residual while matching the FLOP profile of Depth Attention, and uniquely avoids introducing new query projections for depth retrieval.</strong></p>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 6 (Mathematical).</strong> Justify the entry <span class="math inline">\(O(LD^2/G)\)</span> for MoDA parameters in the table above. Specifically: count the parameters of a GQA attention layer with <span class="math inline">\(H\)</span> query heads, <span class="math inline">\(H/G\)</span> KV heads, head dimension <span class="math inline">\(d_k\)</span>, value dimension <span class="math inline">\(d_v\)</span>, and embedding dimension <span class="math inline">\(D\)</span>. Then explain why adding depth KV caching does not change this count.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> Depth KV caching reuses existing <span class="math inline">\(W_K, W_V\)</span> projections — no new matrices are added.</p>
+<p><strong>Sketch:</strong> A GQA attention layer has: query projection <span class="math inline">\(W_Q \in \mathbb{R}^{D \times H d_k}\)</span>, key projection <span class="math inline">\(W_K \in \mathbb{R}^{D \times (H/G) d_k}\)</span>, value projection <span class="math inline">\(W_V \in \mathbb{R}^{D \times (H/G) d_v}\)</span>, output projection <span class="math inline">\(W_O \in \mathbb{R}^{H d_v \times D}\)</span>. Total: <span class="math inline">\(D(H d_k + (H/G) d_k + (H/G) d_v + H d_v) = D \cdot H \cdot (d_k + d_v)(1 + 1/G)\)</span>. Setting <span class="math inline">\(d_k = d_v = D/H\)</span>: <span class="math inline">\(\approx 2D^2(1 + 1/G) = O(D^2/G)\)</span>. Over <span class="math inline">\(L\)</span> layers: <span class="math inline">\(O(LD^2/G)\)</span>.</p>
+<p>Depth KV caching stores the outputs of <span class="math inline">\(W_K\)</span> and <span class="math inline">\(W_V\)</span> from each prior layer at the same token position — these projections already exist in the forward pass and are simply retained in a buffer rather than discarded. No new learned parameters are introduced.</p>
+</blockquote>
+<h3 id="hardware-efficient-implementation">3.6 Hardware-Efficient Implementation</h3>
+<p>The depth KV pairs form a <span class="math inline">\(T \times L \times d_k\)</span> tensor. Naively materializing this entire tensor and scanning it per query yields poor memory bandwidth utilization. Zhu et al. develop three nested optimizations, each building on the previous.</p>
+<p><strong>Optimization 1: Flash-Compatible Layout.</strong> Reorganize the depth KV buffer so that for token <span class="math inline">\(t\)</span>, its depth KV slice <span class="math inline">\(\{K^{(i)}_t\}_{i=0}^{l-1}\)</span> occupies a contiguous block of memory at offset <span class="math inline">\(t \cdot L\)</span>. This enables the FlashAttention-2 tile-based kernel to process sequence and depth attention in a single pass, without materializing the full <span class="math inline">\(T \times L\)</span> attention matrix.</p>
+<p><strong>Optimization 2: Chunk-Aware Layout.</strong> Divide the sequence into chunks of size <span class="math inline">\(C\)</span>. Within each chunk, all queries share the same set of depth KV entries. Organizing the depth KV buffer by chunks reduces the effective depth utilization from <span class="math inline">\(\eta_\text{depth} = 1/T\)</span> to <span class="math inline">\(1/C\)</span>, because each chunk-worth of queries reuses the same <span class="math inline">\(C \times L\)</span> depth KV block.</p>
+<p><strong>Optimization 3: Group-Aware Indexing.</strong> Under GQA with group size <span class="math inline">\(G\)</span>, adjacent query rows <span class="math inline">\(i_q\)</span> and <span class="math inline">\(i_q + 1\)</span> in the same group share the base-time index <span class="math inline">\(\lfloor i_q / G \rfloor\)</span>. This allows <span class="math inline">\(G\)</span> query rows to reuse the same depth KV block, further improving utilization to <span class="math inline">\(G/C\)</span>.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Implementation</th>
+<th>Runtime (ms)</th>
+<th>Speedup over previous</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Naive PyTorch</td>
+<td>2128.9</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Flash-compatible</td>
+<td>13.1</td>
+<td><span class="math inline">\(162\times\)</span></td>
+</tr>
+<tr class="odd">
+<td>+ Chunk-aware</td>
+<td>6.3</td>
+<td><span class="math inline">\(2.1\times\)</span></td>
+</tr>
+<tr class="even">
+<td>+ Group-aware</td>
+<td>1.5</td>
+<td><span class="math inline">\(4.3\times\)</span></td>
+</tr>
+<tr class="odd">
+<td>FlashAttention-2 (no depth)</td>
+<td>1.46</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>💡 The final group-aware kernel achieves within 2.73% of FlashAttention-2 runtime at <span class="math inline">\(T = 64\text{K}\)</span> with <span class="math inline">\(G=8\)</span>, <span class="math inline">\(L=64\)</span>.</strong></p>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 7 (Computational/Python).</strong> Write a Python function that constructs the MoDA attention mask for a single query at position <span class="math inline">\((l, t)\)</span> in a model with <span class="math inline">\(L\)</span> layers and <span class="math inline">\(T\)</span> tokens. The mask should be a 2D boolean tensor of shape <span class="math inline">\((l \cdot T_\text{depth} + T, \;)\)</span> indicating which keys are visible, where <span class="math inline">\(T_\text{depth} = l\)</span> (number of depth KV entries) and the sequence dimension covers causal positions <span class="math inline">\(1, \ldots, t\)</span>.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> moda_attention_mask(query_layer: <span class="bu">int</span>, query_pos: <span class="bu">int</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                         L: <span class="bu">int</span>, T: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns visible key positions for query at (layer=query_layer, pos=query_pos).</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns dict with:</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">      'seq_mask': bool tensor of shape (T,) — True for visible sequence positions</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">      'depth_mask': bool tensor of shape (query_layer,) — True for all depth layers</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sequence dimension: causal — can attend to positions &lt;= query_pos</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    seq_mask <span class="op">=</span> torch.zeros(T, dtype<span class="op">=</span>torch.<span class="bu">bool</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    seq_mask[:query_pos <span class="op">+</span> <span class="dv">1</span>] <span class="op">=</span> <span class="va">True</span>  <span class="co"># positions 0..query_pos</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Depth dimension: can attend to all prior layers at same position</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># All l in {0, ..., query_layer - 1} are visible</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    depth_mask <span class="op">=</span> torch.ones(query_layer, dtype<span class="op">=</span>torch.<span class="bu">bool</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Each depth entry corresponds to (layer=i, pos=query_pos) for i &lt; query_layer</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'seq_mask'</span>: seq_mask, <span class="st">'depth_mask'</span>: depth_mask}</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_full_moda_mask(L: <span class="bu">int</span>, T: <span class="bu">int</span>) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">    Build the full MoDA mask for all queries.</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns a list of per-layer causal masks, each of shape (T, T + l).</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    masks <span class="op">=</span> []</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> l <span class="kw">in</span> <span class="bu">range</span>(L):</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Each query at layer l has T + l key positions:</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># T sequence keys (causal) + l depth keys (all prior layers, same pos)</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        mask <span class="op">=</span> torch.zeros(T, T <span class="op">+</span> l, dtype<span class="op">=</span>torch.<span class="bu">bool</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sequence part: causal mask (lower triangular)</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        seq_part <span class="op">=</span> torch.tril(torch.ones(T, T, dtype<span class="op">=</span>torch.<span class="bu">bool</span>))</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        mask[:, :T] <span class="op">=</span> seq_part</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Depth part: all depth keys visible (same token position, prior layers)</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> l <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>            mask[:, T:] <span class="op">=</span> <span class="va">True</span>  <span class="co"># all l depth entries visible</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        masks.append(mask)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> masks</span></code></pre></div>
+<p><strong>Key insight:</strong> The depth dimension always allows full visibility (no causal restriction within depth), because depth KV entries from layer <span class="math inline">\(i &lt; l\)</span> were produced during the forward pass of the same token, not future tokens.</p>
+</blockquote>
+<h3 id="empirical-results">3.7 Empirical Results</h3>
+<p>Zhu et al. evaluate on 1.5B and 700M parameter models trained on a 400B-token OLMo2 dataset subset with 4096-token sequences.</p>
+<p><strong>Main results (1.5B, 10 downstream tasks):</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Benchmark</th>
+<th>OLMo2 Baseline</th>
+<th>MoDA</th>
+<th><span class="math inline">\(\Delta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>HellaSwag</td>
+<td>65.86</td>
+<td>66.24</td>
+<td>+0.38</td>
+</tr>
+<tr class="even">
+<td>WinoGrande</td>
+<td>63.22</td>
+<td>65.59</td>
+<td>+2.37</td>
+</tr>
+<tr class="odd">
+<td>ARC-Challenge</td>
+<td>42.47</td>
+<td>46.82</td>
+<td>+4.35</td>
+</tr>
+<tr class="even">
+<td>MMLU</td>
+<td>27.73</td>
+<td>29.59</td>
+<td>+1.86</td>
+</tr>
+<tr class="odd">
+<td><strong>Average (10 tasks)</strong></td>
+<td><strong>62.28</strong></td>
+<td><strong>64.39</strong></td>
+<td><strong>+2.11%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation perplexity (1.5B, 10 domains):</strong> Average PPL 13.67 → 13.47 (−0.20).</p>
+<p><strong>Efficiency at <span class="math inline">\(T=64\text{K}\)</span>, <span class="math inline">\(G=8\)</span>, <span class="math inline">\(L=64\)</span>:</strong> MoDA runtime 1883 ms vs. FlashAttention-2 1832 ms — 2.73% overhead.</p>
+<p><strong>Ablation (700M models):</strong> Adding depth KV from FFN layers alongside attention layers yields further improvement:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>Downstream avg.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>OLMo2 baseline</td>
+<td>56.93</td>
+</tr>
+<tr class="even">
+<td>+ Depth KV (attn only)</td>
+<td>58.10 (+1.17)</td>
+</tr>
+<tr class="odd">
+<td>+ FFN KV projection</td>
+<td>58.87 (+0.77)</td>
+</tr>
+<tr class="even">
+<td>+ Extra attn KV projection</td>
+<td>58.97 (+0.10)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note">
+<p>
+Post-norm configurations benefit more from depth KV than pre-norm, likely because post-norm maintains sharper layer-wise representations that are easier to selectively retrieve.</p>
+</div>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 8 (Mathematical).</strong> The depth KV buffer at inference time stores <span class="math inline">\(L \times d_k\)</span> and <span class="math inline">\(L \times d_v\)</span> scalars per token (one KV pair per layer per token). Compare this depth KV memory cost to the sequence KV cache memory cost for a model with <span class="math inline">\(L=32\)</span> layers, <span class="math inline">\(H=32\)</span> heads, <span class="math inline">\(G=4\)</span> (8 KV heads), <span class="math inline">\(d_k=d_v=128\)</span>, and context length <span class="math inline">\(T=128000\)</span>.</p>
+<p>Express both costs in gigabytes (assuming bfloat16, 2 bytes per scalar).</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> The depth KV cache grows in depth (<span class="math inline">\(L\)</span>) but not sequence length; the sequence KV cache grows in sequence length (<span class="math inline">\(T\)</span>) but is fixed per layer.</p>
+<p><strong>Sketch:</strong></p>
+<p><em>Sequence KV cache:</em> Per layer, stores <span class="math inline">\(T\)</span> keys and <span class="math inline">\(T\)</span> values across <span class="math inline">\(H/G\)</span> KV heads, each of dimension <span class="math inline">\(d_k\)</span> or <span class="math inline">\(d_v\)</span>. Size per layer: <span class="math inline">\(2 \times T \times (H/G) \times d_k \times 2\)</span> bytes <span class="math inline">\(= 2 \times 128000 \times 8 \times 128 \times 2 = 524,288,000\)</span> bytes <span class="math inline">\(\approx 0.49\)</span> GB. Over <span class="math inline">\(L=32\)</span> layers: <span class="math inline">\(\approx 15.7\)</span> GB.</p>
+<p><em>Depth KV cache:</em> Per token, stores <span class="math inline">\(L\)</span> key-value pairs per KV head. Size: <span class="math inline">\(T \times L \times (H/G) \times d_k \times 2 \times 2\)</span> bytes <span class="math inline">\(= 128000 \times 32 \times 8 \times 128 \times 2 \times 2 \approx 16.8\)</span> GB.</p>
+<p><em>Conclusion:</em> The depth KV cache is comparably sized to (or larger than) the sequence KV cache — depth KV is not free at inference time. This is why efficient depth-cache layouts (§3.6) are essential for practical deployment.</p>
+</blockquote>
+<hr />
+<h2 id="connections-and-contrasts">4. Connections and Contrasts 🔗</h2>
+<h3 id="mod-vs.-moda-orthogonal-axes-of-conditionality">4.1 MoD vs. MoDA: Orthogonal Axes of Conditionality</h3>
+<p>Despite sharing “Mixture-of-Depths” in their names, MoD and MoDA address orthogonal problems and are fully composable:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>MoD (Raposo et al. 2024)</th>
+<th>MoDA (Zhu et al. 2025)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Problem addressed</td>
+<td>Wasted FLOPs on trivial tokens</td>
+<td>Signal dilution across layers</td>
+</tr>
+<tr class="even">
+<td>Mechanism</td>
+<td>Route tokens around blocks</td>
+<td>Attend across layer depth</td>
+</tr>
+<tr class="odd">
+<td>What changes</td>
+<td>Which tokens compute</td>
+<td>What each query attends to</td>
+</tr>
+<tr class="even">
+<td>Composability</td>
+<td>Composable with MoDA</td>
+<td>Composable with MoD</td>
+</tr>
+<tr class="odd">
+<td>Key parameter</td>
+<td>Capacity <span class="math inline">\(\beta\)</span></td>
+<td>Depth <span class="math inline">\(L\)</span> (all layers attended)</td>
+</tr>
+<tr class="even">
+<td>Inference cost</td>
+<td>Reduced FLOPs</td>
+<td>Added depth KV cache</td>
+</tr>
+<tr class="odd">
+<td>Training overhead</td>
+<td>Auxiliary predictor for AR</td>
+<td>Depth cache management</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-tip">
+<p>
+MoD says: “this token does not need to compute right now.” MoDA says: “this token needs to attend to what it was computing in earlier layers.” These are genuinely complementary: a token that MoD routes around a block still has its representations from prior layers accessible via MoDA at later blocks.</p>
+</div>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 9 (Conceptual/Mathematical).</strong> Suppose a model uses both MoD and MoDA. At layer <span class="math inline">\(l\)</span>, token <span class="math inline">\(t\)</span> is routed <em>around</em> the MoD block (identity update). However, at layer <span class="math inline">\(l+3\)</span>, token <span class="math inline">\(t\)</span> uses MoDA to attend to depth KV from layer <span class="math inline">\(l\)</span>. Explain what representation is stored in the depth KV at layer <span class="math inline">\(l\)</span> for token <span class="math inline">\(t\)</span>, given that the MoD block was skipped. Is the depth KV at layer <span class="math inline">\(l\)</span> for a skipped token identical to a non-skipped token?</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> The depth KV at layer <span class="math inline">\(l\)</span> for a MoD-skipped token is the <em>pre-block</em> representation (the residual stream input to layer <span class="math inline">\(l\)</span>), not a transformed one.</p>
+<p><strong>Sketch:</strong> When token <span class="math inline">\(t\)</span> is routed around the block at layer <span class="math inline">\(l\)</span>, the update is <span class="math inline">\(x_t^{(l+1)} = x_t^{(l)}\)</span> (identity). However, the depth KV pairs <span class="math inline">\(\{K_t^{(l)}, V_t^{(l)}\}\)</span> are generated by projecting the input to the block: <span class="math inline">\(K_t^{(l)} = W_K \cdot \text{Norm}(x_t^{(l)})\)</span>. These are computed <em>before</em> the routing decision and do not depend on whether the block is applied. So the depth KV at a skipped layer is the <em>same</em> as it would be at a non-skipped layer for the same input — the depth cache faithfully records the representation at that point in the residual stream regardless of the routing outcome.</p>
+<p>This is actually favorable for MoDA: it means the depth cache is a clean snapshot of the pre-block representation, uncontaminated by the noisy residual updates that motivated MoDA in the first place.</p>
+</blockquote>
+<h3 id="relation-to-cross-layer-attention-and-deep-supervision">4.2 Relation to Cross-Layer Attention and Deep Supervision</h3>
+<p>MoDA is related to <em>cross-layer attention</em> variants in which certain layers attend not only to the previous layer’s hidden states but to a set of earlier layers (e.g., highway networks, dense connections in DenseNet). The key distinction is that MoDA’s depth attention is embedded <em>within</em> the existing attention head via key-value extension, not via a separate module, and it operates under a unified softmax normalization that allows the model to trade off sequence and depth attention weights data-dependently.</p>
+<p><em>Deep supervision</em> (training intermediate layers with auxiliary losses) is a superficially similar technique but operates via gradient flow rather than forward-pass information retrieval. A model with deep supervision still discards early-layer representations at inference time; MoDA explicitly makes them accessible.</p>
+<h3 id="relation-to-mixture-of-experts">4.3 Relation to Mixture-of-Experts</h3>
+<p>Both MoD and MoDA have structural parallels with <a href="../../../../notes/concepts/attention-mechanisms/attention-efficiency%7Cmoe-style-routing/">concepts/attention-mechanisms/attention-efficiency|MoE-style routing</a> in modern large language models. The conceptual hierarchy is:</p>
+<pre class="mermaid"><code>graph TD
+    A[&quot;Conditional Computation&quot;]
+    A --&gt; B[&quot;Which tokens compute?&lt;br/&gt;(MoD: expert-choice routing)&quot;]
+    A --&gt; C[&quot;What does each token attend to?&lt;br/&gt;(MoDA: depth-KV extension)&quot;]
+    B --&gt; D[&quot;MoDE: compose MoD with MoE&quot;]
+    C --&gt; E[&quot;+ FFN depth KV projection&quot;]
+    D --&gt; F[&quot;Integrated MoDE&lt;br/&gt;(single routing step)&quot;]</code></pre>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 10 (Computational/Python).</strong> Implement a toy MoDA forward pass for a single-layer, single-head attention, where “depth KV” consists of the KV pairs from a single preceding layer. Given <span class="math inline">\(Q, K_\text{seq}, V_\text{seq}\)</span> (current layer) and <span class="math inline">\(K_\text{depth}, V_\text{depth}\)</span> (prior layer, same positions), compute the MoDA output using a unified softmax.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> moda_single_head(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    Q: torch.Tensor,          <span class="co"># (T, d_k) — current layer queries</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    K_seq: torch.Tensor,      <span class="co"># (T, d_k) — current layer sequence keys</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    V_seq: torch.Tensor,      <span class="co"># (T, d_v) — current layer sequence values</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    K_depth: torch.Tensor,    <span class="co"># (T, d_k) — prior layer depth keys (same positions)</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    V_depth: torch.Tensor,    <span class="co"># (T, d_v) — prior layer depth values (same positions)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    causal: <span class="bu">bool</span> <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">    MoDA attention: unified softmax over sequence + depth KV.</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns output of shape (T, d_v).</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    T, d_k <span class="op">=</span> Q.shape</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Concatenate keys and values along the key dimension</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Depth KV is per-position (T entries), each attending to its own position's history</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For simplicity, treat depth KV as additional key-value pairs appended after seq KV</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    K_all <span class="op">=</span> torch.cat([K_seq, K_depth], dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># (2T, d_k)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    V_all <span class="op">=</span> torch.cat([V_seq, V_depth], dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># (2T, d_v)</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute attention scores: Q (T, d_k) x K_all^T (d_k, 2T) -&gt; (T, 2T)</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> Q <span class="op">@</span> K_all.T <span class="op">/</span> (d_k <span class="op">**</span> <span class="fl">0.5</span>)  <span class="co"># (T, 2T)</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> causal:</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sequence part: causal mask (lower triangular for first T keys)</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        causal_mask <span class="op">=</span> torch.triu(torch.ones(T, T, dtype<span class="op">=</span>torch.<span class="bu">bool</span>), diagonal<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        scores[:, :T] <span class="op">=</span> scores[:, :T].masked_fill(causal_mask, <span class="bu">float</span>(<span class="st">'-inf'</span>))</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Depth part: all T depth keys visible (no causal restriction within depth)</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># No masking needed for columns T:2T</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Unified softmax over all 2T key positions</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    attn_weights <span class="op">=</span> F.softmax(scores, dim<span class="op">=-</span><span class="dv">1</span>)  <span class="co"># (T, 2T)</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Weighted sum of values</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> attn_weights <span class="op">@</span> V_all  <span class="co"># (T, d_v)</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output</span></code></pre></div>
+<p><strong>Key insight:</strong> The critical design choice is that <code>softmax</code> is applied over the <em>concatenated</em> key dimension (length <span class="math inline">\(2T\)</span> here), not separately over sequence and depth. Separate softmax normalization would force a fixed split of attention mass between the two sources; unified softmax lets the model data-dependently allocate any proportion.</p>
+</blockquote>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 11 (Mathematical).</strong> Prove that if the depth KV keys <span class="math inline">\(K_\text{depth}\)</span> are orthogonal to all sequence KV keys <span class="math inline">\(K_\text{seq}\)</span> (i.e., <span class="math inline">\(K_\text{depth} K_\text{seq}^\top = 0\)</span>), and if <span class="math inline">\(Q\)</span> is arbitrary, then the MoDA output decomposes as a convex combination of two independent attention outputs: one from sequence attention and one from depth attention. Characterize the mixing coefficients.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> Orthogonality of key sets implies disjoint attention mass, so the unified softmax decomposes into two sub-softmaxes with a learned mixing weight.</p>
+<p><strong>Sketch:</strong> Let <span class="math inline">\(s_t^{(i)} = Q_t K_{\text{seq},i}^\top / \sqrt{d_k}\)</span> and <span class="math inline">\(d_t^{(j)} = Q_t K_{\text{depth},j}^\top / \sqrt{d_k}\)</span> be the sequence and depth logits for query <span class="math inline">\(t\)</span>. Under the orthogonality condition, <span class="math inline">\(Q_t K_{\text{seq},i}^\top\)</span> and <span class="math inline">\(Q_t K_{\text{depth},j}^\top\)</span> are independent (one is zero when the other is nonzero). Define <span class="math inline">\(Z_\text{seq} = \sum_i \exp(s_t^{(i)})\)</span> and <span class="math inline">\(Z_\text{depth} = \sum_j \exp(d_t^{(j)})\)</span>.</p>
+<p>The unified softmax weights are: <span class="math inline">\(\alpha_i = \exp(s_t^{(i)})/(Z_\text{seq} + Z_\text{depth})\)</span> and <span class="math inline">\(\beta_j = \exp(d_t^{(j)})/(Z_\text{seq} + Z_\text{depth})\)</span>.</p>
+<p>Output: <span class="math inline">\(\text{out}_t = \sum_i \alpha_i V_{\text{seq},i} + \sum_j \beta_j V_{\text{depth},j}\)</span>
+<span class="math inline">\(= \frac{Z_\text{seq}}{Z_\text{seq} + Z_\text{depth}} \underbrace{\left(\sum_i \frac{\exp(s_t^{(i)})}{Z_\text{seq}} V_{\text{seq},i}\right)}_{\text{seq-attn output}} + \frac{Z_\text{depth}}{Z_\text{seq} + Z_\text{depth}} \underbrace{\left(\sum_j \frac{\exp(d_t^{(j)})}{Z_\text{depth}} V_{\text{depth},j}\right)}_{\text{depth-attn output}}\)</span></p>
+<p>The mixing coefficient <span class="math inline">\(\lambda = Z_\text{depth}/(Z_\text{seq} + Z_\text{depth})\)</span> is data-dependent: it is large when the depth keys generate high-energy logits (i.e., when the query strongly matches depth KV), and small otherwise. This provides a rigorous justification for why unified softmax is preferred over two separate softmax operations.</p>
+</blockquote>
+<div class="callout callout-question">
+<p>
+<strong>Exercise 12 (Mathematical).</strong> MoDA stores the depth KV pairs <span class="math inline">\(\{K^{(i)}, V^{(i)}\}_{i=0}^{l-1}\)</span> at the same token position across all prior layers. This means the depth KV entry for layer <span class="math inline">\(i\)</span> was computed using the representation <span class="math inline">\(x_t^{(i)}\)</span>, which is itself a function of all tokens <span class="math inline">\(1, \ldots, t\)</span> at all layers <span class="math inline">\(0, \ldots, i\)</span>. Write out the dependency graph for <span class="math inline">\(K^{(l-1)}_t\)</span> (the depth key from the immediately preceding layer, for token <span class="math inline">\(t\)</span>) and show that it depends on <span class="math inline">\(O(tl)\)</span> input tokens, compared to <span class="math inline">\(O(t)\)</span> for the current-layer sequence key.</p>
+</div>
+<blockquote>
+<p>[!SUCCESS]- Solution
+<strong>Key insight:</strong> Depth KV from layer <span class="math inline">\(l-1\)</span> encodes a representation that has aggregated information from all prior tokens through all prior layers — its effective receptive field is <span class="math inline">\(O(tl)\)</span>.</p>
+<p><strong>Sketch:</strong> <span class="math inline">\(K^{(l-1)}_t = W_K \cdot \text{Norm}(x_t^{(l-1)})\)</span>. The representation <span class="math inline">\(x_t^{(l-1)}\)</span> satisfies the recurrence <span class="math inline">\(x_t^{(l)} = x_t^{(l-1)} + \text{Attn}^{(l)}(x_1^{(l-1)}, \ldots, x_t^{(l-1)})\)</span>. Unrolling: <span class="math inline">\(x_t^{(l-1)}\)</span> depends on <span class="math inline">\(x_1^{(l-2)}, \ldots, x_t^{(l-2)}\)</span> at layer <span class="math inline">\(l-2\)</span>, each of which depends on up to <span class="math inline">\(t\)</span> tokens at layer <span class="math inline">\(l-3\)</span>, and so on. By induction, <span class="math inline">\(x_t^{(l-1)}\)</span> depends on all <span class="math inline">\(t\)</span> input tokens processed through <span class="math inline">\(l-1\)</span> attention layers. The dependency set has size <span class="math inline">\(O(tl)\)</span> in the number of (token, layer) pairs.</p>
+<p>Current-layer sequence key: <span class="math inline">\(K^{(l)}_t = W_K \cdot \text{Norm}(x_t^{(l)})\)</span> depends on <span class="math inline">\(x_t^{(l)}\)</span>, which depends on all <span class="math inline">\(t\)</span> tokens but only at the <em>current</em> layer’s output level — a shallower but equivalently wide dependency. The distinction is that depth KV encodes hierarchically richer information (having passed through more layers), not wider context.</p>
+</blockquote>
+<hr />
+<h2 id="references">5. References 📚</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2404.02258">Raposo et al. (2024), “Mixture-of-Depths: Dynamically allocating compute in transformer-based language models”</a></td>
+<td>Introduces MoD: expert-choice routing of tokens around transformer blocks, achieving 1.5% loss improvement and 66% step speedup for isoFLOP-matched models</td>
+<td><a href="https://arxiv.org/abs/2404.02258">arXiv:2404.02258</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2603.15619">Zhu et al. (2025), “Mixture-of-Depths Attention”</a></td>
+<td>Introduces MoDA: depth KV caching with unified softmax, +2.11% downstream accuracy at 2.73% runtime overhead vs. FlashAttention-2</td>
+<td><a href="https://arxiv.org/abs/2603.15619">arXiv:2603.15619</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/1706.03762">Vaswani et al. (2017), “Attention Is All You Need”</a></td>
+<td>Introduces the Transformer and scaled dot-product attention; the baseline architecture for both MoD and MoDA</td>
+<td><a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1701.06538">Shazeer et al. (2017), “Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer”</a></td>
+<td>Introduces sparse MoE layers and token-choice routing; the conceptual precursor to MoD’s expert-choice routing</td>
+<td><a href="https://arxiv.org/abs/1701.06538">arXiv:1701.06538</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2202.09368">Zhou et al. (2022), “Mixture-of-Experts with Expert Choice Routing”</a></td>
+<td>Introduces expert-choice routing for MoE, which MoD directly adapts for the routing-around-blocks setting</td>
+<td><a href="https://arxiv.org/abs/2202.09368">arXiv:2202.09368</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/2205.14135">Dao et al. (2022), “FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness”</a></td>
+<td>Introduces tiled attention with online softmax; the reference baseline for MoDA’s hardware-efficient depth KV implementation</td>
+<td><a href="https://arxiv.org/abs/2205.14135">arXiv:2205.14135</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2305.13245">Ainslie et al. (2023), “GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints”</a></td>
+<td>Introduces grouped-query attention, which MoDA extends with depth KV reuse; the GQA grouping factor <span class="math inline">\(G\)</span> determines MoDA parameter savings</td>
+<td><a href="https://arxiv.org/abs/2305.13245">arXiv:2305.13245</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/abs/1512.03385">He et al. (2016), “Deep Residual Learning for Image Recognition”</a></td>
+<td>Original residual network; the “signal dilution” problem MoDA addresses is a deep-model phenomenon directly tied to residual architectures</td>
+<td><a href="https://arxiv.org/abs/1512.03385">arXiv:1512.03385</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

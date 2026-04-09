@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>sampling-bias-corrected-retrieval - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>sampling-bias-corrected-retrieval</h1>
+            <article>
+    <section>
+        <p>Yi, Yang, Hong, Cheng, Heldt, Kumthekar, Zhao, Wei, Chi. RecSys 2019. Google.</p>
+<h2 id="tldr">TL;DR</h2>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 27%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Training objective</strong></td>
+<td>Batch softmax treats in-batch items as uniform negatives; implicitly minimizes loss under frequency-reweighted partition function <span class="math inline">\(\sum_j q_j e^{s_j}\)</span></td>
+<td>Corrects to target full softmax partition function <span class="math inline">\(\sum_j e^{s_j}\)</span> via logQ correction: subtract <span class="math inline">\(\log \hat{p}_j\)</span> from each item logit before softmax</td>
+<td>Unbiased estimator of full softmax under arbitrary sampling distribution</td>
+</tr>
+<tr class="even">
+<td><strong>Bias source</strong></td>
+<td>Never identified; practitioners observed that popular items are over-penalized but attributed it to data imbalance</td>
+<td>Formally derived: uncorrected batch softmax is an unbiased estimator of the wrong objective; bias scales with variance of <span class="math inline">\(\log q_j\)</span> across items</td>
+<td>Bias proportional to variance of <span class="math inline">\(\log q_j\)</span> across items</td>
+</tr>
+<tr class="odd">
+<td><strong>Frequency estimation</strong></td>
+<td>Requires precomputed per-item frequency table over fixed vocabulary</td>
+<td>Online streaming estimator via exponential moving average on inter-arrival times; handles non-stationary distributions and new items without recomputation</td>
+<td>Streaming estimator via EMA of inter-arrival times; no full-pass over corpus</td>
+</tr>
+<tr class="even">
+<td><strong>Architecture</strong></td>
+<td>Two-tower inner product model (unchanged)</td>
+<td>Two-tower inner product model (unchanged) — correction is training-only, zero inference cost</td>
+<td>Zero inference cost: correction is training-only</td>
+</tr>
+<tr class="odd">
+<td><strong>Deployment</strong></td>
+<td>ANN index on raw item embeddings</td>
+<td>ANN index on corrected-training item embeddings — same serving infrastructure</td>
+<td>Same ANN serving infrastructure as before</td>
+</tr>
+<tr class="even">
+<td><strong>Empirical gains</strong></td>
+<td>—</td>
+<td>+8% Recall@1 on Wikipedia link prediction; statistically significant live metric gains on YouTube retrieval</td>
+<td>+65% Recall@10 on Wikipedia; +0.37% engagement lift on YouTube (vs +0.20% uncorrected)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> YouTube DNN (<a href="https://dl.acm.org/doi/10.1145/2959100.2959190">Covington et al. 2016</a>) <em>(no note yet)</em>, Sampled Softmax / logQ correction (<a href="https://doi.org/10.1109/TNN.2007.912312">Bengio and Sénécal 2008</a>) <em>(no note yet)</em>, Count-Min Sketch (<a href="https://doi.org/10.1016/j.jalgor.2003.12.001">Cormode and Muthukrishnan 2005</a>) <em>(no note yet)</em></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../notes/#1.-motivation-and-problem-setting%7Cmotivation-and-problem-setting/">#1. Motivation and Problem Setting|Motivation and Problem Setting</a>
+<ul>
+<li><a href="../../../notes/#the-two-phase-retrieval-ranking-architecture%7Cthe-two-phase-retrieval-ranking-architecture/">#The Two-Phase Retrieval-Ranking Architecture|The Two-Phase Retrieval-Ranking Architecture</a></li>
+<li><a href="../../../notes/#challenges-at-industrial-scale%7Cchallenges-at-industrial-scale/">#Challenges at Industrial Scale|Challenges at Industrial Scale</a></li>
+</ul></li>
+<li><a href="../../../notes/#2.-the-two-tower-model%7Cthe-two-tower-model/">#2. The Two-Tower Model|The Two-Tower Model</a>
+<ul>
+<li><a href="../../../notes/#formal-setup%7Cformal-setup/">#Formal Setup|Formal Setup</a></li>
+<li><a href="../../../notes/#full-softmax-objective%7Cfull-softmax-objective/">#Full Softmax Objective|Full Softmax Objective</a></li>
+<li><a href="../../../notes/#batch-softmax-and-the-sampling-bias-problem%7Cbatch-softmax-and-the-sampling-bias-problem/">#Batch Softmax and the Sampling Bias Problem|Batch Softmax and the Sampling Bias Problem</a></li>
+</ul></li>
+<li><a href="../../../notes/#3.-sampling-bias-correction%7Csampling-bias-correction/">#3. Sampling Bias Correction|Sampling Bias Correction</a>
+<ul>
+<li><a href="../../../notes/#the-logq-correction%7Cthe-logq-correction/">#The LogQ Correction|The LogQ Correction</a></li>
+<li><a href="../../../notes/#corrected-batch-loss%7Ccorrected-batch-loss/">#Corrected Batch Loss|Corrected Batch Loss</a></li>
+<li><a href="../../../notes/#connection-to-importance-sampling%7Cconnection-to-importance-sampling/">#Connection to Importance Sampling|Connection to Importance Sampling</a></li>
+</ul></li>
+<li><a href="../../../notes/#4.-streaming-frequency-estimation%7Cstreaming-frequency-estimation/">#4. Streaming Frequency Estimation|Streaming Frequency Estimation</a>
+<ul>
+<li><a href="../../../notes/#problem-formulation%7Cproblem-formulation/">#Problem Formulation|Problem Formulation</a></li>
+<li><a href="../../../notes/#algorithm-2:-single-hash-estimation%7Calgorithm-2:-single-hash-estimation/">#Algorithm 2: Single Hash Estimation|Algorithm 2: Single Hash Estimation</a></li>
+<li><a href="../../../notes/#proposition-4.1:-bias-and-variance-analysis%7Cproposition-4.1:-bias-and-variance-analysis/">#Proposition 4.1: Bias and Variance Analysis|Proposition 4.1: Bias and Variance Analysis</a></li>
+<li><a href="../../../notes/#algorithm-3:-multiple-hashings%7Calgorithm-3:-multiple-hashings/">#Algorithm 3: Multiple Hashings|Algorithm 3: Multiple Hashings</a></li>
+</ul></li>
+<li><a href="../../../notes/#5.-youtube-neural-retrieval-system%7Cyoutube-neural-retrieval-system/">#5. YouTube Neural Retrieval System|YouTube Neural Retrieval System</a>
+<ul>
+<li><a href="../../../notes/#model-architecture%7Cmodel-architecture/">#Model Architecture|Model Architecture</a></li>
+<li><a href="../../../notes/#sequential-training%7Csequential-training/">#Sequential Training|Sequential Training</a></li>
+<li><a href="../../../notes/#indexing-and-serving%7Cindexing-and-serving/">#Indexing and Serving|Indexing and Serving</a></li>
+</ul></li>
+<li><a href="../../../notes/#6.-experiments%7Cexperiments/">#6. Experiments|Experiments</a>
+<ul>
+<li><a href="../../../notes/#frequency-estimation-simulation%7Cfrequency-estimation-simulation/">#Frequency Estimation Simulation|Frequency Estimation Simulation</a></li>
+<li><a href="../../../notes/#wikipedia-link-prediction%7Cwikipedia-link-prediction/">#Wikipedia Link Prediction|Wikipedia Link Prediction</a></li>
+<li><a href="../../../notes/#youtube-offline-and-live-experiments%7Cyoutube-offline-and-live-experiments/">#YouTube Offline and Live Experiments|YouTube Offline and Live Experiments</a></li>
+</ul></li>
+<li><a href="../../../notes/#references%7Creferences/">#References|References</a></li>
+</ol>
+<hr />
+<h2 id="motivation-and-problem-setting">1. Motivation and Problem Setting</h2>
+<h3 id="the-two-phase-retrieval-ranking-architecture">The Two-Phase Retrieval-Ranking Architecture</h3>
+<p>Industrial recommendation systems connecting billions of users to corpora of tens of millions of items cannot score every candidate at query time — the latency would be prohibitive. The standard solution is a two-phase cascade:</p>
+<ol type="1">
+<li><strong>Retrieval (nomination)</strong>: a lightweight <em>retrieval model</em> retrieves <span class="math inline">\(O(10^2)\)</span> candidates from <span class="math inline">\(O(10^7)\)</span> items using <em>approximate nearest neighbor</em> search on learned embeddings. Speed dominates — the model must be indexable into a static <em>embedding index</em>.</li>
+<li><strong>Ranking</strong>: a fully-featured <em>ranking model</em> re-ranks the retrieved candidates using richer features and multiple objectives (clicks, watch time, etc.). Latency allows more computation but only over the small candidate set.</li>
+</ol>
+<p>This paper addresses the retrieval stage. The key architectural constraint is that the scoring function at retrieval time must decompose as an inner product of independently computed query and item vectors:</p>
+<p><span class="math display">\[s(x, y) = \langle u(x, \theta), v(y, \theta) \rangle\]</span></p>
+<p>This decomposition is what enables the item embeddings to be precomputed and indexed offline, supporting sub-linear MIPS (<em>maximum inner product search</em>) at inference time. Any scoring function that couples <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> in a non-decomposable way — such as concatenating them before a feedforward network — cannot be indexed and is thus incompatible with large-corpus retrieval.</p>
+<h3 id="challenges-at-industrial-scale">Challenges at Industrial Scale</h3>
+<p>Three challenges make this setting qualitatively harder than small-scale retrieval:</p>
+<ol type="1">
+<li><p><strong>Power-law item distribution</strong>: a small fraction of popular items accounts for most user interactions. Training data is extremely sparse for long-tail items. Naive <em>in-batch negatives</em> sampling over-represents popular items as negatives, introducing a systematic bias toward penalizing popular items — precisely the opposite of what a well-calibrated ranking should do.</p></li>
+<li><p><strong>Vocabulary shift</strong>: the item corpus changes daily (new videos uploaded, old videos removed). Unlike language modeling where the vocabulary is fixed, item frequencies and identities are non-stationary. Any algorithm that requires a fixed item vocabulary or a static frequency table is inappropriate for this setting.</p></li>
+<li><p><strong>Cold-start</strong>: new items have no interaction history and thus no training signal from ID-based features alone. Content features (visual embeddings, audio features, metadata) are essential for generalizing to unseen items. This motivates deep item towers that can process structured content features, not just ID embeddings.</p></li>
+</ol>
+<hr />
+<h2 id="the-two-tower-model">2. The Two-Tower Model</h2>
+<h3 id="formal-setup">Formal Setup</h3>
+<p>Let the training dataset be <span class="math inline">\(\mathcal{T} = \{(x_i, y_i, r_i)\}_{i=1}^T\)</span> where:
+- <span class="math inline">\(x_i \in \mathcal{X}\)</span> is the <strong>query</strong> (user + context features)
+- <span class="math inline">\(y_i \in \mathcal{Y}\)</span> is the <strong>positive item</strong> (the item the user interacted with)
+- <span class="math inline">\(r_i \in \mathbb{R}\)</span> is the <strong>reward</strong> (degree of user engagement, e.g., watch fraction)</p>
+<p>Two parameterized embedding functions map queries and items to a shared <span class="math inline">\(k\)</span>-dimensional space:</p>
+<p><span class="math display">\[u : \mathcal{X} \times \mathbb{R}^d \to \mathbb{R}^k, \qquad v : \mathcal{Y} \times \mathbb{R}^d \to \mathbb{R}^k\]</span></p>
+<p>where <span class="math inline">\(\theta \in \mathbb{R}^d\)</span> are the shared model parameters. Both functions are realized as multi-layer feedforward networks (the “left” and “right” towers). The score between query <span class="math inline">\(x\)</span> and item <span class="math inline">\(y\)</span> is:</p>
+<p><span class="math display">\[s(x, y; \theta) = \langle u(x, \theta),\, v(y, \theta) \rangle\]</span></p>
+<p><strong>Normalization and temperature.</strong> Empirically, L2 normalizing both embeddings before the inner product stabilizes training and improves retrieval quality:</p>
+<p><span class="math display">\[u \leftarrow \frac{u}{\|u\|_2}, \qquad v \leftarrow \frac{v}{\|v\|_2}\]</span></p>
+<p>A temperature parameter <span class="math inline">\(\tau &gt; 0\)</span> sharpens or softens the score distribution:</p>
+<p><span class="math display">\[s(x, y) = \frac{\langle u(x, \theta), v(y, \theta) \rangle}{\tau}\]</span></p>
+<p>Temperature is treated as a hyperparameter tuned to maximize recall. With L2 normalization, the inner product equals the cosine similarity, so <span class="math inline">\(s(x,y) \in [-1/\tau, 1/\tau]\)</span>.</p>
+<h3 id="full-softmax-objective">Full Softmax Objective</h3>
+<p>Given <span class="math inline">\(M\)</span> candidate items <span class="math inline">\(\{y_j\}_{j=1}^M\)</span>, the probability of item <span class="math inline">\(y\)</span> given query <span class="math inline">\(x\)</span> under the softmax model is:</p>
+<p><span class="math display">\[P(y \mid x;\, \theta) = \frac{e^{s(x,y)}}{\sum_{j=1}^{M} e^{s(x, y_j)}}\]</span></p>
+<p>The training objective is a weighted log-likelihood (reward-weighted cross-entropy):</p>
+<p><span class="math display">\[\mathcal{L}_T(\theta) = -\frac{1}{T} \sum_{i=1}^{T} r_i \cdot \log P(y_i \mid x_i;\, \theta)\]</span></p>
+<p>When <span class="math inline">\(r_i = 1\)</span> for all <span class="math inline">\(i\)</span> this reduces to standard cross-entropy. The reward weighting allows the model to upweight high-quality positive interactions (e.g., a fully watched video) and downweight low-quality ones (e.g., a click with immediate abandonment).</p>
+<p>The full softmax over <span class="math inline">\(M = O(10^7)\)</span> items is computationally intractable for each gradient step. The <em>partition function</em> <span class="math inline">\(\sum_{j=1}^M e^{s(x, y_j)}\)</span> requires computing <span class="math inline">\(v(y_j, \theta)\)</span> for all <span class="math inline">\(M\)</span> items per step — infeasible.</p>
+<h3 id="batch-softmax-and-the-sampling-bias-problem">Batch Softmax and the Sampling Bias Problem</h3>
+<p>The standard scalable approximation is <em>batch softmax</em>: treat the <span class="math inline">\(B-1\)</span> other items in the current mini-batch as negatives for each query. Given a batch <span class="math inline">\(\{(x_i, y_i, r_i)\}_{i=1}^B\)</span>:</p>
+<p><span class="math display">\[P_B(y_i \mid x_i;\, \theta) = \frac{e^{s(x_i, y_i)}}{\sum_{j=1}^{B} e^{s(x_i, y_j)}}\]</span></p>
+<p><strong>The bias.</strong> In-batch items are drawn from the training distribution, which is typically <em>power-law distribution</em> skewed: popular items appear in far more training pairs <span class="math inline">\((x, y)\)</span> and therefore in far more batches. Item <span class="math inline">\(j\)</span>’s probability of appearing as a negative in a batch of size <span class="math inline">\(B\)</span> is approximately <span class="math inline">\(p_j \approx B \cdot q_j\)</span>, where <span class="math inline">\(q_j \propto \text{item frequency}\)</span>.</p>
+<p>This means popular items are systematically over-represented as negatives. The batch softmax effectively trains with the wrong negative distribution — it approximates full softmax with negative sampling distribution <span class="math inline">\(\propto q_j\)</span> rather than uniform. <strong>This introduces a bias: the model is penalized heavily for assigning high scores to popular items, even when those scores are appropriate, because popular items almost always appear as negatives.</strong></p>
+<hr />
+<h2 id="sampling-bias-correction">3. Sampling Bias Correction</h2>
+<h3 id="the-logq-correction">The LogQ Correction</h3>
+<p>The correction is inspired by the <em>logQ correction</em> for sampled softmax (Bengio and Sénécal 2008). If items are sampled as negatives with probability <span class="math inline">\(p_j\)</span>, the corrected logit subtracts the log sampling probability:</p>
+<p><span class="math display">\[s^c(x_i, y_j) = s(x_i, y_j) - \log p_j\]</span></p>
+<p><strong>Intuition.</strong> The full softmax with sampling correction approximates the denominator of the full softmax over <span class="math inline">\(M\)</span> items:</p>
+<p><span class="math display">\[\sum_{j=1}^M e^{s(x,y_j)} \approx \frac{1}{K} \sum_{j \in S} \frac{e^{s(x,y_j)}}{p_j} = \frac{1}{K} \sum_{j \in S} e^{s(x,y_j) - \log p_j} = \frac{1}{K} \sum_{j \in S} e^{s^c(x,y_j)}\]</span></p>
+<p>where <span class="math inline">\(S\)</span> is the set of sampled negatives and the approximation is an <em>importance-weighted</em> Monte Carlo estimate. The log-correction is thus a form of <em>importance sampling</em> reweighting that debiases the partition function estimate.</p>
+<p>A popular item with <span class="math inline">\(p_j\)</span> close to 1 receives a large negative correction <span class="math inline">\(-\log p_j \approx 0\)</span> (little correction needed, already expected to appear). A rare item with small <span class="math inline">\(p_j\)</span> receives a large negative correction <span class="math inline">\(-\log p_j \gg 0\)</span>, boosting its logit to compensate for being under-sampled. This restores calibration: after correction, the effective score reflects intrinsic relevance, not sampling artifacts.</p>
+<h3 id="corrected-batch-loss">Corrected Batch Loss</h3>
+<p>With the corrected logits, the corrected batch softmax probability is:</p>
+<p><span class="math display">\[P_B^c(y_i \mid x_i;\, \theta) = \frac{e^{s^c(x_i, y_i)}}{e^{s^c(x_i, y_i)} + \displaystyle\sum_{\substack{j \in [B] \\ j \neq i}} e^{s^c(x_i, y_j)}}\]</span></p>
+<p>The batch training loss is:</p>
+<p><span class="math display">\[\mathcal{L}_B(\theta) = -\frac{1}{B} \sum_{i=1}^{B} r_i \cdot \log P_B^c(y_i \mid x_i;\, \theta) \tag{4}\]</span></p>
+<p>Gradient descent on <span class="math inline">\(\mathcal{L}_B(\theta)\)</span> with the corrected logits forms the inner loop of Algorithm 1.</p>
+<h3 id="connection-to-importance-sampling">Connection to Importance Sampling</h3>
+<p>The correction can also be understood from first principles via the sampled softmax identity. For a softmax classifier with <span class="math inline">\(M\)</span> classes, sampling <span class="math inline">\(K\)</span> negatives from distribution <span class="math inline">\(\{p_j\}\)</span> and reweighting by <span class="math inline">\(1/p_j\)</span> gives an unbiased estimate of the partition function (in expectation over the sampling). The batch softmax is a special case with <span class="math inline">\(K = B-1\)</span> and <span class="math inline">\(p_j\)</span> proportional to item frequency. The logQ subtraction implements this reweighting in log-space, which is more numerically stable than multiplying by <span class="math inline">\(1/p_j\)</span> directly.</p>
+<p><strong>Key difference from sampled softmax.</strong> Classical sampled softmax (Bengio and Sénécal 2008) requires a fixed vocabulary and a predefined sampling distribution (typically unigram). Here the item vocabulary is non-stationary (new videos appear daily) and the sampling distribution changes over time. The frequency estimator in Section 4 addresses this.</p>
+<hr />
+<h2 id="streaming-frequency-estimation">4. Streaming Frequency Estimation</h2>
+<h3 id="problem-formulation">Problem Formulation</h3>
+<p>The correction requires the sampling probability <span class="math inline">\(p_j\)</span> for each item <span class="math inline">\(y_j\)</span> appearing in the batch. Since <span class="math inline">\(p_j \approx B \cdot q_j\)</span> (batch size times item marginal frequency in the data stream), estimating <span class="math inline">\(p_j\)</span> reduces to estimating the item frequency <span class="math inline">\(q_j\)</span>.</p>
+<p>The requirements are stringent:
+- <strong>No fixed vocabulary</strong>: cannot precompute a frequency table for all items, since new items appear continuously.
+- <strong>Adaptive to distribution shift</strong>: item frequencies change over time (viral videos spike, old content decays). A static frequency table becomes stale.
+- <strong>Distributed</strong>: training runs across many workers; the estimator must be consistent across workers without expensive global synchronization.</p>
+<p>The key insight: instead of estimating the marginal frequency <span class="math inline">\(q_j\)</span> directly, estimate $_j = $ the average number of training steps between two consecutive appearances of item <span class="math inline">\(j\)</span> in any batch. Then <span class="math inline">\(p_j \approx 1/\delta_j\)</span>.</p>
+<h3 id="algorithm-2-single-hash-estimation">Algorithm 2: Single Hash Estimation</h3>
+<p>Maintain two hash arrays <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> of size <span class="math inline">\(H\)</span> and a hash function <span class="math inline">\(h : \mathcal{Y} \to [H]\)</span>:
+- <span class="math inline">\(A[h(y)]\)</span>: the global step at which item <span class="math inline">\(y\)</span> was last seen
+- <span class="math inline">\(B[h(y)]\)</span>: the running <em>exponential moving average</em> of <em>inter-arrival time</em>s <span class="math inline">\(\delta_y\)</span></p>
+<p>At global step <span class="math inline">\(t\)</span>, when item <span class="math inline">\(y\)</span> appears in a batch:</p>
+<p><span class="math display">\[B[h(y)] \leftarrow (1-\alpha) \cdot B[h(y)] + \alpha \cdot (t - A[h(y)]) \tag{6}\]</span></p>
+<p><span class="math display">\[A[h(y)] \leftarrow t\]</span></p>
+<p>The update rule is online SGD with fixed learning rate <span class="math inline">\(\alpha\)</span> applied to the loss <span class="math inline">\(\frac{1}{2}(\delta - \Delta)^2\)</span> where <span class="math inline">\(\Delta = t - A[h(y)]\)</span> is the observed inter-arrival time. The estimated sampling probability is <span class="math inline">\(\hat{p}(y) = 1/B[h(y)]\)</span>.</p>
+<p><strong>Why global step, not wall clock?</strong> The global step is synchronized across all workers via parameter servers (each worker increments a shared counter after processing one batch). This makes the estimator implicitly consistent across workers without explicit communication — each worker reads and updates the same <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span> arrays stored on parameter servers.</p>
+<h3 id="proposition-4.1-bias-and-variance-analysis">Proposition 4.1: Bias and Variance Analysis</h3>
+<p>Let <span class="math inline">\(\{\Delta_1, \Delta_2, \ldots, \Delta_t\}\)</span> be i.i.d. samples of the inter-arrival time <span class="math inline">\(\Delta\)</span> with mean <span class="math inline">\(\delta = \mathbb{E}[\Delta]\)</span>. The SGD update with learning rate <span class="math inline">\(\alpha\)</span> gives:</p>
+<p><span class="math display">\[\delta_i = (1-\alpha) \delta_{i-1} + \alpha \Delta_i\]</span></p>
+<p><strong>Bias:</strong></p>
+<p><span class="math display">\[\mathbb{E}[\delta_t] - \delta = (1-\alpha)^t \delta_0 - (1-\alpha)^{t-1} \delta \tag{7}\]</span></p>
+<p>The bias decays geometrically to zero: <span class="math inline">\(|\mathbb{E}[\delta_t] - \delta| \to 0\)</span> as <span class="math inline">\(t \to \infty\)</span>. The rate of decay is controlled by <span class="math inline">\(\alpha\)</span>: larger <span class="math inline">\(\alpha\)</span> means faster convergence but higher steady-state variance.</p>
+<p><strong>Proof sketch of (7):</strong> By linearity of expectation, <span class="math inline">\(\mathbb{E}[\delta_i] = (1-\alpha)\mathbb{E}[\delta_{i-1}] + \alpha\delta\)</span>. This is a linear recurrence with fixed point <span class="math inline">\(\delta\)</span> and decay factor <span class="math inline">\((1-\alpha)\)</span>. By induction from the initial condition <span class="math inline">\(\delta_0\)</span>:
+<span class="math display">\[\mathbb{E}[\delta_t] = (1-\alpha)^t \delta_0 + \delta \cdot \sum_{k=0}^{t-1}(1-\alpha)^k \alpha = (1-\alpha)^t \delta_0 + \delta \cdot [1 - (1-\alpha)^t]\]</span></p>
+<p>Subtracting <span class="math inline">\(\delta\)</span> gives (7). An ideal initialization <span class="math inline">\(\delta_0 = \delta/(1-\alpha)\)</span> makes the estimator unbiased at every step.</p>
+<p><strong>Variance:</strong></p>
+<p><span class="math display">\[\mathbb{E}\left[(\delta_t - \mathbb{E}[\delta_t])^2\right] \leq (1-\alpha)^{2t}(\delta_0 - \delta)^2 + \alpha \cdot \mathbb{E}\left[(\Delta_1 - \delta)^2\right] \tag{8}\]</span></p>
+<p>The first term decays geometrically (effect of initialization error). The second term is a constant floor of order <span class="math inline">\(\alpha \cdot \text{Var}(\Delta)\)</span>, which decreases with smaller <span class="math inline">\(\alpha\)</span>. <em>The variance-adaptability tradeoff: <span class="math inline">\(\alpha\)</span> must be large enough to track distribution shift but small enough to keep estimation variance low.</em> In practice <span class="math inline">\(\alpha = 0.01\)</span> is used.</p>
+<h3 id="algorithm-3-multiple-hashings">Algorithm 3: Multiple Hashings</h3>
+<p><em>Hash collisions</em> in Algorithm 2 cause <span class="math inline">\(B[h(y)]\)</span> to track the union of items sharing the same bucket, under-estimating <span class="math inline">\(\delta\)</span> and over-estimating frequency. Multiple hashings mitigate this via a count-min-sketch-style approach:</p>
+<p>Maintain <span class="math inline">\(m\)</span> independent pairs <span class="math inline">\((A_i, B_i)\)</span> with independent hash functions <span class="math inline">\(\{h_i\}_{i=1}^m\)</span>. Each array is updated as in Algorithm 2. At inference:</p>
+<p><span class="math display">\[\hat{p}(y) = \frac{1}{\max_{i \in [m]} B_i[h_i(y)]}\]</span></p>
+<p>Taking the maximum over <span class="math inline">\(m\)</span> independent estimates exploits the fact that the true inter-arrival time <span class="math inline">\(\delta_y\)</span> is the maximum possible value (collisions only pull the estimate down). The maximum of <span class="math inline">\(m\)</span> independent estimates upper-bounds the true value, which translates to a lower-bound on the frequency estimate — directionally correcting the collision bias.</p>
+<p>Total parameter budget is held fixed (arrays of size <span class="math inline">\(H/m\)</span> each with <span class="math inline">\(m\)</span> hash functions, same total as <span class="math inline">\(H\)</span> with <span class="math inline">\(m=1\)</span>), so multiple hashings reduce variance at no additional memory cost.</p>
+<hr />
+<h2 id="youtube-neural-retrieval-system">5. YouTube Neural Retrieval System</h2>
+<h3 id="model-architecture">Model Architecture</h3>
+<p>The YouTube retrieval model follows the <em>two-tower model</em> structure of Figure 2. Embedding sharing is a key architectural decision: the same video ID embedding table is used for seed video features, candidate video features, and past watch history features. This three-way sharing serves two purposes: (1) parameter efficiency — a single table covers all uses of video IDs; (2) improved generalization — the model learns a single consistent representation of each video across all contexts in which it appears.</p>
+<p><strong>Query (left) tower</strong> receives:
+- Seed video features: video ID, channel ID, categorical metadata (sparse IDs → embeddings)
+- User watch history: bag-of-words over past <span class="math inline">\(k\)</span> video IDs (mean-pooled video ID embeddings)
+- User profile features: views, likes, other engagement signals</p>
+<p><strong>Candidate (right) tower</strong> receives:
+- Candidate video features: video ID, channel ID, categorical and dense features</p>
+<p>Both towers are three-layer feedforward networks with hidden dimensions <span class="math inline">\([1024, 512, 128]\)</span> and ReLU activations. The final 128-dimensional outputs are L2-normalized and scored by inner product. Out-of-vocabulary video IDs are mapped to random hash buckets, which have learnable embeddings — this handles fresh content without requiring a vocabulary expansion.</p>
+<p><strong>Training label</strong>: clicks are positive pairs, with reward <span class="math inline">\(r_i\)</span> reflecting engagement quality (e.g., <span class="math inline">\(r_i = 0\)</span> for immediately abandoned clicks, <span class="math inline">\(r_i = 1\)</span> for fully watched videos). The reward is used as the example weight in Equation (4).</p>
+<h3 id="sequential-training">Sequential Training</h3>
+<p><em>Sequential training</em> organizes training data by day. The trainer processes days sequentially from oldest to most recent. Once caught up to the latest day, it waits for the next day’s data. This sequential structure has two benefits:</p>
+<ol type="1">
+<li>The model continuously adapts to distribution shift (new videos, changing user preferences, seasonal trends).</li>
+<li>The <em>streaming frequency estimation</em> in Algorithm 2 naturally integrates into this framework — the moving average adapts online as the data distribution shifts day by day.</li>
+</ol>
+<h3 id="indexing-and-serving">Indexing and Serving</h3>
+<p>The offline indexing pipeline runs periodically (every few hours) in three stages:</p>
+<ol type="1">
+<li><strong>Candidate generation</strong>: select videos from the YouTube corpus meeting certain criteria (e.g., not removed, not violating policy).</li>
+<li><strong>Embedding inference</strong>: apply the candidate tower to compute <span class="math inline">\(v(y, \theta)\)</span> for each candidate video. This is a batch inference job using the trained model’s right tower as a SavedModel.</li>
+<li><strong>Index construction</strong>: build an approximate MIPS index using tree-based and quantization-based methods (product quantization, coarse and product quantizers). The index supports sub-linear retrieval at serving time.</li>
+</ol>
+<p>At serving time, the query tower computes <span class="math inline">\(u(x, \theta)\)</span> for the live user-context query and the index returns the top-<span class="math inline">\(K\)</span> candidates by approximate inner product. The index covers approximately 10M videos and is rebuilt frequently enough to surface fresh content.</p>
+<hr />
+<h2 id="experiments">6. Experiments</h2>
+<h3 id="frequency-estimation-simulation">Frequency Estimation Simulation</h3>
+<p>Simulation setup: <span class="math inline">\(M = 1000\)</span> items, batch size <span class="math inline">\(B = 128\)</span>, array size <span class="math inline">\(H = 5000\)</span>. Item sampling probabilities follow <span class="math inline">\(q_i \propto i^2\)</span> for the first <span class="math inline">\(t = 10000\)</span> steps, then switch to <span class="math inline">\(q_i \propto (M-1-i)^2\)</span>.</p>
+<p>Evaluation metric: total variation distance <span class="math inline">\(\frac{1}{2|B|} \sum_i |\hat{p}_i - p_i|\)</span> between estimated and true batch sampling probabilities.</p>
+<p><strong>Learning rate effect</strong>: all learning rates converge; higher <span class="math inline">\(\alpha\)</span> adapts faster after the distribution switch but settles at higher variance, consistent with the bound in Proposition 4.1.</p>
+<p><strong>Multiple hashings</strong>: Algorithm 3 with <span class="math inline">\(m = 2\)</span> or <span class="math inline">\(m = 4\)</span> hash functions (same total parameter budget as <span class="math inline">\(m = 1\)</span>) consistently achieves lower estimation error across all steps — fewer collisions outweigh the reduced array size per hash function.</p>
+<h3 id="wikipedia-link-prediction">Wikipedia Link Prediction</h3>
+<p>Dataset: English Wikipedia graph, 5.3M pages, 430M links. Task: given a source page, retrieve destination pages (intra-site links). Both towers share input feature embeddings (page URL, title n-grams, categories). Each tower has two ReLU layers of dimensions <span class="math inline">\([512, 128]\)</span>.</p>
+<p>Three methods:
+- <code>mse-gramian</code>: MSE loss on observed pairs + Gramian regularization for unseen pairs [Krichene et al. 2019]
+- <code>plain-sfx</code>: batch softmax without correction (Equation 3)
+- <code>correct-sfx</code>: sampling-bias-corrected batch softmax (Equation 4)</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Recall@10</th>
+<th>Recall@50</th>
+<th>Recall@100</th>
+<th>Recall@300</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>mse-gramian</td>
+<td>0.0432</td>
+<td>0.1326</td>
+<td>0.2027</td>
+<td>0.3530</td>
+</tr>
+<tr class="even">
+<td>plain-sfx (<span class="math inline">\(\tau = 0.07\)</span>)</td>
+<td>0.0643</td>
+<td>0.2423</td>
+<td>0.3746</td>
+<td>0.5991</td>
+</tr>
+<tr class="odd">
+<td>correct-sfx (<span class="math inline">\(\tau = 0.07\)</span>)</td>
+<td><strong>0.1065</strong></td>
+<td><strong>0.3079</strong></td>
+<td><strong>0.4664</strong></td>
+<td><strong>0.7234</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The corrected softmax improves over uncorrected by <span class="math inline">\(65\%\)</span> in Recall@10. <em>Temperature must be tuned carefully — the optimal <span class="math inline">\(\tau\)</span> for plain-sfx and correct-sfx differ, and the ranking of methods is consistent across temperatures.</em></p>
+<h3 id="youtube-offline-and-live-experiments">YouTube Offline and Live Experiments</h3>
+<p><strong>Offline</strong>: 10M video corpus; model trained on billions of daily clicks across 15+ days of sequential data. Evaluation on 10% holdout. <span class="math inline">\(r_i = 1\)</span> for all clicks (simplified reward).</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 19%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Recall@5</th>
+<th>Recall@10</th>
+<th>Recall@30</th>
+<th>Recall@50</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>mse-gramian</td>
+<td>0.0554</td>
+<td>0.0768</td>
+<td>0.1149</td>
+<td>0.1338</td>
+</tr>
+<tr class="even">
+<td>plain-sfx (<span class="math inline">\(\tau = 0.05\)</span>)</td>
+<td>0.2069</td>
+<td>0.2728</td>
+<td>0.3964</td>
+<td>0.4586</td>
+</tr>
+<tr class="odd">
+<td>correct-sfx (<span class="math inline">\(\tau = 0.05\)</span>)</td>
+<td><strong>0.2150</strong></td>
+<td><strong>0.2960</strong></td>
+<td><strong>0.4537</strong></td>
+<td><strong>0.5322</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Live <a href="../../../notes/concepts/ab-testing/foundations%7Ca/b-experiment/">concepts/ab-testing/foundations|A/B experiment</a></strong>: treatment group receives recommendations augmented by candidates from the neural retrieval system (added to the nomination stage alongside existing nominators).</p>
+<table>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Engagement Metric Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>plain-sfx</td>
+<td>+0.20%</td>
+</tr>
+<tr class="even">
+<td>correct-sfx</td>
+<td>+0.37%</td>
+</tr>
+</tbody>
+</table>
+<p>Both outperform the production baseline. The sampling-bias correction nearly doubles the engagement gain over plain-sfx in the live test, confirming that the bias is practically significant — not just a metric artifact.</p>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Yi et al. (2019), “Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations”</td>
+<td>The paper itself; introduces two-tower retrieval with logQ bias correction and streaming frequency estimation for YouTube recommendations</td>
+<td>https://doi.org/10.1145/3298689.3346996</td>
+</tr>
+<tr class="even">
+<td>Bengio and Sénécal (2008), “Adaptive Importance Sampling to Accelerate Training of a Neural Probabilistic Language Model”</td>
+<td>Original logQ correction for sampled softmax in language modeling; the bias correction in this paper is directly inspired by this work</td>
+<td>https://doi.org/10.1109/TNN.2007.912312</td>
+</tr>
+<tr class="odd">
+<td>Covington, Adams, Sargin (2016), “Deep Neural Networks for YouTube Recommendations”</td>
+<td>Predecessor YouTube recommendation system; establishes the two-phase retrieval-ranking pipeline and the use of deep networks for candidate generation</td>
+<td>https://dl.acm.org/doi/10.1145/2959100.2959190</td>
+</tr>
+<tr class="even">
+<td>Cheng et al. (2016), “Wide and Deep Learning for Recommender Systems”</td>
+<td>Wide-and-deep framework for ranking; context for the retrieval-ranking cascade in which this paper’s retrieval model operates</td>
+<td>https://arxiv.org/abs/1606.07792</td>
+</tr>
+<tr class="odd">
+<td>Cormode and Muthukrishnan (2005), “Count-Min Sketch and Its Applications”</td>
+<td>Foundational data structure for frequency estimation in streams with hash collisions; Algorithm 3’s multiple-hashing design is directly inspired by the count-min sketch</td>
+<td>https://doi.org/10.1016/j.jalgor.2003.12.001</td>
+</tr>
+<tr class="even">
+<td>Krichene et al. (2019), “Efficient Training on Very Large Corpora via Gramian Estimation”</td>
+<td>Baseline method (mse-gramian) used in experiments; extends MSE recommendation loss to non-linear models via Gramian computation</td>
+<td>https://openreview.net/forum?id=rJe4ShAcF7</td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

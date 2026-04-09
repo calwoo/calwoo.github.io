@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>experimental-design - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>experimental-design</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-randomization-mechanisms%7Crandomization-mechanisms/">#1. Randomization Mechanisms|Randomization Mechanisms</a>
+<ul>
+<li><a href="../../../../notes/#1.1-bernoulli-randomization%7C1.1-bernoulli-randomization/">#1.1 Bernoulli Randomization|1.1 Bernoulli Randomization</a></li>
+<li><a href="../../../../notes/#1.2-complete-randomization%7C1.2-complete-randomization/">#1.2 Complete Randomization|1.2 Complete Randomization</a></li>
+<li><a href="../../../../notes/#1.3-variance-comparison:-bernoulli-vs.-complete%7C1.3-variance-comparison:-bernoulli-vs.-complete/">#1.3 Variance Comparison: Bernoulli vs. Complete|1.3 Variance Comparison: Bernoulli vs. Complete</a></li>
+<li><a href="../../../../notes/#1.4-hash-based-assignment-in-production-systems%7C1.4-hash-based-assignment-in-production-systems/">#1.4 Hash-Based Assignment in Production Systems|1.4 Hash-Based Assignment in Production Systems</a></li>
+<li><a href="../../../../notes/#1.5-cluster-randomization%7C1.5-cluster-randomization/">#1.5 Cluster Randomization|1.5 Cluster Randomization</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-stratification-and-blocking%7Cstratification-and-blocking/">#2. Stratification and Blocking|Stratification and Blocking</a>
+<ul>
+<li><a href="../../../../notes/#2.1-stratified-randomization%7C2.1-stratified-randomization/">#2.1 Stratified Randomization|2.1 Stratified Randomization</a></li>
+<li><a href="../../../../notes/#2.2-the-stratified-ate-estimator%7C2.2-the-stratified-ate-estimator/">#2.2 The Stratified ATE Estimator|2.2 The Stratified ATE Estimator</a></li>
+<li><a href="../../../../notes/#2.3-variance-of-the-stratified-estimator%7C2.3-variance-of-the-stratified-estimator/">#2.3 Variance of the Stratified Estimator|2.3 Variance of the Stratified Estimator</a></li>
+<li><a href="../../../../notes/#2.4-stratification-never-increases-variance%7C2.4-stratification-never-increases-variance/">#2.4 Stratification Never Increases Variance|2.4 Stratification Never Increases Variance</a></li>
+<li><a href="../../../../notes/#2.5-the-ideal-stratification-variable%7C2.5-the-ideal-stratification-variable/">#2.5 The Ideal Stratification Variable|2.5 The Ideal Stratification Variable</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-cuped:-covariate-adjusted-pre-experiment-data%7Ccuped:-covariate-adjusted-pre-experiment-data/">#3. CUPED: Covariate-Adjusted Pre-Experiment Data|CUPED: Covariate-Adjusted Pre-Experiment Data</a>
+<ul>
+<li><a href="../../../../notes/#3.1-motivation-and-setup%7C3.1-motivation-and-setup/">#3.1 Motivation and Setup|3.1 Motivation and Setup</a></li>
+<li><a href="../../../../notes/#3.2-the-adjusted-outcome%7C3.2-the-adjusted-outcome/">#3.2 The Adjusted Outcome|3.2 The Adjusted Outcome</a></li>
+<li><a href="../../../../notes/#3.3-optimal-theta:-derivation%7C3.3-optimal-theta:-derivation/">#3.3 Optimal Theta: Derivation|3.3 Optimal Theta: Derivation</a></li>
+<li><a href="../../../../notes/#3.4-variance-reduction-in-terms-of-correlation%7C3.4-variance-reduction-in-terms-of-correlation/">#3.4 Variance Reduction in Terms of Correlation|3.4 Variance Reduction in Terms of Correlation</a></li>
+<li><a href="../../../../notes/#3.5-unbiasedness-of-the-cuped-estimator%7C3.5-unbiasedness-of-the-cuped-estimator/">#3.5 Unbiasedness of the CUPED Estimator|3.5 Unbiasedness of the CUPED Estimator</a></li>
+<li><a href="../../../../notes/#3.6-connection-to-ols-and-frisch-waugh-lovell%7C3.6-connection-to-ols-and-frisch-waugh-lovell/">#3.6 Connection to OLS and Frisch-Waugh-Lovell|3.6 Connection to OLS and Frisch-Waugh-Lovell</a></li>
+<li><a href="../../../../notes/#3.7-practical-caveats%7C3.7-practical-caveats/">#3.7 Practical Caveats|3.7 Practical Caveats</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-multiple-testing:-fwer-control%7Cmultiple-testing:-fwer-control/">#4. Multiple Testing: FWER Control|Multiple Testing: FWER Control</a>
+<ul>
+<li><a href="../../../../notes/#4.1-the-multiple-comparisons-problem%7C4.1-the-multiple-comparisons-problem/">#4.1 The Multiple Comparisons Problem|4.1 The Multiple Comparisons Problem</a></li>
+<li><a href="../../../../notes/#4.2-family-wise-error-rate%7C4.2-family-wise-error-rate/">#4.2 Family-Wise Error Rate|4.2 Family-Wise Error Rate</a></li>
+<li><a href="../../../../notes/#4.3-bonferroni-correction%7C4.3-bonferroni-correction/">#4.3 Bonferroni Correction|4.3 Bonferroni Correction</a></li>
+<li><a href="../../../../notes/#4.4-holm-bonferroni-procedure%7C4.4-holm-bonferroni-procedure/">#4.4 Holm-Bonferroni Procedure|4.4 Holm-Bonferroni Procedure</a></li>
+<li><a href="../../../../notes/#4.5-fwer-control-of-holm-via-closed-testing%7C4.5-fwer-control-of-holm-via-closed-testing/">#4.5 FWER Control of Holm via Closed Testing|4.5 FWER Control of Holm via Closed Testing</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-multiple-testing:-fdr-control%7Cmultiple-testing:-fdr-control/">#5. Multiple Testing: FDR Control|Multiple Testing: FDR Control</a>
+<ul>
+<li><a href="../../../../notes/#5.1-false-discovery-rate%7C5.1-false-discovery-rate/">#5.1 False Discovery Rate|5.1 False Discovery Rate</a></li>
+<li><a href="../../../../notes/#5.2-benjamini-hochberg-procedure%7C5.2-benjamini-hochberg-procedure/">#5.2 Benjamini-Hochberg Procedure|5.2 Benjamini-Hochberg Procedure</a></li>
+<li><a href="../../../../notes/#5.3-fdr-control-level-of-bh-under-independence%7C5.3-fdr-control-level-of-bh-under-independence/">#5.3 FDR Control Level of BH under Independence|5.3 FDR Control Level of BH under Independence</a></li>
+<li><a href="../../../../notes/#5.4-fdr-vs.-fwer:-when-to-use-each%7C5.4-fdr-vs.-fwer:-when-to-use-each/">#5.4 FDR vs. FWER: When to Use Each|5.4 FDR vs. FWER: When to Use Each</a></li>
+<li><a href="../../../../notes/#5.5-worked-example:-bonferroni,-holm,-and-bh%7C5.5-worked-example:-bonferroni,-holm,-and-bh/">#5.5 Worked Example: Bonferroni, Holm, and BH|5.5 Worked Example: Bonferroni, Holm, and BH</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-metric-selection%7Cmetric-selection/">#6. Metric Selection|Metric Selection</a>
+<ul>
+<li><a href="../../../../notes/#6.1-primary-metrics%7C6.1-primary-metrics/">#6.1 Primary Metrics|6.1 Primary Metrics</a></li>
+<li><a href="../../../../notes/#6.2-guardrail-metrics%7C6.2-guardrail-metrics/">#6.2 Guardrail Metrics|6.2 Guardrail Metrics</a></li>
+<li><a href="../../../../notes/#6.3-sensitivity-and-signal-to-noise-ratio%7C6.3-sensitivity-and-signal-to-noise-ratio/">#6.3 Sensitivity and Signal-to-Noise Ratio|6.3 Sensitivity and Signal-to-Noise Ratio</a></li>
+<li><a href="../../../../notes/#6.4-directionality-and-metric-hierarchies%7C6.4-directionality-and-metric-hierarchies/">#6.4 Directionality and Metric Hierarchies|6.4 Directionality and Metric Hierarchies</a></li>
+</ul></li>
+<li><a href="../../../../notes/#references%7Creferences/">#References|References</a></li>
+</ol>
+<hr />
+<h2 id="randomization-mechanisms">1. Randomization Mechanisms</h2>
+<p><em>Randomization</em> is the mechanism that transforms a controlled experiment from an observational study into one that admits causal identification. The choice of randomization scheme determines both the distribution of group sizes and the variance of the treatment effect estimator. We work throughout in the <em>potential outcomes</em> framework: each unit <span class="math inline">\(i \in \{1, \ldots, N\}\)</span> has potential outcomes <span class="math inline">\(Y_i(1)\)</span> and <span class="math inline">\(Y_i(0)\)</span>, and treatment assignment <span class="math inline">\(T_i \in \{0, 1\}\)</span>.</p>
+<h3 id="bernoulli-randomization">1.1 Bernoulli Randomization</h3>
+<p><strong>Definition (Bernoulli Randomization).</strong> In <em>Bernoulli randomization</em>, each unit <span class="math inline">\(i\)</span> is assigned independently to treatment with probability <span class="math inline">\(p \in (0,1)\)</span>:
+<span class="math display">\[T_i \overset{\text{i.i.d.}}{\sim} \text{Bernoulli}(p), \quad i = 1, \ldots, N.\]</span></p>
+<p>The treatment group size <span class="math inline">\(n_1 = \sum_{i=1}^N T_i\)</span> is a random variable with distribution <span class="math inline">\(n_1 \sim \text{Binomial}(N, p)\)</span>, so <span class="math inline">\(\mathbb{E}[n_1] = Np\)</span> and <span class="math inline">\(\text{Var}(n_1) = Np(1-p)\)</span>. In particular, group sizes are not fixed — in any realized experiment, <span class="math inline">\(n_1\)</span> may deviate substantially from <span class="math inline">\(Np\)</span>, especially for small <span class="math inline">\(N\)</span>.</p>
+<p>The difference-in-means estimator of the <em>average treatment effect</em> <span class="math inline">\(\tau = \mathbb{E}[Y_i(1) - Y_i(0)]\)</span> is:
+<span class="math display">\[\hat{\tau}_{\text{DM}} = \bar{Y}_1 - \bar{Y}_0 = \frac{1}{n_1}\sum_{i: T_i=1} Y_i - \frac{1}{n_0}\sum_{i: T_i=0} Y_i,\]</span>
+where <span class="math inline">\(n_0 = N - n_1\)</span>.</p>
+<h3 id="complete-randomization">1.2 Complete Randomization</h3>
+<p><strong>Definition (Complete Randomization).</strong> In <em>complete randomization</em>, exactly <span class="math inline">\(m\)</span> of the <span class="math inline">\(N\)</span> units are assigned to treatment, chosen uniformly at random from all <span class="math inline">\(\binom{N}{m}\)</span> subsets of size <span class="math inline">\(m\)</span>. The treatment assignment vector <span class="math inline">\(\mathbf{T} = (T_1, \ldots, T_N)\)</span> is drawn uniformly from the set <span class="math inline">\(\{\mathbf{t} \in \{0,1\}^N : \sum_i t_i = m\}\)</span>.</p>
+<p>Group sizes are now deterministic: <span class="math inline">\(n_1 = m\)</span> and <span class="math inline">\(n_0 = N - m\)</span> with probability one. This is a key structural difference from Bernoulli randomization.</p>
+<h3 id="variance-comparison-bernoulli-vs.-complete">1.3 Variance Comparison: Bernoulli vs. Complete</h3>
+<p>We derive the variance of <span class="math inline">\(\hat{\tau}_{\text{DM}}\)</span> under each scheme, following the Neyman repeated-sampling framework. Write <span class="math inline">\(S_1^2 = \frac{1}{N-1}\sum_i (Y_i(1) - \bar{Y}(1))^2\)</span> and <span class="math inline">\(S_0^2 = \frac{1}{N-1}\sum_i (Y_i(0) - \bar{Y}(0))^2\)</span> for the finite-population variances of the potential outcomes, and <span class="math inline">\(S_{10}^2 = \frac{1}{N-1}\sum_i ((Y_i(1) - Y_i(0)) - \tau)^2\)</span> for the variance of unit-level treatment effects.</p>
+<p><strong>Proposition (Variance under Complete Randomization).</strong> Under complete randomization with <span class="math inline">\(n_1 = m\)</span> units treated:
+<span class="math display">\[\text{Var}_{\text{CR}}(\hat{\tau}_{\text{DM}}) = \frac{S_1^2}{m} + \frac{S_0^2}{N-m} - \frac{S_{10}^2}{N}.\]</span></p>
+<p><em>Proof sketch.</em> The potential outcomes are fixed; randomness enters only through <span class="math inline">\(\mathbf{T}\)</span>. Writing <span class="math inline">\(\bar{Y}_1 = N^{-1}\sum_i T_i Y_i(1) \cdot (N/m)\)</span> and expanding, one obtains the Neyman variance formula. The term <span class="math inline">\(-S_{10}^2/N\)</span> arises because units cannot simultaneously be in both groups; it represents the negative covariance between <span class="math inline">\(\bar{Y}_1\)</span> and <span class="math inline">\(\bar{Y}_0\)</span> induced by the fixed-sum constraint.</p>
+<p><strong>Proposition (Variance under Bernoulli Randomization).</strong> Conditioning on <span class="math inline">\(n_1 &gt; 0\)</span> and <span class="math inline">\(n_0 &gt; 0\)</span>, and approximating for large <span class="math inline">\(N\)</span>:
+<span class="math display">\[\text{Var}_{\text{Bern}}(\hat{\tau}_{\text{DM}}) \approx \frac{S_1^2}{Np} + \frac{S_0^2}{N(1-p)}.\]</span></p>
+<p>The term <span class="math inline">\(-S_{10}^2/N\)</span> is absent because under Bernoulli randomization, <span class="math inline">\(T_i\)</span> and <span class="math inline">\(T_j\)</span> are independent, so there is no negative covariance between the group means arising from the assignment mechanism. <strong>Complete randomization always has variance no greater than Bernoulli randomization</strong> — the difference is exactly <span class="math inline">\(S_{10}^2 / N \geq 0\)</span>.</p>
+<h3 id="hash-based-assignment-in-production-systems">1.4 Hash-Based Assignment in Production Systems</h3>
+<p>In production systems, true random assignment is often replaced by <em>deterministic hashing</em>. The assignment of user <span class="math inline">\(u\)</span> to experiment <span class="math inline">\(e\)</span> is computed as:
+<span class="math display">\[T_u = \mathbf{1}\!\left[h(u,\, e) \bmod 100 &lt; \lfloor 100p \rfloor\right],\]</span>
+where <span class="math inline">\(h : \mathcal{U} \times \mathcal{E} \to \{0, 1, \ldots, 2^k - 1\}\)</span> is a hash function (e.g., MD5, MurmurHash). The experiment ID is incorporated into the hash input so that the same user receives independent-looking assignments across different experiments. This approach achieves two goals:</p>
+<ol type="1">
+<li><strong>Reproducibility:</strong> repeated calls return the same assignment, enabling consistent user experience and post-hoc audit.</li>
+<li><strong>Cross-experiment independence:</strong> for two experiments <span class="math inline">\(e_1 \neq e_2\)</span>, the joint distribution of <span class="math inline">\((T_u^{e_1}, T_u^{e_2})\)</span> is approximately uniform over <span class="math inline">\(\{0,1\}^2\)</span>, preventing spurious correlations between simultaneous experiments.</li>
+</ol>
+<p><em>This is a Bernoulli scheme, not complete randomization — group sizes are random.</em> However, for <span class="math inline">\(N\)</span> in the millions, the standard deviation of <span class="math inline">\(n_1\)</span> is <span class="math inline">\(O(\sqrt{N})\)</span>, making the fractional deviation <span class="math inline">\(O(N^{-1/2})\)</span> negligible.</p>
+<h3 id="cluster-randomization">1.5 Cluster Randomization</h3>
+<p>When units in the same cluster can influence one another — violating the <em>stable unit treatment value assumption</em> (SUTVA) — treatment must be assigned at the cluster level. Let <span class="math inline">\(\mathcal{C} = \{C_1, \ldots, C_K\}\)</span> be a partition of units into <span class="math inline">\(K\)</span> clusters, with cluster <span class="math inline">\(C_k\)</span> containing <span class="math inline">\(n_k\)</span> units. Randomize at the cluster level: each cluster <span class="math inline">\(C_k\)</span> is assigned <span class="math inline">\(T_k^{\text{cluster}} \in \{0,1\}\)</span> independently.</p>
+<p>The effective sample size for variance computation drops from <span class="math inline">\(N\)</span> to <span class="math inline">\(K\)</span>. Formally, the variance of the cluster-randomized ATE estimator is of order <span class="math inline">\(K^{-1}\)</span> rather than <span class="math inline">\(N^{-1}\)</span>, inflated by the <em>intracluster correlation</em> (ICC) <span class="math inline">\(\rho_{\text{ICC}}\)</span>:
+<span class="math display">\[\text{Var}(\hat{\tau}_{\text{cluster}}) \approx \frac{\sigma^2}{N}\left[1 + (n_{\text{avg}} - 1)\rho_{\text{ICC}}\right],\]</span>
+where <span class="math inline">\(n_{\text{avg}} = N/K\)</span> is the average cluster size. The factor <span class="math inline">\([1 + (n_{\text{avg}} - 1)\rho_{\text{ICC}}]\)</span> is the <em>design effect</em> — it quantifies how much larger the effective variance is relative to individual-level randomization. <em>Cluster randomization should be used only when interference genuinely threatens validity; the power loss can be severe.</em></p>
+<hr />
+<h2 id="stratification-and-blocking">2. Stratification and Blocking</h2>
+<h3 id="stratified-randomization">2.1 Stratified Randomization</h3>
+<p><strong>Definition (Stratified Randomization).</strong> Partition the <span class="math inline">\(N\)</span> units into <span class="math inline">\(L\)</span> <em>strata</em> <span class="math inline">\(S_1, \ldots, S_L\)</span> defined by a pre-experiment covariate <span class="math inline">\(X\)</span> (or a discretization thereof), with <span class="math inline">\(|S_\ell| = N_\ell\)</span> and <span class="math inline">\(\sum_\ell N_\ell = N\)</span>. Within each stratum <span class="math inline">\(\ell\)</span>, apply complete randomization: assign exactly <span class="math inline">\(m_\ell\)</span> units to treatment, where <span class="math inline">\(m_\ell / N_\ell = p\)</span> (or as close as integer constraints allow).</p>
+<p>This enforces <em>balance</em> on <span class="math inline">\(X\)</span>: the empirical distribution of <span class="math inline">\(X\)</span> is identical in treatment and control by construction, not merely in expectation.</p>
+<h3 id="the-stratified-ate-estimator">2.2 The Stratified ATE Estimator</h3>
+<p>Within stratum <span class="math inline">\(\ell\)</span>, the difference-in-means estimator is:
+<span class="math display">\[\hat{\tau}_\ell = \bar{Y}_{1,\ell} - \bar{Y}_{0,\ell}.\]</span></p>
+<p>The <em>stratified ATE estimator</em> combines these stratum-level estimates with population weights:
+<span class="math display">\[\hat{\tau}_{\text{strat}} = \sum_{\ell=1}^L w_\ell \hat{\tau}_\ell, \quad w_\ell = \frac{N_\ell}{N}.\]</span></p>
+<p>This estimator is unbiased for <span class="math inline">\(\tau = \mathbb{E}[Y_i(1) - Y_i(0)]\)</span>, since within each stratum <span class="math inline">\(\mathbb{E}[\hat{\tau}_\ell] = \tau_\ell = \mathbb{E}[Y_i(1) - Y_i(0) \mid i \in S_\ell]\)</span>, and <span class="math inline">\(\sum_\ell w_\ell \tau_\ell = \tau\)</span>.</p>
+<h3 id="variance-of-the-stratified-estimator">2.3 Variance of the Stratified Estimator</h3>
+<p>Under complete randomization within each stratum, the variance of <span class="math inline">\(\hat{\tau}_\ell\)</span> is, by the Neyman formula, approximately <span class="math inline">\(S_{1,\ell}^2 / m_\ell + S_{0,\ell}^2 / (N_\ell - m_\ell)\)</span>. Setting <span class="math inline">\(m_\ell = pN_\ell\)</span> and using independence across strata:</p>
+<p><span class="math display">\[\text{Var}(\hat{\tau}_{\text{strat}}) = \sum_{\ell=1}^L w_\ell^2 \text{Var}(\hat{\tau}_\ell) \approx \sum_{\ell=1}^L \frac{N_\ell^2}{N^2} \left(\frac{S_{1,\ell}^2}{pN_\ell} + \frac{S_{0,\ell}^2}{(1-p)N_\ell}\right) = \frac{1}{N}\sum_{\ell=1}^L w_\ell \left(\frac{S_{1,\ell}^2}{p} + \frac{S_{0,\ell}^2}{1-p}\right).\]</span></p>
+<h3 id="stratification-never-increases-variance">2.4 Stratification Never Increases Variance</h3>
+<p><strong>Proposition.</strong> <span class="math inline">\(\text{Var}(\hat{\tau}_{\text{strat}}) \leq \text{Var}(\hat{\tau}_{\text{unstrat}})\)</span>.</p>
+<p><em>Proof sketch.</em> Let <span class="math inline">\(\mu_{1,\ell} = \mathbb{E}[Y_i(1) \mid i \in S_\ell]\)</span> and <span class="math inline">\(\mu_1 = \mathbb{E}[Y_i(1)]\)</span>. By the law of total variance:
+<span class="math display">\[S_1^2 = \underbrace{\sum_\ell w_\ell S_{1,\ell}^2}_{\text{within-stratum variance}} + \underbrace{\sum_\ell w_\ell (\mu_{1,\ell} - \mu_1)^2}_{\text{between-stratum variance}} \geq \sum_\ell w_\ell S_{1,\ell}^2.\]</span></p>
+<p>The unstratified variance (ignoring the <span class="math inline">\(-S_{10}^2/N\)</span> term for simplicity) is approximately <span class="math inline">\(S_1^2/(pN) + S_0^2/((1-p)N)\)</span>. The stratified variance replaces <span class="math inline">\(S_k^2\)</span> with its within-stratum average <span class="math inline">\(\sum_\ell w_\ell S_{k,\ell}^2 \leq S_k^2\)</span>. Hence <span class="math inline">\(\text{Var}(\hat{\tau}_{\text{strat}}) \leq \text{Var}(\hat{\tau}_{\text{unstrat}})\)</span>, with equality if and only if the potential outcome means are constant across strata (i.e., <span class="math inline">\(X\)</span> is uninformative).</p>
+<h3 id="the-ideal-stratification-variable">2.5 The Ideal Stratification Variable</h3>
+<p>The variance reduction from stratification is proportional to the <em>between-stratum variance</em> in potential outcomes. This is maximized when strata are as homogeneous as possible within and as different as possible between. The optimal stratification variable is therefore the pre-experiment value of the outcome itself, <span class="math inline">\(Y_{i,\text{pre}}\)</span>. Units with similar pre-experiment outcomes have similar potential outcomes, so within-stratum variance is minimized. This observation is also the motivation for CUPED (Section 3), which achieves a similar variance reduction continuously rather than discretely.</p>
+<hr />
+<h2 id="cuped-covariate-adjusted-pre-experiment-data">3. CUPED: Covariate-Adjusted Pre-Experiment Data</h2>
+<h3 id="motivation-and-setup">3.1 Motivation and Setup</h3>
+<p>The <em>CUPED</em> (Controlled-experiment Using Pre-Experiment Data) method, introduced by Deng, Xu, Kohavi, and Walker (2013), reduces the variance of the ATE estimator by exploiting a pre-experiment covariate <span class="math inline">\(X_i\)</span> correlated with the outcome <span class="math inline">\(Y_i\)</span>.</p>
+<p><strong>Setup.</strong> Let <span class="math inline">\(Y_i\)</span> be the outcome observed during the experiment (e.g., revenue per user in the experiment week), and let <span class="math inline">\(X_i\)</span> be a pre-experiment covariate observed before randomization (e.g., revenue per user in the week prior). Let <span class="math inline">\(T_i \in \{0,1\}\)</span> be the treatment indicator. Because <span class="math inline">\(X_i\)</span> is observed before randomization, it is independent of <span class="math inline">\(T_i\)</span>:
+<span class="math display">\[X_i \perp T_i.\]</span></p>
+<h3 id="the-adjusted-outcome">3.2 The Adjusted Outcome</h3>
+<p><strong>Definition (CUPED Adjusted Outcome).</strong> For a scalar <span class="math inline">\(\theta \in \mathbb{R}\)</span>, define:
+<span class="math display">\[Y_i^{\text{CUPED}}(\theta) = Y_i - \theta(X_i - \mathbb{E}[X_i]).\]</span></p>
+<p>The centering by <span class="math inline">\(\mathbb{E}[X_i]\)</span> is conventional and does not affect the estimator (it only shifts the outcome by a constant). The CUPED ATE estimator is the difference-in-means applied to <span class="math inline">\(Y_i^{\text{CUPED}}\)</span>:
+<span class="math display">\[\hat{\tau}^{\text{CUPED}} = \bar{Y}^{\text{CUPED}}_{1} - \bar{Y}^{\text{CUPED}}_{0}.\]</span></p>
+<h3 id="optimal-theta-derivation">3.3 Optimal Theta: Derivation</h3>
+<p>We choose <span class="math inline">\(\theta\)</span> to minimize the variance of <span class="math inline">\(Y_i^{\text{CUPED}}(\theta)\)</span>. By the variance of a linear combination:
+<span class="math display">\[\text{Var}(Y_i - \theta X_i) = \text{Var}(Y_i) - 2\theta\,\text{Cov}(Y_i, X_i) + \theta^2\,\text{Var}(X_i).\]</span></p>
+<p>This is a quadratic in <span class="math inline">\(\theta\)</span>, opening upward. Differentiating and setting to zero:
+<span class="math display">\[\frac{d}{d\theta}\text{Var}(Y_i - \theta X_i) = -2\,\text{Cov}(Y_i, X_i) + 2\theta\,\text{Var}(X_i) = 0,\]</span>
+<span class="math display">\[\theta^* = \frac{\text{Cov}(Y_i, X_i)}{\text{Var}(X_i)}.\]</span></p>
+<p>This is precisely the ordinary least squares (OLS) coefficient of regressing <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span>. In practice, <span class="math inline">\(\theta^*\)</span> is estimated from the pooled sample (or from pre-experiment data) and treated as fixed; the resulting estimator remains consistent.</p>
+<h3 id="variance-reduction-in-terms-of-correlation">3.4 Variance Reduction in Terms of Correlation</h3>
+<p>Substituting <span class="math inline">\(\theta^*\)</span> back into the variance formula:
+<span class="math display">\[\text{Var}(Y_i^{\text{CUPED}}) = \text{Var}(Y_i) - \frac{[\text{Cov}(Y_i, X_i)]^2}{\text{Var}(X_i)} = \text{Var}(Y_i)\left(1 - \frac{[\text{Cov}(Y_i, X_i)]^2}{\text{Var}(Y_i)\,\text{Var}(X_i)}\right) = \text{Var}(Y_i)(1 - \rho^2),\]</span></p>
+<p>where <span class="math inline">\(\rho = \text{Corr}(Y_i, X_i)\)</span>. <strong>The variance reduction factor is <span class="math inline">\(\rho^2\)</span>: CUPED reduces outcome variance by a fraction <span class="math inline">\(\rho^2\)</span>.</strong> Since the variance of <span class="math inline">\(\hat{\tau}^{\text{CUPED}}\)</span> is proportional to <span class="math inline">\(\text{Var}(Y_i^{\text{CUPED}})\)</span>, the same factor applies to the estimator variance. For <span class="math inline">\(\rho = 0.6\)</span>, variance drops by <span class="math inline">\(36\%\)</span>, equivalently reducing the required sample size by <span class="math inline">\(36\%\)</span> for fixed power.</p>
+<h3 id="unbiasedness-of-the-cuped-estimator">3.5 Unbiasedness of the CUPED Estimator</h3>
+<p><strong>Proposition.</strong> <span class="math inline">\(\mathbb{E}[\hat{\tau}^{\text{CUPED}}] = \tau\)</span>.</p>
+<p><em>Proof.</em> Compute the conditional expectation of <span class="math inline">\(Y_i^{\text{CUPED}}\)</span> given treatment status:
+<span class="math display">\[\mathbb{E}[Y_i^{\text{CUPED}} \mid T_i = t] = \mathbb{E}[Y_i \mid T_i = t] - \theta^*(\mathbb{E}[X_i \mid T_i = t] - \mathbb{E}[X_i]).\]</span></p>
+<p>Since <span class="math inline">\(X_i \perp T_i\)</span>, we have <span class="math inline">\(\mathbb{E}[X_i \mid T_i = t] = \mathbb{E}[X_i]\)</span> for all <span class="math inline">\(t\)</span>. Therefore:
+<span class="math display">\[\mathbb{E}[Y_i^{\text{CUPED}} \mid T_i = t] = \mathbb{E}[Y_i \mid T_i = t].\]</span></p>
+<p>It follows that:
+<span class="math display">\[\hat{\tau}^{\text{CUPED}} = \bar{Y}_1^{\text{CUPED}} - \bar{Y}_0^{\text{CUPED}} \xrightarrow{p} \mathbb{E}[Y_i \mid T_i=1] - \mathbb{E}[Y_i \mid T_i=0] = \tau.\quad\square\]</span></p>
+<p>The adjustment <span class="math inline">\(\theta^* X_i\)</span> cancels in the difference precisely because <span class="math inline">\(X_i\)</span> has the same conditional mean under treatment and control. <em>Using a post-experiment covariate would violate <span class="math inline">\(X_i \perp T_i\)</span> and introduce bias.</em></p>
+<h3 id="connection-to-ols-and-frisch-waugh-lovell">3.6 Connection to OLS and Frisch-Waugh-Lovell</h3>
+<p>The CUPED estimator is algebraically equivalent to the OLS coefficient on <span class="math inline">\(T\)</span> in the regression:
+<span class="math display">\[Y_i = \alpha + \tau T_i + \beta X_i + \varepsilon_i.\]</span></p>
+<p>This equivalence is a direct consequence of the <em>Frisch-Waugh-Lovell (FWL) theorem</em>. The FWL theorem states that the coefficient <span class="math inline">\(\hat{\tau}\)</span> in the above regression equals the coefficient from regressing the residuals of <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> against the residuals of <span class="math inline">\(T\)</span> on <span class="math inline">\(X\)</span>. Since <span class="math inline">\(T \perp X\)</span> by randomization, the projection of <span class="math inline">\(T\)</span> on <span class="math inline">\(X\)</span> has zero slope, so the residuals of <span class="math inline">\(T\)</span> on <span class="math inline">\(X\)</span> are simply <span class="math inline">\(T_i - \bar{T}\)</span>. Thus, the FWL coefficient on <span class="math inline">\(T\)</span> reduces to regressing <span class="math inline">\(Y_i - \hat{\beta}_{\text{OLS}} X_i\)</span> on <span class="math inline">\(T_i\)</span>, which is exactly <span class="math inline">\(\hat{\tau}^{\text{CUPED}}\)</span>.</p>
+<p><em>Importantly</em>, the FWL theorem also implies that the standard error of <span class="math inline">\(\hat{\tau}^{\text{CUPED}}\)</span> from the joint regression is asymptotically the same as the standard error from the two-step CUPED procedure (up to a degrees-of-freedom correction that vanishes as <span class="math inline">\(N \to \infty\)</span>). In practice, running the joint regression is the simplest implementation.</p>
+<h3 id="practical-caveats">3.7 Practical Caveats</h3>
+<ul>
+<li><span class="math inline">\(X_i\)</span> must be measured before the experiment begins. Any covariate that could be affected by the treatment introduces <em>post-treatment bias</em>.</li>
+<li><span class="math inline">\(\theta^*\)</span> is typically estimated from the pooled experimental data or from a holdout pre-period, and treated as a fixed constant in variance calculations. This introduces a small plug-in approximation error that is <span class="math inline">\(O(N^{-1})\)</span>.</li>
+<li>CUPED can be combined with stratification: stratify on <span class="math inline">\(X\)</span> and apply CUPED within each stratum, though in practice CUPED alone often captures most of the variance reduction.</li>
+</ul>
+<hr />
+<h2 id="multiple-testing-fwer-control">4. Multiple Testing: FWER Control</h2>
+<h3 id="the-multiple-comparisons-problem">4.1 The Multiple Comparisons Problem</h3>
+<p>In a production experiment, it is common to test <span class="math inline">\(m &gt; 1\)</span> hypotheses simultaneously — e.g., a primary metric and several secondary metrics, or a primary metric across multiple user segments. Even when each individual test controls Type I error at level <span class="math inline">\(\alpha\)</span>, the probability of making <em>at least one</em> false rejection inflates rapidly with <span class="math inline">\(m\)</span>.</p>
+<p><strong>Under independence of the <span class="math inline">\(m\)</span> test statistics, all of which are null:</strong>
+<span class="math display">\[P(\text{at least one false rejection}) = 1 - (1 - \alpha)^m.\]</span></p>
+<p>For <span class="math inline">\(m = 20\)</span> and <span class="math inline">\(\alpha = 0.05\)</span>: <span class="math inline">\(1 - (0.95)^{20} \approx 0.64\)</span>. <em>An experiment testing 20 metrics at <span class="math inline">\(\alpha = 0.05\)</span> has roughly a 64% chance of producing at least one spurious significant result under the global null.</em></p>
+<h3 id="family-wise-error-rate">4.2 Family-Wise Error Rate</h3>
+<p><strong>Definition (FWER).</strong> Let <span class="math inline">\(\mathcal{H}_0 \subseteq \{H_0^1, \ldots, H_0^m\}\)</span> be the set of true null hypotheses, with <span class="math inline">\(|\mathcal{H}_0| = m_0\)</span>. The <em>family-wise error rate</em> is:
+<span class="math display">\[\text{FWER} = P(V \geq 1),\]</span>
+where <span class="math inline">\(V\)</span> is the number of false rejections (Type I errors). A procedure <em>controls FWER at level <span class="math inline">\(\alpha\)</span></em> in the strong sense if <span class="math inline">\(\text{FWER} \leq \alpha\)</span> for any configuration of true and false nulls.</p>
+<h3 id="bonferroni-correction">4.3 Bonferroni Correction</h3>
+<p><strong>Procedure (Bonferroni).</strong> Reject <span class="math inline">\(H_0^j\)</span> if and only if <span class="math inline">\(p_j \leq \alpha/m\)</span>.</p>
+<p><strong>Theorem (Bonferroni controls FWER).</strong> <span class="math inline">\(\text{FWER} \leq \alpha\)</span> under arbitrary dependence of the test statistics.</p>
+<p><em>Proof.</em> By the union bound:
+<span class="math display">\[\text{FWER} = P\!\left(\bigcup_{j \in \mathcal{H}_0} \{p_j \leq \alpha/m\}\right) \leq \sum_{j \in \mathcal{H}_0} P(p_j \leq \alpha/m) = m_0 \cdot \frac{\alpha}{m} \leq m \cdot \frac{\alpha}{m} = \alpha. \quad\square\]</span></p>
+<p>The Bonferroni correction requires no assumption about the dependence structure of the tests. Its conservatism — using <span class="math inline">\(m\)</span> in the denominator rather than <span class="math inline">\(m_0\)</span> — comes from upper-bounding <span class="math inline">\(m_0\)</span> by <span class="math inline">\(m\)</span>.</p>
+<h3 id="holm-bonferroni-procedure">4.4 Holm-Bonferroni Procedure</h3>
+<p><strong>Procedure (Holm, 1979).</strong> Order the <span class="math inline">\(m\)</span> p-values from smallest to largest: <span class="math inline">\(p_{(1)} \leq p_{(2)} \leq \cdots \leq p_{(m)}\)</span>, with corresponding null hypotheses <span class="math inline">\(H_0^{(1)}, H_0^{(2)}, \ldots, H_0^{(m)}\)</span>.</p>
+<p>For <span class="math inline">\(j = 1, 2, \ldots, m\)</span>:
+- If <span class="math inline">\(p_{(j)} \leq \alpha / (m - j + 1)\)</span>, reject <span class="math inline">\(H_0^{(j)}\)</span> and continue to <span class="math inline">\(j+1\)</span>.
+- Otherwise, retain <span class="math inline">\(H_0^{(j)}, H_0^{(j+1)}, \ldots, H_0^{(m)}\)</span> and stop.</p>
+<p>At step <span class="math inline">\(j\)</span>, the threshold is <span class="math inline">\(\alpha/(m-j+1)\)</span>, which starts at <span class="math inline">\(\alpha/m\)</span> (same as Bonferroni for the smallest p-value) and grows as more hypotheses are rejected.</p>
+<p><strong>Theorem (Holm controls FWER; Holm, 1979).</strong> The Holm procedure controls FWER at level <span class="math inline">\(\alpha\)</span> under arbitrary dependence. Moreover, it is <em>uniformly more powerful</em> than Bonferroni: whenever Bonferroni rejects <span class="math inline">\(H_0^j\)</span>, so does Holm.</p>
+<p><em>Proof of uniform dominance.</em> At step <span class="math inline">\(j = 1\)</span>, the Holm threshold <span class="math inline">\(\alpha/m\)</span> equals the Bonferroni threshold. If <span class="math inline">\(H_0^{(1)}\)</span> is rejected, the Holm threshold for subsequent tests increases to <span class="math inline">\(\alpha/(m-1) &gt; \alpha/m\)</span>. Since both procedures compare the same ordered p-values to non-decreasing thresholds (Holm) versus a constant threshold (Bonferroni), every rejection by Bonferroni corresponds to a rejection by Holm. <span class="math inline">\(\square\)</span></p>
+<h3 id="fwer-control-of-holm-via-closed-testing">4.5 FWER Control of Holm via Closed Testing</h3>
+<p>The <em>closed testing principle</em> (Marcus, Peritz, and Gabriel, 1976) provides the formal underpinning for Holm’s FWER control. A <em>closed testing procedure</em> rejects <span class="math inline">\(H_0^j\)</span> only if all intersection hypotheses <span class="math inline">\(H_0^J = \bigcap_{k \in J} H_0^k\)</span> for every <span class="math inline">\(J \supseteq \{j\}\)</span> are also rejected at level <span class="math inline">\(\alpha\)</span>.</p>
+<p>For Holm, each intersection hypothesis <span class="math inline">\(H_0^J\)</span> (<span class="math inline">\(|J| = q\)</span>) is tested using a Bonferroni test at level <span class="math inline">\(q\alpha/m\)</span>: reject <span class="math inline">\(H_0^J\)</span> if <span class="math inline">\(\min_{k \in J} p_k \leq q\alpha/m\)</span>, equivalently if <span class="math inline">\(p_{(1)}^J \leq q\alpha/m\)</span> where <span class="math inline">\(p_{(1)}^J\)</span> is the smallest p-value in <span class="math inline">\(J\)</span>.</p>
+<p><strong>FWER control.</strong> Under the closed testing framework, any closed procedure controls FWER at level <span class="math inline">\(\alpha\)</span>. The Holm step-down procedure is equivalent to this closed procedure, establishing its FWER control. The key step: if we make a false rejection of <span class="math inline">\(H_0^j\)</span>, then by closure, the intersection <span class="math inline">\(H_0^{\mathcal{H}_0}\)</span> (the global null over all true nulls) was also rejected. The probability of this event is at most <span class="math inline">\(\alpha\)</span> by the validity of the Bonferroni test applied to the true nulls. Hence <span class="math inline">\(\text{FWER} \leq \alpha\)</span>.</p>
+<hr />
+<h2 id="multiple-testing-fdr-control">5. Multiple Testing: FDR Control</h2>
+<h3 id="false-discovery-rate">5.1 False Discovery Rate</h3>
+<p>When <span class="math inline">\(m\)</span> is large (e.g., testing hundreds of metrics or hundreds of user segments), controlling FWER becomes extremely conservative — the adjusted per-comparison threshold <span class="math inline">\(\alpha/m\)</span> may be so small that virtually no true effects are detected.</p>
+<p><strong>Definition (FDR).</strong> Let <span class="math inline">\(R\)</span> be the total number of rejections and <span class="math inline">\(V\)</span> the number of false rejections. The <em>false discovery rate</em> is:
+<span class="math display">\[\text{FDR} = \mathbb{E}\!\left[\frac{V}{\max(R, 1)}\right] = \mathbb{E}\!\left[\frac{V}{R} \,\Big|\, R &gt; 0\right] P(R &gt; 0).\]</span></p>
+<p>FDR is the expected <em>proportion</em> of rejected hypotheses that are false positives, rather than the probability of any false positive. When all nulls are true, <span class="math inline">\(V = R\)</span>, so FDR <span class="math inline">\(= P(R &gt; 0) = \text{FWER}\)</span>. When some nulls are false, FDR <span class="math inline">\(\leq\)</span> FWER.</p>
+<h3 id="benjamini-hochberg-procedure">5.2 Benjamini-Hochberg Procedure</h3>
+<p><strong>Procedure (Benjamini-Hochberg, 1995).</strong> Order the <span class="math inline">\(m\)</span> p-values: <span class="math inline">\(p_{(1)} \leq \cdots \leq p_{(m)}\)</span>. Define:
+<span class="math display">\[k^* = \max\!\left\{j \in \{1,\ldots,m\} : p_{(j)} \leq \frac{j\alpha}{m}\right\},\]</span>
+with the convention <span class="math inline">\(k^* = 0\)</span> if no such <span class="math inline">\(j\)</span> exists. Reject <span class="math inline">\(H_0^{(1)}, \ldots, H_0^{(k^*)}\)</span> (i.e., all hypotheses with p-value at most <span class="math inline">\(p_{(k^*)}\)</span>).</p>
+<p>The BH procedure compares each ordered p-value to a linearly increasing threshold <span class="math inline">\(j\alpha/m\)</span>, and rejects everything up to the last crossing.</p>
+<h3 id="fdr-control-level-of-bh-under-independence">5.3 FDR Control Level of BH under Independence</h3>
+<p><strong>Theorem (Benjamini and Hochberg, 1995).</strong> Under the assumption that the test statistics are mutually independent, the BH procedure controls FDR at level:
+<span class="math display">\[\text{FDR} \leq \frac{m_0}{m} \cdot \alpha \leq \alpha,\]</span>
+where <span class="math inline">\(m_0\)</span> is the number of true null hypotheses.</p>
+<p><em>Proof sketch.</em> Index the true null hypotheses as <span class="math inline">\(j = 1, \ldots, m_0\)</span> (with p-values uniform on <span class="math inline">\([0,1]\)</span> by assumption) and false nulls as <span class="math inline">\(j = m_0+1, \ldots, m\)</span>. Write the FDR as:
+<span class="math display">\[\text{FDR} = \mathbb{E}\!\left[\frac{V}{R}\right] = \sum_{j=1}^{m_0} \mathbb{E}\!\left[\frac{\mathbf{1}[p_j \leq p_{(k^*)}]}{R}\right].\]</span></p>
+<p>For a fixed true null <span class="math inline">\(j\)</span>, condition on all other p-values. The key observation is that for <span class="math inline">\(p_j \sim \text{Uniform}(0,1)\)</span>, independent of the other p-values, the contribution of hypothesis <span class="math inline">\(j\)</span> to the FDR satisfies:
+<span class="math display">\[\mathbb{E}\!\left[\frac{\mathbf{1}[p_j \leq p_{(k^*)}]}{R}\right] \leq \frac{\alpha}{m}.\]</span></p>
+<p>This follows because: if <span class="math inline">\(j\)</span> is the <span class="math inline">\(\ell\)</span>-th smallest p-value among all <span class="math inline">\(m\)</span> p-values, then <span class="math inline">\(j\)</span> is rejected only if <span class="math inline">\(p_j \leq \ell\alpha/m\)</span>, and there are at least <span class="math inline">\(\ell\)</span> rejections, so <span class="math inline">\(V/R \leq 1/\ell\)</span>. Averaging over the rank <span class="math inline">\(\ell\)</span> of a uniform p-value:
+<span class="math display">\[\mathbb{E}\!\left[\frac{\mathbf{1}[H_0^j \text{ rejected}]}{R}\right] \leq \mathbb{E}\!\left[\frac{p_j \cdot m}{\alpha \cdot R}\right] \cdot \frac{\alpha}{m} \leq \frac{\alpha}{m}.\]</span></p>
+<p>Summing over <span class="math inline">\(m_0\)</span> true nulls: <span class="math inline">\(\text{FDR} \leq m_0 \alpha / m \leq \alpha\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>This bound is tight: if all <span class="math inline">\(m\)</span> null hypotheses are true (<span class="math inline">\(m_0 = m\)</span>), BH controls FDR at exactly <span class="math inline">\(\alpha\)</span>, coinciding with FWER control in that case.</em></p>
+<h3 id="fdr-vs.-fwer-when-to-use-each">5.4 FDR vs. FWER: When to Use Each</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 27%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterion</th>
+<th>FWER</th>
+<th>FDR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Controls</td>
+<td><span class="math inline">\(P(\text{any false positive})\)</span></td>
+<td><span class="math inline">\(\mathbb{E}[\text{FP fraction among rejections}]\)</span></td>
+</tr>
+<tr class="even">
+<td>Appropriate when</td>
+<td>Any false positive is unacceptable (safety, regulatory)</td>
+<td>Exploring many hypotheses; cost of FP scales with discoveries</td>
+</tr>
+<tr class="odd">
+<td>Power at large <span class="math inline">\(m\)</span></td>
+<td>Low (threshold <span class="math inline">\(\sim \alpha/m\)</span>)</td>
+<td>High (threshold <span class="math inline">\(\sim j\alpha/m\)</span>, grows with rank)</td>
+</tr>
+<tr class="even">
+<td>Dependence requirement</td>
+<td>Arbitrary (Bonferroni, Holm)</td>
+<td>Independence (BH); extensions exist for dependence</td>
+</tr>
+</tbody>
+</table>
+<p>In A/B testing at scale, FWER control is typically applied to a small set of primary metrics (e.g., 2–5), while FDR control may be appropriate for exploratory analyses across hundreds of segments.</p>
+<h3 id="worked-example-bonferroni-holm-and-bh">5.5 Worked Example: Bonferroni, Holm, and BH</h3>
+<p><strong>Setup.</strong> <span class="math inline">\(m = 10\)</span> hypotheses, <span class="math inline">\(\alpha = 0.05\)</span>. Observed p-values (already sorted):</p>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 9%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rank <span class="math inline">\(j\)</span></th>
+<th><span class="math inline">\(p_{(j)}\)</span></th>
+<th>Bonferroni threshold <span class="math inline">\(\alpha/m\)</span></th>
+<th>Holm threshold <span class="math inline">\(\alpha/(m-j+1)\)</span></th>
+<th>BH threshold <span class="math inline">\(j\alpha/m\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0.001</td>
+<td>0.005</td>
+<td>0.005</td>
+<td>0.005</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>0.008</td>
+<td>0.005</td>
+<td>0.0056</td>
+<td>0.010</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>0.012</td>
+<td>0.005</td>
+<td>0.0063</td>
+<td>0.015</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>0.020</td>
+<td>0.005</td>
+<td>0.0071</td>
+<td>0.020</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>0.035</td>
+<td>0.005</td>
+<td>0.0083</td>
+<td>0.025</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>0.048</td>
+<td>0.005</td>
+<td>0.010</td>
+<td>0.030</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>0.062</td>
+<td>0.005</td>
+<td>0.0125</td>
+<td>0.035</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>0.200</td>
+<td>0.005</td>
+<td>0.0167</td>
+<td>0.040</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>0.380</td>
+<td>0.005</td>
+<td>0.025</td>
+<td>0.045</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>0.740</td>
+<td>0.005</td>
+<td>0.050</td>
+<td>0.050</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Bonferroni:</strong> Threshold <span class="math inline">\(= 0.05/10 = 0.005\)</span>. Only <span class="math inline">\(p_{(1)} = 0.001 \leq 0.005\)</span>. <strong>Reject <span class="math inline">\(H_0^{(1)}\)</span> only.</strong> (1 rejection)</p>
+<p><strong>Holm:</strong> Start at <span class="math inline">\(j=1\)</span>: <span class="math inline">\(p_{(1)} = 0.001 \leq 0.005\)</span> — reject. <span class="math inline">\(j=2\)</span>: <span class="math inline">\(p_{(2)} = 0.008 \leq 0.0056\)</span>? No, <span class="math inline">\(0.008 &gt; 0.0056\)</span> — stop. <strong>Reject <span class="math inline">\(H_0^{(1)}\)</span> only.</strong> (1 rejection)</p>
+<p><strong>BH:</strong> Find the largest <span class="math inline">\(j\)</span> such that <span class="math inline">\(p_{(j)} \leq j\alpha/m\)</span>:
+- <span class="math inline">\(j=4\)</span>: <span class="math inline">\(p_{(4)} = 0.020 \leq 0.020\)</span> — yes.
+- <span class="math inline">\(j=5\)</span>: <span class="math inline">\(p_{(5)} = 0.035 \leq 0.025\)</span> — no.</p>
+<p>So <span class="math inline">\(k^* = 4\)</span>. <strong>Reject <span class="math inline">\(H_0^{(1)}, H_0^{(2)}, H_0^{(3)}, H_0^{(4)}\)</span>.</strong> (4 rejections)</p>
+<p><strong>Conclusion.</strong> Bonferroni and Holm both yield 1 rejection. BH yields 4, demonstrating its substantially higher power at the cost of permitting a controlled expected false discovery rate rather than a zero-false-positive guarantee. <em>Note that Holm here gives the same result as Bonferroni; the gain from Holm is most pronounced when multiple p-values are small.</em></p>
+<hr />
+<h2 id="metric-selection">6. Metric Selection</h2>
+<h3 id="primary-metrics">6.1 Primary Metrics</h3>
+<p>A <em>primary metric</em> is the main quantity the experiment is designed to move, directly tied to a business or product objective. Examples include revenue per user, click-through rate, and conversion rate. All statistical corrections (sample size, multiple testing) are designed with the primary metric in mind. <em>The number of primary metrics should be small</em> — one or two — to avoid diluting statistical power across the correction budget.</p>
+<h3 id="guardrail-metrics">6.2 Guardrail Metrics</h3>
+<p><em>Guardrail metrics</em> are metrics that must not degrade, even if the primary metric improves. Common examples: page load latency, crash rate, ad revenue (for product experiments), and customer support contact rate. They are tested one-tailed (degradation direction only) with a pre-specified degradation threshold. <strong>If any guardrail metric fails its threshold, the experiment is declared invalid regardless of primary metric results.</strong> This prevents Goodharting — optimizing a target metric at the expense of overall system health.</p>
+<p>Formally, for guardrail metric <span class="math inline">\(G\)</span> with threshold <span class="math inline">\(\delta_G &gt; 0\)</span> (maximum tolerable degradation), the guardrail test is:
+<span class="math display">\[H_0^G: \tau_G \geq -\delta_G \quad \text{vs.} \quad H_a^G: \tau_G &lt; -\delta_G.\]</span></p>
+<h3 id="sensitivity-and-signal-to-noise-ratio">6.3 Sensitivity and Signal-to-Noise Ratio</h3>
+<p>The <em>sensitivity</em> of a metric is its ability to detect a true treatment effect. Formally, sensitivity is determined by the signal-to-noise ratio:
+<span class="math display">\[\text{SNR} = \frac{|\tau|}{\sigma_Y / \sqrt{n}},\]</span>
+where <span class="math inline">\(\sigma_Y^2 = \text{Var}(Y_i)\)</span> and <span class="math inline">\(n\)</span> is the per-group sample size. For fixed <span class="math inline">\(n\)</span> and effect size <span class="math inline">\(\tau\)</span>, sensitivity increases as <span class="math inline">\(\sigma_Y\)</span> decreases. Strategies for reducing <span class="math inline">\(\sigma_Y\)</span>:</p>
+<ul>
+<li><strong>Capping:</strong> cap <span class="math inline">\(Y_i\)</span> at a high percentile (e.g., 99th) to remove outliers that dominate variance. This introduces a small bias but often substantially reduces variance.</li>
+<li><strong>Longer averaging windows:</strong> if <span class="math inline">\(Y_i = T^{-1}\sum_{t=1}^T Z_{i,t}\)</span> is an average over <span class="math inline">\(T\)</span> time steps, <span class="math inline">\(\text{Var}(Y_i) = O(T^{-1})\)</span> under weak dependence.</li>
+<li><strong>CUPED:</strong> subtract the pre-experiment covariate as in Section 3.</li>
+</ul>
+<h3 id="directionality-and-metric-hierarchies">6.4 Directionality and Metric Hierarchies</h3>
+<p>Every metric must have a clear <em>directionality</em>: a definition of which direction of change is beneficial. This must be specified before the experiment, not inferred from data. Metrics with ambiguous directionality (e.g., session time — is more engagement good or are users struggling to find content?) should be decomposed into directional components (e.g., session time conditional on task completion vs. session time without completion).</p>
+<p>The <em>Overall Evaluation Criterion</em> (OEC) is a single scalar score combining multiple metrics with fixed weights:
+<span class="math display">\[\text{OEC} = \sum_{k=1}^K \lambda_k \cdot \text{standardized}(M_k),\]</span>
+where <span class="math inline">\(\lambda_k\)</span> are predetermined weights summing to one. The OEC reduces the multiple testing problem to a single primary test, at the cost of making explicit value judgments about metric tradeoffs. <em>The choice of weights is not statistically determined and reflects organizational priorities.</em> Changes to the OEC formula should be versioned and tracked to ensure historical comparisons remain valid.</p>
+<hr />
+<h2 id="references">References</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Deng, Xu, Kohavi, Walker (2013) — “Improving the Sensitivity of Online Controlled Experiments by Utilizing Pre-Experiment Data”</td>
+<td>Introduces CUPED: using pre-experiment covariates to reduce variance; derives the optimal adjustment and connects it to regression control variates</td>
+<td><a href="https://dl.acm.org/doi/10.1145/2433396.2433413">ACM DL</a></td>
+</tr>
+<tr class="even">
+<td>Benjamini and Hochberg (1995) — “Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing”</td>
+<td>Introduces the FDR and the BH step-up procedure; proves FDR control at level <span class="math inline">\(\alpha m_0/m\)</span> under independence</td>
+<td><a href="https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1995.tb02031.x">Wiley Online Library</a></td>
+</tr>
+<tr class="odd">
+<td>Holm (1979) — “A Simple Sequentially Rejective Multiple Test Procedure”</td>
+<td>Introduces the Holm step-down procedure; proves strong FWER control under arbitrary dependence, dominates Bonferroni uniformly</td>
+<td><a href="https://www.ime.usp.br/~abe/lista/pdf4R8xPVzCnX.pdf">Scandinavian Journal of Statistics</a></td>
+</tr>
+<tr class="even">
+<td>Kohavi, Crook, Longbotham (2009) — “Online Experimentation at Microsoft”</td>
+<td>Practical overview of large-scale A/B testing infrastructure, metric selection, and experimental pitfalls at Microsoft</td>
+<td><a href="https://exp-platform.com/">exp-platform.com</a></td>
+</tr>
+<tr class="odd">
+<td>Kohavi, Tang, Xu (2020) — “Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing”</td>
+<td>Comprehensive textbook on online experimentation: design, analysis, metrics, pitfalls, and organizational processes</td>
+<td><a href="https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59">Cambridge University Press</a></td>
+</tr>
+<tr class="even">
+<td>Imbens and Rubin (2015) — “Causal Inference for Statistics, Social, and Biomedical Sciences”</td>
+<td>Rigorous textbook treatment of the potential outcomes framework, complete randomization, stratification, and Neyman variance formulas</td>
+<td><a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">Cambridge University Press</a></td>
+</tr>
+<tr class="odd">
+<td>Frisch and Waugh (1933) — “Partial Time Regressions as Compared with Individual Trends”</td>
+<td>Original paper proving the Frisch-Waugh theorem on partialling out regressors in OLS</td>
+<td><a href="https://www.jstor.org/stable/1907330">Econometrica</a></td>
+</tr>
+<tr class="even">
+<td>Marcus, Peritz, Gabriel (1976) — “On closed testing procedures with special reference to ordered analysis of variance”</td>
+<td>Introduces the closed testing principle, the formal framework used to prove FWER control of Holm and other step-down procedures</td>
+<td><a href="https://academic.oup.com/biomet/article-abstract/63/3/655/270440">Biometrika</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

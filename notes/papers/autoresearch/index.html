@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>autoresearch - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../css/default.css" />
+        <link rel="stylesheet" href="../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../contact.html">Contact</a>
+                <a href="../../../archive.html">Archive</a>
+                <a href="../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>autoresearch</h1>
+            <article>
+    <section>
+        <p><em>Andrej Karpathy (karpathy/autoresearch, March 2026); Assaf Elovic (GPT-Researcher, 2023); Wenlin Zhang et al. (Deep Research Survey, 2025); practitioners across multiple venues.</em></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Prior State</th>
+<th>This Paper</th>
+<th>Key Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Research automation</td>
+<td>Manual query-answer with single LLM call</td>
+<td>Closed agentic loop: propose → execute → evaluate → iterate</td>
+<td>~700 experiments overnight, 11% improvement on GPT-2 training benchmark</td>
+</tr>
+<tr class="even">
+<td>Scope of search</td>
+<td>Single retrieval pass, no iteration</td>
+<td>Recursive tree-structured retrieval with query reformulation</td>
+<td>BFS/DFS hybrid cuts redundant queries; frequency-consensus reduces hallucination</td>
+</tr>
+<tr class="odd">
+<td>Evaluation signal</td>
+<td>Human judgment, offline evals</td>
+<td>Fixed proxy metric in immutable harness (val_bpb)</td>
+<td>Metric gaming isolated by scope containment + held-out eval</td>
+</tr>
+<tr class="even">
+<td>Systems available</td>
+<td>Closed commercial tools</td>
+<td>Open-source: GPT-Researcher (25.7k stars), AI-Scientist-v2, karpathy/autoresearch</td>
+<td>93.8% implementation completeness on Scientist-Bench (AI-Researcher)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="relations">Relations</h2>
+<p><strong>Builds on:</strong> <a href="../../../notes/papers/multi-agent-design%7Cmulti-agent-design-patterns/">papers/multi-agent-design|Multi-Agent Design Patterns</a>
+<strong>Concepts used:</strong> <a href="../../../notes/concepts/neural-scaling-laws/note%7Cneural-scaling-laws/">concepts/neural-scaling-laws/note|Neural Scaling Laws</a>, <a href="../../../notes/concepts/mixture-of-experts/note%7Cmixture-of-experts/">concepts/mixture-of-experts/note|Mixture of Experts</a></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../notes/#1.-what-is-autoresearch%7C1.-what-is-autoresearch/">#1. What is Autoresearch|1. What is Autoresearch</a>
+<ul>
+<li><a href="../../../notes/#1.1-definition%7C1.1-definition/">#1.1 Definition|1.1 Definition</a></li>
+<li><a href="../../../notes/#1.2-contrast-with-naive-llm-querying%7C1.2-contrast-with-naive-llm-querying/">#1.2 Contrast with Naive LLM Querying|1.2 Contrast with Naive LLM Querying</a></li>
+<li><a href="../../../notes/#1.3-information-theoretic-motivation%7C1.3-information-theoretic-motivation/">#1.3 Information-Theoretic Motivation|1.3 Information-Theoretic Motivation</a></li>
+</ul></li>
+<li><a href="../../../notes/#2.-the-core-loop%7C2.-the-core-loop/">#2. The Core Loop|2. The Core Loop</a>
+<ul>
+<li><a href="../../../notes/#2.1-the-canonical-five-step-cycle%7C2.1-the-canonical-five-step-cycle/">#2.1 The Canonical Five-Step Cycle|2.1 The Canonical Five-Step Cycle</a></li>
+<li><a href="../../../notes/#2.2-formal-pseudocode%7C2.2-formal-pseudocode/">#2.2 Formal Pseudocode|2.2 Formal Pseudocode</a></li>
+<li><a href="../../../notes/#2.3-convergence-and-termination%7C2.3-convergence-and-termination/">#2.3 Convergence and Termination|2.3 Convergence and Termination</a></li>
+</ul></li>
+<li><a href="../../../notes/#3.-key-components%7C3.-key-components/">#3. Key Components|3. Key Components</a>
+<ul>
+<li><a href="../../../notes/#3.1-search-and-retrieval-tools%7C3.1-search-and-retrieval-tools/">#3.1 Search and Retrieval Tools|3.1 Search and Retrieval Tools</a></li>
+<li><a href="../../../notes/#3.2-reader-and-scraper-agents%7C3.2-reader-and-scraper-agents/">#3.2 Reader and Scraper Agents|3.2 Reader and Scraper Agents</a></li>
+<li><a href="../../../notes/#3.3-synthesis-llm%7C3.3-synthesis-llm/">#3.3 Synthesis LLM|3.3 Synthesis LLM</a></li>
+<li><a href="../../../notes/#3.4-memory-and-context-management%7C3.4-memory-and-context-management/">#3.4 Memory and Context Management|3.4 Memory and Context Management</a></li>
+<li><a href="../../../notes/#3.5-evaluation-harness%7C3.5-evaluation-harness/">#3.5 Evaluation Harness|3.5 Evaluation Harness</a></li>
+</ul></li>
+<li><a href="../../../notes/#4.-design-patterns-and-strategies%7C4.-design-patterns-and-strategies/">#4. Design Patterns and Strategies|4. Design Patterns and Strategies</a>
+<ul>
+<li><a href="../../../notes/#4.1-breadth-first-vs.-depth-first-exploration%7C4.1-breadth-first-vs.-depth-first-exploration/">#4.1 Breadth-First vs. Depth-First Exploration|4.1 Breadth-First vs. Depth-First Exploration</a></li>
+<li><a href="../../../notes/#4.2-query-reformulation%7C4.2-query-reformulation/">#4.2 Query Reformulation|4.2 Query Reformulation</a></li>
+<li><a href="../../../notes/#4.3-source-deduplication-and-frequency-consensus%7C4.3-source-deduplication-and-frequency-consensus/">#4.3 Source Deduplication and Frequency Consensus|4.3 Source Deduplication and Frequency Consensus</a></li>
+<li><a href="../../../notes/#4.4-scope-containment-and-revert-semantics%7C4.4-scope-containment-and-revert-semantics/">#4.4 Scope Containment and Revert Semantics|4.4 Scope Containment and Revert Semantics</a></li>
+<li><a href="../../../notes/#4.5-reflection-prompts%7C4.5-reflection-prompts/">#4.5 Reflection Prompts|4.5 Reflection Prompts</a></li>
+</ul></li>
+<li><a href="../../../notes/#5.-failure-modes-and-mitigations%7C5.-failure-modes-and-mitigations/">#5. Failure Modes and Mitigations|5. Failure Modes and Mitigations</a>
+<ul>
+<li><a href="../../../notes/#5.1-hallucination-and-factual-drift%7C5.1-hallucination-and-factual-drift/">#5.1 Hallucination and Factual Drift|5.1 Hallucination and Factual Drift</a></li>
+<li><a href="../../../notes/#5.2-context-saturation%7C5.2-context-saturation/">#5.2 Context Saturation|5.2 Context Saturation</a></li>
+<li><a href="../../../notes/#5.3-rabbit-holing-and-plan-brittleness%7C5.3-rabbit-holing-and-plan-brittleness/">#5.3 Rabbit-Holing and Plan Brittleness|5.3 Rabbit-Holing and Plan Brittleness</a></li>
+<li><a href="../../../notes/#5.4-metric-gaming-and-reward-hacking%7C5.4-metric-gaming-and-reward-hacking/">#5.4 Metric Gaming and Reward Hacking|5.4 Metric Gaming and Reward Hacking</a></li>
+<li><a href="../../../notes/#5.5-source-quality-and-prompt-injection%7C5.5-source-quality-and-prompt-injection/">#5.5 Source Quality and Prompt Injection|5.5 Source Quality and Prompt Injection</a></li>
+</ul></li>
+<li><a href="../../../notes/#6.-practical-implementations%7C6.-practical-implementations/">#6. Practical Implementations|6. Practical Implementations</a>
+<ul>
+<li><a href="../../../notes/#6.1-karpathy/autoresearch%7C6.1-karpathy/autoresearch/">#6.1 karpathy/autoresearch|6.1 karpathy/autoresearch</a></li>
+<li><a href="../../../notes/#6.2-gpt-researcher%7C6.2-gpt-researcher/">#6.2 GPT-Researcher|6.2 GPT-Researcher</a></li>
+<li><a href="../../../notes/#6.3-ai-scientist-v2%7C6.3-ai-scientist-v2/">#6.3 AI Scientist v2|6.3 AI Scientist v2</a></li>
+<li><a href="../../../notes/#6.4-ai-researcher%7C6.4-ai-researcher/">#6.4 AI-Researcher|6.4 AI-Researcher</a></li>
+<li><a href="../../../notes/#6.5-commercial-systems%7C6.5-commercial-systems/">#6.5 Commercial Systems|6.5 Commercial Systems</a></li>
+</ul></li>
+<li><a href="../../../notes/#7.-evaluation%7C7.-evaluation/">#7. Evaluation|7. Evaluation</a>
+<ul>
+<li><a href="../../../notes/#7.1-search-oriented-benchmarks%7C7.1-search-oriented-benchmarks/">#7.1 Search-Oriented Benchmarks|7.1 Search-Oriented Benchmarks</a></li>
+<li><a href="../../../notes/#7.2-research-oriented-benchmarks%7C7.2-research-oriented-benchmarks/">#7.2 Research-Oriented Benchmarks|7.2 Research-Oriented Benchmarks</a></li>
+<li><a href="../../../notes/#7.3-evaluation-dimensions%7C7.3-evaluation-dimensions/">#7.3 Evaluation Dimensions|7.3 Evaluation Dimensions</a></li>
+</ul></li>
+<li><a href="../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ul>
+<hr />
+<h2 id="what-is-autoresearch">1. What is Autoresearch</h2>
+<h3 id="definition">1.1 Definition</h3>
+<p>💡 <strong>Definition (Autoresearch).</strong> <em>Autoresearch</em> is an autonomous AI workflow in which an LLM-backed agent iterates through cycles of query formulation, evidence retrieval, reading, reflection, and synthesis — without human intervention between cycles — until a termination criterion is met. The output is a grounded artifact: a research report, an optimized training script, a set of hypotheses, or any other verifiable product of systematic inquiry.</p>
+<p>The term entered broad usage in March 2026 when Andrej Karpathy published <a href="https://github.com/karpathy/autoresearch"><code>karpathy/autoresearch</code></a>, a minimal demonstration of the pattern applied to ML training optimization. The concept is, however, broader: GPT-Researcher (Assaf Elovic, 2023) and Sakana AI’s AI Scientist (2024) instantiate the same pattern for open-domain literature synthesis and scientific hypothesis generation respectively.</p>
+<p>Two flavors of autoresearch are worth distinguishing from the outset:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Flavor</th>
+<th>Domain</th>
+<th>Mutation Target</th>
+<th>Fitness Signal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Experimental optimization</em></td>
+<td>ML training</td>
+<td>Source code / hyperparameters</td>
+<td>Proxy metric (val_bpb, accuracy)</td>
+</tr>
+<tr class="even">
+<td><em>Literature synthesis</em></td>
+<td>Any knowledge domain</td>
+<td>Research queries / report draft</td>
+<td>Coverage, citation precision, coherence</td>
+</tr>
+</tbody>
+</table>
+<p>Both share the same underlying loop structure; they differ only in what is mutated and how fitness is measured.</p>
+<h3 id="contrast-with-naive-llm-querying">1.2 Contrast with Naive LLM Querying</h3>
+<p>A single-pass LLM query — “tell me about topic X” — suffers from two structural limitations:</p>
+<ol type="1">
+<li><strong>Fixed context horizon</strong>: the LLM can only reason over information already in its training distribution or a single retrieved chunk. No new evidence is incorporated during generation.</li>
+<li><strong>No self-correction</strong>: the model cannot detect when its output contradicts a retrieved source or when a knowledge gap remains unaddressed.</li>
+</ol>
+<p>Autoresearch replaces this one-shot pass with a <em>closed feedback loop</em>. The agent maintains a growing evidence buffer, detects gaps through reflection, issues follow-up queries, and revises its synthesis. This mirrors the structure of human scientific inquiry: form hypothesis → gather evidence → update belief → repeat.</p>
+<h3 id="information-theoretic-motivation">1.3 Information-Theoretic Motivation</h3>
+<p>Let <span class="math inline">\(H(T)\)</span> denote the entropy of the answer to a research task <span class="math inline">\(T\)</span>, and let <span class="math inline">\(I_k\)</span> denote the mutual information between the <span class="math inline">\(k\)</span>-th retrieved document and <span class="math inline">\(T\)</span>. A single retrieval pass yields expected information gain</p>
+<p><span class="math display">\[\mathbb{E}[I_1] = I(D_1; T)\]</span></p>
+<p>where <span class="math inline">\(D_1\)</span> is drawn from the retrieval distribution induced by the initial query <span class="math inline">\(q_0\)</span>. After <span class="math inline">\(n\)</span> independent retrieval steps, the total information about <span class="math inline">\(T\)</span> in the evidence buffer is (assuming approximate independence of retrieved documents)</p>
+<p><span class="math display">\[\sum_{k=1}^{n} I(D_k; T \mid D_1, \ldots, D_{k-1}).\]</span></p>
+<p><em>Heuristically</em>, each additional step has diminishing marginal gain — a saturation effect — unless the agent <em>adapts its queries</em> based on what it has already learned. Query reformulation is the mechanism that maintains high marginal information gain across iterations: by conditioning each new query <span class="math inline">\(q_k\)</span> on the current evidence buffer <span class="math inline">\(\mathcal{E}_{k-1}\)</span>, the agent steers retrieval toward the residual uncertainty in <span class="math inline">\(T\)</span>.</p>
+<p><strong>Iterative retrieval with adaptive query reformulation provides strictly higher expected coverage of <span class="math inline">\(H(T)\)</span> than any fixed query set of the same size</strong> — assuming the LLM’s query proposals are positively correlated with the actual residual uncertainty. This is the information-theoretic justification for the loop.</p>
+<hr />
+<h2 id="the-core-loop">2. The Core Loop</h2>
+<h3 id="the-canonical-five-step-cycle">2.1 The Canonical Five-Step Cycle</h3>
+<p>🔄 The <em>agentic research cycle</em> consists of five stages executed repeatedly until termination:</p>
+<ol type="1">
+<li><strong>Plan / Decompose</strong>: Given task <span class="math inline">\(T\)</span>, decompose it into a set of sub-questions <span class="math inline">\(\{q_1, \ldots, q_m\}\)</span> that jointly cover <span class="math inline">\(T\)</span>. In experimental optimization, this step is replaced by a mutation proposal.</li>
+<li><strong>Search / Retrieve</strong>: For each <span class="math inline">\(q_i\)</span>, execute search tool calls (API or browser) to retrieve a candidate document set <span class="math inline">\(\mathcal{D}_i\)</span>.</li>
+<li><strong>Read / Extract</strong>: Scrape, parse, and compress each document into evidence summaries <span class="math inline">\(\{e_{i,j}\}\)</span>, discarding irrelevant material.</li>
+<li><strong>Reflect / Evaluate</strong>: Assess whether the accumulated evidence <span class="math inline">\(\mathcal{E} = \bigcup_{i,j} e_{i,j}\)</span> sufficiently answers <span class="math inline">\(T\)</span>. Identify remaining gaps <span class="math inline">\(G\)</span>.</li>
+<li><strong>Iterate or Terminate</strong>: If <span class="math inline">\(G \neq \emptyset\)</span> and budget remains, reformulate queries from <span class="math inline">\(G\)</span> and return to step 2. Otherwise, synthesize <span class="math inline">\(\mathcal{E}\)</span> into the final output.</li>
+</ol>
+<p><img src="../../../notes/papers/figures/autoresearch/deep-research-survey-fig1-overview.png/" alt="papers/figures/autoresearch/deep-research-survey-fig1-overview.png" />
+<em>Figure 1 (Zhang et al., Deep Research Survey, 2025): High-level architecture of a deep research system. The pipeline stages — Plan, Query, Web Explorer (iterative search), Finding, and Report — map directly onto the five-step cycle above. The lower tier lists the agentic capabilities each stage demands: structural/learnable planning, reward/supervision-driven question development, API/browser-based web exploration, and factual/integrity-controlled report generation.</em></p>
+<pre class="mermaid"><code>flowchart TD
+    T[&quot;Research Task T&quot;]
+    T --&gt; Plan[&quot;1. Plan / Decompose&lt;br/&gt;sub-questions {q_i}&quot;]
+    Plan --&gt; Search[&quot;2. Search / Retrieve&lt;br/&gt;docs D_i per q_i&quot;]
+    Search --&gt; Read[&quot;3. Read / Extract&lt;br/&gt;evidence summaries e&quot;]
+    Read --&gt; Reflect[&quot;4. Reflect / Evaluate&lt;br/&gt;gaps G, coverage score&quot;]
+    Reflect --&gt; Check{&quot;gaps remain&lt;br/&gt;and budget?&quot;}
+    Check --&gt;|yes| Reformulate[&quot;reformulate queries from G&quot;]
+    Reformulate --&gt; Search
+    Check --&gt;|no| Synthesize[&quot;5. Synthesize Output&quot;]</code></pre>
+<h3 id="formal-pseudocode">2.2 Formal Pseudocode</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> autoresearch(task: <span class="bu">str</span>, budget: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    evidence: <span class="bu">set</span>[<span class="bu">str</span>] <span class="op">=</span> <span class="bu">set</span>()        <span class="co"># evidence buffer</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    queries: <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">=</span> decompose(task)  <span class="co"># initial sub-question set</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(budget):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        gaps <span class="op">=</span> reflect(task, evidence)    <span class="co"># identify residual gaps</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> gaps:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> q <span class="kw">in</span> queries:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> doc <span class="kw">in</span> search(q):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                evidence.add(read_and_compress(doc))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        queries <span class="op">=</span> reformulate(gaps, evidence)  <span class="co"># new queries targeting gaps</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> synthesize(task, evidence)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reflect(task: <span class="bu">str</span>, evidence: <span class="bu">set</span>[<span class="bu">str</span>]) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># prompt LLM: &quot;Given task T and evidence E,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#              list the questions that remain unanswered.&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> llm(reflect_prompt(task, evidence))</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reformulate(gaps: <span class="bu">list</span>[<span class="bu">str</span>], evidence: <span class="bu">set</span>[<span class="bu">str</span>]) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># prompt LLM: &quot;Given gaps G and what we know E,</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#              generate search queries to resolve each gap.&quot;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> llm(query_gen_prompt(gaps, evidence))</span></code></pre></div>
+<p><em>This pseudocode is intentionally model-agnostic. In Karpathy’s ML-optimization variant, <code>SEARCH</code> becomes <code>RUN_EXPERIMENT</code>, <code>READ_AND_COMPRESS</code> becomes <code>EVALUATE_METRIC</code>, and <code>SYNTHESIZE</code> becomes <code>COMMIT_BEST_WEIGHTS</code>.</em></p>
+<h3 id="convergence-and-termination">2.3 Convergence and Termination</h3>
+<p>The loop has no guaranteed convergence in the information-retrieval sense: the evidence buffer <span class="math inline">\(\mathcal{E}\)</span> can grow without bound, and the LLM’s GAPS function may generate new sub-questions faster than existing ones are resolved (the <em>rabbit-holing</em> failure mode, treated in §5.3).</p>
+<p>Practical termination criteria include:</p>
+<ul>
+<li><strong>Hard budget</strong>: maximum iterations <span class="math inline">\(B\)</span> or wall-clock time <span class="math inline">\(\tau\)</span>.</li>
+<li><strong>Metric plateau</strong>: in experimental optimization, halt when <span class="math inline">\(\Delta(\text{metric}) &lt; \epsilon\)</span> for <span class="math inline">\(k\)</span> consecutive iterations.</li>
+<li><strong>Gap saturation</strong>: halt when <span class="math inline">\(|G| = 0\)</span> or when all gaps are classified as “low priority.”</li>
+<li><strong>Context capacity</strong>: halt when <span class="math inline">\(|\mathcal{E}|\)</span> approaches the LLM context window <span class="math inline">\(L\)</span> (§3.4).</li>
+</ul>
+<p><strong>In practice, hard budget constraints dominate — most systems run for a fixed number of iterations or a fixed wall-clock window (e.g., overnight).</strong> This is a pragmatic simplification that trades completeness for reproducibility.</p>
+<hr />
+<h2 id="key-components">3. Key Components</h2>
+<h3 id="search-and-retrieval-tools">3.1 Search and Retrieval Tools</h3>
+<p>🔍 The retrieval layer is the system’s primary interface with the external knowledge base. Two paradigms exist:</p>
+<p><strong>API-based retrieval</strong> calls a search engine’s programmatic interface (Bing, Google, Brave, Tavily) and returns a ranked list of URLs with snippets. It is fast, predictable, and easily rate-limited; it cannot handle JavaScript-heavy pages.</p>
+<p><strong>Browser-based retrieval</strong> drives a headless browser (Selenium, Playwright) to render full page content, enabling JavaScript execution, form interaction, and access to dynamically generated content. It is slower and resource-intensive.</p>
+<p>GPT-Researcher combines both, using API retrieval to identify candidate URLs and browser-based scraping for full-text extraction. Domain-specific retrievers (CNKI for Chinese academic literature, arXiv for ML papers) can be substituted as required.</p>
+<h3 id="reader-and-scraper-agents">3.2 Reader and Scraper Agents</h3>
+<p>Once a URL is retrieved, a <em>reader agent</em> is responsible for:</p>
+<ol type="1">
+<li>Fetching and rendering the raw HTML.</li>
+<li>Parsing into clean text (removing navigation, ads, boilerplate).</li>
+<li>Compressing the text into an evidence summary by prompting the LLM: “Summarize only the parts of this document relevant to query <span class="math inline">\(q\)</span>.”</li>
+</ol>
+<p>This compression step is critical for context management (§3.4). Without it, a 20-source research run would exhaust the LLM’s context window on raw text alone.</p>
+<h3 id="synthesis-llm">3.3 Synthesis LLM</h3>
+<p>The <em>synthesis LLM</em> performs three roles:</p>
+<ul>
+<li><strong>Planner</strong>: Generates the initial sub-question decomposition and subsequent query reformulations.</li>
+<li><strong>Reflector</strong>: Evaluates evidence sufficiency and identifies gaps.</li>
+<li><strong>Writer</strong>: Produces the final output from the compressed evidence buffer.</li>
+</ul>
+<p>These roles can be handled by a single model (monolithic architecture) or split across specialized agents (multi-agent architecture). The AI Scientist v2 and AI-Researcher use multi-agent designs with specialized sub-agents for literature review, code generation, and manuscript writing. The karpathy/autoresearch system uses a single coding model (Claude Opus or equivalent) as both planner and writer. See <a href="../../../notes/papers/multi-agent-design%7Cmulti-agent-design-patterns/">papers/multi-agent-design|Multi-Agent Design Patterns</a> for a general treatment of the architectural tradeoffs.</p>
+<h3 id="memory-and-context-management">3.4 Memory and Context Management</h3>
+<p>Context management is one of the hardest engineering challenges in autoresearch. As iteration count grows, the evidence buffer <span class="math inline">\(\mathcal{E}\)</span> risks exceeding the LLM’s context window <span class="math inline">\(L\)</span> (typically <span class="math inline">\(10^5\)</span> to <span class="math inline">\(10^6\)</span> tokens for frontier models).</p>
+<p>Three strategies exist:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Strategy</th>
+<th>Mechanism</th>
+<th>Tradeoff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Sliding window</em></td>
+<td>Keep only the <span class="math inline">\(k\)</span> most recent or most relevant evidence items</td>
+<td>Simple; loses old evidence</td>
+</tr>
+<tr class="even">
+<td><em>Hierarchical compression</em></td>
+<td>Recursively summarize evidence groups into meta-summaries</td>
+<td>Preserves structure; introduces summary error</td>
+</tr>
+<tr class="odd">
+<td><em>External memory</em></td>
+<td>Store evidence in a vector database; retrieve by similarity at synthesis time</td>
+<td>Scalable; retrieval adds latency and approximation error</td>
+</tr>
+</tbody>
+</table>
+<p>Karpathy’s system uses <em>Git as memory</em> — each accepted experiment is committed, giving the agent a queryable history of past mutations. This is a domain-specific instance of external memory well-suited to the code-mutation setting.</p>
+<h3 id="evaluation-harness">3.5 Evaluation Harness</h3>
+<p>⚠️ <em>The evaluation harness must be immutable from the agent’s perspective. Any harness the agent can modify is a harness the agent will eventually corrupt.</em></p>
+<p>In experimental optimization, the harness is the held-out evaluation set and the metric computation script. In literature synthesis, the harness is an external benchmark (DeepResearch Bench, BrowseComp) or a human reviewer. The key requirements are:</p>
+<ul>
+<li><strong>Immutability</strong>: the agent cannot write to or read training signal from the harness.</li>
+<li><strong>Reproducibility</strong>: same inputs produce same metric (deterministic evaluator).</li>
+<li><strong>Alignment</strong>: the proxy metric must correlate with the real downstream objective.</li>
+</ul>
+<hr />
+<h2 id="design-patterns-and-strategies">4. Design Patterns and Strategies</h2>
+<h3 id="breadth-first-vs.-depth-first-exploration">4.1 Breadth-First vs. Depth-First Exploration</h3>
+<p>🗺️ The tree structure of the evidence-gathering process admits two exploration orderings, with meaningfully different behavior:</p>
+<p><strong>Breadth-first search (BFS)</strong>: At each level, explore all sub-questions before going deeper into any one branch. BFS provides broad coverage quickly and is less susceptible to rabbit-holing. The SMTL framework (Search More, Think Less) provides formal support: expanding retrieval breadth is a more efficient scaling axis for long-horizon search than increasing reasoning depth per query.</p>
+<p><strong>Depth-first search (DFS)</strong>: Pursue one sub-question to exhaustion before moving to the next. DFS produces deeper, more thorough treatment of individual sub-topics but risks allocating the full budget to a single branch.</p>
+<p><strong>Practical recommendation:</strong> Use BFS for the first 1–2 iterations to establish broad coverage, then switch to DFS on the highest-uncertainty branches identified during reflection. GPT-Researcher’s Deep Research mode implements this hybrid as a configurable <code>depth</code> and <code>breadth</code> parameter pair.</p>
+<h3 id="query-reformulation">4.2 Query Reformulation</h3>
+<p><em>Query reformulation</em> is the mechanism by which the agent adapts its retrieval queries based on accumulated evidence. Three techniques are used in practice:</p>
+<ol type="1">
+<li><p><strong>Gap-targeting</strong>: The reflector identifies specific unanswered questions; the planner converts each into one or more search queries. This is the default strategy in the pseudocode of §2.2.</p></li>
+<li><p><strong>Paraphrase expansion</strong>: The planner generates <span class="math inline">\(k\)</span> semantically equivalent rephrasings of each query to increase retrieval diversity. This is useful when a single query formulation misses relevant results due to vocabulary mismatch.</p></li>
+<li><p><strong>RL-based query optimization</strong>: Systems like DeepResearcher and Search-R1 train the query-generation policy with reinforcement learning, using format and accuracy rewards. <em>This is the most powerful approach but requires training data and significant compute.</em></p></li>
+</ol>
+<h3 id="source-deduplication-and-frequency-consensus">4.3 Source Deduplication and Frequency Consensus</h3>
+<p>When multiple retrieved documents make the same claim, that claim receives higher evidential weight — it is statistically unlikely that many independent sources would simultaneously fabricate the same assertion. GPT-Researcher formalizes this as <em>frequency-based consensus</em>: the publisher agent counts how many sources support each claim and preferentially includes high-count claims in the final report.</p>
+<p><strong>Frequency consensus provides a weak but practical defense against hallucination at the source level.</strong> It does not protect against systematic biases common to many sources (e.g., widespread misconceptions in the training distribution of web text).</p>
+<h3 id="scope-containment-and-revert-semantics">4.4 Scope Containment and Revert Semantics</h3>
+<p>In experimental optimization, <em>scope containment</em> is the single most important design principle: the agent is permitted to modify exactly one file (<code>train.py</code> in karpathy/autoresearch). All other files — data preparation, evaluation harness, tokenizer — are locked. This constraint:</p>
+<ul>
+<li>Keeps diffs reviewable by humans.</li>
+<li>Prevents the agent from gaming the metric by modifying the evaluator.</li>
+<li>Limits the blast radius of a bad change.</li>
+</ul>
+<p><em>Revert semantics</em> complement containment: if the new experiment fails to improve the metric, the agent resets the file to the previous commit via <code>git reset</code>. This makes the hill-climbing procedure exact: only improvements survive.</p>
+<h3 id="reflection-prompts">4.5 Reflection Prompts</h3>
+<p>The reflection step is what distinguishes autoresearch from a single-pass pipeline. A well-designed reflection prompt must elicit:</p>
+<ol type="1">
+<li>An explicit enumeration of <em>what has been established</em> so far.</li>
+<li>An enumeration of <em>what remains unknown or uncertain</em>.</li>
+<li>A <em>prioritization</em> of gaps by relevance to the original task.</li>
+</ol>
+<p>Example reflection prompt template:</p>
+<pre><code>Given research task: {{T}}
+Current evidence summary: {{E}}
+
+List:
+1. Established facts (with source references)
+2. Remaining open questions, ordered by importance
+3. Suggested search queries to close the top-3 gaps
+
+Be specific. Do not repeat questions already answered in E.</code></pre>
+<p>The explicit prohibition against repeating answered questions is critical — without it, the LLM tends to regenerate previously issued queries, wasting budget.</p>
+<hr />
+<h2 id="failure-modes-and-mitigations">5. Failure Modes and Mitigations</h2>
+<h3 id="hallucination-and-factual-drift">5.1 Hallucination and Factual Drift</h3>
+<p>⚠️ <em>Hallucination is the most structurally dangerous failure mode because it is self-reinforcing: a hallucinated claim added to the evidence buffer <span class="math inline">\(\mathcal{E}\)</span> can be cited by the synthesis step as “established,” producing a laundered hallucination that appears sourced.</em></p>
+<p><strong>Mitigations:</strong>
+- Maintain explicit source provenance for every evidence item <span class="math inline">\(e \in \mathcal{E}\)</span>; never include unattributed claims.
+- At synthesis time, use the LLM to verify each claim in the output against its cited source (post-hoc verification).
+- Apply frequency consensus (§4.3) to down-weight singleton claims.
+- Use factuality-focused synthesis prompts (FaithfulRAG pattern): “Only state what is explicitly supported by the evidence. Mark any inference as inference.”</p>
+<h3 id="context-saturation">5.2 Context Saturation</h3>
+<p>As the evidence buffer grows, two degradation phenomena occur:</p>
+<ol type="1">
+<li><strong>Lost-in-the-middle</strong>: LLMs attend poorly to information in the middle of long contexts. Evidence summaries from early iterations are effectively forgotten.</li>
+<li><strong>Coherence collapse</strong>: Synthesis quality degrades non-linearly once context exceeds $$75% of the window limit.</li>
+</ol>
+<p><strong>Mitigations:</strong>
+- Apply hierarchical compression: recursively summarize evidence groups before they saturate the window.
+- Use an external vector store with similarity-based retrieval at synthesis time.
+- Hard-cap the evidence buffer at a fixed token budget, evicting least-recently-used or lowest-relevance items.</p>
+<h3 id="rabbit-holing-and-plan-brittleness">5.3 Rabbit-Holing and Plan Brittleness</h3>
+<p><em>Rabbit-holing</em> occurs when the agent pursues a tangential sub-question to exhaustion, consuming the entire iteration budget on a detail irrelevant to the original task. This is a manifestation of <em>plan brittleness</em>: current LLM planners lack robustness to ambiguous or underspecified questions, and gap-detection prompts can generate new sub-questions faster than they resolve them.</p>
+<p><strong>Mitigations:</strong>
+- Enforce a maximum branching depth <span class="math inline">\(d_{\max}\)</span> in the exploration tree.
+- Score each gap by estimated relevance to <span class="math inline">\(T\)</span> before scheduling it; discard low-relevance gaps.
+- Reserve a fixed fraction of the budget for breadth (§4.1), preventing any single branch from consuming all iterations.</p>
+<h3 id="metric-gaming-and-reward-hacking">5.4 Metric Gaming and Reward Hacking</h3>
+<p>In experimental optimization, the agent can inflate the metric through shortcuts that do not reflect genuine improvement: reducing model quality to reduce runtime, or accessing training data statistics that should be held out. Karpathy’s system specifically calls out “metric gaming” as a failure mode of time-based budgets: throughput optimizations (more tokens processed per second) can dominate over genuine modeling improvements.</p>
+<p><strong>Mitigations:</strong>
+- Store the eval harness in an immutable file outside the agent’s write scope.
+- Use a <em>held-out</em> evaluation set the agent never sees during training.
+- Cross-validate improvements on a secondary metric (e.g., improve on val_bpb <em>and</em> maintain or improve perplexity on a separate corpus).
+- Confirm improvements transfer across scales before trusting them (depth 12 → 24 transfer checks in karpathy/autoresearch discussions).</p>
+<h3 id="source-quality-and-prompt-injection">5.5 Source Quality and Prompt Injection</h3>
+<p>When the agent reads content scraped from the open web, it is exposed to <em>prompt injection</em>: adversarial text embedded in a web page designed to hijack the agent’s instructions. Issue #64 in the karpathy/autoresearch repository documents this concretely: an agent reading its own run logs can encounter injected instructions in a prior experiment’s output.</p>
+<p><strong>Mitigations:</strong>
+- Sanitize scraped content before inserting it into the LLM context (strip instruction-like patterns).
+- Use a separate “content reader” model with a restricted system prompt that cannot issue tool calls.
+- Treat any behavioral change following a web-scraping step as a potential injection event.</p>
+<hr />
+<h2 id="practical-implementations">6. Practical Implementations</h2>
+<h3 id="karpathyautoresearch">6.1 karpathy/autoresearch</h3>
+<p><a href="https://github.com/karpathy/autoresearch">karpathy/autoresearch</a> is a minimal reference implementation targeting ML training optimization on a single GPU. Its architecture is defined by three files:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Role</th>
+<th>Mutable?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>program.md</code></td>
+<td>Natural-language instructions to the agent (loop governance, constraints)</td>
+<td>Human-edited</td>
+</tr>
+<tr class="even">
+<td><code>prepare.py</code></td>
+<td>Data download, BPE tokenizer training, evaluation utilities</td>
+<td>Locked</td>
+</tr>
+<tr class="odd">
+<td><code>train.py</code></td>
+<td>GPT model, optimizer (Muon + AdamW), training loop (~630 lines)</td>
+<td>Agent-edited</td>
+</tr>
+</tbody>
+</table>
+<p>The fitness signal is <code>val_bpb</code> (validation bits-per-byte), computed on a fixed held-out set in <code>prepare.py</code>. Each experiment runs for exactly 300 wall-clock seconds; Git commit/revert provides keep/discard semantics.</p>
+<p>Observed results: 700 experiments over 2 days on an H100 yielded ~20 surviving mutations and an 11% reduction in “time to GPT-2 performance” (from 2.02 hours to 1.80 hours). Agent discoveries included attention regularization gaps, suboptimal weight initialization, and conservative hyperparameter schedules. <strong>Model choice mattered substantially: Claude Opus 4.6 ran 118 experiments over 12+ hours without interruption; Codex could not sustain the loop.</strong></p>
+<p><img src="../../../notes/papers/figures/autoresearch/karpathy-progress.png/" alt="papers/figures/autoresearch/karpathy-progress.png" />
+<em>Progress chart from karpathy/autoresearch: each dot is one experiment; green dots are accepted improvements, grey dots are discarded. The running best (green step function) shows <code>val_bpb</code> falling from ~0.999 to ~0.976 over 83 experiments. Annotations describe what each accepted mutation changed — e.g. attention QK normalization, warm learning rate schedule, sliding window attention — giving a readable history of the agent’s hill-climbing trajectory.</em></p>
+<h3 id="gpt-researcher">6.2 GPT-Researcher</h3>
+<p><a href="https://github.com/assafelovic/gpt-researcher">GPT-Researcher</a> (Assaf Elovic, 2023) is the most widely adopted open-source literature synthesis system (25.7k GitHub stars as of March 2026). It implements a <em>planner-executor-publisher</em> pattern:</p>
+<pre class="mermaid"><code>flowchart TD
+    Planner[&quot;Planner Agent&lt;br/&gt;generates m sub-questions from T&quot;]
+    Planner --&gt; C1[&quot;Crawler Agent 1&lt;br/&gt;scrapes sources for q_1&quot;]
+    Planner --&gt; C2[&quot;Crawler Agent 2&lt;br/&gt;scrapes sources for q_2&quot;]
+    Planner --&gt; Cm[&quot;Crawler Agent m&lt;br/&gt;scrapes sources for q_m&quot;]
+    C1 --&gt; Publisher[&quot;Publisher Agent&lt;br/&gt;frequency-consensus synthesis&quot;]
+    C2 --&gt; Publisher
+    Cm --&gt; Publisher</code></pre>
+<p>Parallel crawler agents execute concurrently (via async Python), aggregating 20+ sources per sub-question. The publisher applies frequency consensus (§4.3) before synthesizing the final report. Deep Research mode adds recursive depth: each sub-question spawns its own mini-autoresearch loop with configurable <code>depth</code> and <code>breadth</code> parameters, realizing the hybrid BFS/DFS strategy of §4.1.</p>
+<p><img src="../../../notes/papers/figures/autoresearch/gpt-researcher-architecture.png/" alt="papers/figures/autoresearch/gpt-researcher-architecture.png" />
+<em>Architecture diagram from GPT-Researcher (Elovic, 2023): the Task enters a Research Questions Generator (planner), which fans out into <span class="math inline">\(m\)</span> parallel query agents, each retrieving and scraping sources for one sub-question. All agents report to a central Report Agent (publisher) that applies frequency-consensus synthesis to produce the final report. This planner-executor-publisher decomposition is the reference implementation of the parallel-crawling pattern described above.</em></p>
+<h3 id="ai-scientist-v2">6.3 AI Scientist v2</h3>
+<p><a href="https://github.com/SakanaAI/AI-Scientist-v2">AI Scientist v2</a> (Sakana AI) extends the autoresearch pattern to the full scientific cycle: hypothesis generation, experimental design, code execution, result analysis, and manuscript writing. It replaces fixed-template generation with <em>agentic tree search</em>: the planner maintains a tree of candidate research directions, pruning branches based on preliminary experimental results.</p>
+<p><em>Surprisingly,</em> AI Scientist v2 removes reliance on human-authored paper templates entirely, using the agent to construct the manuscript structure from scratch — a capability that earlier systems (AI Scientist v1) could not match.</p>
+<h3 id="ai-researcher">6.4 AI-Researcher</h3>
+<p><a href="https://arxiv.org/html/2505.18705v1">AI-Researcher</a> (arXiv 2505.18705) is a three-stage multi-agent framework evaluated on <em>Scientist-Bench</em> (22 papers across diffusion models, VQ, GNNs, recommenders). Its stages:</p>
+<ol type="1">
+<li><strong>Literature Analysis and Ideation</strong>: Knowledge Acquisition Agent + Resource Analyst + Idea Generator.</li>
+<li><strong>Implementation and Validation</strong>: Code Agent + Advisor Agent (iterative refinement cycle mirroring academic mentorship).</li>
+<li><strong>Documentation</strong>: Hierarchical synthesis to publication-ready manuscript.</li>
+</ol>
+<p><img src="../../../notes/papers/figures/autoresearch/ai-researcher-fig2-architecture.png/" alt="papers/figures/autoresearch/ai-researcher-fig2-architecture.png" />
+<em>Figure 2 (AI-Researcher, arXiv 2505.18705): The three-stage framework in full. Left: Literature Review and Idea Generation — the Knowledge Acquisition Agent browses and collects papers, the Resource Analyst takes notes, and the Idea Generator produces ranked ideas. Centre: New Algorithm Design, Implementation and Validation — the Code Agent implements in a coding loop; the Advisor Agent reviews and provides feedback in a refinement loop. Right: Automated Scientific Documentation — hierarchical writing using a paper template derived from references.</em></p>
+<p><img src="../../../notes/papers/figures/autoresearch/ai-researcher-fig3-implementation.png/" alt="papers/figures/autoresearch/ai-researcher-fig3-implementation.png" />
+<em>Figure 3 (AI-Researcher, arXiv 2505.18705): Left panel shows the multi-stage refinement architecture — the Coder starts from a plan and a reference implementation, runs quick 1–2 epoch experiments on data subsets, then progressively scales to full experiments under Advisor feedback. Right panel shows the scientific documentation pipeline: reference papers are mined for method/experiment/introduction sections to populate a writing template, which is then revised into the final manuscript.</em></p>
+<p>Evaluation results: Claude-series models achieved 93.8% implementation completeness with average correctness 2.65/5.0. <em>Surprisingly,</em> performance on open-ended tasks exceeded guided tasks, suggesting autonomous knowledge synthesis currently outperforms instruction-following in this domain.</p>
+<h3 id="commercial-systems">6.5 Commercial Systems</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Search Stack</th>
+<th>Notable Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>OpenAI Deep Research</td>
+<td>Bing</td>
+<td>Integrated o-series reasoning models</td>
+</tr>
+<tr class="even">
+<td>Gemini Deep Research</td>
+<td>Google Search</td>
+<td>Proprietary knowledge graph integration</td>
+</tr>
+<tr class="odd">
+<td>Perplexity Deep Research</td>
+<td>Hybrid multi-source</td>
+<td>Citation-linked streaming output</td>
+</tr>
+<tr class="even">
+<td>ManuSearch</td>
+<td>Open-source transparent</td>
+<td>Deterministic rules, fully auditable</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="evaluation">7. Evaluation</h2>
+<h3 id="search-oriented-benchmarks">7.1 Search-Oriented Benchmarks</h3>
+<p>Benchmarks that measure the agent’s ability to locate specific facts via multi-step web navigation:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Benchmark</th>
+<th>Task</th>
+<th>Primary Metric</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://arxiv.org/html/2506.10408">Mind2Web 2</a></td>
+<td>Multi-step web task completion</td>
+<td>Task success rate</td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2506.18959v1">BrowseComp</a></td>
+<td>Compositional web research</td>
+<td>Accuracy</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/html/2601.12560v1">WebArena</a></td>
+<td>Web navigation agent evaluation</td>
+<td>Task success rate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="research-oriented-benchmarks">7.2 Research-Oriented Benchmarks</h3>
+<p>Benchmarks that measure the quality of the full research artifact:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Benchmark</th>
+<th>What is Measured</th>
+<th>Key Metrics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DeepResearch Bench</strong></td>
+<td>Full pipeline with citation accuracy</td>
+<td>Citation precision, report fidelity</td>
+</tr>
+<tr class="even">
+<td><strong>DeepResearchGym</strong></td>
+<td>Sandbox knowledge precision/recall</td>
+<td>Knowledge precision, recall, clarity</td>
+</tr>
+<tr class="odd">
+<td><strong>Scientist-Bench</strong></td>
+<td>Implementation correctness + scientific quality</td>
+<td>Completeness %, correctness score, pairwise quality</td>
+</tr>
+</tbody>
+</table>
+<p><img src="../../../notes/papers/figures/autoresearch/ai-researcher-fig4-performance.png/" alt="papers/figures/autoresearch/ai-researcher-fig4-performance.png" />
+<em>Figure 4 (AI-Researcher, arXiv 2505.18705): Scientist-Bench results across four research domains (Diffusion, GNN, Recommendation, VQ). Blue bars show implementation completeness; orange bars show correctness scores (right axis, 0–5). The overall completeness of 93.8% reflects near-complete code generation; the overall correctness of 2.65/5.0 indicates the agent produces working but imperfect implementations. GNN is the hardest domain, with correctness falling to 2.33.</em></p>
+<p><img src="../../../notes/papers/figures/autoresearch/ai-researcher-fig5-model-comparison.png/" alt="papers/figures/autoresearch/ai-researcher-fig5-model-comparison.png" />
+<em>Figure 5 (AI-Researcher, arXiv 2505.18705): Claude-series vs. GPT-4o-series model comparison on a Scientist-Bench subset. Claude achieves 87.5% overall completeness vs. 50.0% for 4o; correctness is 2.75 vs. 1.00. The gap is most pronounced in the Diffusion domain where 4o achieves 0% completeness. This quantifies the model dependency observed qualitatively in karpathy/autoresearch (§6.1), where Codex could not sustain the loop.</em></p>
+<h3 id="evaluation-dimensions">7.3 Evaluation Dimensions</h3>
+<p>📐 A comprehensive evaluation of an autoresearch system should assess at minimum four dimensions:</p>
+<p><strong>Coverage</strong> measures what fraction of the ground-truth information relevant to task <span class="math inline">\(T\)</span> appears in the output. Formally, if <span class="math inline">\(K^* = \{k_1, \ldots, k_n\}\)</span> is the set of relevant facts and <span class="math inline">\(K^{\text{out}}\)</span> is the set of facts in the output, then</p>
+<p><span class="math display">\[\text{Coverage} = \frac{|K^{\text{out}} \cap K^*|}{|K^*|}.\]</span></p>
+<p><strong>Citation Precision</strong> measures what fraction of citations in the output actually support the claim they are attached to:</p>
+<p><span class="math display">\[\text{CitPrec} = \frac{\text{# citations that genuinely support their claim}}{\text{total citations}}.\]</span></p>
+<p><strong>Factual Accuracy</strong> measures what fraction of output claims are factually correct, regardless of citation:</p>
+<p><span class="math display">\[\text{FactAcc} = \frac{\text{# correct claims}}{\text{total claims}}.\]</span></p>
+<p><strong>Coherence</strong> is the hardest dimension to formalize; it is typically assessed by LLM-as-judge comparisons (pairwise quality ratings) or human review. AI-Researcher uses multiple LLM reviewers for pairwise comparison against human-authored papers as a proxy for coherence.</p>
+<p><em>These four dimensions trade off against each other under a fixed token budget: higher coverage typically requires more iterations, which increases context saturation risk and can degrade factual accuracy.</em></p>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/karpathy/autoresearch">karpathy/autoresearch (GitHub)</a></td>
+<td>Minimal ML training optimization autoresearch loop by Andrej Karpathy; uses val_bpb fitness, 5-min budget, git-based memory</td>
+<td><a href="https://github.com/karpathy/autoresearch">github.com/karpathy/autoresearch</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://github.com/assafelovic/gpt-researcher">GPT-Researcher (GitHub)</a></td>
+<td>Open-source planner-executor-publisher research agent with deep research recursive mode; 25.7k stars</td>
+<td><a href="https://github.com/assafelovic/gpt-researcher">github.com/assafelovic/gpt-researcher</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/html/2508.12752v1">Deep Research: A Survey of Autonomous Research Agents</a></td>
+<td>Comprehensive taxonomy of autonomous research agents: planning, retrieval, synthesis architectures and evaluation benchmarks</td>
+<td><a href="https://arxiv.org/html/2508.12752v1">arxiv.org/html/2508.12752v1</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2505.18705v1">AI-Researcher: Autonomous Scientific Innovation</a></td>
+<td>Three-stage multi-agent framework (literature → implementation → documentation); evaluated on Scientist-Bench (22 papers)</td>
+<td><a href="https://arxiv.org/html/2505.18705v1">arxiv.org/html/2505.18705v1</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/SakanaAI/AI-Scientist-v2">AI Scientist v2 (GitHub)</a></td>
+<td>Sakana AI’s full scientific cycle agent using agentic tree search; generates hypotheses, runs experiments, writes manuscripts</td>
+<td><a href="https://github.com/SakanaAI/AI-Scientist-v2">github.com/SakanaAI/AI-Scientist-v2</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2602.22675">Search More, Think Less (arXiv 2602.22675)</a></td>
+<td>SMTL framework: breadth expansion is a more efficient scaling axis for long-horizon search than reasoning depth</td>
+<td><a href="https://arxiv.org/html/2602.22675">arxiv.org/html/2602.22675</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/html/2506.18959v1">Agentic Deep ReSearch (arXiv 2506.18959)</a></td>
+<td>Formal treatment of incentivizing search with reasoning agents; BrowseComp benchmark</td>
+<td><a href="https://arxiv.org/html/2506.18959v1">arxiv.org/html/2506.18959v1</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2510.08521v1">FlowSearch (arXiv 2510.08521)</a></td>
+<td>Multi-agent dynamic knowledge flow framework with parallel exploration and hierarchical task decomposition</td>
+<td><a href="https://arxiv.org/html/2510.08521v1">arxiv.org/html/2510.08521v1</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://kingy.ai/ai/autoresearch-karpathys-minimal-agent-loop-for-autonomous-llm-experimentation/">Autoresearch: Karpathy’s Minimal Agent Loop (Kingy AI)</a></td>
+<td>Practitioner summary of karpathy/autoresearch design patterns, failure modes, and documented results</td>
+<td><a href="https://kingy.ai/ai/autoresearch-karpathys-minimal-agent-loop-for-autonomous-llm-experimentation/">kingy.ai</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://kenhuangus.substack.com/p/exploring-andrej-karpathys-autoresearch">Exploring Karpathy’s Autoresearch (Ken Huang, Substack)</a></td>
+<td>Detailed walkthrough of autoresearch components, harness requirements, failure modes (metric gaming, KV cache issues)</td>
+<td><a href="https://kenhuangus.substack.com/p/exploring-andrej-karpathys-autoresearch">kenhuangus.substack.com</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.latent.space/p/ainews-autoresearch-sparks-of-recursive">AINews: Autoresearch Sparks of Recursive Self Improvement (Latent Space)</a></td>
+<td>Community analysis: model dependency (Opus vs Codex), harness affordances, shift from generation to verification as bottleneck</td>
+<td><a href="https://www.latent.space/p/ainews-autoresearch-sparks-of-recursive">latent.space</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://arxiv.org/html/2601.12560v1">Agentic AI Architectures (arXiv 2601.12560)</a></td>
+<td>Broad taxonomy of LLM-based agentic systems: memory, planning, tool use, evaluation</td>
+<td><a href="https://arxiv.org/html/2601.12560v1">arxiv.org/html/2601.12560v1</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.philschmid.de/autoresearch">philschmid.de/autoresearch</a></td>
+<td>Practitioner guide covering the Karpathy loop, application scope (SKILL.md, system prompts, content templates), cost model (~$0.10/cycle)</td>
+<td><a href="https://www.philschmid.de/autoresearch">philschmid.de/autoresearch</a></td>
+</tr>
+<tr class="even">
+<td><a href="https://sidsaladi.substack.com/p/autoresearch-101-builders-playbook">sidsaladi.substack.com: Autoresearch 101</a></td>
+<td>Builders’ playbook: binary evaluation criteria, three-to-six criterion design, real-world results (53% faster rendering, 61% memory reduction)</td>
+<td><a href="https://sidsaladi.substack.com/p/autoresearch-101-builders-playbook">sidsaladi.substack.com</a></td>
+</tr>
+<tr class="odd">
+<td><a href="https://thecreatorsai.com/p/autoresearch-the-loop-that-improves">thecreatorsai.com: Autoresearch the Loop</a></td>
+<td>Conceptual framing of compounding gains and scope containment principles</td>
+<td><a href="https://thecreatorsai.com/p/autoresearch-the-loop-that-improves">thecreatorsai.com</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

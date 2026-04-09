@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>history - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>history</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="../../../../notes/#1.-origins:-sequence-to-sequence-models-and-alignment-(1990s–2014)%7C1.-origins:-sequence-to-sequence-models-and-alignment-(1990s–2014)/">#1. Origins: Sequence-to-Sequence Models and Alignment (1990s–2014)|1. Origins: Sequence-to-Sequence Models and Alignment (1990s–2014)</a>
+<ul>
+<li><a href="../../../../notes/#1.1-the-fixed-vector-bottleneck%7C1.1-the-fixed-vector-bottleneck/">#1.1 The Fixed-Vector Bottleneck|1.1 The Fixed-Vector Bottleneck</a></li>
+<li><a href="../../../../notes/#1.2-bahdanau-attention-(2014):-additive-alignment%7C1.2-bahdanau-attention-(2014):-additive-alignment/">#1.2 Bahdanau Attention (2014): Additive Alignment|1.2 Bahdanau Attention (2014): Additive Alignment</a></li>
+<li><a href="../../../../notes/#1.3-luong-attention-(2015):-multiplicative-variants%7C1.3-luong-attention-(2015):-multiplicative-variants/">#1.3 Luong Attention (2015): Multiplicative Variants|1.3 Luong Attention (2015): Multiplicative Variants</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-scaled-dot-product-attention-and-the-transformer-(2017)%7C2.-scaled-dot-product-attention-and-the-transformer-(2017)/">#2. Scaled Dot-Product Attention and the Transformer (2017)|2. Scaled Dot-Product Attention and the Transformer (2017)</a>
+<ul>
+<li><a href="../../../../notes/#2.1-the-core-mechanism%7C2.1-the-core-mechanism/">#2.1 The Core Mechanism|2.1 The Core Mechanism</a></li>
+<li><a href="../../../../notes/#2.2-multi-head-attention%7C2.2-multi-head-attention/">#2.2 Multi-Head Attention|2.2 Multi-Head Attention</a></li>
+<li><a href="../../../../notes/#2.3-positional-encoding%7C2.3-positional-encoding/">#2.3 Positional Encoding|2.3 Positional Encoding</a></li>
+<li><a href="../../../../notes/#2.4-full-self-attention:-architectural-implications%7C2.4-full-self-attention:-architectural-implications/">#2.4 Full Self-Attention: Architectural Implications|2.4 Full Self-Attention: Architectural Implications</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-bert,-gpt,-and-the-rise-of-pretraining-(2018–2020)%7C3.-bert,-gpt,-and-the-rise-of-pretraining-(2018–2020)/">#3. BERT, GPT, and the Rise of Pretraining (2018–2020)|3. BERT, GPT, and the Rise of Pretraining (2018–2020)</a>
+<ul>
+<li><a href="../../../../notes/#3.1-gpt-1-(2018):-decoder-only-causal-language-modeling%7C3.1-gpt-1-(2018):-decoder-only-causal-language-modeling/">#3.1 GPT-1 (2018): Decoder-Only Causal Language Modeling|3.1 GPT-1 (2018): Decoder-Only Causal Language Modeling</a></li>
+<li><a href="../../../../notes/#3.2-bert-(2018):-bidirectional-encoder-representations%7C3.2-bert-(2018):-bidirectional-encoder-representations/">#3.2 BERT (2018): Bidirectional Encoder Representations|3.2 BERT (2018): Bidirectional Encoder Representations</a></li>
+<li><a href="../../../../notes/#3.3-gpt-2-and-gpt-3:-scaling-and-emergence-(2019–2020)%7C3.3-gpt-2-and-gpt-3:-scaling-and-emergence-(2019–2020)/">#3.3 GPT-2 and GPT-3: Scaling and Emergence (2019–2020)|3.3 GPT-2 and GPT-3: Scaling and Emergence (2019–2020)</a></li>
+<li><a href="../../../../notes/#3.4-t5-(2020):-encoder-decoder-with-relative-biases%7C3.4-t5-(2020):-encoder-decoder-with-relative-biases/">#3.4 T5 (2020): Encoder-Decoder with Relative Biases|3.4 T5 (2020): Encoder-Decoder with Relative Biases</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-efficient-attention:-overcoming-the-quadratic-bottleneck-(2020–2022)%7C4.-efficient-attention:-overcoming-the-quadratic-bottleneck-(2020–2022)/">#4. Efficient Attention: Overcoming the Quadratic Bottleneck (2020–2022)|4. Efficient Attention: Overcoming the Quadratic Bottleneck (2020–2022)</a>
+<ul>
+<li><a href="../../../../notes/#4.1-sparse-attention:-longformer-and-bigbird%7C4.1-sparse-attention:-longformer-and-bigbird/">#4.1 Sparse Attention: Longformer and BigBird|4.1 Sparse Attention: Longformer and BigBird</a></li>
+<li><a href="../../../../notes/#4.2-flashattention:-io-aware-exact-attention-(2022)%7C4.2-flashattention:-io-aware-exact-attention-(2022)/">#4.2 FlashAttention: IO-Aware Exact Attention (2022)|4.2 FlashAttention: IO-Aware Exact Attention (2022)</a></li>
+<li><a href="../../../../notes/#4.3-multi-query-and-grouped-query-attention%7C4.3-multi-query-and-grouped-query-attention/">#4.3 Multi-Query and Grouped-Query Attention|4.3 Multi-Query and Grouped-Query Attention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-linear-attention-and-recurrent-reformulations-(2020–2023)%7C5.-linear-attention-and-recurrent-reformulations-(2020–2023)/">#5. Linear Attention and Recurrent Reformulations (2020–2023)|5. Linear Attention and Recurrent Reformulations (2020–2023)</a>
+<ul>
+<li><a href="../../../../notes/#5.1-katharopoulos-et-al.-(2020):-transformers-are-rnns%7C5.1-katharopoulos-et-al.-(2020):-transformers-are-rnns/">#5.1 Katharopoulos et al. (2020): Transformers are RNNs|5.1 Katharopoulos et al. (2020): Transformers are RNNs</a></li>
+<li><a href="../../../../notes/#5.2-rwkv-(2023):-attention-free-transformer%7C5.2-rwkv-(2023):-attention-free-transformer/">#5.2 RWKV (2023): Attention-Free Transformer|5.2 RWKV (2023): Attention-Free Transformer</a></li>
+<li><a href="../../../../notes/#5.3-retnet-(2023):-constant-decay-and-three-computation-modes%7C5.3-retnet-(2023):-constant-decay-and-three-computation-modes/">#5.3 RetNet (2023): Constant Decay and Three Computation Modes|5.3 RetNet (2023): Constant Decay and Three Computation Modes</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-state-space-models-and-the-mamba-line-(2022–2024)%7C6.-state-space-models-and-the-mamba-line-(2022–2024)/">#6. State Space Models and the Mamba Line (2022–2024)|6. State Space Models and the Mamba Line (2022–2024)</a>
+<ul>
+<li><a href="../../../../notes/#6.1-s4-(2022):-structured-state-spaces%7C6.1-s4-(2022):-structured-state-spaces/">#6.1 S4 (2022): Structured State Spaces|6.1 S4 (2022): Structured State Spaces</a></li>
+<li><a href="../../../../notes/#6.2-mamba-(2023):-selective-state-space-models%7C6.2-mamba-(2023):-selective-state-space-models/">#6.2 Mamba (2023): Selective State Space Models|6.2 Mamba (2023): Selective State Space Models</a></li>
+<li><a href="../../../../notes/#6.3-mamba-2-/-ssd-(2024):-explicit-duality-with-linear-attention%7C6.3-mamba-2-/-ssd-(2024):-explicit-duality-with-linear-attention/">#6.3 Mamba-2 / SSD (2024): Explicit Duality with Linear Attention|6.3 Mamba-2 / SSD (2024): Explicit Duality with Linear Attention</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-gating-and-hybrid-architectures-(2024–present)%7C7.-gating-and-hybrid-architectures-(2024–present)/">#7. Gating and Hybrid Architectures (2024–present)|7. Gating and Hybrid Architectures (2024–present)</a>
+<ul>
+<li><a href="../../../../notes/#7.1-gla-(2024):-vector-valued-data-dependent-gating%7C7.1-gla-(2024):-vector-valued-data-dependent-gating/">#7.1 GLA (2024): Vector-Valued Data-Dependent Gating|7.1 GLA (2024): Vector-Valued Data-Dependent Gating</a></li>
+<li><a href="../../../../notes/#7.2-rwkv-6-and-eagle/finch:-matrix-valued-gating%7C7.2-rwkv-6-and-eagle/finch:-matrix-valued-gating/">#7.2 RWKV-6 and Eagle/Finch: Matrix-Valued Gating|7.2 RWKV-6 and Eagle/Finch: Matrix-Valued Gating</a></li>
+<li><a href="../../../../notes/#7.3-hybrid-models:-interleaving-attention-and-recurrence%7C7.3-hybrid-models:-interleaving-attention-and-recurrence/">#7.3 Hybrid Models: Interleaving Attention and Recurrence|7.3 Hybrid Models: Interleaving Attention and Recurrence</a></li>
+<li><a href="../../../../notes/#7.4-the-neural-memory-perspective%7C7.4-the-neural-memory-perspective/">#7.4 The Neural Memory Perspective|7.4 The Neural Memory Perspective</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-open-problems-and-future-directions%7C8.-open-problems-and-future-directions/">#8. Open Problems and Future Directions|8. Open Problems and Future Directions</a></li>
+<li><a href="../../../../notes/#9.-references%7C9.-references/">#9. References|9. References</a></li>
+</ul>
+<hr />
+<h2 id="origins-sequence-to-sequence-models-and-alignment-1990s2014">1. Origins: Sequence-to-Sequence Models and Alignment (1990s–2014)</h2>
+<h3 id="the-fixed-vector-bottleneck">1.1 The Fixed-Vector Bottleneck</h3>
+<p>The dominant paradigm for sequence transduction before 2014 was the <em>encoder-decoder</em> architecture built on <em>recurrent neural networks</em> (RNNs) or, more successfully, <em>Long Short-Term Memory</em> (LSTM) networks. The encoder reads an input sequence <span class="math inline">\(\mathbf{x} = (x_1, \ldots, x_{T_x})\)</span> one token at a time, updating a hidden state:</p>
+<p><span class="math display">\[\mathbf{h}_t = f(\mathbf{h}_{t-1}, x_t)\]</span></p>
+<p>After reading all <span class="math inline">\(T_x\)</span> tokens the final hidden state <span class="math inline">\(\mathbf{h}_{T_x}\)</span> — a single fixed-dimensional vector — is passed to the decoder as the entire summary of the input. The decoder then generates output tokens autoregressively, conditioned only on this single context vector.</p>
+<p>This design suffers from a clear information bottleneck: the entire variable-length input must be compressed into a vector of constant dimension. Empirically, performance on machine translation degrades sharply as source sentence length grows. This observation motivated the first attention mechanisms.</p>
+<h3 id="bahdanau-attention-2014-additive-alignment">1.2 Bahdanau Attention (2014): Additive Alignment</h3>
+<p>Bahdanau, Cho, and Bengio (2015, published from a 2014 preprint) proposed resolving the fixed-vector bottleneck by allowing the decoder, at each output step <span class="math inline">\(i\)</span>, to form a <em>weighted combination</em> of all encoder hidden states rather than relying on a single summary vector.</p>
+<p><strong>Setup.</strong> The encoder is a <em>bidirectional RNN</em>. For each source position <span class="math inline">\(j\)</span>, the forward and backward hidden states are concatenated to form an <em>annotation</em>:</p>
+<p><span class="math display">\[\mathbf{h}_j = \left[\overrightarrow{\mathbf{h}}_j\,;\,\overleftarrow{\mathbf{h}}_j\right] \in \mathbb{R}^{2n}\]</span></p>
+<p>This gives each annotation access to context from both directions.</p>
+<p><strong>Alignment score.</strong> At decoder step <span class="math inline">\(i\)</span> with previous hidden state <span class="math inline">\(\mathbf{s}_{i-1}\)</span>, the <em>alignment score</em> between the decoder state and encoder annotation <span class="math inline">\(j\)</span> is computed by a small feed-forward network parameterized by <span class="math inline">\(\mathbf{W}_a \in \mathbb{R}^{n \times n}\)</span>, <span class="math inline">\(\mathbf{U}_a \in \mathbb{R}^{n \times 2n}\)</span>, and <span class="math inline">\(\mathbf{v}_a \in \mathbb{R}^n\)</span>:</p>
+<p><span class="math display">\[e_{ij} = \mathbf{v}_a^\top \tanh\!\left(\mathbf{W}_a \mathbf{s}_{i-1} + \mathbf{U}_a \mathbf{h}_j\right)\]</span></p>
+<p>This is called <em>additive attention</em> because it combines the decoder state and encoder annotation by addition inside the nonlinearity.</p>
+<p><strong>Attention weights.</strong> The scores are normalized into a probability distribution over source positions:</p>
+<p><span class="math display">\[\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k=1}^{T_x} \exp(e_{ik})}\]</span></p>
+<p><strong>Context vector.</strong> The context for output step <span class="math inline">\(i\)</span> is the convex combination of annotations:</p>
+<p><span class="math display">\[\mathbf{c}_i = \sum_{j=1}^{T_x} \alpha_{ij}\, \mathbf{h}_j\]</span></p>
+<p><strong>Decoder.</strong> The decoder hidden state and output distribution are conditioned on the dynamic context:</p>
+<p><span class="math display">\[\mathbf{s}_i = f(\mathbf{s}_{i-1},\, y_{i-1},\, \mathbf{c}_i), \qquad p(y_i \mid y_{&lt;i}, \mathbf{x}) = g(y_{i-1},\, \mathbf{s}_i,\, \mathbf{c}_i)\]</span></p>
+<p>The key insight: attention acts as a <em>soft alignment</em>, allowing the model to automatically discover which source words are relevant for each output word without requiring a hard monotonic alignment. The alignment matrix <span class="math inline">\(\{\alpha_{ij}\}\)</span> can be visualized and often recovers linguistically meaningful word correspondences.</p>
+<h3 id="luong-attention-2015-multiplicative-variants">1.3 Luong Attention (2015): Multiplicative Variants</h3>
+<p>Luong, Pham, and Manning (2015) simplified and generalized the alignment function. Their <em>global attention</em> model evaluates the alignment between the current decoder state <span class="math inline">\(\mathbf{h}_t\)</span> and each encoder state <span class="math inline">\(\bar{\mathbf{h}}_s\)</span> using one of three score functions:</p>
+<p><span class="math display">\[\text{score}(\mathbf{h}_t, \bar{\mathbf{h}}_s) = \begin{cases} \mathbf{h}_t^\top \bar{\mathbf{h}}_s &amp; \text{(dot)} \\ \mathbf{h}_t^\top \mathbf{W}_a\, \bar{\mathbf{h}}_s &amp; \text{(general)} \\ \mathbf{v}_a^\top \tanh(\mathbf{W}_a[\mathbf{h}_t\,;\,\bar{\mathbf{h}}_s]) &amp; \text{(concat)} \end{cases}\]</span></p>
+<p>The <em>dot</em> and <em>general</em> variants are <em>multiplicative attention</em>: they replace the sum of two linearly transformed vectors with a bilinear product. This is computationally cheaper than additive attention (no tanh) and, as Vaswani et al. would later show, scales more naturally to high-dimensional settings.</p>
+<p>Luong et al. also introduced <em>local attention</em>, which restricts the context window to a neighborhood <span class="math inline">\([p_t - D,\, p_t + D]\)</span> around a predicted alignment position <span class="math inline">\(p_t\)</span>, reducing computation for long sequences. This idea of attending over a local window reappears in Longformer’s sliding-window attention (Section 4.1).</p>
+<hr />
+<h2 id="scaled-dot-product-attention-and-the-transformer-2017">2. Scaled Dot-Product Attention and the Transformer (2017)</h2>
+<p>Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin (2017) — “Attention Is All You Need” — eliminated recurrence entirely. Rather than using attention as an auxiliary mechanism to augment an RNN encoder-decoder, they built an architecture composed <em>solely</em> of attention and feed-forward layers.</p>
+<h3 id="the-core-mechanism">2.1 The Core Mechanism</h3>
+<p><strong>Definition (Scaled Dot-Product Attention).</strong> Given query matrix <span class="math inline">\(Q \in \mathbb{R}^{T \times d_k}\)</span>, key matrix <span class="math inline">\(K \in \mathbb{R}^{S \times d_k}\)</span>, and value matrix <span class="math inline">\(V \in \mathbb{R}^{S \times d_v}\)</span>, the attention output is:</p>
+<p><span class="math display">\[\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V\]</span></p>
+<p>The division by <span class="math inline">\(\sqrt{d_k}\)</span> is not cosmetic. Assume query and key components are i.i.d. with mean <span class="math inline">\(0\)</span> and variance <span class="math inline">\(1\)</span>. The dot product <span class="math inline">\(\mathbf{q}^\top \mathbf{k} = \sum_{i=1}^{d_k} q_i k_i\)</span> then has variance <span class="math inline">\(d_k\)</span>. For large <span class="math inline">\(d_k\)</span>, these large-magnitude logits drive the softmax into a near-one-hot regime where gradients vanish. Scaling by <span class="math inline">\(1/\sqrt{d_k}\)</span> restores unit variance to the logits regardless of dimension, stabilizing training. See <a href="../../../../notes/standard-attention#2.-single-head-scaled-dot-product-attention%7C§2-of-standard-attention.md/">standard-attention#2. Single-Head Scaled Dot-Product Attention|§2 of standard-attention.md</a> for a full derivation.</p>
+<p>Compared to Luong’s general (bilinear) score, scaled dot-product attention is a special case where the weight matrix <span class="math inline">\(\mathbf{W}_a\)</span> is constrained to the identity scaled by <span class="math inline">\(1/\sqrt{d_k}\)</span>. The key difference from Bahdanau’s additive score is computational: no tanh evaluation, and the full <span class="math inline">\(QK^\top\)</span> matrix can be computed as a single matrix multiply.</p>
+<h3 id="multi-head-attention">2.2 Multi-Head Attention</h3>
+<p>Rather than computing one attention function over the full dimension <span class="math inline">\(D\)</span>, the Transformer projects queries, keys, and values into <span class="math inline">\(H\)</span> lower-dimensional subspaces and runs attention in parallel:</p>
+<p><span class="math display">\[\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_H)\, W^O\]</span></p>
+<p><span class="math display">\[\text{head}_i = \text{Attention}(Q W_i^Q,\, K W_i^K,\, V W_i^V)\]</span></p>
+<p>where <span class="math inline">\(W_i^Q, W_i^K \in \mathbb{R}^{D \times d_k}\)</span>, <span class="math inline">\(W_i^V \in \mathbb{R}^{D \times d_v}\)</span>, <span class="math inline">\(W^O \in \mathbb{R}^{H d_v \times D}\)</span>, and <span class="math inline">\(d_k = d_v = D/H\)</span> in the original architecture. Each head can specialize in a different type of relationship — syntactic, semantic, positional — without interference from the other heads.</p>
+<h3 id="positional-encoding">2.3 Positional Encoding</h3>
+<p>Because attention has no inherent notion of order (it is a set operation over tokens), position information must be injected explicitly. Vaswani et al. add fixed sinusoidal <em>positional encodings</em> to the input embeddings:</p>
+<p><span class="math display">\[\text{PE}_{(\text{pos},\, 2i)} = \sin\!\left(\frac{\text{pos}}{10000^{2i/D}}\right), \qquad \text{PE}_{(\text{pos},\, 2i+1)} = \cos\!\left(\frac{\text{pos}}{10000^{2i/D}}\right)\]</span></p>
+<p>Different frequencies encode different scales of relative position. Nearby positions produce similar encoding vectors; the inner product between two position encodings depends only on their offset. This observation was later generalized by T5’s learned relative biases (Section 3.4) and by the Rotary Position Embedding (RoPE) used in LLaMA and subsequent work.</p>
+<h3 id="full-self-attention-architectural-implications">2.4 Full Self-Attention: Architectural Implications</h3>
+<p>The decisive departure from prior work is using attention for <em>self-attention</em>: tokens attend to each other within the same sequence, not merely from decoder to encoder. This removes the sequential dependency of RNNs: every attention output can be computed in parallel from the input sequence, reducing training-time sequential depth from <span class="math inline">\(O(T)\)</span> to <span class="math inline">\(O(1)\)</span> at the cost of <span class="math inline">\(O(T^2)\)</span> compute and memory per layer.</p>
+<p>The Transformer encoder uses full bidirectional self-attention (each token attends to all others). The decoder uses <em>causal self-attention</em> (each token attends only to itself and prior tokens), plus cross-attention to the encoder outputs.</p>
+<p><strong>The path-length argument.</strong> In an RNN, the number of sequential operations required to relate token <span class="math inline">\(i\)</span> to token <span class="math inline">\(j\)</span> is <span class="math inline">\(|i - j|\)</span>, creating long gradient paths for distant tokens. In a Transformer, this path length is <span class="math inline">\(O(1)\)</span> — any two tokens interact directly in the attention matrix.</p>
+<hr />
+<h2 id="bert-gpt-and-the-rise-of-pretraining-20182020">3. BERT, GPT, and the Rise of Pretraining (2018–2020)</h2>
+<p>The Transformer architecture was immediately recognized as a powerful general-purpose sequence model. Within months of “Attention Is All You Need,” the NLP community had reorganized around a new paradigm: <em>pretraining</em> a large Transformer on unlabeled text, then <em>fine-tuning</em> on downstream tasks.</p>
+<h3 id="gpt-1-2018-decoder-only-causal-language-modeling">3.1 GPT-1 (2018): Decoder-Only Causal Language Modeling</h3>
+<p>Radford et al. (OpenAI, 2018) introduced GPT-1 (<em>Generative Pre-trained Transformer</em>), which takes the decoder half of the original Transformer and drops the cross-attention to the encoder. The result is a 12-layer decoder-only model with causal (left-to-right) self-attention, pretrained on the BooksCorpus dataset with a standard <em>next-token prediction</em> objective:</p>
+<p><span class="math display">\[\mathcal{L}_{\text{LM}} = -\sum_t \log p(x_t \mid x_{t-k}, \ldots, x_{t-1};\, \Theta)\]</span></p>
+<p>Causal masking ensures that the attention at position <span class="math inline">\(t\)</span> cannot see tokens at positions <span class="math inline">\(&gt; t\)</span>, enforcing the autoregressive constraint. GPT-1 demonstrated that a single pretrained model with a small task-specific head could match or exceed task-specific models on several benchmarks, establishing the fine-tuning paradigm.</p>
+<h3 id="bert-2018-bidirectional-encoder-representations">3.2 BERT (2018): Bidirectional Encoder Representations</h3>
+<p>Devlin, Chang, Lee, and Toutanova (BERT, 2018) argued that GPT-1’s unidirectional attention was suboptimal for understanding tasks, where context from both sides of a token is informative. BERT uses the <em>encoder</em> half of the Transformer with <em>full bidirectional self-attention</em> — every token can attend to every other token.</p>
+<p>Training bidirectionally on a language modeling objective is impossible in the standard next-token form, since the model could trivially copy the current token. BERT instead uses two pretraining tasks:</p>
+<ol type="1">
+<li><em>Masked Language Modeling</em> (MLM): 15% of tokens are replaced with a <code>[MASK]</code> token; the model must predict the original token. This forces the model to use bidirectional context.</li>
+<li><em>Next Sentence Prediction</em> (NSP): The model is given two sentence segments and must predict whether the second follows the first in the original document.</li>
+</ol>
+<p>BERT-Large (24 layers, 1024 hidden, 16 heads, 340M parameters) significantly outperformed GPT-1 on the GLUE benchmark and became the standard pretrained backbone for NLP tasks through 2019.</p>
+<p>The architectural contrast is clean: GPT uses causal attention and is suited to generation; BERT uses bidirectional attention and is suited to classification and extraction. Later work (XLNet, RoBERTa, ALBERT) would refine both pretraining objectives and architectural details, but the encoder/decoder split established by GPT and BERT remained the dominant taxonomy.</p>
+<h3 id="gpt-2-and-gpt-3-scaling-and-emergence-20192020">3.3 GPT-2 and GPT-3: Scaling and Emergence (2019–2020)</h3>
+<p>GPT-2 (Radford et al., 2019) scaled GPT-1 from 117M to 1.5B parameters, applied on a higher-quality web-scraped dataset (WebText), and made minor architectural changes: layer normalization moved to the input of each sublayer, and an additional layer norm added after the final attention block. The central finding was that <em>scale itself</em> was a competitive approach — GPT-2 achieved strong zero-shot performance on multiple tasks without any fine-tuning.</p>
+<p>GPT-3 (Brown et al., 2020) scaled further to 175B parameters. At this scale, the model exhibited <em>few-shot learning</em>: given a natural-language task description and a handful of input-output examples in the prompt, GPT-3 could perform translation, question answering, code generation, and arithmetic without any gradient updates. <strong>GPT-3 showed that scaling decoder-only causal attention models produces qualitatively new capabilities unavailable at smaller scales.</strong> This observation drove subsequent work on scaling laws and large-scale pretraining.</p>
+<h3 id="t5-2020-encoder-decoder-with-relative-biases">3.4 T5 (2020): Encoder-Decoder with Relative Biases</h3>
+<p>Raffel et al. (2020) introduced T5 (<em>Text-to-Text Transfer Transformer</em>), which reformulated every NLP task as text-to-text: the input is a string, the output is a string. T5 uses the full encoder-decoder Transformer architecture and made one notable architectural contribution: replacing the absolute sinusoidal positional encodings of Vaswani et al. with <em>relative position biases</em>. A scalar bias <span class="math inline">\(b(i - j)\)</span> is added to each attention logit based only on the offset between query position <span class="math inline">\(i\)</span> and key position <span class="math inline">\(j\)</span>:</p>
+<p><span class="math display">\[\tilde{e}_{ij} = \frac{\mathbf{q}_i^\top \mathbf{k}_j}{\sqrt{d_k}} + b(i - j)\]</span></p>
+<p>The bias values are shared across layers but learned per head, with a small number of learned buckets covering different offset ranges. Relative biases extrapolate more gracefully to sequence lengths longer than those seen during training, a desirable property for long-context tasks.</p>
+<hr />
+<h2 id="efficient-attention-overcoming-the-quadratic-bottleneck-20202022">4. Efficient Attention: Overcoming the Quadratic Bottleneck (2020–2022)</h2>
+<p>By 2020, the quadratic <span class="math inline">\(O(T^2)\)</span> cost of full self-attention was the primary constraint on context length. A long context is necessary for document-level understanding, multi-turn dialogue, and code reasoning. Several directions attacked this bottleneck simultaneously.</p>
+<h3 id="sparse-attention-longformer-and-bigbird">4.1 Sparse Attention: Longformer and BigBird</h3>
+<p>The <em>Longformer</em> (Beltagy et al., 2020) and <em>BigBird</em> (Zaheer et al., 2020) replace the full <span class="math inline">\(T \times T\)</span> attention matrix with a sparse pattern that achieves <span class="math inline">\(O(T)\)</span> total attention operations while preserving the ability to capture global context.</p>
+<p><strong>Longformer’s pattern</strong> combines:
+- A <em>sliding-window</em> component: each token attends to a window of <span class="math inline">\(w\)</span> neighbors, contributing <span class="math inline">\(O(T \cdot w)\)</span> operations total.
+- <em>Global tokens</em> (e.g., the <code>[CLS]</code> token in classification): a small set of designated tokens attend to and are attended by every other token, at <span class="math inline">\(O(T \cdot g)\)</span> cost for <span class="math inline">\(g\)</span> global tokens.</p>
+<p><strong>BigBird</strong> extends this with a third component: <em>random attention</em>, where each token attends to <span class="math inline">\(r\)</span> uniformly sampled tokens. BigBird’s theoretical analysis shows that the combination of local, global, and random attention is a <em>universal approximator</em> of full attention and can simulate any function computable by a Turing machine, providing a theoretical basis for why sparse attention suffices.</p>
+<p><em>Both models achieve <span class="math inline">\(O(T)\)</span> complexity</em>, but at a cost: they require custom CUDA kernels and the sparse pattern must be fixed at model design time, limiting flexibility.</p>
+<h3 id="flashattention-io-aware-exact-attention-2022">4.2 FlashAttention: IO-Aware Exact Attention (2022)</h3>
+<p>Dao, Fu, Ermon, Rudra, and Ré (2022) introduced <em>FlashAttention</em>, which is not an approximation to attention — it computes the exact same output as standard attention — but restructures the computation to minimize data movement between GPU memory tiers.</p>
+<p>The key observation is that modern GPUs have a two-tier memory hierarchy:
+- <em>High Bandwidth Memory</em> (HBM): large (40–80 GB), bandwidth ~1.5–2 TB/s.
+- <em>On-chip SRAM</em>: small (~20 MB), bandwidth ~19 TB/s — roughly 10× faster.</p>
+<p>Standard attention materializes the full <span class="math inline">\(T \times T\)</span> attention weight matrix <span class="math inline">\(P = \text{softmax}(QK^\top / \sqrt{d_k})\)</span> in HBM, then reads it back to compute <span class="math inline">\(PV\)</span>. For <span class="math inline">\(T = 4096\)</span> and <span class="math inline">\(d_k = 64\)</span>, this matrix is <span class="math inline">\(4096^2 \times 4 \approx 67\)</span> MB — large enough that HBM bandwidth, not arithmetic throughput, limits wall-clock speed.</p>
+<p>FlashAttention avoids materializing <span class="math inline">\(P\)</span> by <em>tiling</em>: it partitions <span class="math inline">\(Q\)</span>, <span class="math inline">\(K\)</span>, <span class="math inline">\(V\)</span> into blocks that fit in SRAM, uses the <em>online softmax</em> trick to accumulate partial outputs block by block, and writes only the final output to HBM. The online softmax trick maintains running statistics <span class="math inline">\((m, \ell)\)</span> — the running maximum and the sum of exponentials — that allow rescaling accumulated partial sums when the global maximum becomes known:</p>
+<p><span class="math display">\[m(x_1, x_2) = \max(m(x_1), m(x_2)), \qquad \ell(x_1, x_2) = e^{m(x_1) - m} \ell(x_1) + e^{m(x_2) - m} \ell(x_2)\]</span></p>
+<p><strong>FlashAttention reduces HBM reads/writes from <span class="math inline">\(O(T^2)\)</span> to <span class="math inline">\(O(T^2 / M)\)</span></strong> (where <span class="math inline">\(M\)</span> is the SRAM size), achieving 2–4× wall-clock speedup and reducing memory from <span class="math inline">\(O(T^2)\)</span> to <span class="math inline">\(O(T)\)</span> for the intermediate attention matrices. Arithmetic work is slightly increased, but the bottleneck is IO, not compute.</p>
+<p>FlashAttention-2 (2023) and FlashAttention-3 (2024) refined the tiling strategy and improved occupancy on H100 GPUs. The IO-aware design principle influenced virtually all subsequent efficient attention implementations. See <a href="../../../../notes/standard-attention#5.-kv-caching%7C§5-of-standard-attention.md/">standard-attention#5. KV Caching|§5 of standard-attention.md</a> for the KV cache context.</p>
+<h3 id="multi-query-and-grouped-query-attention">4.3 Multi-Query and Grouped-Query Attention</h3>
+<p>A distinct bottleneck is the <em>KV cache</em> during autoregressive inference: for <span class="math inline">\(H\)</span> heads, each of dimension <span class="math inline">\(d_k + d_v\)</span>, and sequence length <span class="math inline">\(T\)</span>, the KV cache holds <span class="math inline">\(2 \cdot H \cdot T \cdot d_k\)</span> floats per layer. At <span class="math inline">\(T = 32768\)</span> and <span class="math inline">\(H = 32\)</span>, <span class="math inline">\(d_k = 128\)</span>, this is over 8 GB per layer pair — severely limiting batch size and throughput.</p>
+<p><em>Multi-query attention</em> (MQA; Shazeer, 2019) addresses this by sharing a single key head and a single value head across all query heads. Each query head has its own projection <span class="math inline">\(W_i^Q\)</span>, but all heads share the same <span class="math inline">\(W^K\)</span> and <span class="math inline">\(W^V\)</span>. This reduces the KV cache by a factor of <span class="math inline">\(H\)</span> at the cost of some quality.</p>
+<p><em>Grouped-query attention</em> (GQA; Ainslie et al., 2023) interpolates between MHA and MQA: query heads are partitioned into <span class="math inline">\(G\)</span> groups, each group sharing one KV head. With <span class="math inline">\(G = H\)</span> this recovers MHA; with <span class="math inline">\(G = 1\)</span> it recovers MQA. GQA achieves near-MHA quality with near-MQA memory cost and was adopted in LLaMA-2, Mistral, and Gemini.</p>
+<hr />
+<h2 id="linear-attention-and-recurrent-reformulations-20202023">5. Linear Attention and Recurrent Reformulations (2020–2023)</h2>
+<p>FlashAttention and sparse attention reduce the practical cost of full attention but do not change its asymptotic character: at inference, the KV cache still grows with sequence length, and each generation step requires reading the full cache. A more radical alternative is to replace softmax attention with a computation that maintains a <em>fixed-size state</em> regardless of <span class="math inline">\(T\)</span>.</p>
+<h3 id="katharopoulos-et-al.-2020-transformers-are-rnns">5.1 Katharopoulos et al. (2020): Transformers are RNNs</h3>
+<p>Katharopoulos, Vyas, Pappas, and Fleuret (2020) observed that the quadratic cost of softmax attention comes entirely from the normalization: the softmax couples all positions <span class="math inline">\(j\)</span> through the denominator, preventing the sum over <span class="math inline">\(j\)</span> from being factored out of the query term.</p>
+<p>Their fix: replace the softmax kernel <span class="math inline">\(\exp(\mathbf{q}\mathbf{k}^\top / \sqrt{d_k})\)</span> with a <em>factored</em> similarity <span class="math inline">\(\phi(\mathbf{q}_t)\phi(\mathbf{k}_j)^\top\)</span>, where <span class="math inline">\(\phi\)</span> is a feature map. For any <span class="math inline">\(\phi\)</span>, the output at position <span class="math inline">\(t\)</span> becomes:</p>
+<p><span class="math display">\[\mathbf{o}_t = \frac{\phi(\mathbf{q}_t) \left(\displaystyle\sum_{j=1}^{t} \phi(\mathbf{k}_j)^\top \mathbf{v}_j\right)}{\phi(\mathbf{q}_t) \left(\displaystyle\sum_{j=1}^{t} \phi(\mathbf{k}_j)^\top\right)}\]</span></p>
+<p>Since <span class="math inline">\(\phi(\mathbf{q}_t)\)</span> does not depend on <span class="math inline">\(j\)</span>, it factors out, reducing the summation to <span class="math inline">\(O(T \cdot d_k d_v)\)</span> rather than <span class="math inline">\(O(T^2)\)</span>.</p>
+<p>The running sum <span class="math inline">\(S_t = \sum_{j=1}^{t} \phi(\mathbf{k}_j)^\top \mathbf{v}_j \in \mathbb{R}^{d_k \times d_v}\)</span> satisfies an exact recurrence:</p>
+<p><span class="math display">\[S_t = S_{t-1} + \phi(\mathbf{k}_t)^\top \mathbf{v}_t, \qquad \mathbf{o}_t = \frac{\phi(\mathbf{q}_t) S_t}{\phi(\mathbf{q}_t) z_t}\]</span></p>
+<p>where <span class="math inline">\(z_t = z_{t-1} + \phi(\mathbf{k}_t)^\top \in \mathbb{R}^{d_k}\)</span> is the normalizer accumulator. This is an RNN with state <span class="math inline">\(S_t\)</span> of dimension <span class="math inline">\(d_k \times d_v\)</span> — <em>independent of <span class="math inline">\(T\)</span></em>. The paper proposed <span class="math inline">\(\phi(\mathbf{x}) = \text{elu}(\mathbf{x}) + 1\)</span> to ensure positive similarities, which they showed was necessary for convergence.</p>
+<p>The paper titled their work “Transformers are RNNs,” making explicit that causal linear attention and RNN inference are two views of the same computation. The full derivation and connection to the <em>state matrix</em> are developed in <a href="../../../../notes/linear-attention#2.-linear-attention:-removing-softmax%7C§2-of-linear-attention.md/">linear-attention#2. Linear Attention: Removing Softmax|§2 of linear-attention.md</a>.</p>
+<h3 id="rwkv-2023-attention-free-transformer">5.2 RWKV (2023): Attention-Free Transformer</h3>
+<p>Peng et al. (2023) introduced <em>RWKV</em> (Receptance Weighted Key Value), which aims to achieve the parallelism of a Transformer during training while having RNN-like <span class="math inline">\(O(1)\)</span> inference cost.</p>
+<p>The core component is the <em>WKV</em> operator. At position <span class="math inline">\(t\)</span> in the time-mixing block, receptance <span class="math inline">\(r_t\)</span>, key <span class="math inline">\(k_t\)</span>, and value <span class="math inline">\(v_t\)</span> are computed via token-shifted linear projections:</p>
+<p><span class="math display">\[r_t = W_r \cdot (\mu_r \odot x_t + (1 - \mu_r) \odot x_{t-1})\]</span>
+<span class="math display">\[k_t = W_k \cdot (\mu_k \odot x_t + (1 - \mu_k) \odot x_{t-1})\]</span>
+<span class="math display">\[v_t = W_v \cdot (\mu_v \odot x_t + (1 - \mu_v) \odot x_{t-1})\]</span></p>
+<p>The WKV computation, with a position-independent exponential decay <span class="math inline">\(w \in \mathbb{R}^d\)</span> (channel-wise) and a learnable first-position bias <span class="math inline">\(u\)</span>, is:</p>
+<p><span class="math display">\[\text{wkv}_t = \frac{\displaystyle\sum_{i=1}^{t-1} e^{-(t-1-i)w + k_i} \odot v_i \;+\; e^{u + k_t} \odot v_t}{\displaystyle\sum_{i=1}^{t-1} e^{-(t-1-i)w + k_i} \;+\; e^{u + k_t}}\]</span></p>
+<p>This can be computed recurrently in <span class="math inline">\(O(d)\)</span> per step. The final output of the time-mixing block is <span class="math inline">\(\sigma(r_t) \odot \text{wkv}_t\)</span>.</p>
+<p>RWKV is notable for scaling to 14B parameters while maintaining purely sequential recurrence at inference — the first RNN-lineage model to operate at this scale. However, its decay <span class="math inline">\(w\)</span> is <em>input-independent</em>, meaning the model cannot selectively forget or retain information based on content. This is the key limitation addressed by Mamba and GLA.</p>
+<h3 id="retnet-2023-constant-decay-and-three-computation-modes">5.3 RetNet (2023): Constant Decay and Three Computation Modes</h3>
+<p>Sun et al. (2023) introduced <em>RetNet</em> (Retention Network), which formalized the <em>retention</em> mechanism as a principled replacement for attention. The retention mechanism with scalar per-head decay <span class="math inline">\(\gamma \in (0, 1)\)</span> has a dual representation.</p>
+<p><strong>Recurrent form.</strong> Let <span class="math inline">\(S_n \in \mathbb{R}^{d_k \times d_v}\)</span> be the state matrix:</p>
+<p><span class="math display">\[S_n = \gamma S_{n-1} + \mathbf{k}_n^\top \mathbf{v}_n, \qquad \mathbf{o}_n = \mathbf{q}_n S_n\]</span></p>
+<p><strong>Parallel form.</strong> After applying complex exponentials to queries and keys for positional encoding (using angle <span class="math inline">\(\theta\)</span>), the output can be written as a masked matrix product:</p>
+<p><span class="math display">\[\mathbf{o}_n = \sum_{m=1}^{n} \gamma^{n-m} (\mathbf{q}_n e^{in\theta}) (\mathbf{k}_m e^{im\theta})^\dagger \mathbf{v}_m\]</span></p>
+<p><strong>Chunkwise form.</strong> The sequence is split into chunks of size <span class="math inline">\(C\)</span>. Within each chunk the parallel (quadratic) form is used; state matrices are passed recurrently between chunks. This provides a hardware-efficient middle ground.</p>
+<p>RetNet uses multi-scale decay with different <span class="math inline">\(\gamma\)</span> values per head: <span class="math inline">\(\gamma_h = 1 - 2^{-5-h}\)</span> for <span class="math inline">\(h = 0, \ldots, H-1\)</span>. Different heads thus operate with different effective context windows.</p>
+<p><strong>The limitation of constant decay is that <span class="math inline">\(\gamma\)</span> is fixed for all positions and all inputs.</strong> The model cannot learn to retain some information indefinitely while forgetting other information based on content — a fundamental expressiveness constraint addressed by later gated variants (see <a href="../../../../notes/linear-attention#5.-decay-and-gating-mechanisms%7C§5-of-linear-attention.md/">linear-attention#5. Decay and Gating Mechanisms|§5 of linear-attention.md</a>).</p>
+<hr />
+<h2 id="state-space-models-and-the-mamba-line-20222024">6. State Space Models and the Mamba Line (2022–2024)</h2>
+<p>State space models developed in parallel with the linear attention literature, sharing the goal of <span class="math inline">\(O(T)\)</span> training and <span class="math inline">\(O(1)\)</span> inference, but approaching the problem from continuous-time dynamical systems rather than attention.</p>
+<h3 id="s4-2022-structured-state-spaces">6.1 S4 (2022): Structured State Spaces</h3>
+<p>Gu, Goel, and Ré (2022) introduced <em>S4</em> (Structured State Space for Sequences), grounding sequence modeling in continuous-time linear dynamical systems. The <em>state space model</em> (SSM) maps a 1-D input signal <span class="math inline">\(u(t)\)</span> to output <span class="math inline">\(y(t)\)</span> via an <span class="math inline">\(N\)</span>-dimensional latent state <span class="math inline">\(x(t)\)</span>:</p>
+<p><span class="math display">\[x'(t) = A x(t) + B u(t), \qquad y(t) = C x(t) + D u(t)\]</span></p>
+<p>where <span class="math inline">\(A \in \mathbb{R}^{N \times N}\)</span>, <span class="math inline">\(B \in \mathbb{R}^{N \times 1}\)</span>, <span class="math inline">\(C \in \mathbb{R}^{1 \times N}\)</span>, <span class="math inline">\(D \in \mathbb{R}\)</span>. To apply this to discrete sequences, the continuous system is discretized via the bilinear (Tustin) method with step size <span class="math inline">\(\Delta\)</span>:</p>
+<p><span class="math display">\[\bar{A} = (I - \tfrac{\Delta}{2} A)^{-1}(I + \tfrac{\Delta}{2} A), \qquad \bar{B} = (I - \tfrac{\Delta}{2} A)^{-1} \Delta B\]</span></p>
+<p>The discretized system is a linear recurrence <span class="math inline">\(x_t = \bar{A} x_{t-1} + \bar{B} u_t\)</span>, and can equivalently be written as a global convolution: <span class="math inline">\(y = \bar{C} \cdot (k * u)\)</span> where the <em>SSM kernel</em> <span class="math inline">\(k_t = \bar{C} \bar{A}^t \bar{B}\)</span> can be precomputed for all <span class="math inline">\(t\)</span> simultaneously.</p>
+<p>The critical challenge is computing powers of <span class="math inline">\(A\)</span> efficiently. S4’s key innovation is initializing <span class="math inline">\(A\)</span> with the <em>HiPPO</em> matrix, which has a closed-form Normal Plus Low-Rank (NPLR) decomposition:</p>
+<p><span class="math display">\[A_{nk} = -\begin{cases} \sqrt{(2n+1)(2k+1)} &amp; n &gt; k \\ n + 1 &amp; n = k \\ 0 &amp; n &lt; k \end{cases}\]</span></p>
+<p>This structure allows the SSM convolution kernel to be computed in <span class="math inline">\(O(N + L)\)</span> operations (where <span class="math inline">\(L\)</span> is sequence length) via frequency-domain techniques and the Cauchy kernel reduction, instead of the naïve <span class="math inline">\(O(N^2 L)\)</span>. <strong>S4 achieved near-perfect accuracy on sequential MNIST and strong results on the Long Range Arena benchmark, demonstrating that structured SSMs could match or exceed Transformers on long-context tasks.</strong></p>
+<h3 id="mamba-2023-selective-state-space-models">6.2 Mamba (2023): Selective State Space Models</h3>
+<p>Gu and Dao (2023) identified a fundamental limitation of S4 and all prior SSMs: the matrices <span class="math inline">\(B\)</span>, <span class="math inline">\(C\)</span>, and <span class="math inline">\(\Delta\)</span> are <em>input-independent</em> — they are fixed functions of the position, not the token content. This means the SSM performs the same filtering operation on every sequence, regardless of what it contains. In particular, it cannot selectively copy or ignore specific tokens based on their content — a capability that is critical for language modeling.</p>
+<p><em>Mamba</em> introduces <em>selective SSMs</em>: the matrices <span class="math inline">\(B_t\)</span>, <span class="math inline">\(C_t\)</span>, and <span class="math inline">\(\Delta_t\)</span> are now functions of the input <span class="math inline">\(x_t\)</span> at each position:</p>
+<p><span class="math display">\[B_t = \text{Linear}(x_t), \quad C_t = \text{Linear}(x_t), \quad \Delta_t = \text{softplus}(\text{Linear}(x_t))\]</span></p>
+<p>The discretized state transitions thus depend on the input:</p>
+<p><span class="math display">\[\bar{A}_t = \exp(\Delta_t \odot A), \qquad \bar{B}_t = \Delta_t \odot B_t\]</span></p>
+<p><span class="math display">\[h_t = \bar{A}_t \odot h_{t-1} + \bar{B}_t x_t, \qquad y_t = C_t^\top h_t\]</span></p>
+<p>(Here <span class="math inline">\(A\)</span> is diagonal so <span class="math inline">\(\exp(\Delta_t \odot A)\)</span> is elementwise; the per-channel structure keeps computation tractable.)</p>
+<p>The price of input-dependence is that the recurrence can no longer be unrolled as a global convolution (since the kernel changes at every step), so S4’s convolutional training strategy is unavailable. Mamba instead uses a <em>parallel scan</em> (prefix-sum) algorithm: the <span class="math inline">\(T\)</span> recurrence steps are computed with <span class="math inline">\(O(\log T)\)</span> sequential depth using the associativity of the state update, materialized in a single pass over the sequence in parallel.</p>
+<p>To avoid materializing the full state sequence in slow HBM memory, Mamba uses a <em>hardware-aware scan</em>: all intermediate states are kept in SRAM and fused into a single kernel, analogous to FlashAttention’s tiling strategy.</p>
+<h3 id="mamba-2-ssd-2024-explicit-duality-with-linear-attention">6.3 Mamba-2 / SSD (2024): Explicit Duality with Linear Attention</h3>
+<p>Dao and Gu (2024) introduced <em>Mamba-2</em>, whose theoretical contribution is the <em>State Space Duality</em> (SSD) framework: a formal proof that a specific class of selective SSMs and a specific class of masked attention are two different algorithms for the <em>same sequence transformation</em>.</p>
+<p>The key restriction enabling the duality is that <span class="math inline">\(A\)</span> must be a <em>scalar times the identity</em> at each timestep (rather than a general diagonal matrix as in Mamba-1). Under this constraint, the SSM state update is:</p>
+<p><span class="math display">\[h_t = a_t h_{t-1} + B_t x_t, \qquad y_t = C_t^\top h_t\]</span></p>
+<p>where <span class="math inline">\(a_t \in \mathbb{R}\)</span> is a scalar. The output can then be written as:</p>
+<p><span class="math display">\[y_t = \sum_{j=1}^{t} \left(\prod_{i=j+1}^{t} a_i\right) C_t^\top B_j x_j\]</span></p>
+<p>The <span class="math inline">\(T \times T\)</span> matrix <span class="math inline">\(M\)</span> with <span class="math inline">\(M_{tj} = \left(\prod_{i=j+1}^{t} a_i\right) C_t^\top B_j\)</span> is a <em>1-semiseparable</em> matrix: every submatrix contained within the lower triangular part has rank at most 1. The SSD attention form is then:</p>
+<p><span class="math display">\[Y = M \cdot X, \qquad M = L \circ (CB^\top)\]</span></p>
+<p>where <span class="math inline">\(L\)</span> is the scalar cumulative-product mask and <span class="math inline">\(\circ\)</span> denotes elementwise multiplication. This is exactly masked attention with a structured (semiseparable) mask — the same computation as linear attention with a scalar decay, expressed as a matrix product.</p>
+<p>The chunkwise algorithm for SSD partitions <span class="math inline">\(M\)</span> into <span class="math inline">\(Q \times Q\)</span> blocks. Diagonal blocks are computed using the quadratic (attention-like) form. Off-diagonal blocks factor as low-rank products using the semiseparable property and are accumulated via the recurrence. <strong>This unified view enabled Mamba-2 to be 2–8× faster than Mamba-1 with simpler code, while making explicit that Mamba-2, RetNet, and linear attention are all instances of the same structural family.</strong> See <a href="../../../../notes/linear-attention#5.-decay-and-gating-mechanisms%7C§5-of-linear-attention.md/">linear-attention#5. Decay and Gating Mechanisms|§5 of linear-attention.md</a> for the gating perspective.</p>
+<hr />
+<h2 id="gating-and-hybrid-architectures-2024present">7. Gating and Hybrid Architectures (2024–present)</h2>
+<h3 id="gla-2024-vector-valued-data-dependent-gating">7.1 GLA (2024): Vector-Valued Data-Dependent Gating</h3>
+<p>Yang et al. (2024) introduced <em>GLA</em> (Gated Linear Attention), which extends the scalar decay of RetNet/Mamba-2 to a <em>vector-valued</em> data-dependent gate. The state update is:</p>
+<p><span class="math display">\[S_t = G_t \odot S_{t-1} + \mathbf{k}_t^\top \mathbf{v}_t, \qquad \mathbf{o}_t = \mathbf{q}_t S_t\]</span></p>
+<p>where <span class="math inline">\(G_t \in \mathbb{R}^{d_k \times d_v}\)</span> is a gate matrix that is computed from the input at position <span class="math inline">\(t\)</span> via a low-rank factorization:</p>
+<p><span class="math display">\[G_t = \alpha_t^\top \beta_t, \quad \alpha_t = \sigma(\text{Linear}_{d_k}(x_t)), \quad \beta_t = \sigma(\text{Linear}_{d_v}(x_t))\]</span></p>
+<p>Here <span class="math inline">\(\sigma\)</span> is the sigmoid function and <span class="math inline">\(\odot\)</span> denotes elementwise multiplication. Compared to RetNet’s fixed scalar <span class="math inline">\(\gamma\)</span> or Mamba-2’s scalar <span class="math inline">\(a_t\)</span>, GLA allows each entry of the state matrix to decay at a different, input-dependent rate — a strictly more expressive gating structure.</p>
+<p>However, because <span class="math inline">\(G_t\)</span> varies per position, the chunkwise training algorithm must be modified. Within a chunk, the quadratic form cannot use a simple constant mask; instead the mask entries involve products of the gates across positions. Yang et al. develop a <em>hardware-efficient chunkwise algorithm</em> implemented in Triton that achieves competitive throughput on modern GPUs despite this added complexity. See <a href="../../../../notes/linear-attention#5.-decay-and-gating-mechanisms%7C§5-of-linear-attention.md/">linear-attention#5. Decay and Gating Mechanisms|§5 of linear-attention.md</a> for the full GLA derivation.</p>
+<h3 id="rwkv-6-and-eaglefinch-matrix-valued-gating">7.2 RWKV-6 and Eagle/Finch: Matrix-Valued Gating</h3>
+<p>RWKV-6 (the Eagle and Finch variants, Peng et al., 2024) extends the original RWKV architecture by replacing the channel-wise scalar decay with a <em>matrix-valued gate</em> computed as an outer product:</p>
+<p><span class="math display">\[G_t = \mathbf{a}_t \otimes \mathbf{b}_t, \quad \mathbf{a}_t, \mathbf{b}_t \in \mathbb{R}^d\]</span></p>
+<p>This gives each state matrix entry <span class="math inline">\((i, j)\)</span> a gate that depends on both the <span class="math inline">\(i\)</span>-th component of the key projection and the <span class="math inline">\(j\)</span>-th component of the value projection, allowing finer-grained control over which memories are retained. RWKV-6 also incorporates low-rank adaptations of the time-mixing weights, improving parameter efficiency. The motivation parallels GLA: the original RWKV’s fixed decay was a computational convenience that hurt expressiveness on tasks requiring selective retention.</p>
+<h3 id="hybrid-models-interleaving-attention-and-recurrence">7.3 Hybrid Models: Interleaving Attention and Recurrence</h3>
+<p>Despite the expressiveness improvements of selective SSMs and gated linear attention, empirical evidence shows that full softmax attention still outperforms linear attention variants on tasks requiring sharp, content-based retrieval from long contexts — particularly <em>needle-in-a-haystack</em> retrieval benchmarks. This has motivated a class of <em>hybrid architectures</em> that interleave a small number of full attention layers with a majority of linear/SSM layers.</p>
+<p><em>Jamba</em> (AI21 Labs, 2024) interleaves Mamba layers with Transformer attention layers and MoE feed-forward blocks, achieving competitive quality at much lower inference memory than a pure Transformer of similar capacity.</p>
+<p><em>Zamba</em> (Zyphra, 2024) takes a more extreme ratio: a single shared Transformer attention layer is prepended to each block, with Mamba layers providing the bulk of the computation. The shared attention layer is reused across blocks (via weight-sharing), dramatically reducing the parameter overhead of attention.</p>
+<p>The hybrid approach reflects a pragmatic consensus: linear recurrences are excellent for <em>in-context accumulation</em> (building up a compressed representation over long inputs), while full attention is better for <em>sharp retrieval</em> (looking up a specific prior token). A model that needs both benefits from having both.</p>
+<h3 id="the-neural-memory-perspective">7.4 The Neural Memory Perspective</h3>
+<p>The <em>neural memory</em> or <em>fast weight programmer</em> perspective (Schmidhuber, 1992; Schlag et al., 2021) provides a unified conceptual frame for all the architectures in Sections 5–7. In this view, the state matrix <span class="math inline">\(S_t \in \mathbb{R}^{d_k \times d_v}\)</span> is a <em>fast-weight matrix</em> that stores an associative memory. Writing to this memory is the outer product update <span class="math inline">\(S_t \leftarrow S_t + \mathbf{k}_t^\top \mathbf{v}_t\)</span>; reading from it is <span class="math inline">\(\mathbf{o}_t = \mathbf{q}_t S_t\)</span>.</p>
+<p>Gating — whether scalar (<span class="math inline">\(\gamma\)</span>), per-channel (<span class="math inline">\(\mathbf{g}_t\)</span>), or full-matrix (<span class="math inline">\(G_t\)</span>) — corresponds to <em>forgetting</em>: the memory is weighted down before the new write, preventing unbounded accumulation and implementing a form of recency bias. The more expressive the gate, the more the model can selectively retain some memories while discarding others.</p>
+<p>The <em>delta rule</em> (Widrow and Hoff, 1960) provides a motivated write policy beyond the pure outer-product: instead of blindly accumulating every key-value pair, the delta rule writes only the <em>prediction error</em> <span class="math inline">\((\mathbf{v}_t - \mathbf{q}_t S_{t-1})\)</span>, subtracting the current memory’s prediction from the new value. This was formalized for Transformers by Schlag et al. (2021) and forms the basis for DeltaNet and Gated DeltaNet (2024). See <a href="../../../../notes/linear-attention#6.-neural-memory-perspective%7C§6-of-linear-attention.md/">linear-attention#6. Neural Memory Perspective|§6 of linear-attention.md</a> for the full derivation.</p>
+<hr />
+<h2 id="open-problems-and-future-directions">8. Open Problems and Future Directions</h2>
+<p>The trajectory from Bahdanau’s additive scores to SSD’s semiseparable matrices spans a decade of sustained progress, but several fundamental questions remain open.</p>
+<p><strong>Can linear attention match softmax quality?</strong> On perplexity benchmarks at scale, the best gated linear attention models (GLA, RWKV-6) still lag behind comparably-sized Transformers by a non-trivial margin. It is unclear whether this is a fundamental limitation of the fixed-state-size bottleneck, a consequence of insufficient architectural tuning, or a training dynamics issue. The hybrid evidence (Section 7.3) suggests that at minimum, a small amount of full attention is necessary for tasks requiring precise retrieval.</p>
+<p><strong>Expressive gating versus hardware efficiency.</strong> The step from scalar decay (RetNet) to vector-valued gating (GLA) to matrix-valued gating (RWKV-6) improves expressiveness but increases implementation complexity and reduces GPU utilization. The outer-product gate in GLA and RWKV-6 can be computed efficiently via chunkwise tiling (Yang et al., 2024), but the custom kernels required are non-trivial. A general theory of which gating structures admit hardware-efficient chunkwise algorithms remains incomplete.</p>
+<p><strong>Long-context and multi-modal attention.</strong> As context lengths extend to millions of tokens (as in Gemini 1.5 and recent Claude releases), even FlashAttention’s <span class="math inline">\(O(T^2/M)\)</span> IO cost becomes prohibitive. Retrieval-augmented architectures, hierarchical attention, and hybrid SSM-Transformer models are all active approaches. Multi-modal attention — where tokens come from images, audio, and video alongside text — introduces additional challenges: patch tokens from vision encoders have very different statistical properties than text tokens, and the optimal attention pattern may differ substantially across modalities.</p>
+<p><strong>What does the state matrix memorize?</strong> The state matrix <span class="math inline">\(S_t\)</span> at any position <span class="math inline">\(t\)</span> is an <span class="math inline">\(d_k \times d_v\)</span> matrix that must summarize all context seen so far. Characterizing what information is preserved and what is lost — as a function of the gating mechanism, the feature map <span class="math inline">\(\phi\)</span>, and the sequence statistics — is an open theoretical problem. Some progress has been made by analyzing linear attention as <em>online linear regression</em> (Irie et al., 2021) and by connecting specific gating patterns to ridge regression estimators, but a general theory of linear attention’s in-context learning capabilities is lacking.</p>
+<hr />
+<h2 id="references">9. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bahdanau, Cho, Bengio (2015)</td>
+<td>Introduced additive attention for neural machine translation; the original “soft alignment” paper</td>
+<td><a href="https://arxiv.org/abs/1409.0473">https://arxiv.org/abs/1409.0473</a></td>
+</tr>
+<tr class="even">
+<td>Luong, Pham, Manning (2015)</td>
+<td>Multiplicative (dot and general) attention variants; global vs local attention for NMT</td>
+<td><a href="https://arxiv.org/abs/1508.04025">https://arxiv.org/abs/1508.04025</a></td>
+</tr>
+<tr class="odd">
+<td>Vaswani et al. (2017)</td>
+<td>“Attention Is All You Need”: the Transformer, scaled dot-product attention, multi-head attention</td>
+<td><a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></td>
+</tr>
+<tr class="even">
+<td>Radford et al. GPT-1 (2018)</td>
+<td>Decoder-only Transformer pretrained with causal language modeling; established fine-tuning paradigm</td>
+<td><a href="https://openai.com/research/language-unsupervised">https://openai.com/research/language-unsupervised</a></td>
+</tr>
+<tr class="odd">
+<td>Devlin et al. BERT (2018)</td>
+<td>Encoder-only bidirectional Transformer with masked LM pretraining; dominant NLU backbone 2018–2020</td>
+<td><a href="https://arxiv.org/abs/1810.04805">https://arxiv.org/abs/1810.04805</a></td>
+</tr>
+<tr class="even">
+<td>Radford et al. GPT-2 (2019)</td>
+<td>1.5B parameter causal Transformer; demonstrated zero-shot generalization at scale</td>
+<td><a href="https://openai.com/research/better-language-models">https://openai.com/research/better-language-models</a></td>
+</tr>
+<tr class="odd">
+<td>Brown et al. GPT-3 (2020)</td>
+<td>175B parameter causal Transformer; few-shot in-context learning as emergent capability</td>
+<td><a href="https://arxiv.org/abs/2005.14165">https://arxiv.org/abs/2005.14165</a></td>
+</tr>
+<tr class="even">
+<td>Raffel et al. T5 (2020)</td>
+<td>Text-to-text encoder-decoder Transformer with relative position biases</td>
+<td><a href="https://arxiv.org/abs/1910.10683">https://arxiv.org/abs/1910.10683</a></td>
+</tr>
+<tr class="odd">
+<td>Beltagy et al. Longformer (2020)</td>
+<td>Sparse attention: sliding window + global tokens for O(T) complexity</td>
+<td><a href="https://arxiv.org/abs/2004.05150">https://arxiv.org/abs/2004.05150</a></td>
+</tr>
+<tr class="even">
+<td>Zaheer et al. BigBird (2020)</td>
+<td>Sparse attention: local + global + random; universal approximation proof</td>
+<td><a href="https://arxiv.org/abs/2007.14062">https://arxiv.org/abs/2007.14062</a></td>
+</tr>
+<tr class="odd">
+<td>Katharopoulos et al. (2020)</td>
+<td>“Transformers are RNNs”: linear attention via kernel feature maps, state matrix recurrence</td>
+<td><a href="https://arxiv.org/abs/2006.16236">https://arxiv.org/abs/2006.16236</a></td>
+</tr>
+<tr class="even">
+<td>Shazeer (2019)</td>
+<td>Multi-query attention: single KV head shared across query heads for KV cache reduction</td>
+<td><a href="https://arxiv.org/abs/1911.02150">https://arxiv.org/abs/1911.02150</a></td>
+</tr>
+<tr class="odd">
+<td>Dao et al. FlashAttention (2022)</td>
+<td>IO-aware exact attention via tiling; O(N) memory, 2–4× wall-clock speedup</td>
+<td><a href="https://arxiv.org/abs/2205.14135">https://arxiv.org/abs/2205.14135</a></td>
+</tr>
+<tr class="even">
+<td>Ainslie et al. GQA (2023)</td>
+<td>Grouped-query attention: interpolates between MHA and MQA; adopted in LLaMA-2, Mistral</td>
+<td><a href="https://arxiv.org/abs/2305.13245">https://arxiv.org/abs/2305.13245</a></td>
+</tr>
+<tr class="odd">
+<td>Gu, Goel, Ré S4 (2022)</td>
+<td>Structured state spaces with HiPPO initialization; O(N+L) SSM training via convolution</td>
+<td><a href="https://arxiv.org/abs/2111.00396">https://arxiv.org/abs/2111.00396</a></td>
+</tr>
+<tr class="even">
+<td>Peng et al. RWKV (2023)</td>
+<td>RNN with attention-like training parallelism; WKV operator with channel-wise exponential decay</td>
+<td><a href="https://arxiv.org/abs/2305.13048">https://arxiv.org/abs/2305.13048</a></td>
+</tr>
+<tr class="odd">
+<td>Sun et al. RetNet (2023)</td>
+<td>Retention mechanism with constant scalar decay; parallel / recurrent / chunkwise training modes</td>
+<td><a href="https://arxiv.org/abs/2307.08621">https://arxiv.org/abs/2307.08621</a></td>
+</tr>
+<tr class="even">
+<td>Gu, Dao Mamba (2023)</td>
+<td>Selective SSMs: input-dependent B, C, Delta; hardware-aware parallel scan</td>
+<td><a href="https://arxiv.org/abs/2312.00752">https://arxiv.org/abs/2312.00752</a></td>
+</tr>
+<tr class="odd">
+<td>Dao, Gu Mamba-2 / SSD (2024)</td>
+<td>State Space Duality: selective SSMs equivalent to masked attention via 1-semiseparable matrices</td>
+<td><a href="https://arxiv.org/abs/2405.21060">https://arxiv.org/abs/2405.21060</a></td>
+</tr>
+<tr class="even">
+<td>Yang et al. GLA (2024)</td>
+<td>Gated Linear Attention: vector-valued data-dependent gate via low-rank outer product; hardware-efficient chunkwise training</td>
+<td><a href="https://arxiv.org/abs/2312.06635">https://arxiv.org/abs/2312.06635</a></td>
+</tr>
+<tr class="odd">
+<td>Schlag, Irie, Schmidhuber (2021)</td>
+<td>Fast weight programmers as attention; delta rule as error-correcting memory write</td>
+<td><a href="https://arxiv.org/abs/2102.11174">https://arxiv.org/abs/2102.11174</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

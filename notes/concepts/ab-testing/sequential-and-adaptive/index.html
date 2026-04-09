@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>sequential-and-adaptive - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>sequential-and-adaptive</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-the-peeking-problem%7C1.-the-peeking-problem/">#1. The Peeking Problem|1. The Peeking Problem</a>
+<ul>
+<li><a href="../../../../notes/#1.1-setup-and-type-i-error-inflation%7C1.1-setup-and-type-i-error-inflation/">#1.1 Setup and Type I Error Inflation|1.1 Setup and Type I Error Inflation</a></li>
+<li><a href="../../../../notes/#1.2-the-correlation-structure-does-not-save-you%7C1.2-the-correlation-structure-does-not-save-you/">#1.2 The Correlation Structure Does Not Save You|1.2 The Correlation Structure Does Not Save You</a></li>
+<li><a href="../../../../notes/#1.3-the-fix:-joint-error-control%7C1.3-the-fix:-joint-error-control/">#1.3 The Fix: Joint Error Control|1.3 The Fix: Joint Error Control</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-group-sequential-designs%7C2.-group-sequential-designs/">#2. Group Sequential Designs|2. Group Sequential Designs</a>
+<ul>
+<li><a href="../../../../notes/#2.1-setup-and-information-fractions%7C2.1-setup-and-information-fractions/">#2.1 Setup and Information Fractions|2.1 Setup and Information Fractions</a></li>
+<li><a href="../../../../notes/#2.2-the-covariance-structure-of-sequential-z-statistics%7C2.2-the-covariance-structure-of-sequential-z-statistics/">#2.2 The Covariance Structure of Sequential Z-Statistics|2.2 The Covariance Structure of Sequential Z-Statistics</a></li>
+<li><a href="../../../../notes/#2.3-pocock-boundaries%7C2.3-pocock-boundaries/">#2.3 Pocock Boundaries|2.3 Pocock Boundaries</a></li>
+<li><a href="../../../../notes/#2.4-o'brien-fleming-boundaries%7C2.4-o'brien-fleming-boundaries/">#2.4 O’Brien-Fleming Boundaries|2.4 O’Brien-Fleming Boundaries</a></li>
+<li><a href="../../../../notes/#2.5-sample-size-inflation%7C2.5-sample-size-inflation/">#2.5 Sample Size Inflation|2.5 Sample Size Inflation</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-alpha-spending-functions%7C3.-alpha-spending-functions/">#3. Alpha-Spending Functions|3. Alpha-Spending Functions</a>
+<ul>
+<li><a href="../../../../notes/#3.1-the-lan-demets-framework%7C3.1-the-lan-demets-framework/">#3.1 The Lan-DeMets Framework|3.1 The Lan-DeMets Framework</a></li>
+<li><a href="../../../../notes/#3.2-incremental-spending-and-boundary-computation%7C3.2-incremental-spending-and-boundary-computation/">#3.2 Incremental Spending and Boundary Computation|3.2 Incremental Spending and Boundary Computation</a></li>
+<li><a href="../../../../notes/#3.3-common-spending-functions%7C3.3-common-spending-functions/">#3.3 Common Spending Functions|3.3 Common Spending Functions</a></li>
+<li><a href="../../../../notes/#3.4-key-property:-fwer-preservation%7C3.4-key-property:-fwer-preservation/">#3.4 Key Property: FWER Preservation|3.4 Key Property: FWER Preservation</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-the-multi-armed-bandit-problem%7C4.-the-multi-armed-bandit-problem/">#4. The Multi-Armed Bandit Problem|4. The Multi-Armed Bandit Problem</a>
+<ul>
+<li><a href="../../../../notes/#4.1-formal-setup%7C4.1-formal-setup/">#4.1 Formal Setup|4.1 Formal Setup</a></li>
+<li><a href="../../../../notes/#4.2-regret-and-its-decomposition%7C4.2-regret-and-its-decomposition/">#4.2 Regret and Its Decomposition|4.2 Regret and Its Decomposition</a></li>
+<li><a href="../../../../notes/#4.3-the-exploration-exploitation-tradeoff%7C4.3-the-exploration-exploitation-tradeoff/">#4.3 The Exploration-Exploitation Tradeoff|4.3 The Exploration-Exploitation Tradeoff</a></li>
+<li><a href="../../../../notes/#4.4-lower-bound:-lai-and-robbins-(1985)%7C4.4-lower-bound:-lai-and-robbins-(1985)/">#4.4 Lower Bound: Lai and Robbins (1985)|4.4 Lower Bound: Lai and Robbins (1985)</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-epsilon-greedy-and-ucb%7C5.-epsilon-greedy-and-ucb/">#5. Epsilon-Greedy and UCB|5. Epsilon-Greedy and UCB</a>
+<ul>
+<li><a href="../../../../notes/#5.1-epsilon-greedy%7C5.1-epsilon-greedy/">#5.1 Epsilon-Greedy|5.1 Epsilon-Greedy</a></li>
+<li><a href="../../../../notes/#5.2-ucb1%7C5.2-ucb1/">#5.2 UCB1|5.2 UCB1</a></li>
+<li><a href="../../../../notes/#5.3-regret-bound-for-ucb1%7C5.3-regret-bound-for-ucb1/">#5.3 Regret Bound for UCB1|5.3 Regret Bound for UCB1</a></li>
+<li><a href="../../../../notes/#5.4-kl-ucb%7C5.4-kl-ucb/">#5.4 KL-UCB|5.4 KL-UCB</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-thompson-sampling%7C6.-thompson-sampling/">#6. Thompson Sampling|6. Thompson Sampling</a>
+<ul>
+<li><a href="../../../../notes/#6.1-algorithm%7C6.1-algorithm/">#6.1 Algorithm|6.1 Algorithm</a></li>
+<li><a href="../../../../notes/#6.2-bayesian-regret%7C6.2-bayesian-regret/">#6.2 Bayesian Regret|6.2 Bayesian Regret</a></li>
+<li><a href="../../../../notes/#6.3-frequentist-regret-and-asymptotic-optimality%7C6.3-frequentist-regret-and-asymptotic-optimality/">#6.3 Frequentist Regret and Asymptotic Optimality|6.3 Frequentist Regret and Asymptotic Optimality</a></li>
+<li><a href="../../../../notes/#6.4-the-probability-matching-property%7C6.4-the-probability-matching-property/">#6.4 The Probability Matching Property|6.4 The Probability Matching Property</a></li>
+<li><a href="../../../../notes/#6.5-implementation-advantages%7C6.5-implementation-advantages/">#6.5 Implementation Advantages|6.5 Implementation Advantages</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-bandits-vs.-fixed-a/b-tests%7C7.-bandits-vs.-fixed-a/b-tests/">#7. Bandits vs. Fixed A/B Tests|7. Bandits vs. Fixed A/B Tests</a>
+<ul>
+<li><a href="../../../../notes/#7.1-fixed-a/b-test:-strengths-and-regime%7C7.1-fixed-a/b-test:-strengths-and-regime/">#7.1 Fixed A/B Test: Strengths and Regime|7.1 Fixed A/B Test: Strengths and Regime</a></li>
+<li><a href="../../../../notes/#7.2-bandits:-strengths-and-regime%7C7.2-bandits:-strengths-and-regime/">#7.2 Bandits: Strengths and Regime|7.2 Bandits: Strengths and Regime</a></li>
+<li><a href="../../../../notes/#7.3-the-opportunity-cost-framing%7C7.3-the-opportunity-cost-framing/">#7.3 The Opportunity Cost Framing|7.3 The Opportunity Cost Framing</a></li>
+<li><a href="../../../../notes/#7.4-hybrid-approaches%7C7.4-hybrid-approaches/">#7.4 Hybrid Approaches|7.4 Hybrid Approaches</a></li>
+</ul></li>
+<li><a href="../../../../notes/#8.-references%7C8.-references/">#8. References|8. References</a></li>
+</ol>
+<hr />
+<h2 id="the-peeking-problem">1. The Peeking Problem</h2>
+<h3 id="setup-and-type-i-error-inflation">1.1 Setup and Type I Error Inflation</h3>
+<p>Consider a standard two-sided <span class="math inline">\(z\)</span>-test designed with significance level <span class="math inline">\(\alpha = 0.05\)</span> and a pre-specified sample size <span class="math inline">\(n = 1000\)</span> per arm. A single look at the final data controls the Type I error at exactly <span class="math inline">\(\alpha\)</span>: we reject <span class="math inline">\(H_0: \mu_A = \mu_B\)</span> if <span class="math inline">\(|Z| &gt; z_{\alpha/2} = 1.96\)</span>.</p>
+<p>Now suppose an analyst <em>peeks</em> at <span class="math inline">\(n_1 = 500\)</span> observations per arm and again at <span class="math inline">\(n_2 = 1000\)</span>, and rejects <span class="math inline">\(H_0\)</span> at either look if the corresponding <span class="math inline">\(p\)</span>-value is below <span class="math inline">\(0.05\)</span>. This is a two-look procedure that applies the fixed-horizon critical value at every look. What is the actual <em>family-wise error rate</em> (FWER)?</p>
+<p>Let <span class="math inline">\(Z_1\)</span> and <span class="math inline">\(Z_2\)</span> be the <span class="math inline">\(z\)</span>-statistics at the two looks. Under <span class="math inline">\(H_0\)</span>, both are standard normal marginally. The FWER of the procedure is</p>
+<p><span class="math display">\[\text{FWER} = P\!\left(|Z_1| &gt; 1.96 \text{ or } |Z_2| &gt; 1.96 \;\middle|\; H_0\right).\]</span></p>
+<p>By inclusion-exclusion,</p>
+<p><span class="math display">\[\text{FWER} = P(|Z_1| &gt; 1.96) + P(|Z_2| &gt; 1.96) - P(|Z_1| &gt; 1.96 \text{ and } |Z_2| &gt; 1.96).\]</span></p>
+<p>The first two terms each equal <span class="math inline">\(0.05\)</span>. To evaluate the intersection term we need the joint distribution of <span class="math inline">\((Z_1, Z_2)\)</span>.</p>
+<p>As derived in Section 2.2 below, for equal information fractions <span class="math inline">\(t_1 = 1/2\)</span> and <span class="math inline">\(t_2 = 1\)</span>, the correlation is</p>
+<p><span class="math display">\[\text{Corr}(Z_1, Z_2) = \sqrt{t_1/t_2} = \sqrt{1/2} = 1/\sqrt{2} \approx 0.707.\]</span></p>
+<p>Numerically integrating the bivariate normal with this correlation gives <span class="math inline">\(P(|Z_1| &gt; 1.96 \text{ and } |Z_2| &gt; 1.96) \approx 0.017\)</span>, so</p>
+<p><span class="math display">\[\text{FWER} \approx 0.05 + 0.05 - 0.017 = 0.083.\]</span></p>
+<p><strong>The FWER is inflated from 5% to approximately 8.3% — a 66% increase.</strong> This inflation worsens with more looks. For <span class="math inline">\(k\)</span> equally spaced looks all tested at level <span class="math inline">\(\alpha\)</span>, the FWER grows approximately as</p>
+<p><span class="math display">\[\text{FWER} \approx \alpha \ln(k) \quad \text{(up to multiplicative constants)}.\]</span></p>
+<p>With <span class="math inline">\(k = 5\)</span> looks the nominal-<span class="math inline">\(5\%\)</span> procedure has actual FWER near <span class="math inline">\(8\%\)</span>; with <span class="math inline">\(k = 25\)</span> looks, near <span class="math inline">\(16\%\)</span>.</p>
+<h3 id="the-correlation-structure-does-not-save-you">1.2 The Correlation Structure Does Not Save You</h3>
+<p>The positive correlation between <span class="math inline">\(Z_1\)</span> and <span class="math inline">\(Z_2\)</span> does reduce the FWER compared to the independent case (where FWER <span class="math inline">\(= 1 - 0.95^2 = 0.0975\)</span>). One might hope that high correlation keeps the FWER near <span class="math inline">\(\alpha\)</span>. However, this reasoning fails for two reasons.</p>
+<p>First, the analyst <em>stops at the first rejection</em>. The observed data at the stopping time is a mixture of: the case where <span class="math inline">\(H_0\)</span> was rejected at look 1 (using <span class="math inline">\(Z_1\)</span> alone) and the case where it was not rejected at look 1 but was at look 2 (using <span class="math inline">\(Z_2\)</span> conditional on <span class="math inline">\(|Z_1| \leq 1.96\)</span>). The p-value from either single look does not account for this selection effect — it treats the stopping time as if it were pre-specified.</p>
+<p>Second, as <span class="math inline">\(k \to \infty\)</span> the correlation between adjacent looks approaches 1, yet the supremum of <span class="math inline">\(k\)</span> correlated standard normals over <span class="math inline">\(k\)</span> looks still drifts to infinity. The FWER grows without bound as <span class="math inline">\(k\)</span> grows, regardless of correlation.</p>
+<h3 id="the-fix-joint-error-control">1.3 The Fix: Joint Error Control</h3>
+<p>The correct remedy is a procedure that controls the FWER <em>jointly</em> over all planned looks — that is, a procedure that pre-specifies the critical values <span class="math inline">\(c_1, \ldots, c_K\)</span> for <span class="math inline">\(K\)</span> looks such that</p>
+<p><span class="math display">\[P\!\left(\exists\, k \in \{1,\ldots,K\} : |Z_k| &gt; c_k \;\middle|\; H_0\right) = \alpha.\]</span></p>
+<p>Such procedures are called <em>group sequential designs</em>, and they are the subject of Section 2.</p>
+<hr />
+<h2 id="group-sequential-designs">2. Group Sequential Designs</h2>
+<h3 id="setup-and-information-fractions">2.1 Setup and Information Fractions</h3>
+<p><strong>Definition (Group Sequential Design).</strong> A group sequential design specifies:
+- A maximum sample size <span class="math inline">\(n_{\max}\)</span> per arm.
+- <span class="math inline">\(K\)</span> planned <em>interim analyses</em> at sample sizes <span class="math inline">\(n_1 &lt; n_2 &lt; \cdots &lt; n_K = n_{\max}\)</span>.
+- <em>Information fractions</em> <span class="math inline">\(t_k = n_k / n_{\max} \in (0, 1]\)</span> for <span class="math inline">\(k = 1, \ldots, K\)</span>, with <span class="math inline">\(t_K = 1\)</span>.
+- Critical values <span class="math inline">\(c_1, \ldots, c_K\)</span> (possibly varying across looks) chosen to satisfy the FWER constraint at level <span class="math inline">\(\alpha\)</span>.</p>
+<p>The trial stops at the first look <span class="math inline">\(k\)</span> where <span class="math inline">\(|Z_k| &gt; c_k\)</span> (efficacy stopping), or continues to look <span class="math inline">\(K\)</span> if no boundary is crossed.</p>
+<h3 id="the-covariance-structure-of-sequential-z-statistics">2.2 The Covariance Structure of Sequential Z-Statistics</h3>
+<p>Let <span class="math inline">\(X_1, X_2, \ldots\)</span> be i.i.d. observations with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>. Define the cumulative sum <span class="math inline">\(S_{n} = \sum_{i=1}^{n} X_i\)</span>. At look <span class="math inline">\(k\)</span> with sample size <span class="math inline">\(n_k\)</span>, the standardized test statistic is</p>
+<p><span class="math display">\[Z_k = \frac{S_{n_k}}{\sigma \sqrt{n_k}}.\]</span></p>
+<p><strong>Proposition (Covariance of Sequential Statistics).</strong> For <span class="math inline">\(j \leq k\)</span>,</p>
+<p><span class="math display">\[\text{Cov}(Z_j, Z_k) = \sqrt{\frac{t_j}{t_k}},\]</span></p>
+<p>where <span class="math inline">\(t_j = n_j / n_{\max}\)</span> and <span class="math inline">\(t_k = n_k / n_{\max}\)</span>.</p>
+<p><em>Proof sketch.</em> Since <span class="math inline">\(j \leq k\)</span>, we have <span class="math inline">\(n_j \leq n_k\)</span>, and the partial sum <span class="math inline">\(S_{n_j}\)</span> is contained in <span class="math inline">\(S_{n_k}\)</span>:</p>
+<p><span class="math display">\[\text{Cov}(Z_j, Z_k) = \text{Cov}\!\left(\frac{S_{n_j}}{\sigma\sqrt{n_j}},\, \frac{S_{n_k}}{\sigma\sqrt{n_k}}\right).\]</span></p>
+<p>Write <span class="math inline">\(S_{n_k} = S_{n_j} + (S_{n_k} - S_{n_j})\)</span>. Since the observations are i.i.d., <span class="math inline">\(S_{n_k} - S_{n_j}\)</span> is independent of <span class="math inline">\(S_{n_j}\)</span>. Therefore</p>
+<p><span class="math display">\[\text{Cov}(Z_j, Z_k) = \frac{1}{\sigma^2 \sqrt{n_j n_k}}\, \text{Cov}(S_{n_j}, S_{n_k}) = \frac{1}{\sigma^2 \sqrt{n_j n_k}}\, \text{Var}(S_{n_j}) = \frac{\sigma^2 n_j}{\sigma^2 \sqrt{n_j n_k}} = \sqrt{\frac{n_j}{n_k}}.\]</span></p>
+<p>Since <span class="math inline">\(n_j/n_k = (n_j/n_{\max})/(n_k/n_{\max}) = t_j/t_k\)</span>, we conclude <span class="math inline">\(\text{Cov}(Z_j, Z_k) = \sqrt{t_j/t_k}\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><em>Remark.</em> Because <span class="math inline">\(\text{Var}(Z_k) = 1\)</span> for all <span class="math inline">\(k\)</span>, the covariance and correlation coincide: <span class="math inline">\(\text{Corr}(Z_j, Z_k) = \sqrt{t_j/t_k}\)</span>. This structure is the <em>canonical joint distribution</em> of group sequential statistics, and it holds asymptotically even for non-normal <span class="math inline">\(X_i\)</span> by the multivariate CLT.</p>
+<h3 id="pocock-boundaries">2.3 Pocock Boundaries</h3>
+<p><strong>Definition (Pocock Boundary).</strong> The Pocock procedure uses a <em>constant</em> critical value <span class="math inline">\(c_P\)</span> at every look: stop if <span class="math inline">\(|Z_k| &gt; c_P\)</span> for any <span class="math inline">\(k\)</span>. The value <span class="math inline">\(c_P\)</span> is the unique solution to</p>
+<p><span class="math display">\[P\!\left(\max_{k=1,\ldots,K} |Z_k| &gt; c_P \;\middle|\; H_0\right) = \alpha,\]</span></p>
+<p>where <span class="math inline">\((Z_1, \ldots, Z_K)\)</span> is multivariate normal with the covariance structure derived in Section 2.2.</p>
+<p>For <span class="math inline">\(K = 2\)</span> equally-spaced looks with <span class="math inline">\(\alpha = 0.05\)</span> (two-sided), the fixed-horizon critical value is <span class="math inline">\(z_{0.025} = 1.96\)</span>, whereas the Pocock boundary yields <span class="math inline">\(c_P \approx 2.178\)</span>. The constant boundary is more lenient at interim looks — it allows early stopping more readily than O’Brien-Fleming — but it pays for this with a higher final critical value. A study that proceeds to look <span class="math inline">\(K\)</span> must clear a bar of <span class="math inline">\(2.178\)</span> rather than <span class="math inline">\(1.96\)</span>, reducing power.</p>
+<p>The Pocock boundary is appropriate when early stopping is scientifically desirable and the analyst is willing to pay a modest power penalty throughout.</p>
+<h3 id="obrien-fleming-boundaries">2.4 O’Brien-Fleming Boundaries</h3>
+<p><strong>Definition (O’Brien-Fleming Boundary).</strong> The O’Brien-Fleming procedure uses a <em>decreasing</em> sequence of critical values that are very large early (making early stopping rare) and converge to approximately <span class="math inline">\(z_{\alpha/2}\)</span> at the final look. The boundary at look <span class="math inline">\(k\)</span> takes the approximate form</p>
+<p><span class="math display">\[c_k^{\text{OBF}} \approx c_{\text{OBF}} \cdot \sqrt{K/k},\]</span></p>
+<p>where <span class="math inline">\(c_{\text{OBF}}\)</span> is the constant chosen so that the joint probability of crossing the boundary at any look equals <span class="math inline">\(\alpha\)</span>.</p>
+<p><em>Surprisingly,</em> the O’Brien-Fleming boundary at the final look (<span class="math inline">\(k = K\)</span>) is very close to the fixed-horizon <span class="math inline">\(z_{\alpha/2} = 1.96\)</span> even with many interim looks. For <span class="math inline">\(K = 5\)</span> looks with <span class="math inline">\(\alpha = 0.05\)</span>, the final critical value is approximately <span class="math inline">\(2.040\)</span> — barely higher than <span class="math inline">\(1.96\)</span>. This means the O’Brien-Fleming design imposes almost no penalty at the final analysis; the cost of interim monitoring is borne almost entirely at the interim looks (where the boundaries are very high and early stopping is unlikely).</p>
+<p>This property makes O’Brien-Fleming the dominant choice in clinical trials: the final decision is made under essentially the same standard as a fixed-horizon test, while still permitting early stopping for extreme early evidence.</p>
+<h3 id="sample-size-inflation">2.5 Sample Size Inflation</h3>
+<p>A group sequential design requires a larger maximum sample size <span class="math inline">\(n_{\max}\)</span> than a fixed-horizon test <span class="math inline">\(n_{\text{fixed}}\)</span> to achieve the same power, because the elevated critical values at interim looks (and slightly elevated final critical value) reduce the probability of rejection. The <em>inflation factor</em> is <span class="math inline">\(R = n_{\max}/n_{\text{fixed}}\)</span>.</p>
+<p>For O’Brien-Fleming with <span class="math inline">\(K = 5\)</span> equally-spaced looks and <span class="math inline">\(\alpha = 0.05\)</span>, <span class="math inline">\(\beta = 0.20\)</span> (power 80%), the inflation factor is approximately</p>
+<p><span class="math display">\[R \approx 1.028.\]</span></p>
+<p><strong>The sample size inflation for O’Brien-Fleming with <span class="math inline">\(K = 5\)</span> is only about 3%, making it an almost cost-free addition to a fixed-horizon design.</strong> Pocock boundaries incur a larger inflation (around 6–10% for <span class="math inline">\(K = 5\)</span>) in exchange for more aggressive early stopping.</p>
+<hr />
+<h2 id="alpha-spending-functions">3. Alpha-Spending Functions</h2>
+<h3 id="the-lan-demets-framework">3.1 The Lan-DeMets Framework</h3>
+<p>Group sequential designs as described in Section 2 require the number and timing of interim analyses to be fixed in advance. In practice, looks are often triggered by logistical events (a batch of data arriving, a monthly review meeting) rather than by pre-specified sample sizes. The <em>alpha-spending</em> framework of Lan and DeMets (1983) accommodates this flexibility.</p>
+<p><strong>Definition (Alpha-Spending Function).</strong> An alpha-spending function is a function <span class="math inline">\(\alpha^*: [0,1] \to [0,\alpha]\)</span> satisfying:
+1. <span class="math inline">\(\alpha^*(0) = 0\)</span>.
+2. <span class="math inline">\(\alpha^*(1) = \alpha\)</span>.
+3. <span class="math inline">\(\alpha^*\)</span> is non-decreasing in the information fraction <span class="math inline">\(t\)</span>.</p>
+<p>The function <span class="math inline">\(\alpha^*(t)\)</span> specifies the cumulative amount of the Type I error budget that has been “spent” by information fraction <span class="math inline">\(t\)</span>.</p>
+<p>The key insight is that <span class="math inline">\(\alpha^*\)</span> is chosen once and fixed before the trial. The number and timing of looks need not be pre-specified; only <span class="math inline">\(\alpha^*\)</span> must be pre-committed.</p>
+<h3 id="incremental-spending-and-boundary-computation">3.2 Incremental Spending and Boundary Computation</h3>
+<p>At look <span class="math inline">\(k\)</span> (reached at information fraction <span class="math inline">\(t_k\)</span>), the incremental alpha to be spent is</p>
+<p><span class="math display">\[\delta_k = \alpha^*(t_k) - \alpha^*(t_{k-1}), \quad \alpha^*(t_0) \equiv 0.\]</span></p>
+<p>The critical value <span class="math inline">\(c_k\)</span> at look <span class="math inline">\(k\)</span> is chosen as the unique value satisfying</p>
+<p><span class="math display">\[P\!\left(|Z_k| &gt; c_k \;\middle|\; |Z_j| \leq c_j \text{ for all } j &lt; k,\; H_0\right) = \delta_k.\]</span></p>
+<p>That is, conditional on not having stopped at any earlier look, the probability of stopping at look <span class="math inline">\(k\)</span> under <span class="math inline">\(H_0\)</span> is exactly <span class="math inline">\(\delta_k\)</span>.</p>
+<p><em>Remark.</em> The <span class="math inline">\(c_k\)</span> values are computed recursively. At look 1, <span class="math inline">\(c_1 = z_{\delta_1/2}\)</span> (two-sided). At look <span class="math inline">\(k &gt; 1\)</span>, <span class="math inline">\(c_k\)</span> is determined by a <span class="math inline">\(k\)</span>-dimensional normal integral over the region <span class="math inline">\(\{|Z_j| \leq c_j : j &lt; k\}\)</span>, using the covariance structure <span class="math inline">\(\text{Cov}(Z_j, Z_k) = \sqrt{t_j/t_k}\)</span>.</p>
+<h3 id="common-spending-functions">3.3 Common Spending Functions</h3>
+<p>Two spending functions are standard, designed to approximate the Pocock and O’Brien-Fleming boundaries respectively.</p>
+<p><strong>Pocock-like spending (Lan-DeMets).</strong> The spending function</p>
+<p><span class="math display">\[\alpha^*(t) = \alpha \ln\!\bigl(1 + (e-1)\,t\bigr)\]</span></p>
+<p>spends approximately <span class="math inline">\(\alpha \cdot t\)</span> of the total budget by information fraction <span class="math inline">\(t\)</span> — it spends liberally early. The increments <span class="math inline">\(\delta_k\)</span> are roughly equal across looks, mimicking the constant critical value of Pocock boundaries.</p>
+<p><strong>O’Brien-Fleming-like spending (Lan-DeMets).</strong> The spending function</p>
+<p><span class="math display">\[\alpha^*(t) = 2\!\left[1 - \Phi\!\left(\frac{z_{\alpha/2}}{\sqrt{t}}\right)\right]\]</span></p>
+<p>spends very little early (when <span class="math inline">\(t\)</span> is small, <span class="math inline">\(z_{\alpha/2}/\sqrt{t}\)</span> is large, so <span class="math inline">\(1 - \Phi(\cdot)\)</span> is tiny) and concentrates spending near <span class="math inline">\(t = 1\)</span>. This mimics O’Brien-Fleming: early critical values are high, and the final critical value is close to <span class="math inline">\(z_{\alpha/2}\)</span>.</p>
+<h3 id="key-property-fwer-preservation">3.4 Key Property: FWER Preservation</h3>
+<p><strong>Proposition (FWER control under alpha-spending).</strong> For any number and timing of looks, if each look <span class="math inline">\(k\)</span> spends exactly <span class="math inline">\(\delta_k = \alpha^*(t_k) - \alpha^*(t_{k-1})\)</span> of the Type I error budget, then</p>
+<p><span class="math display">\[P\!\left(\exists\, k : |Z_k| &gt; c_k \;\middle|\; H_0\right) = \sum_{k=1}^{K} \delta_k = \alpha^*(t_K) = \alpha.\]</span></p>
+<p><em>Proof sketch.</em> The events <span class="math inline">\(A_k = \{|Z_k| &gt; c_k, |Z_j| \leq c_j \text{ for all } j &lt; k\}\)</span> are mutually disjoint (the trial stops at the first crossing). Therefore</p>
+<p><span class="math display">\[P\!\left(\bigcup_k A_k \;\middle|\; H_0\right) = \sum_k P(A_k \mid H_0) = \sum_k \delta_k = \alpha.\]</span></p>
+<p>The FWER is maintained at exactly <span class="math inline">\(\alpha\)</span> regardless of the number or timing of looks, provided only the pre-committed spending function is used. <span class="math inline">\(\square\)</span></p>
+<hr />
+<h2 id="the-multi-armed-bandit-problem">4. The Multi-Armed Bandit Problem</h2>
+<h3 id="formal-setup">4.1 Formal Setup</h3>
+<p>The <em>multi-armed bandit</em> problem is a sequential decision problem. At each round <span class="math inline">\(t = 1, 2, \ldots, T\)</span>, an agent selects an arm <span class="math inline">\(a_t \in \mathcal{A} = \{1, \ldots, K\}\)</span> and receives a stochastic reward <span class="math inline">\(R_{a_t, t}\)</span>. The rewards <span class="math inline">\(\{R_{k,t}\}_{t \geq 1}\)</span> for arm <span class="math inline">\(k\)</span> are i.i.d. with mean <span class="math inline">\(\mu_k \in [0,1]\)</span> and are independent across arms. The means <span class="math inline">\(\mu_1, \ldots, \mu_K\)</span> are unknown to the agent.</p>
+<p>Denote <span class="math inline">\(\mu^* = \max_{k} \mu_k\)</span> the optimal arm mean and <span class="math inline">\(k^* \in \argmax_k \mu_k\)</span> the optimal arm (assumed unique for simplicity). Let <span class="math inline">\(N_k(t) = \sum_{s=1}^{t} \mathbf{1}[a_s = k]\)</span> denote the number of times arm <span class="math inline">\(k\)</span> has been pulled through round <span class="math inline">\(t\)</span>.</p>
+<h3 id="regret-and-its-decomposition">4.2 Regret and Its Decomposition</h3>
+<p><strong>Definition (Regret).</strong> The <em>cumulative regret</em> of a policy <span class="math inline">\(\pi\)</span> over <span class="math inline">\(T\)</span> rounds is</p>
+<p><span class="math display">\[\text{Regret}(T) = T\mu^* - \mathbb{E}\!\left[\sum_{t=1}^{T} R_{a_t, t}\right].\]</span></p>
+<p>This is the expected reward foregone by not always pulling the optimal arm. Since <span class="math inline">\(\mathbb{E}[R_{a_t,t}] = \mu_{a_t}\)</span> and <span class="math inline">\(T\mu^* = \sum_{t=1}^T \mu^*\)</span>, we may write</p>
+<p><span class="math display">\[\text{Regret}(T) = \mathbb{E}\!\left[\sum_{t=1}^{T} (\mu^* - \mu_{a_t})\right] = \sum_{k=1}^{K} \Delta_k\, \mathbb{E}[N_k(T)],\]</span></p>
+<p>where <span class="math inline">\(\Delta_k = \mu^* - \mu_k \geq 0\)</span> is the <em>suboptimality gap</em> of arm <span class="math inline">\(k\)</span>. The decomposition shows that regret accumulates only from pulls of suboptimal arms (<span class="math inline">\(\Delta_k &gt; 0\)</span>), weighted by how frequently each suboptimal arm is pulled.</p>
+<h3 id="the-exploration-exploitation-tradeoff">4.3 The Exploration-Exploitation Tradeoff</h3>
+<p>A greedy policy that always pulls the arm with the highest empirical mean <span class="math inline">\(\hat{\mu}_k(t)\)</span> exploits current knowledge but may never explore arms whose true mean is higher than the current estimate. Conversely, uniform exploration wastes pulls on clearly suboptimal arms.</p>
+<p>The tension between these objectives is the <em>exploration-exploitation tradeoff</em>. A policy must explore enough to identify the optimal arm but not so much that it incurs large regret from suboptimal pulls. The optimal resolution yields <em>minimax regret</em>:</p>
+<p><span class="math display">\[\min_\pi \max_{\mu} \text{Regret}(T) = \Theta\!\left(\sqrt{KT\log K}\right).\]</span></p>
+<h3 id="lower-bound-lai-and-robbins-1985">4.4 Lower Bound: Lai and Robbins (1985)</h3>
+<p>The fundamental impossibility result for bandits, due to Lai and Robbins (1985), establishes that no consistent policy can avoid logarithmic regret.</p>
+<p><strong>Theorem (Lai-Robbins Lower Bound).</strong> For any policy that is <em>consistent</em> (i.e., <span class="math inline">\(\text{Regret}(T) = o(T^\alpha)\)</span> for all <span class="math inline">\(\alpha &gt; 0\)</span> and all bandit instances), we have</p>
+<p><span class="math display">\[\liminf_{T \to \infty} \frac{\text{Regret}(T)}{\ln T} \geq \sum_{k:\, \Delta_k &gt; 0} \frac{\Delta_k}{\text{KL}(\mu_k,\, \mu^*)},\]</span></p>
+<p>where <span class="math inline">\(\text{KL}(\mu_k, \mu^*)\)</span> is the Kullback-Leibler divergence between the reward distributions of arm <span class="math inline">\(k\)</span> and the optimal arm <span class="math inline">\(k^*\)</span> evaluated at their means.</p>
+<p>For Bernoulli rewards with parameters <span class="math inline">\(p\)</span> (suboptimal arm) and <span class="math inline">\(q\)</span> (optimal arm, <span class="math inline">\(q &gt; p\)</span>), the KL divergence is</p>
+<p><span class="math display">\[\text{KL}(p, q) = p \ln\frac{p}{q} + (1-p)\ln\frac{1-p}{1-q}.\]</span></p>
+<p><em>Intuition.</em> To confidently identify that arm <span class="math inline">\(k\)</span> is suboptimal, the agent must pull arm <span class="math inline">\(k\)</span> enough times to statistically distinguish <span class="math inline">\(\mu_k\)</span> from <span class="math inline">\(\mu^*\)</span>. The number of pulls required to distinguish two Bernoulli distributions grows as <span class="math inline">\(\ln T / \text{KL}(\mu_k, \mu^*)\)</span>. Any fewer pulls and the policy cannot be consistent; hence the <span class="math inline">\(\ln T\)</span> lower bound on expected pulls of each suboptimal arm, and by the regret decomposition, on regret.</p>
+<hr />
+<h2 id="epsilon-greedy-and-ucb">5. Epsilon-Greedy and UCB</h2>
+<h3 id="epsilon-greedy">5.1 Epsilon-Greedy</h3>
+<p>The <em>epsilon-greedy</em> policy at round <span class="math inline">\(t\)</span> selects a uniformly random arm with probability <span class="math inline">\(\epsilon_t\)</span> (exploration) and the arm with the highest current empirical mean <span class="math inline">\(\hat{\mu}_k(t-1)\)</span> with probability <span class="math inline">\(1 - \epsilon_t\)</span> (exploitation).</p>
+<p>With a constant <span class="math inline">\(\epsilon\)</span>, the policy incurs linear regret <span class="math inline">\(\Theta(\epsilon T)\)</span> from forced exploration. With the decaying schedule <span class="math inline">\(\epsilon_t = c/t\)</span> for an appropriate constant <span class="math inline">\(c\)</span>, the regret satisfies <span class="math inline">\(\text{Regret}(T) = O(T^{2/3})\)</span>. <em>This is strictly suboptimal</em> relative to the <span class="math inline">\(\Theta(\ln T)\)</span> lower bound of Lai and Robbins, because the schedule <span class="math inline">\(c/t\)</span> is too slow to adapt: early estimates are poor, yet the exploration rate decays regardless of whether the optimal arm has been identified.</p>
+<h3 id="ucb1">5.2 UCB1</h3>
+<p>The <em>Upper Confidence Bound</em> strategy (Auer, Cesa-Bianchi, and Fischer, 2002) maintains, for each arm <span class="math inline">\(k\)</span>, an <em>optimistic</em> upper confidence bound on <span class="math inline">\(\mu_k\)</span> and always selects the arm with the highest upper bound.</p>
+<p><strong>Definition (UCB1).</strong> At round <span class="math inline">\(t\)</span>, after each arm has been pulled at least once, UCB1 selects</p>
+<p><span class="math display">\[a_t = \argmax_{k \in \{1,\ldots,K\}} \left[\hat{\mu}_k(t-1) + \sqrt{\frac{2 \ln t}{N_k(t-1)}}\right],\]</span></p>
+<p>where <span class="math inline">\(\hat{\mu}_k(t-1) = \frac{1}{N_k(t-1)} \sum_{s &lt; t} R_{k,s} \mathbf{1}[a_s = k]\)</span> is the empirical mean of arm <span class="math inline">\(k\)</span> after <span class="math inline">\(t-1\)</span> rounds.</p>
+<p>The term <span class="math inline">\(\sqrt{2\ln t / N_k(t-1)}\)</span> is the <em>exploration bonus</em>: it is large when arm <span class="math inline">\(k\)</span> has been pulled rarely (large uncertainty) and shrinks as <span class="math inline">\(N_k(t-1)\)</span> grows. An arm is pulled whenever it plausibly could be optimal given the current data.</p>
+<h3 id="regret-bound-for-ucb1">5.3 Regret Bound for UCB1</h3>
+<p><strong>Theorem (UCB1 Regret Bound, Auer et al. 2002).</strong> For a <span class="math inline">\(K\)</span>-armed bandit with rewards in <span class="math inline">\([0,1]\)</span>, UCB1 satisfies</p>
+<p><span class="math display">\[\mathbb{E}[\text{Regret}(T)] \leq \sum_{k:\,\Delta_k &gt; 0} \frac{8 \ln T}{\Delta_k} + \left(1 + \frac{\pi^2}{3}\right) \sum_{k=1}^K \Delta_k.\]</span></p>
+<p>The first term dominates for large <span class="math inline">\(T\)</span>; the second is a constant independent of <span class="math inline">\(T\)</span>.</p>
+<p><em>Key step in the derivation.</em> Fix a suboptimal arm <span class="math inline">\(k\)</span> with gap <span class="math inline">\(\Delta_k &gt; 0\)</span>. Arm <span class="math inline">\(k\)</span> is pulled at round <span class="math inline">\(t\)</span> only if its UCB exceeds the UCB of arm <span class="math inline">\(k^*\)</span>, which means either the UCB of <span class="math inline">\(k^*\)</span> is below <span class="math inline">\(\mu^*\)</span> (a low-probability event) or the UCB of <span class="math inline">\(k\)</span> is above <span class="math inline">\(\mu^*\)</span> (also low-probability once <span class="math inline">\(k\)</span> has been pulled sufficiently often). Specifically, for <span class="math inline">\(l = \lceil 8 \ln T / \Delta_k^2 \rceil\)</span>, the event <span class="math inline">\(\{N_k(T) &gt; l\}\)</span> requires that for some round <span class="math inline">\(t\)</span> with <span class="math inline">\(N_k(t-1) \geq l\)</span>, the UCB of arm <span class="math inline">\(k\)</span> still exceeded that of arm <span class="math inline">\(k^*\)</span>. By a Hoeffding-type concentration argument, the probability that <span class="math inline">\(\hat{\mu}_k + \sqrt{2\ln t / N_k} \geq \mu^*\)</span> when <span class="math inline">\(N_k \geq l\)</span> is at most <span class="math inline">\(t^{-4}\)</span>. Summing over <span class="math inline">\(t = 1, \ldots, T\)</span> gives</p>
+<p><span class="math display">\[\mathbb{E}[N_k(T)] \leq \frac{8 \ln T}{\Delta_k^2} + 1 + \frac{\pi^2}{3},\]</span></p>
+<p>yielding the bound after multiplication by <span class="math inline">\(\Delta_k\)</span> and summation over suboptimal arms.</p>
+<p><strong>The UCB1 bound is <span class="math inline">\(O(\ln T)\)</span> per suboptimal arm and <span class="math inline">\(O(\sqrt{KT\log T})\)</span> in the minimax sense</strong> — matching the Lai-Robbins lower bound up to the <span class="math inline">\(\Delta_k\)</span> factors.</p>
+<h3 id="kl-ucb">5.4 KL-UCB</h3>
+<p>The <em>KL-UCB</em> algorithm (Garivier and Cappé, 2011) replaces the Euclidean exploration bonus <span class="math inline">\(\sqrt{2\ln t / N_k}\)</span> with a KL-divergence-based upper confidence bound:</p>
+<p><span class="math display">\[\text{UCB}_k^{\text{KL}}(t) = \sup\!\left\{q \in [0,1] : N_k(t-1)\, \text{KL}\!\left(\hat{\mu}_k(t-1), q\right) \leq \ln t + 3\ln\ln t\right\}.\]</span></p>
+<p>This upper bound is tighter than the Euclidean bound because it uses the actual geometry of the Bernoulli family. KL-UCB achieves the Lai-Robbins lower bound asymptotically: <span class="math inline">\(\text{Regret}(T)/\ln T \to \sum_k \Delta_k/\text{KL}(\mu_k, \mu^*)\)</span> as <span class="math inline">\(T \to \infty\)</span>.</p>
+<hr />
+<h2 id="thompson-sampling">6. Thompson Sampling</h2>
+<h3 id="algorithm">6.1 Algorithm</h3>
+<p><em>Thompson sampling</em> (also called <em>posterior sampling</em> or <em>probability matching</em>) is a Bayesian algorithm that selects arms in proportion to the probability that each arm is optimal under the current posterior.</p>
+<p><strong>Algorithm (Thompson Sampling for Bernoulli Bandits).</strong></p>
+<p>Initialize <span class="math inline">\(\alpha_k = 1\)</span>, <span class="math inline">\(\beta_k = 1\)</span> (uniform prior) for all <span class="math inline">\(k\)</span>. At each round <span class="math inline">\(t\)</span>:
+1. For each arm <span class="math inline">\(k\)</span>, sample <span class="math inline">\(\theta_k^{(t)} \sim \text{Beta}(\alpha_k, \beta_k)\)</span>.
+2. Pull arm <span class="math inline">\(a_t = \argmax_k \theta_k^{(t)}\)</span>.
+3. Observe reward <span class="math inline">\(R_t \in \{0, 1\}\)</span>.
+4. Update: <span class="math inline">\(\alpha_{a_t} \leftarrow \alpha_{a_t} + R_t\)</span> and <span class="math inline">\(\beta_{a_t} \leftarrow \beta_{a_t} + (1 - R_t)\)</span>.</p>
+<p>The Beta distribution is the conjugate prior for the Bernoulli likelihood (see the companion note <code>bayesian-testing.md</code>): after <span class="math inline">\(s\)</span> successes and <span class="math inline">\(f\)</span> failures, the posterior is <span class="math inline">\(\text{Beta}(\alpha_k + s, \beta_k + f)\)</span>.</p>
+<h3 id="bayesian-regret">6.2 Bayesian Regret</h3>
+<p>In the Bayesian setting, the arm means <span class="math inline">\(\mu_1, \ldots, \mu_K\)</span> are themselves drawn from a prior distribution <span class="math inline">\(\pi\)</span>.</p>
+<p><strong>Definition (Bayesian Regret).</strong> The Bayesian regret of a policy <span class="math inline">\(\pi\)</span> is</p>
+<p><span class="math display">\[\text{BayesRegret}(T) = \mathbb{E}_{\mu \sim \pi}\!\left[\text{Regret}_\mu(T)\right],\]</span></p>
+<p>where <span class="math inline">\(\text{Regret}_\mu(T)\)</span> is the frequentist regret for the specific instance <span class="math inline">\(\mu = (\mu_1, \ldots, \mu_K)\)</span>.</p>
+<p><strong>Theorem (Russo and Van Roy, 2014).</strong> Thompson sampling with a prior <span class="math inline">\(\pi\)</span> over arm means achieves Bayesian regret</p>
+<p><span class="math display">\[\text{BayesRegret}(T) = O\!\left(\sqrt{KT \ln K}\right).\]</span></p>
+<p>The proof uses an information-theoretic argument: at each round, the expected information gain about the optimal arm from the pulled arm’s reward bounds the expected instantaneous regret.</p>
+<h3 id="frequentist-regret-and-asymptotic-optimality">6.3 Frequentist Regret and Asymptotic Optimality</h3>
+<p>A remarkable property of Thompson sampling is that its frequentist regret guarantees are equally strong.</p>
+<p><strong>Theorem (Agrawal and Goyal, 2012/2013).</strong> Thompson sampling with a Beta prior for Bernoulli bandits satisfies, for each suboptimal arm <span class="math inline">\(k\)</span>,</p>
+<p><span class="math display">\[\limsup_{T \to \infty} \frac{\mathbb{E}[N_k(T)]}{\ln T} \leq \frac{1}{\text{KL}(\mu_k, \mu^*)},\]</span></p>
+<p>which, by the regret decomposition, implies</p>
+<p><span class="math display">\[\limsup_{T \to \infty} \frac{\text{Regret}(T)}{\ln T} \leq \sum_{k:\,\Delta_k &gt; 0} \frac{\Delta_k}{\text{KL}(\mu_k, \mu^*)}.\]</span></p>
+<p><strong>This matches the Lai-Robbins lower bound exactly — Thompson sampling is asymptotically optimal.</strong> The result is striking: a Bayesian algorithm designed for Bayesian regret minimization achieves the information-theoretic frequentist lower bound.</p>
+<h3 id="the-probability-matching-property">6.4 The Probability Matching Property</h3>
+<p>The key conceptual insight behind Thompson sampling is the <em>probability matching</em> property.</p>
+<p><strong>Proposition (Probability Matching).</strong> Under Thompson sampling, at each round <span class="math inline">\(t\)</span>, the probability of selecting arm <span class="math inline">\(k\)</span> equals the posterior probability that arm <span class="math inline">\(k\)</span> is optimal:</p>
+<p><span class="math display">\[P(a_t = k \mid \mathcal{F}_{t-1}) = P\!\left(\theta_k^{(t)} &gt; \theta_j^{(t)} \text{ for all } j \neq k \;\middle|\; \mathcal{F}_{t-1}\right) = P(\mu_k = \mu^* \mid \mathcal{F}_{t-1}),\]</span></p>
+<p>where <span class="math inline">\(\mathcal{F}_{t-1}\)</span> is the sigma-algebra generated by all observations through round <span class="math inline">\(t-1\)</span>.</p>
+<p><em>Proof.</em> By definition, <span class="math inline">\(a_t = \argmax_k \theta_k^{(t)}\)</span> where <span class="math inline">\(\theta_k^{(t)} \sim \text{posterior}_k\)</span>. The probability of selecting arm <span class="math inline">\(k\)</span> is therefore the probability that the sample from arm <span class="math inline">\(k\)</span>’s posterior exceeds all others, which equals the posterior probability that <span class="math inline">\(\mu_k\)</span> is the true maximum (since <span class="math inline">\((\theta_1^{(t)}, \ldots, \theta_K^{(t)})\)</span> is a joint sample from the posterior). <span class="math inline">\(\square\)</span></p>
+<p>The probability matching property gives Thompson sampling its self-regulating character: arms that are likely optimal are pulled often (exploitation), while arms with wide posteriors (uncertain, possibly optimal) are also pulled when their posterior sample happens to be high (exploration). The exploration bonus is implicit in the posterior variance rather than explicitly computed as in UCB.</p>
+<h3 id="implementation-advantages">6.5 Implementation Advantages</h3>
+<p>Thompson sampling has several practical advantages over UCB-type algorithms:</p>
+<ul>
+<li><strong>Simplicity:</strong> the update rule is closed-form for conjugate priors (Beta-Bernoulli, Normal-Normal, Gamma-Poisson).</li>
+<li><strong>Non-stationarity:</strong> decaying the posterior (e.g., multiplying <span class="math inline">\((\alpha_k, \beta_k)\)</span> by a discount factor <span class="math inline">\(\gamma &lt; 1\)</span> at each round) allows the algorithm to track drifting arm means.</li>
+<li><strong>Contextual bandits:</strong> Thompson sampling extends naturally to contextual settings where arm means depend on observed covariates, by placing a prior over the regression weights.</li>
+</ul>
+<p><em>This bound only holds for fixed prior <span class="math inline">\(\pi\)</span>; misspecified priors can degrade frequentist performance.</em></p>
+<hr />
+<h2 id="bandits-vs.-fixed-ab-tests">7. Bandits vs. Fixed A/B Tests</h2>
+<h3 id="fixed-ab-test-strengths-and-regime">7.1 Fixed A/B Test: Strengths and Regime</h3>
+<p>A fixed A/B test (with or without group sequential interim looks) has the following properties:</p>
+<ul>
+<li><strong>Pre-specified sample size:</strong> power and Type I/II error are guaranteed before the experiment begins.</li>
+<li><strong>Equal allocation:</strong> each arm receives <span class="math inline">\(n/K\)</span> observations, maximizing statistical efficiency for the “which arm is best” question.</li>
+<li><strong>Strong error control:</strong> FWER (with multiple comparisons) and FDR (with BH correction, see <code>experimental-design.md</code>) are precisely controlled.</li>
+<li><strong>No opportunity cost exploitation:</strong> the fixed test does not shift traffic toward better-performing arms mid-experiment.</li>
+</ul>
+<p>Use a fixed A/B test when: regulatory requirements demand pre-specified error bounds, a formal hypothesis test is needed at the end (e.g., for product launch decisions requiring statistical proof), multiple hypotheses must be tested with joint error control, or the experiment window is short and fixed.</p>
+<h3 id="bandits-strengths-and-regime">7.2 Bandits: Strengths and Regime</h3>
+<p>A bandit algorithm has the following properties:</p>
+<ul>
+<li><strong>Adaptive allocation:</strong> traffic is shifted toward better-performing arms over time, minimizing opportunity cost.</li>
+<li><strong>No fixed horizon:</strong> the algorithm can run indefinitely, adapting as arm means drift.</li>
+<li><strong>Weaker testing guarantees:</strong> the arm selected most often at time <span class="math inline">\(T\)</span> is a biased estimator of the best arm; formal confidence intervals for <span class="math inline">\(\mu_k\)</span> are distorted by the adaptive sampling design.</li>
+<li><strong>Regret minimization:</strong> the objective is cumulative reward maximization, not error rate control.</li>
+</ul>
+<p>Use a bandit when: the experiment horizon is long and the opportunity cost of showing an inferior treatment is large, no formal hypothesis test is required at the end (e.g., a recommendation system that just needs to serve the best content), traffic is streaming with no natural end date, or <span class="math inline">\(K\)</span> is large and many arms need simultaneous exploration.</p>
+<h3 id="the-opportunity-cost-framing">7.3 The Opportunity Cost Framing</h3>
+<p>The opportunity cost of running a fixed A/B test with <span class="math inline">\(n\)</span> total observations per arm and true effect size <span class="math inline">\(\Delta = \mu_B - \mu_A &gt; 0\)</span> (where arm <span class="math inline">\(B\)</span> is better) is the expected reward lost by not immediately deploying arm <span class="math inline">\(B\)</span>:</p>
+<p><span class="math display">\[\text{Opportunity Cost}_{\text{fixed}} = \frac{n \Delta}{2}.\]</span></p>
+<p>This is because, on average, half the traffic (<span class="math inline">\(n/2\)</span> observations) is assigned to the inferior arm <span class="math inline">\(A\)</span>.</p>
+<p>For a bandit algorithm that achieves regret <span class="math inline">\(\text{Regret}(T) \approx C \ln T / \Delta\)</span>, the opportunity cost equals the regret, which grows only logarithmically in <span class="math inline">\(T\)</span>. <strong>When <span class="math inline">\(\Delta\)</span> is large, the bandit’s opportunity cost is dramatically smaller than the fixed test’s.</strong> When <span class="math inline">\(\Delta\)</span> is small, <span class="math inline">\(n\)</span> must be large (recall <span class="math inline">\(n \propto 1/\Delta^2\)</span> for fixed power), and the bandit’s <span class="math inline">\(\ln T\)</span> growth may not compensate — the comparison depends on <span class="math inline">\(\Delta\)</span> and <span class="math inline">\(T\)</span>.</p>
+<p><em>In the limit of small <span class="math inline">\(\Delta\)</span>, fixed tests can be more sample-efficient for the hypothesis-testing objective, but bandits minimize total opportunity cost when regret is the right objective.</em></p>
+<h3 id="hybrid-approaches">7.4 Hybrid Approaches</h3>
+<p>Two principal approaches combine sequential validity with hypothesis-testing guarantees.</p>
+<p><strong>Always-valid inference (Johari, Pekelis, and Walsh, 2015).</strong> Constructs a <em>mixture sequential probability ratio test</em> (mSPRT) that yields a <span class="math inline">\(p\)</span>-value process <span class="math inline">\(\{p_t\}_{t \geq 1}\)</span> satisfying</p>
+<p><span class="math display">\[P\!\left(\exists\, t : p_t \leq \alpha \;\middle|\; H_0\right) \leq \alpha\]</span></p>
+<p>for all stopping times. The analyst may stop and reject at any time the <span class="math inline">\(p\)</span>-value crosses <span class="math inline">\(\alpha\)</span>, without inflating the Type I error. This is a sequential version of the fixed-horizon test that supports continuous monitoring with valid inference at any peek.</p>
+<p><strong>mSPRT construction.</strong> Fix a mixing distribution <span class="math inline">\(G\)</span> over effect sizes <span class="math inline">\(\theta\)</span>. The test statistic is</p>
+<p><span class="math display">\[\Lambda_t = \int \prod_{s=1}^{t} \frac{p(X_s \mid \theta)}{p(X_s \mid 0)}\, dG(\theta).\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\Lambda_t\)</span> is a non-negative martingale with <span class="math inline">\(\mathbb{E}[\Lambda_t \mid H_0] = 1\)</span>. By Ville’s inequality (a uniform version of Markov’s inequality for supermartingales), <span class="math inline">\(P(\exists\, t : \Lambda_t \geq 1/\alpha \mid H_0) \leq \alpha\)</span>, so the always-valid <span class="math inline">\(p\)</span>-value <span class="math inline">\(p_t = 1/\Lambda_t\)</span> controls the Type I error at any stopping time.</p>
+<hr />
+<h2 id="references">8. References</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Lai and Robbins (1985)</td>
+<td>Establishes the asymptotic lower bound <span class="math inline">\(\Omega(\ln T)\)</span> on regret for consistent policies; the foundational impossibility result for multi-armed bandits</td>
+<td><a href="https://dl.acm.org/doi/10.1016/0196-8858(85)90002-8">Advances in Applied Mathematics</a></td>
+</tr>
+<tr class="even">
+<td>Auer, Cesa-Bianchi, and Fischer (2002)</td>
+<td>Introduces UCB1 and proves the first finite-time logarithmic regret bound for multi-armed bandits; derives the <span class="math inline">\(O(\ln T / \Delta_k^2)\)</span> pulls bound for suboptimal arms</td>
+<td><a href="https://link.springer.com/article/10.1023/A:1013689704352">Machine Learning, 47:235–256</a></td>
+</tr>
+<tr class="odd">
+<td>Russo and Van Roy (2014)</td>
+<td>Proves <span class="math inline">\(O(\sqrt{KT \ln K})\)</span> Bayesian regret for Thompson sampling using an information-theoretic analysis; introduces the eluder dimension for general function classes</td>
+<td><a href="https://www.jmlr.org/papers/volume17/14-087/14-087.pdf">JMLR, 17:1–52</a></td>
+</tr>
+<tr class="even">
+<td>Agrawal and Goyal (2012/2013)</td>
+<td>Proves that Thompson sampling achieves the Lai-Robbins lower bound asymptotically in the frequentist sense; first finite-time instance-dependent regret bound for Thompson sampling</td>
+<td><a href="https://dl.acm.org/doi/10.1145/3088510">JACM, 64(5)</a></td>
+</tr>
+<tr class="odd">
+<td>Johari, Pekelis, and Walsh (2015)</td>
+<td>Introduces always-valid inference via the mSPRT; enables continuous monitoring of A/B tests without Type I error inflation at any stopping time</td>
+<td><a href="https://arxiv.org/abs/1512.04922">arXiv:1512.04922</a></td>
+</tr>
+<tr class="even">
+<td>Lan and DeMets (1983)</td>
+<td>Introduces the alpha-spending function framework for group sequential designs; allows flexible, unscheduled interim analyses while maintaining FWER <span class="math inline">\(= \alpha\)</span></td>
+<td><a href="https://link.springer.com/chapter/10.1007/978-1-4615-2009-2_1">Biometrika, 70(3):659–663</a></td>
+</tr>
+<tr class="odd">
+<td>O’Brien and Fleming (1979)</td>
+<td>Proposes the group sequential boundary that is conservative at interim looks and close to the fixed-horizon critical value at the final look; the standard choice in clinical trials</td>
+<td><a href="https://www.semanticscholar.org/paper/A-multiple-testing-procedure-for-clinical-trials.-O'Brien-Fleming/d40fee01a7708099f9e9392f10ac0b370b7ed8a8">Biometrics, 35(3):549–556</a></td>
+</tr>
+<tr class="even">
+<td>Russo, Van Roy, Kazerouni, Osband, and Wen (2018)</td>
+<td>Comprehensive tutorial on Thompson sampling covering theory, algorithms, and applications including contextual bandits and reinforcement learning</td>
+<td><a href="https://arxiv.org/abs/1707.02038">Foundations and Trends in ML, 11(1):1–99</a></td>
+</tr>
+<tr class="odd">
+<td>Garivier and Cappé (2011)</td>
+<td>Introduces KL-UCB, which achieves the Lai-Robbins lower bound asymptotically by using KL-divergence-based confidence bounds</td>
+<td><a href="https://arxiv.org/abs/1102.2490">COLT 2011</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>

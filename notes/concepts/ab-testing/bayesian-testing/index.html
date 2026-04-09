@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="icon" type="image/x-icon" href="../../../../favicon.ico" />
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>bayesian-testing - Calvin Woo's blog</title>
+        <link rel="stylesheet" href="../../../../css/default.css" />
+        <link rel="stylesheet" href="../../../../css/syntax.css" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.0/dist/katex.min.css" integrity="sha384-BdGj8xC2eZkQaxoQ8nSLefg4AV4/AwB3Fj+8SUSo7pnKP6Eoy18liIKTPn9oBYNG" crossorigin="anonymous">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../../../../">Calvin's Notebook</a>
+            </div>
+            <nav>
+                <a href="../../../../">Home</a>
+                <a href="../../../../about.html">About</a>
+                <a href="../../../../contact.html">Contact</a>
+                <a href="../../../../archive.html">Archive</a>
+                <a href="../../../../notes/">Notes</a>
+            </nav>
+        </header>
+
+        <main role="main">
+            <h1>bayesian-testing</h1>
+            <article>
+    <section>
+        <h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="../../../../notes/#1.-the-bayesian-framework%7C1.-the-bayesian-framework/">#1. The Bayesian Framework|1. The Bayesian Framework</a>
+<ul>
+<li><a href="../../../../notes/#1.1-bayes'-theorem-and-the-posterior%7C1.1-bayes'-theorem-and-the-posterior/">#1.1 Bayes’ Theorem and the Posterior|1.1 Bayes’ Theorem and the Posterior</a></li>
+<li><a href="../../../../notes/#1.2-the-posterior-as-an-information-compression%7C1.2-the-posterior-as-an-information-compression/">#1.2 The Posterior as an Information Compression|1.2 The Posterior as an Information Compression</a></li>
+<li><a href="../../../../notes/#1.3-bayesian-vs.-frequentist-paradigm%7C1.3-bayesian-vs.-frequentist-paradigm/">#1.3 Bayesian vs. Frequentist Paradigm|1.3 Bayesian vs. Frequentist Paradigm</a></li>
+<li><a href="../../../../notes/#1.4-coherence-of-bayesian-inference%7C1.4-coherence-of-bayesian-inference/">#1.4 Coherence of Bayesian Inference|1.4 Coherence of Bayesian Inference</a></li>
+</ul></li>
+<li><a href="../../../../notes/#2.-the-beta-binomial-model%7C2.-the-beta-binomial-model/">#2. The Beta-Binomial Model|2. The Beta-Binomial Model</a>
+<ul>
+<li><a href="../../../../notes/#2.1-setup%7C2.1-setup/">#2.1 Setup|2.1 Setup</a></li>
+<li><a href="../../../../notes/#2.2-the-beta-distribution%7C2.2-the-beta-distribution/">#2.2 The Beta Distribution|2.2 The Beta Distribution</a></li>
+<li><a href="../../../../notes/#2.3-conjugate-posterior-update%7C2.3-conjugate-posterior-update/">#2.3 Conjugate Posterior Update|2.3 Conjugate Posterior Update</a></li>
+<li><a href="../../../../notes/#2.4-posterior-mean-as-a-shrinkage-estimator%7C2.4-posterior-mean-as-a-shrinkage-estimator/">#2.4 Posterior Mean as a Shrinkage Estimator|2.4 Posterior Mean as a Shrinkage Estimator</a></li>
+</ul></li>
+<li><a href="../../../../notes/#3.-posterior-inference%7C3.-posterior-inference/">#3. Posterior Inference|3. Posterior Inference</a>
+<ul>
+<li><a href="../../../../notes/#3.1-credible-intervals%7C3.1-credible-intervals/">#3.1 Credible Intervals|3.1 Credible Intervals</a></li>
+<li><a href="../../../../notes/#3.2-highest-posterior-density-intervals%7C3.2-highest-posterior-density-intervals/">#3.2 Highest Posterior Density Intervals|3.2 Highest Posterior Density Intervals</a></li>
+<li><a href="../../../../notes/#3.3-posterior-predictive-distribution%7C3.3-posterior-predictive-distribution/">#3.3 Posterior Predictive Distribution|3.3 Posterior Predictive Distribution</a></li>
+<li><a href="../../../../notes/#3.4-point-estimates-and-loss-functions%7C3.4-point-estimates-and-loss-functions/">#3.4 Point Estimates and Loss Functions|3.4 Point Estimates and Loss Functions</a></li>
+</ul></li>
+<li><a href="../../../../notes/#4.-decision-rules%7C4.-decision-rules/">#4. Decision Rules|4. Decision Rules</a>
+<ul>
+<li><a href="../../../../notes/#4.1-probability-of-superiority%7C4.1-probability-of-superiority/">#4.1 Probability of Superiority|4.1 Probability of Superiority</a></li>
+<li><a href="../../../../notes/#4.2-expected-loss%7C4.2-expected-loss/">#4.2 Expected Loss|4.2 Expected Loss</a></li>
+<li><a href="../../../../notes/#4.3-the-decision-criterion%7C4.3-the-decision-criterion/">#4.3 The Decision Criterion|4.3 The Decision Criterion</a></li>
+</ul></li>
+<li><a href="../../../../notes/#5.-prior-selection%7C5.-prior-selection/">#5. Prior Selection|5. Prior Selection</a>
+<ul>
+<li><a href="../../../../notes/#5.1-uniform-prior%7C5.1-uniform-prior/">#5.1 Uniform Prior|5.1 Uniform Prior</a></li>
+<li><a href="../../../../notes/#5.2-jeffreys-prior%7C5.2-jeffreys-prior/">#5.2 Jeffreys Prior|5.2 Jeffreys Prior</a></li>
+<li><a href="../../../../notes/#5.3-informative-priors-and-effective-sample-size%7C5.3-informative-priors-and-effective-sample-size/">#5.3 Informative Priors and Effective Sample Size|5.3 Informative Priors and Effective Sample Size</a></li>
+<li><a href="../../../../notes/#5.4-prior-sensitivity-analysis%7C5.4-prior-sensitivity-analysis/">#5.4 Prior Sensitivity Analysis|5.4 Prior Sensitivity Analysis</a></li>
+</ul></li>
+<li><a href="../../../../notes/#6.-bayesian-vs.-frequentist:-a-structured-comparison%7C6.-bayesian-vs.-frequentist:-a-structured-comparison/">#6. Bayesian vs. Frequentist: A Structured Comparison|6. Bayesian vs. Frequentist: A Structured Comparison</a>
+<ul>
+<li><a href="../../../../notes/#6.1-interpretability-of-uncertainty-statements%7C6.1-interpretability-of-uncertainty-statements/">#6.1 Interpretability of Uncertainty Statements|6.1 Interpretability of Uncertainty Statements</a></li>
+<li><a href="../../../../notes/#6.2-sequential-validity%7C6.2-sequential-validity/">#6.2 Sequential Validity|6.2 Sequential Validity</a></li>
+<li><a href="../../../../notes/#6.3-decision-metric%7C6.3-decision-metric/">#6.3 Decision Metric|6.3 Decision Metric</a></li>
+<li><a href="../../../../notes/#6.4-computational-cost%7C6.4-computational-cost/">#6.4 Computational Cost|6.4 Computational Cost</a></li>
+<li><a href="../../../../notes/#6.5-when-to-use-which%7C6.5-when-to-use-which/">#6.5 When to Use Which|6.5 When to Use Which</a></li>
+</ul></li>
+<li><a href="../../../../notes/#7.-references%7C7.-references/">#7. References|7. References</a></li>
+</ol>
+<hr />
+<h2 id="the-bayesian-framework">1. The Bayesian Framework</h2>
+<h3 id="bayes-theorem-and-the-posterior">1.1 Bayes’ Theorem and the Posterior</h3>
+<p>Let <span class="math inline">\(\theta \in \Theta\)</span> be a parameter of interest and <span class="math inline">\(x \in \mathcal{X}\)</span> observed data. The Bayesian framework requires two ingredients:</p>
+<ul>
+<li>The <em>prior distribution</em> <span class="math inline">\(\pi(\theta)\)</span>, encoding beliefs about <span class="math inline">\(\theta\)</span> before observing any data.</li>
+<li>The <em>likelihood</em> <span class="math inline">\(p(x \mid \theta)\)</span>, the probability (density) of observing <span class="math inline">\(x\)</span> given parameter value <span class="math inline">\(\theta\)</span>.</li>
+</ul>
+<p><strong>Definition (Posterior Distribution).</strong> The <em>posterior distribution</em> of <span class="math inline">\(\theta\)</span> given observed data <span class="math inline">\(x\)</span> is</p>
+<p><span class="math display">\[\pi(\theta \mid x) = \frac{p(x \mid \theta)\, \pi(\theta)}{p(x)},\]</span></p>
+<p>where <span class="math inline">\(p(x) = \int_\Theta p(x \mid \theta)\, \pi(\theta)\, d\theta\)</span> is the <em>marginal likelihood</em> (also called the <em>evidence</em>). Since <span class="math inline">\(p(x)\)</span> does not depend on <span class="math inline">\(\theta\)</span>, it is a normalizing constant, and we may write the proportionality</p>
+<p><span class="math display">\[\pi(\theta \mid x) \propto p(x \mid \theta)\, \pi(\theta).\]</span></p>
+<p>The verbal reading of this proportionality is: <strong>posterior is proportional to likelihood times prior</strong>.</p>
+<h3 id="the-posterior-as-an-information-compression">1.2 The Posterior as an Information Compression</h3>
+<p>The posterior <span class="math inline">\(\pi(\theta \mid x)\)</span> is a complete summary of all information about <span class="math inline">\(\theta\)</span> after observing <span class="math inline">\(x\)</span>. It combines the prior knowledge <span class="math inline">\(\pi(\theta)\)</span> with the information in the data through the likelihood, and every subsequent inference — point estimates, intervals, predictions, decisions — is derived from <span class="math inline">\(\pi(\theta \mid x)\)</span> alone. In this sense the posterior is not just one of many outputs; it is the output of Bayesian analysis.</p>
+<p>When new data <span class="math inline">\(x'\)</span> arrives independently of <span class="math inline">\(x\)</span>, the posterior <span class="math inline">\(\pi(\theta \mid x)\)</span> becomes the new prior, and the updated posterior is <span class="math inline">\(\pi(\theta \mid x, x') \propto p(x' \mid \theta)\, \pi(\theta \mid x)\)</span>. Sequential updating and batch updating are equivalent; the order of data presentation is irrelevant.</p>
+<h3 id="bayesian-vs.-frequentist-paradigm">1.3 Bayesian vs. Frequentist Paradigm</h3>
+<p>The two frameworks differ at the level of what probability means.</p>
+<p>In the <em>frequentist</em> paradigm, <span class="math inline">\(\theta\)</span> is a fixed but unknown constant. Probability statements refer to the behavior of procedures over hypothetical repeated experiments. The statement “<span class="math inline">\(\hat{\theta}\)</span> estimates <span class="math inline">\(\theta\)</span>” is meaningful; the statement “<span class="math inline">\(P(\theta \in [a, b]) = 0.95\)</span>” is not, because <span class="math inline">\(\theta\)</span> is fixed and either falls in <span class="math inline">\([a, b]\)</span> or does not.</p>
+<p>In the <em>Bayesian</em> paradigm, <span class="math inline">\(\theta\)</span> is modeled as a random variable with distribution <span class="math inline">\(\pi(\theta)\)</span> expressing the analyst’s uncertainty about its true value. Probability statements about <span class="math inline">\(\theta\)</span> are valid by construction: “<span class="math inline">\(P(\theta \in [a, b] \mid x) = 0.95\)</span>” means exactly that 95% of posterior probability mass lies in <span class="math inline">\([a, b]\)</span>.</p>
+<p>This distinction has practical consequences for A/B testing: the frequentist confidence interval is a statement about the interval-generating procedure, not about <span class="math inline">\(\theta\)</span>; the Bayesian credible interval is a direct statement about <span class="math inline">\(\theta\)</span>.</p>
+<h3 id="coherence-of-bayesian-inference">1.4 Coherence of Bayesian Inference</h3>
+<p><strong>Proposition (Coherence).</strong> Given a prior <span class="math inline">\(\pi(\theta)\)</span> and a likelihood <span class="math inline">\(p(x \mid \theta)\)</span>, the posterior <span class="math inline">\(\pi(\theta \mid x) \propto p(x \mid \theta)\, \pi(\theta)\)</span> is the unique update that satisfies the axioms of probability.</p>
+<p><em>Sketch.</em> Any update rule that respects the product rule of probability, <span class="math inline">\(P(A \cap B) = P(A \mid B) P(B)\)</span>, must yield exactly <span class="math inline">\(\pi(\theta \mid x) = p(x \mid \theta)\, \pi(\theta) / p(x)\)</span>. Any other assignment of probabilities to <span class="math inline">\(\theta\)</span> after seeing <span class="math inline">\(x\)</span> would create a Dutch book — a set of bets that guarantees a loss to the agent regardless of the true value of <span class="math inline">\(\theta\)</span>. This <em>Dutch book argument</em> (de Finetti, Cox) establishes that Bayesian updating is not merely one possible rule; it is the only coherent one.</p>
+<hr />
+<h2 id="the-beta-binomial-model">2. The Beta-Binomial Model</h2>
+<h3 id="setup">2.1 Setup</h3>
+<p>In the binary conversion A/B setting, each user either converts (success) or does not (failure). Formally, let <span class="math inline">\(X_1, \ldots, X_n \overset{\mathrm{iid}}{\sim} \text{Bernoulli}(p)\)</span>, where <span class="math inline">\(p \in [0, 1]\)</span> is the unknown true conversion rate. After <span class="math inline">\(n\)</span> observations, let <span class="math inline">\(k = \sum_{i=1}^n X_i\)</span> be the number of successes. The likelihood is</p>
+<p><span class="math display">\[p(k \mid p) = \binom{n}{k} p^k (1-p)^{n-k}.\]</span></p>
+<p>We place a prior on <span class="math inline">\(p \in [0, 1]\)</span>. The natural choice — and the one that yields a tractable closed-form posterior — is the Beta distribution.</p>
+<h3 id="the-beta-distribution">2.2 The Beta Distribution</h3>
+<p><strong>Definition (Beta Distribution).</strong> For shape parameters <span class="math inline">\(\alpha, \beta &gt; 0\)</span>, the Beta distribution has probability density function</p>
+<p><span class="math display">\[f(p \mid \alpha, \beta) = \frac{p^{\alpha - 1}(1-p)^{\beta - 1}}{B(\alpha, \beta)}, \quad p \in [0, 1],\]</span></p>
+<p>where the <em>Beta function</em> <span class="math inline">\(B(\alpha, \beta)\)</span> is the normalizing constant</p>
+<p><span class="math display">\[B(\alpha, \beta) = \int_0^1 p^{\alpha-1}(1-p)^{\beta-1}\, dp = \frac{\Gamma(\alpha)\,\Gamma(\beta)}{\Gamma(\alpha + \beta)}.\]</span></p>
+<p>Here <span class="math inline">\(\Gamma\)</span> is the Gamma function satisfying <span class="math inline">\(\Gamma(n) = (n-1)!\)</span> for positive integers. Key moments:</p>
+<p><span class="math display">\[\mathbb{E}[p] = \frac{\alpha}{\alpha + \beta}, \quad \text{Mode}(p) = \frac{\alpha - 1}{\alpha + \beta - 2} \text{ (for } \alpha, \beta &gt; 1\text{)}, \quad \mathrm{Var}(p) = \frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}.\]</span></p>
+<p>The Beta family is closed under many operations and — crucially — is the <em>conjugate prior</em> for the Bernoulli and Binomial likelihoods, meaning the posterior belongs to the same Beta family.</p>
+<h3 id="conjugate-posterior-update">2.3 Conjugate Posterior Update</h3>
+<p><strong>Theorem (Beta-Binomial Conjugacy).</strong> If <span class="math inline">\(p \sim \text{Beta}(\alpha_0, \beta_0)\)</span> and <span class="math inline">\(X \mid p \sim \text{Binomial}(n, p)\)</span> with observed value <span class="math inline">\(X = k\)</span>, then</p>
+<p><span class="math display">\[p \mid X = k \;\sim\; \text{Beta}(\alpha_0 + k,\; \beta_0 + n - k).\]</span></p>
+<p><em>Derivation.</em> By Bayes’ theorem,</p>
+<p><span class="math display">\[\pi(p \mid k) \propto p(k \mid p)\, \pi(p) = \binom{n}{k} p^k (1-p)^{n-k} \cdot \frac{p^{\alpha_0 - 1}(1-p)^{\beta_0 - 1}}{B(\alpha_0, \beta_0)}.\]</span></p>
+<p>The binomial coefficient <span class="math inline">\(\binom{n}{k}\)</span> and the Beta normalizing constant <span class="math inline">\(B(\alpha_0, \beta_0)\)</span> do not depend on <span class="math inline">\(p\)</span>, so they fold into the proportionality constant. What remains is</p>
+<p><span class="math display">\[\pi(p \mid k) \propto p^k (1-p)^{n-k} \cdot p^{\alpha_0 - 1}(1-p)^{\beta_0 - 1} = p^{(\alpha_0 + k) - 1}(1-p)^{(\beta_0 + n - k) - 1}.\]</span></p>
+<p>This is the kernel of a <span class="math inline">\(\text{Beta}(\alpha_0 + k,\, \beta_0 + n - k)\)</span> density. Since probability densities must integrate to one, the normalizing constant is uniquely determined, giving</p>
+<p><span class="math display">\[\pi(p \mid k) = \frac{p^{(\alpha_0 + k) - 1}(1-p)^{(\beta_0 + n - k) - 1}}{B(\alpha_0 + k,\, \beta_0 + n - k)}. \quad \square\]</span></p>
+<p>The update rule is strikingly simple: <span class="math inline">\(\alpha \leftarrow \alpha_0 + k\)</span> (add observed successes) and <span class="math inline">\(\beta \leftarrow \beta_0 + (n - k)\)</span> (add observed failures). The parameters <span class="math inline">\(\alpha_0\)</span> and <span class="math inline">\(\beta_0\)</span> are interpretable as pseudo-observations: <span class="math inline">\(\alpha_0\)</span> prior pseudo-successes and <span class="math inline">\(\beta_0\)</span> prior pseudo-failures, as if the prior encodes <span class="math inline">\(\alpha_0 + \beta_0\)</span> past trials.</p>
+<h3 id="posterior-mean-as-a-shrinkage-estimator">2.4 Posterior Mean as a Shrinkage Estimator</h3>
+<p>Let <span class="math inline">\(\alpha' = \alpha_0 + k\)</span> and <span class="math inline">\(\beta' = \beta_0 + n - k\)</span> denote the posterior parameters. The posterior mean is</p>
+<p><span class="math display">\[\mathbb{E}[p \mid k] = \frac{\alpha'}{\alpha' + \beta'} = \frac{\alpha_0 + k}{\alpha_0 + \beta_0 + n}.\]</span></p>
+<p>Writing <span class="math inline">\(n_0 = \alpha_0 + \beta_0\)</span> and <span class="math inline">\(\hat{p} = k/n\)</span> (the MLE), we can decompose this as a convex combination:</p>
+<p><span class="math display">\[\mathbb{E}[p \mid k] = \frac{n_0}{n_0 + n} \cdot \underbrace{\frac{\alpha_0}{n_0}}_{\text{prior mean}} + \frac{n}{n_0 + n} \cdot \underbrace{\hat{p}}_{\text{MLE}}.\]</span></p>
+<p><strong>The posterior mean is a weighted average of the prior mean and the MLE, with weights proportional to prior pseudo-sample-size and observed sample size.</strong> As <span class="math inline">\(n \to \infty\)</span>, the data weight <span class="math inline">\(n/(n_0 + n) \to 1\)</span> and <span class="math inline">\(\mathbb{E}[p \mid k] \to \hat{p} = k/n\)</span>. The prior is <em>washed out</em> by sufficient data regardless of its specification.</p>
+<hr />
+<h2 id="posterior-inference">3. Posterior Inference</h2>
+<h3 id="credible-intervals">3.1 Credible Intervals</h3>
+<p><strong>Definition (Credible Interval).</strong> A <span class="math inline">\(100(1-\alpha)\%\)</span> <em>credible interval</em> (also called a <em>Bayesian confidence interval</em> or <em>posterior interval</em>) is any interval <span class="math inline">\([L, U]\)</span> satisfying <em>(here <span class="math inline">\(\alpha\)</span> is the coverage complement, distinct from the Beta shape parameters <span class="math inline">\(\alpha_A', \alpha_B'\)</span>)</em></p>
+<p><span class="math display">\[P(L \leq \theta \leq U \mid x) = 1 - \alpha.\]</span></p>
+<p>This statement has the direct probabilistic interpretation that frequentist confidence intervals cannot support: given the observed data, the probability that <span class="math inline">\(\theta\)</span> lies in <span class="math inline">\([L, U]\)</span> is <span class="math inline">\(1 - \alpha\)</span>. In the frequentist framework, <span class="math inline">\(\theta\)</span> is fixed; the interval is random, and a 95% CI is one that covers the true <span class="math inline">\(\theta\)</span> in 95% of repeated experiments. In the Bayesian framework, both the interval and the statement “<span class="math inline">\(\theta \in [L, U]\)</span> with probability <span class="math inline">\(1-\alpha\)</span>” are directly meaningful.</p>
+<p>Credible intervals are not unique: for a given coverage level, infinitely many intervals satisfy the definition. Two canonical choices arise in practice: <em>equal-tailed</em> intervals (the <span class="math inline">\(\alpha/2\)</span> and <span class="math inline">\(1-\alpha/2\)</span> quantiles of the posterior) and <em>highest posterior density</em> intervals.</p>
+<h3 id="highest-posterior-density-intervals">3.2 Highest Posterior Density Intervals</h3>
+<p><strong>Definition (HPD Interval).</strong> The <span class="math inline">\(100(1-\alpha)\%\)</span> <em>highest posterior density</em> (HPD) interval is the shortest interval <span class="math inline">\([L, U]\)</span> such that <span class="math inline">\(P(L \leq \theta \leq U \mid x) = 1 - \alpha\)</span>. Equivalently, it is the set</p>
+<p><span class="math display">\[C_{1-\alpha} = \{\theta : \pi(\theta \mid x) \geq c_\alpha\},\]</span></p>
+<p>where <span class="math inline">\(c_\alpha\)</span> is the largest constant such that <span class="math inline">\(P(\theta \in C_{1-\alpha} \mid x) \geq 1 - \alpha\)</span>.</p>
+<p>Every point inside an HPD region has higher posterior density than every point outside it. For unimodal, symmetric posteriors the HPD interval coincides with the equal-tailed interval and is centered on the mode. For asymmetric unimodal posteriors (such as Beta distributions far from symmetric), the HPD interval is shorter than the equal-tailed interval while maintaining the same coverage. <em>For multimodal posteriors, the HPD region need not be a connected interval.</em></p>
+<p>For the Beta distribution, the HPD interval is computed numerically (there is no closed-form expression in general), but it is easily obtained via the inverse CDF of the Beta distribution.</p>
+<h3 id="posterior-predictive-distribution">3.3 Posterior Predictive Distribution</h3>
+<p><strong>Definition (Posterior Predictive Distribution).</strong> Given observed data <span class="math inline">\(x\)</span> and a new hypothetical dataset <span class="math inline">\(\tilde{x}\)</span> of size <span class="math inline">\(m\)</span>, the <em>posterior predictive distribution</em> integrates out the unknown parameter:</p>
+<p><span class="math display">\[p(\tilde{x} \mid x) = \int_0^1 p(\tilde{x} \mid p)\, \pi(p \mid x)\, dp.\]</span></p>
+<p>For the Beta-Binomial model with posterior <span class="math inline">\(p \mid x \sim \text{Beta}(\alpha', \beta')\)</span>, and new data <span class="math inline">\(\tilde{X} \mid p \sim \text{Binomial}(m, p)\)</span>:</p>
+<p><span class="math display">\[P(\tilde{X} = j \mid x) = \int_0^1 \binom{m}{j} p^j (1-p)^{m-j} \cdot \frac{p^{\alpha'-1}(1-p)^{\beta'-1}}{B(\alpha',\beta')}\, dp = \binom{m}{j}\frac{B(\alpha' + j,\, \beta' + m - j)}{B(\alpha',\beta')}.\]</span></p>
+<p>This is the <em>Beta-Binomial distribution</em>, written <span class="math inline">\(\tilde{X} \mid x \sim \text{BetaBinomial}(\alpha', \beta', m)\)</span>. Its mean is <span class="math inline">\(m\alpha'/(\alpha' + \beta')\)</span> and its variance exceeds <span class="math inline">\(m\hat{p}(1-\hat{p})\)</span> (overdispersion relative to a plain Binomial), reflecting additional uncertainty about the true <span class="math inline">\(p\)</span>.</p>
+<h3 id="point-estimates-and-loss-functions">3.4 Point Estimates and Loss Functions</h3>
+<p>The choice of point estimate from a posterior is not arbitrary — it corresponds to minimizing expected loss under a particular loss function.</p>
+<p><strong>Proposition (Bayes Estimators).</strong> Let <span class="math inline">\(\ell(\hat{\theta}, \theta)\)</span> be a loss function and let the <em>posterior expected loss</em> of estimator <span class="math inline">\(\hat{\theta}\)</span> be <span class="math inline">\(\rho(\hat{\theta}) = \mathbb{E}_{\theta \mid x}[\ell(\hat{\theta}, \theta)]\)</span>. The estimator minimizing <span class="math inline">\(\rho(\hat{\theta})\)</span> is:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Loss function</th>
+<th><span class="math inline">\(\ell(\hat{\theta}, \theta)\)</span></th>
+<th>Optimal estimator</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Squared error</td>
+<td><span class="math inline">\((\hat{\theta} - \theta)^2\)</span></td>
+<td>Posterior mean</td>
+</tr>
+<tr class="even">
+<td>Absolute error</td>
+<td><span class="math inline">\(\lvert \hat{\theta} - \theta \rvert\)</span></td>
+<td>Posterior median</td>
+</tr>
+<tr class="odd">
+<td>0-1 loss</td>
+<td><span class="math inline">\(\mathbf{1}[\hat{\theta} \neq \theta]\)</span></td>
+<td>Posterior mode (MAP)</td>
+</tr>
+</tbody>
+</table>
+<p><em>Sketch for squared error.</em> Expanding <span class="math inline">\(\mathbb{E}[(\hat{\theta} - \theta)^2 \mid x] = (\hat{\theta} - \mathbb{E}[\theta \mid x])^2 + \mathrm{Var}(\theta \mid x)\)</span>, the variance term is constant in <span class="math inline">\(\hat{\theta}\)</span>, so the minimum is achieved at <span class="math inline">\(\hat{\theta} = \mathbb{E}[\theta \mid x]\)</span>.</p>
+<hr />
+<h2 id="decision-rules">4. Decision Rules</h2>
+<h3 id="probability-of-superiority">4.1 Probability of Superiority</h3>
+<p>The primary Bayesian criterion for concluding that variant B outperforms variant A is the <em>probability of superiority</em>:</p>
+<p><span class="math display">\[P(p_B &gt; p_A \mid \text{data}) = \int_0^1 \int_0^{p_B} \pi(p_A \mid \text{data})\, \pi(p_B \mid \text{data})\, dp_A\, dp_B.\]</span></p>
+<p>Since <span class="math inline">\(p_A\)</span> and <span class="math inline">\(p_B\)</span> have independent posteriors <span class="math inline">\(\text{Beta}(\alpha_A', \beta_A')\)</span> and <span class="math inline">\(\text{Beta}(\alpha_B', \beta_B')\)</span>, this integral does not factor into a simple closed form for general parameters, but two approaches are available.</p>
+<p><strong>Monte Carlo estimate.</strong> Draw <span class="math inline">\(S\)</span> independent samples:</p>
+<p><span class="math display">\[p_A^{(s)} \sim \text{Beta}(\alpha_A', \beta_A'), \quad p_B^{(s)} \sim \text{Beta}(\alpha_B', \beta_B'), \quad s = 1, \ldots, S.\]</span></p>
+<p>Then</p>
+<p><span class="math display">\[P(p_B &gt; p_A \mid \text{data}) \approx \frac{1}{S} \sum_{s=1}^S \mathbf{1}[p_B^{(s)} &gt; p_A^{(s)}].\]</span></p>
+<p>By the law of large numbers this converges to the true probability as <span class="math inline">\(S \to \infty\)</span>. For <span class="math inline">\(S = 10{,}000\)</span> the Monte Carlo error is on the order of <span class="math inline">\(1/\sqrt{S} \approx 0.01\)</span>.</p>
+<p><strong>Closed-form result.</strong> Integrating the joint density analytically yields (Miller, 2015):</p>
+<p><span class="math display">\[P(p_B &gt; p_A \mid \text{data}) = \sum_{i=0}^{\alpha_B' - 1} \frac{B\!\left(\alpha_A' + i,\; \beta_A' + \beta_B'\right)}{(\beta_B' + i)\, B(1 + i,\, \beta_B')\, B(\alpha_A',\, \beta_A')},\]</span></p>
+<p>where <span class="math inline">\(B(\cdot, \cdot)\)</span> denotes the Beta function. This sum has <span class="math inline">\(\alpha_B'\)</span> terms, each computable via <span class="math inline">\(\log \Gamma\)</span> evaluations, and avoids any simulation variance.</p>
+<p><em>Derivation sketch.</em> Fix <span class="math inline">\(p_B\)</span> and integrate out <span class="math inline">\(p_A\)</span>: <span class="math inline">\(\int_0^{p_B} \pi(p_A)\, dp_A = I_{p_B}(\alpha_A', \beta_A')\)</span>, the regularized incomplete Beta function. Then integrate over <span class="math inline">\(p_B\)</span> weighted by <span class="math inline">\(\pi(p_B)\)</span>. A series expansion of <span class="math inline">\(I_{p_B}(\alpha_A', \beta_A')\)</span> in powers of <span class="math inline">\(p_B\)</span> and term-by-term integration against the <span class="math inline">\(\text{Beta}(\alpha_B', \beta_B')\)</span> density yields the sum above.</p>
+<h3 id="expected-loss">4.2 Expected Loss</h3>
+<p>The probability of superiority alone does not encode the <em>magnitude</em> of the risk of a wrong decision. A complementary criterion is the <em>expected loss</em>, also called the expected opportunity cost.</p>
+<p><strong>Definition (Expected Loss for Deploying B).</strong> Suppose we deploy B. If B is in fact inferior to A (i.e., <span class="math inline">\(p_A &gt; p_B\)</span>), the opportunity cost is <span class="math inline">\(p_A - p_B\)</span> — the conversion rate we sacrificed by choosing the wrong variant. The expected loss is</p>
+<p><span class="math display">\[\mathcal{L}_B = \mathbb{E}[\max(p_A - p_B,\, 0) \mid \text{data}].\]</span></p>
+<p><em>Derivation.</em> With independent Beta posteriors,</p>
+<p><span class="math display">\[\mathcal{L}_B = \int_0^1 \int_0^1 \max(p_A - p_B, 0)\, \pi(p_A)\, \pi(p_B)\, dp_A\, dp_B.\]</span></p>
+<p>Restrict to the region <span class="math inline">\(p_A &gt; p_B\)</span> (where the max is positive) and split:</p>
+<p><span class="math display">\[\mathcal{L}_B = \int_0^1 \int_{p_B}^1 (p_A - p_B)\, \pi(p_A)\, dp_A\, \pi(p_B)\, dp_B = \underbrace{\int_0^1\!\!\int_{p_B}^1 p_A\, \pi(p_A)\, dp_A\, \pi(p_B)\, dp_B}_{T_1} - \underbrace{\int_0^1 p_B \pi(p_B)\!\int_{p_B}^1 \pi(p_A)\, dp_A\, dp_B}_{T_2}.\]</span></p>
+<p>Each term involves the incomplete Beta function <span class="math inline">\(I_x(\alpha, \beta) = B(x;\alpha,\beta)/B(\alpha,\beta)\)</span> and the first moment of a truncated Beta. Evaluating each term gives:</p>
+<p><span class="math display">\[T_1 = \frac{\alpha_A'}{\alpha_A' + \beta_A'} \sum_{i=0}^{\alpha_B'-1} \frac{B(\alpha_A'+1+i,\; \beta_A'+\beta_B')}{(\beta_B'+i)\,B(1+i,\,\beta_B')\,B(\alpha_A'+1,\,\beta_A')},\]</span></p>
+<p><span class="math display">\[T_2 = \frac{\alpha_B'}{\alpha_B' + \beta_B'} \sum_{i=0}^{\alpha_B'-1} \frac{B(\alpha_A'+i,\; \beta_A'+\beta_B')}{(\beta_B'+i)\,B(1+i,\,\beta_B')\,B(\alpha_A',\,\beta_A')},\]</span></p>
+<p>so <span class="math inline">\(\mathcal{L}_B = T_1 - T_2\)</span>. The derivation of <span class="math inline">\(T_1\)</span> follows by writing <span class="math inline">\(\mathbb{E}[p_A \mathbf{1}[p_A &gt; p_B]] = \frac{\alpha_A'}{\alpha_A'+\beta_A'} \cdot P(p_A &gt; p_B;\, \alpha_A' \to \alpha_A'+1)\)</span>, where the right-hand factor is a probability of superiority computed with <span class="math inline">\(\text{Beta}(\alpha_A'+1, \beta_A')\)</span> in place of <span class="math inline">\(\text{Beta}(\alpha_A', \beta_A')\)</span>; applying the closed-form superiority formula from Section 4.1 to that shifted distribution yields the sum above. The expression for <span class="math inline">\(T_2\)</span> follows symmetrically. <em>These sums converge for integer-valued Beta shape parameters, in which case each term is a ratio of Gamma function evaluations.</em></p>
+<p>In practice the Monte Carlo estimator</p>
+<p><span class="math display">\[\mathcal{L}_B \approx \frac{1}{S}\sum_{s=1}^S \max(p_A^{(s)} - p_B^{(s)},\, 0)\]</span></p>
+<p>is simpler to implement and sufficiently accurate for experimental decisions.</p>
+<p>Similarly, the expected loss for deploying A (i.e., the risk of A being inferior) is</p>
+<p><span class="math display">\[\mathcal{L}_A = \mathbb{E}[\max(p_B - p_A,\, 0) \mid \text{data}].\]</span></p>
+<h3 id="the-decision-criterion">4.3 The Decision Criterion</h3>
+<p>In practice, both the probability of superiority and the expected loss are used jointly:</p>
+<p><strong>Definition (Decision Rule).</strong> Deploy variant B when both:
+1. <span class="math inline">\(P(p_B &gt; p_A \mid \text{data}) &gt; 1 - \delta\)</span> for some threshold <span class="math inline">\(\delta\)</span> (e.g., <span class="math inline">\(\delta = 0.05\)</span>, so 95% posterior probability), <strong>and</strong>
+2. <span class="math inline">\(\mathcal{L}_B &lt; \epsilon\)</span> for a business-meaningful loss threshold <span class="math inline">\(\epsilon\)</span> (e.g., <span class="math inline">\(\epsilon = 0.001\)</span>, representing 0.1 percentage points of conversion rate).</p>
+<p>Criterion 1 guards against high-uncertainty decisions. Criterion 2 guards against declaring a winner when the posterior mass on “B is worse” is small but the magnitude of that inferiority could be large. Together they provide a calibrated, continuous-valued decision rule without binary rejection logic.</p>
+<p><em>Importantly,</em> unlike frequentist tests, this rule can be evaluated at any time during the experiment — see Section 6.2.</p>
+<hr />
+<h2 id="prior-selection">5. Prior Selection</h2>
+<h3 id="uniform-prior">5.1 Uniform Prior</h3>
+<p><strong>Definition (Uniform Prior).</strong> The uniform prior is <span class="math inline">\(\text{Beta}(1, 1)\)</span>, with density <span class="math inline">\(f(p) = 1\)</span> for <span class="math inline">\(p \in [0, 1]\)</span>. It assigns equal density to every conversion rate a priori.</p>
+<p>With <span class="math inline">\(\text{Beta}(1, 1)\)</span> prior and <span class="math inline">\(k\)</span> successes in <span class="math inline">\(n\)</span> trials, the posterior is <span class="math inline">\(\text{Beta}(1 + k, 1 + n - k)\)</span> and the posterior mean is</p>
+<p><span class="math display">\[\mathbb{E}[p \mid k] = \frac{1 + k}{2 + n}.\]</span></p>
+<p>This is the <em>Laplace estimator</em>, which avoids the edge cases <span class="math inline">\(k = 0\)</span> or <span class="math inline">\(k = n\)</span> that make the MLE <span class="math inline">\(k/n\)</span> degenerate (0 or 1, respectively). The effective pseudo-sample-size of the uniform prior is <span class="math inline">\(\alpha_0 + \beta_0 = 2\)</span>, a minimal regularization.</p>
+<p><em>The uniform prior is not as “uninformative” as it appears</em>: it places higher prior probability on conversion rates near 0.5 than a Jeffreys prior does, and it is not invariant to reparameterization of <span class="math inline">\(p\)</span>.</p>
+<h3 id="jeffreys-prior">5.2 Jeffreys Prior</h3>
+<p><strong>Definition (Jeffreys Prior).</strong> The <em>Jeffreys prior</em> for a model parametrized by <span class="math inline">\(\theta\)</span> is</p>
+<p><span class="math display">\[\pi_J(\theta) \propto \sqrt{\det I(\theta)},\]</span></p>
+<p>where <span class="math inline">\(I(\theta)\)</span> is the <em>Fisher information matrix</em> (scalar <span class="math inline">\(I(\theta)\)</span> for one-dimensional <span class="math inline">\(\theta\)</span>).</p>
+<p><em>Derivation for the Bernoulli model.</em> For <span class="math inline">\(X \sim \text{Bernoulli}(p)\)</span>, the log-likelihood for a single observation is</p>
+<p><span class="math display">\[\ell(p; x) = x \log p + (1-x)\log(1-p).\]</span></p>
+<p>The Fisher information is</p>
+<p><span class="math display">\[I(p) = -\mathbb{E}\!\left[\frac{\partial^2 \ell}{\partial p^2}\right] = -\mathbb{E}\!\left[-\frac{X}{p^2} - \frac{1-X}{(1-p)^2}\right] = \frac{\mathbb{E}[X]}{p^2} + \frac{1 - \mathbb{E}[X]}{(1-p)^2} = \frac{p}{p^2} + \frac{1-p}{(1-p)^2} = \frac{1}{p} + \frac{1}{1-p} = \frac{1}{p(1-p)}.\]</span></p>
+<p>The Jeffreys prior is therefore</p>
+<p><span class="math display">\[\pi_J(p) \propto \sqrt{I(p)} = \frac{1}{\sqrt{p(1-p)}} = p^{-1/2}(1-p)^{-1/2} = p^{1/2 - 1}(1-p)^{1/2 - 1},\]</span></p>
+<p>which is the kernel of <span class="math inline">\(\text{Beta}(1/2, 1/2)\)</span>.</p>
+<p><strong>The Jeffreys prior for a Bernoulli likelihood is <span class="math inline">\(\text{Beta}(1/2, 1/2)\)</span>.</strong></p>
+<p><em>Why this prior is preferred over the uniform.</em> The key property is <em>reparameterization invariance</em>. If <span class="math inline">\(\phi = g(p)\)</span> is a smooth bijection, then by the change-of-variables formula the Jeffreys prior on <span class="math inline">\(\phi\)</span> is <span class="math inline">\(\pi_J(\phi) \propto \sqrt{I_\phi(\phi)}\)</span> where <span class="math inline">\(I_\phi(\phi) = I(p) \cdot (dp/d\phi)^2\)</span>. Because <span class="math inline">\(\pi_J(p) \propto \sqrt{I(p)}\)</span>, after the change of variables one obtains exactly <span class="math inline">\(\pi_J(\phi) \propto \sqrt{I_\phi(\phi)}\)</span>: the Jeffreys prior on <span class="math inline">\(\phi\)</span> is the same as the prior one would have derived by working in the <span class="math inline">\(\phi\)</span> parameterization from the start. No other prior satisfies this invariance in general.</p>
+<p>The <span class="math inline">\(\text{Beta}(1/2, 1/2)\)</span> density has a U-shape on <span class="math inline">\([0,1]\)</span>, placing more weight near 0 and 1 than the uniform prior. In A/B testing, where conversion rates can legitimately be very low or very high depending on the funnel stage, this behavior is often more realistic than the uniform.</p>
+<h3 id="informative-priors-and-effective-sample-size">5.3 Informative Priors and Effective Sample Size</h3>
+<p>When historical data is available — for example, from previous experiments on a similar product feature — the prior should encode that information. If historical records suggest the conversion rate is approximately <span class="math inline">\(\mu_0\)</span> with some confidence, one can set</p>
+<p><span class="math display">\[\alpha_0 = \mu_0 \cdot n_0, \quad \beta_0 = (1 - \mu_0) \cdot n_0,\]</span></p>
+<p>where <span class="math inline">\(n_0 = \alpha_0 + \beta_0\)</span> is the <em>effective sample size</em> of the prior: it is interpretable as the number of hypothetical prior observations carrying equivalent weight to <span class="math inline">\(\alpha_0\)</span> pseudo-successes and <span class="math inline">\(\beta_0\)</span> pseudo-failures.</p>
+<p>The choice of <span class="math inline">\(n_0\)</span> controls how strongly the prior resists updates from new data. A prior with <span class="math inline">\(n_0 = 100\)</span> is equivalent in influence to 100 observed trials; it will dominate the likelihood until the experiment accumulates substantially more than 100 observations. Setting <span class="math inline">\(n_0\)</span> too large encodes overconfidence; setting it too small is nearly equivalent to an uninformative prior.</p>
+<h3 id="prior-sensitivity-analysis">5.4 Prior Sensitivity Analysis</h3>
+<p>No single prior choice is universally correct. Best practice is to run the analysis under multiple priors — at minimum, the Jeffreys prior, the uniform prior, and any informative prior encoding domain knowledge — and verify that the posterior conclusions are qualitatively similar. When posteriors are robust to prior choice, the data is informative enough to dominate. <em>This robustness check only holds for large <span class="math inline">\(n\)</span>; for small experiments, the prior can substantially alter conclusions, and the choice should be documented and justified explicitly.</em></p>
+<hr />
+<h2 id="bayesian-vs.-frequentist-a-structured-comparison">6. Bayesian vs. Frequentist: A Structured Comparison</h2>
+<h3 id="interpretability-of-uncertainty-statements">6.1 Interpretability of Uncertainty Statements</h3>
+<p>The frequentist 95% confidence interval <span class="math inline">\([\hat{L}, \hat{U}]\)</span> satisfies <span class="math inline">\(P(\hat{L} \leq \theta \leq \hat{U}) = 0.95\)</span>, where the probability is over repeated sampling of the interval-generating procedure — not over <span class="math inline">\(\theta\)</span>. It is incorrect to say “there is a 95% probability that <span class="math inline">\(\theta \in [\hat{L}, \hat{U}]\)</span>” given a single observed interval (because <span class="math inline">\(\theta\)</span> is fixed).</p>
+<p>The Bayesian 95% credible interval <span class="math inline">\([L, U]\)</span> satisfies <span class="math inline">\(P(\theta \in [L, U] \mid x) = 0.95\)</span> exactly as written. Communicating uncertainty to non-statistical stakeholders is therefore more natural with credible intervals, and the statement maps directly to the intuitive meaning people assign to “95% confidence.”</p>
+<h3 id="sequential-validity">6.2 Sequential Validity</h3>
+<p><em>Bayesian tests are valid at any stopping time.</em> Because the posterior <span class="math inline">\(\pi(\theta \mid x)\)</span> is computed via Bayes’ theorem regardless of when or why the analyst chose to look at the data, the posterior probability <span class="math inline">\(P(p_B &gt; p_A \mid \text{data})\)</span> is a valid probability statement at any point during data collection. There is no inflation of error analogous to the frequentist <em>peeking problem</em> (see <code>sequential-and-adaptive.md</code>).</p>
+<p>Frequentist p-values are valid only when the stopping rule is specified in advance and the sample size is fixed. An analyst who peeks at a frequentist p-value, finds <span class="math inline">\(p = 0.06\)</span>, and continues collecting data has implicitly changed the test’s Type I error rate without correcting for it. The Bayesian updates through the same mechanism whether the analyst peeks or not: the posterior is just the posterior.</p>
+<p><em>Caveat: this sequential validity is relative to the prior. If the prior is severely misspecified, the posterior can be misleading for any number of observations.</em></p>
+<h3 id="decision-metric">6.3 Decision Metric</h3>
+<p>Frequentist hypothesis testing produces a binary decision: reject <span class="math inline">\(H_0\)</span> or fail to reject <span class="math inline">\(H_0\)</span> at a pre-specified significance level <span class="math inline">\(\alpha\)</span>. This binary framing discards information about how far <span class="math inline">\(p\)</span>-values are from the threshold and conflates statistical significance with practical importance.</p>
+<p>The Bayesian expected loss criterion <span class="math inline">\(\mathcal{L}_B &lt; \epsilon\)</span> is continuous. It directly quantifies the business cost of a wrong decision in the units of the metric (e.g., percentage points of conversion rate). Stopping when <span class="math inline">\(\mathcal{L}_B &lt; 0.001\)</span> means the analyst is comfortable that, under the posterior, the expected cost of deploying B when A is better is less than 0.1 percentage points. This framing is directly actionable.</p>
+<h3 id="computational-cost">6.4 Computational Cost</h3>
+<p>For the Beta-Binomial model, Bayesian inference is computationally trivial: the posterior update is two additions (<span class="math inline">\(\alpha \leftarrow \alpha + k\)</span>, <span class="math inline">\(\beta \leftarrow \beta + n - k\)</span>). Evaluating <span class="math inline">\(P(p_B &gt; p_A)\)</span> and <span class="math inline">\(\mathcal{L}_B\)</span> requires either a short loop over Beta function evaluations (closed form) or <span class="math inline">\(S\)</span> samples from two Beta distributions (Monte Carlo).</p>
+<p>For models beyond the conjugate case — e.g., continuous revenue metrics with non-conjugate priors, or hierarchical models with treatment heterogeneity — Bayesian inference requires <em>Markov Chain Monte Carlo</em> (MCMC) or <em>variational inference</em> (VI), which can be orders of magnitude more expensive than frequentist point estimates and standard errors.</p>
+<h3 id="when-to-use-which">6.5 When to Use Which</h3>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 40%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterion</th>
+<th>Prefer Frequentist</th>
+<th>Prefer Bayesian</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Regulatory environment</td>
+<td>Fixed Type I error required (FDA, clinical trials)</td>
+<td>Industry product experiments</td>
+</tr>
+<tr class="even">
+<td>Stopping rule</td>
+<td>Pre-specified, fixed <span class="math inline">\(n\)</span></td>
+<td>Need to stop early, sequential monitoring</td>
+</tr>
+<tr class="odd">
+<td>Prior knowledge</td>
+<td>None available or distrust prior</td>
+<td>Strong historical data, informative prior</td>
+</tr>
+<tr class="even">
+<td>Audience</td>
+<td>Statistical reviewers</td>
+<td>Product managers, business stakeholders</td>
+</tr>
+<tr class="odd">
+<td>Metric type</td>
+<td>Continuous, well-understood</td>
+<td>Rare binary events, sparse data</td>
+</tr>
+<tr class="even">
+<td>Multiple experiments</td>
+<td>FWER/FDR correction needed</td>
+<td>Hierarchical prior shares strength</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="references">7. References</h2>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 30%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference Name</th>
+<th>Brief Summary</th>
+<th>Link to Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Gelman, Carlin, Stern, Dunson, Vehtari, Rubin — Bayesian Data Analysis (3rd ed.)</td>
+<td>Comprehensive graduate textbook on Bayesian inference; covers posterior summarization, conjugate models, prior selection, and HPD intervals in depth</td>
+<td><a href="http://www.stat.columbia.edu/~gelman/book/">BDA3 (online draft)</a></td>
+</tr>
+<tr class="even">
+<td>VanderPlas (2014) — Frequentism and Bayesianism: A Python-driven Primer</td>
+<td>Accessible comparison of the frequentist and Bayesian paradigms with worked examples and code; clarifies the credible interval vs. confidence interval distinction</td>
+<td><a href="https://arxiv.org/abs/1411.5018">arXiv:1411.5018</a></td>
+</tr>
+<tr class="odd">
+<td>Miller, E. (2015) — Formulas for Bayesian A/B Testing</td>
+<td>Derives the closed-form sum for <span class="math inline">\(P(p_B &gt; p_A)\)</span> when posteriors are Beta; also covers count data (Poisson/Gamma) and three-way tests</td>
+<td><a href="https://www.evanmiller.org/bayesian-ab-testing.html">evanmiller.org</a></td>
+</tr>
+<tr class="even">
+<td>Thompson, W. R. (1933) — On the Likelihood That One Unknown Probability Exceeds Another</td>
+<td>Foundational paper introducing what is now called Thompson Sampling; the original Bayesian treatment of comparing two unknown Bernoulli probabilities</td>
+<td><a href="https://academic.oup.com/biomet/article-abstract/25/3-4/285/200862">Biometrika 25(3-4):285–294</a></td>
+</tr>
+<tr class="odd">
+<td>VWO SmartStats Technical Whitepaper</td>
+<td>Industry whitepaper describing VWO’s Bayesian A/B testing engine including expected loss criterion and stopping rules</td>
+<td><a href="https://vwo.com/downloads/VWO_SmartStats_technical_whitepaper.pdf">vwo.com/downloads</a></td>
+</tr>
+<tr class="even">
+<td>Wikipedia — Jeffreys Prior</td>
+<td>Statement of the reparameterization invariance theorem and examples for common likelihoods including Bernoulli</td>
+<td><a href="https://en.wikipedia.org/wiki/Jeffreys_prior">en.wikipedia.org/wiki/Jeffreys_prior</a></td>
+</tr>
+<tr class="odd">
+<td>Wikipedia — Conjugate Prior</td>
+<td>Table of conjugate prior families including Beta-Binomial; derivation sketches</td>
+<td><a href="https://en.wikipedia.org/wiki/Conjugate_prior">en.wikipedia.org/wiki/Conjugate_prior</a></td>
+</tr>
+<tr class="even">
+<td>Jordan (2010) — Lecture 7: Jeffreys Priors and Reference Priors (UC Berkeley)</td>
+<td>Lecture notes deriving the Jeffreys prior from Fisher information and proving reparameterization invariance</td>
+<td><a href="https://people.eecs.berkeley.edu/~jordan/courses/260-spring10/lectures/lecture7.pdf">Berkeley EECS 260</a></td>
+</tr>
+<tr class="odd">
+<td>Duke STA 114 — The Jeffreys Prior</td>
+<td>Short technical note deriving Jeffreys prior, proving invariance, and discussing its use in binomial models</td>
+<td><a href="https://www2.stat.duke.edu/courses/Fall11/sta114/jeffreys.pdf">stat.duke.edu</a></td>
+</tr>
+<tr class="even">
+<td>Variance Explained — Understanding Bayesian A/B Testing</td>
+<td>Applied walkthrough using baseball batting statistics; illustrates credible intervals, posterior updating, and sequential stopping in a concrete domain</td>
+<td><a href="http://varianceexplained.org/r/bayesian_ab_baseball/">varianceexplained.org</a></td>
+</tr>
+</tbody>
+</table>
+    </section>
+</article>
+
+        </main>
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({ startOnLoad: true });</script>
+    </body>
+</html>
