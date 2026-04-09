@@ -144,6 +144,11 @@ article .header {
   }
 }
 
+/* Notes directory listings */
+.notes-listing a {
+    text-transform: lowercase;
+}
+
 /* Obsidian callout blocks */
 .callout {
     border-left: 3px solid #aaa;
