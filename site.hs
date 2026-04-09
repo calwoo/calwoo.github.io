@@ -8,7 +8,7 @@ import           Data.Char (toLower, toUpper)
 import           Data.List (isPrefixOf, nub)
 import           Data.Maybe (mapMaybe)
 import qualified Data.Text as T
-import           System.FilePath (dropExtension, (</>))
+import           System.FilePath (dropExtension, joinPath, splitDirectories, takeDirectory, (</>))
 import           Text.Pandoc (Block(..), Inline(..), Pandoc)
 import           Text.Pandoc.Walk (walk)
 
@@ -83,74 +83,56 @@ main = hakyll $ do
           .&&. complement ("notes/**/exercises.md" .||. "notes/**/solutions.md")
     match notePattern $ do
         route $ customRoute noteRoute
-        compile $ noteCompiler
-            >>= loadAndApplyTemplate "templates/note.html"    defaultContext
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
+        compile $ do
+            -- Extract title from H1 before compilation so it's available in
+            -- the template context (Hakyll's metadata store only reads the
+            -- original source file, which has no YAML frontmatter).
+            raw <- getResourceString
+            let title = extractH1 (itemBody raw)
+            -- Save title string as a snapshot so directory index pages can load it.
+            titleItem <- makeItem title
+            _ <- saveSnapshot "note-title" titleItem
+            let noteCtx = constField "title" title `mappend` defaultContext
+            noteCompiler
+                >>= loadAndApplyTemplate "templates/note.html"    noteCtx
+                >>= loadAndApplyTemplate "templates/default.html" noteCtx
+                >>= relativizeUrls
 
-    -- Per-section index pages (concepts, papers, curricula)
-    -- Two-level hierarchy: section → topics (subfolders) → notes
-    let noteSections = ["concepts", "papers", "curricula"]
-    forM_ noteSections $ \section -> do
-        -- Discover topic subdirectories dynamically from the matched file paths
-        let sectionGlob = fromGlob ("notes/" ++ section ++ "/**.md")
-                          .&&. complement (fromGlob ("notes/" ++ section ++ "/**/exercises.md")
-                                           .||. fromGlob ("notes/" ++ section ++ "/**/solutions.md"))
-        noteIds <- getMatches sectionGlob
-        let topics = nub $ mapMaybe (extractTopic section) noteIds
+    -- Generate index pages for every directory in the notes tree, at any depth.
+    -- This preserves the full folder hierarchy without hardcoding depth levels.
+    noteIds <- getMatches notePattern
+    let notePaths = map toFilePath noteIds
+        -- Every ancestor directory of every note (from "notes/" down to the note's parent)
+        notesDirs = nub $ concatMap (parentDirs . toFilePath) noteIds
 
-        -- Per-topic index page
-        forM_ topics $ \topic -> do
-            let topicGlob = fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**.md")
-                            .&&. complement (fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**/exercises.md")
-                                             .||. fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**/solutions.md"))
-            create [fromFilePath ("notes/" ++ section ++ "/" ++ topic ++ "/index.html")] $ do
-                route idRoute
-                compile $ do
-                    topicNotes <- loadAll topicGlob
-                    let topicCtx =
-                            listField "notes"   defaultContext (return topicNotes) `mappend`
-                            constField "title"   (humanize topic)                  `mappend`
-                            constField "topic"   topic                             `mappend`
-                            constField "section" section                           `mappend`
-                            defaultContext
-                    makeItem ""
-                        >>= loadAndApplyTemplate "templates/notes-topic.html" topicCtx
-                        >>= loadAndApplyTemplate "templates/default.html"     topicCtx
-                        >>= relativizeUrls
-
-        -- Section index: list topics (not individual notes)
-        create [fromFilePath ("notes/" ++ section ++ "/index.html")] $ do
+    forM_ notesDirs $ \dir -> do
+        let subdirs    = immediateSubdirs dir notePaths
+            dirNoteIds = immediateNotes   dir noteIds
+            dirTitle   = if dir == "notes" then "Notes" else humanize (last (splitDirectories dir))
+            tmpl       = if dir == "notes"
+                         then "templates/notes-index.html"
+                         else "templates/notes-dir.html"
+        create [fromFilePath (dir ++ "/index.html")] $ do
             route idRoute
             compile $ do
-                let topicCtx =
-                        field "name" (return . humanize . itemBody) `mappend`
-                        field "url"  (\i -> return $ "/notes/" ++ section ++ "/" ++ itemBody i ++ "/")
-                    sectionCtx =
-                        listField "topics" topicCtx (mapM makeItem topics) `mappend`
-                        constField "title"   (capitalize section)           `mappend`
-                        constField "section" section                        `mappend`
+                noteItems <- loadAll (fromList dirNoteIds)
+                let subdirsCtx =
+                        field "name" (return . humanize . last . splitDirectories . itemBody)
+                        `mappend` field "url" (\i -> return $ "/" ++ itemBody i ++ "/")
+                    -- Load the title saved by noteCompiler's saveSnapshot "note-title"
+                    noteItemCtx =
+                        field "title" (\item ->
+                            itemBody <$> loadSnapshot (itemIdentifier item) "note-title")
+                        `mappend` defaultContext
+                    dirCtx =
+                        listField "subdirs" subdirsCtx   (mapM makeItem subdirs) `mappend`
+                        listField "notes"   noteItemCtx  (return noteItems)       `mappend`
+                        constField "title"  dirTitle                              `mappend`
                         defaultContext
                 makeItem ""
-                    >>= loadAndApplyTemplate "templates/notes-section.html" sectionCtx
-                    >>= loadAndApplyTemplate "templates/default.html"       sectionCtx
+                    >>= loadAndApplyTemplate tmpl                          dirCtx
+                    >>= loadAndApplyTemplate "templates/default.html"      dirCtx
                     >>= relativizeUrls
-
-    -- Notes landing page
-    create ["notes/index.html"] $ do
-        route idRoute
-        compile $ do
-            let sections    = ["concepts", "papers", "curricula"]
-                sectionsCtx =
-                    listField "sections"
-                        (field "name" (return . itemBody))
-                        (mapM makeItem sections)
-                    `mappend` constField "title" "Notes"
-                    `mappend` defaultContext
-            makeItem ""
-                >>= loadAndApplyTemplate "templates/notes-index.html" sectionsCtx
-                >>= loadAndApplyTemplate "templates/default.html"     sectionsCtx
-                >>= relativizeUrls
 
     match "templates/**" $ compile templateBodyCompiler
 
@@ -242,17 +224,38 @@ humanize = unwords . map capitalize . splitOn '-'
     splitOn d s  = let (w, rest) = break (== d) s
                    in w : case rest of { [] -> []; (_:t) -> splitOn d t }
 
--- Extract the immediate subdirectory name under notes/<section>/
--- e.g. section="concepts", "notes/concepts/ab-testing/foo.md" → Just "ab-testing"
-extractTopic :: String -> Identifier -> Maybe String
-extractTopic section ident =
-    let path   = toFilePath ident
-        prefix = "notes/" ++ section ++ "/"
-        rest   = drop (length prefix) path
-        topic  = takeWhile (/= '/') rest
-    in if prefix `isPrefixOf` path && '/' `elem` rest && not (null topic)
-       then Just topic
-       else Nothing
+-- All ancestor directory paths of a file path, from root down to direct parent.
+-- "notes/concepts/a/b/foo.md" → ["notes", "notes/concepts", "notes/concepts/a", "notes/concepts/a/b"]
+parentDirs :: FilePath -> [FilePath]
+parentDirs path =
+    let parts = splitDirectories (takeDirectory path)
+        n     = length parts
+    in [joinPath (take k parts) | k <- [1..n]]
+
+-- Immediate subdirectory paths of dir within a set of file paths.
+-- e.g. dir="notes/concepts/a", path "notes/concepts/a/b/foo.md" → Just "notes/concepts/a/b"
+immediateSubdirs :: FilePath -> [FilePath] -> [FilePath]
+immediateSubdirs dir paths = nub $ mapMaybe go paths
+  where
+    prefix = dir ++ "/"
+    go path
+      | prefix `isPrefixOf` path =
+          let rest   = drop (length prefix) path
+              subdir = takeWhile (/= '/') rest
+          in if '/' `elem` rest && not (null subdir)
+             then Just (dir ++ "/" ++ subdir)
+             else Nothing
+      | otherwise = Nothing
+
+-- Note identifiers whose file is directly inside dir (not in a subdirectory).
+immediateNotes :: FilePath -> [Identifier] -> [Identifier]
+immediateNotes dir ids = filter go ids
+  where
+    prefix = dir ++ "/"
+    go ident =
+        let path = toFilePath ident
+            rest = drop (length prefix) path
+        in prefix `isPrefixOf` path && '/' `notElem` rest
 
 --------------------------------------------------------------------------------
 -- Pandoc AST transform: convert Obsidian callout blockquotes to styled divs.
