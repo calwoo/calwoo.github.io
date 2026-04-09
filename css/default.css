@@ -42,6 +42,16 @@ nav a:hover {
   color: var(--accent);
 }
 
+.nav-github {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.nav-github svg {
+  fill: currentColor;
+  display: block;
+}
+
 footer {
   margin-top: 3rem;
   padding: 1.2rem 0;
