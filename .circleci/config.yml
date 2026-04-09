@@ -51,7 +51,8 @@ jobs:
               stack exec site rebuild
               git checkout -b master --track origin/master
               echo "overwriting existing files with new files"
-              git rm --cached notes 2>/dev/null || true
+              git rm -rf --cached notes 2>/dev/null || true
+              rm -rf notes
               cp -a _site/. .
               # sudo apt-get clean
               # sudo apt-get update
