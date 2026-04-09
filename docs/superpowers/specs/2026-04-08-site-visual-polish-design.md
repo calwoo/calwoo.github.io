@@ -11,9 +11,9 @@ Add visual personality to the site without changing its minimal, academic charac
 
 ## Approach
 
-Symbol-first identity: introduce the Ω (omega) character as a logo mark in the header, paired with a warm amber accent color applied consistently across the site.
+Symbol-first identity: introduce the ≃ (omega) character as a logo mark in the header, paired with a warm amber accent color applied consistently across the site.
 
-Ω was chosen because it represents the loop space in homotopy theory — a direct reference to the author's academic background in algebraic topology — and reads clearly at header size.
+≃ was chosen because it is the homotopy equivalence symbol — a direct reference to the author's academic background in algebraic topology — and reads clearly at header size.
 
 ---
 
@@ -30,13 +30,13 @@ Calvin's Notebook
 to:
 
 ```
-Ω Calvin's Notebook
+≃ Calvin's Notebook
 ```
 
-The Ω is wrapped in a `<span class="logo-symbol">` inside the existing `.logo` anchor. It is rendered in the accent color at `1.1em` size relative to the surrounding logo text, so it reads as a mark rather than just another character.
+The ≃ is wrapped in a `<span class="logo-symbol">` inside the existing `.logo` anchor. It is rendered in the accent color at `1.1em` size relative to the surrounding logo text, so it reads as a mark rather than just another character.
 
 **File:** `templates/default.html`  
-**Change:** Add `<span class="logo-symbol">Ω</span>` before the text content of the `.logo` anchor.
+**Change:** Add `<span class="logo-symbol">≃</span>` before the text content of the `.logo` anchor.
 
 ### 2. Header & Navigation
 
@@ -78,7 +78,7 @@ Body links currently default to browser blue, which clashes with the serif/black
 
 | File | Change |
 |---|---|
-| `templates/default.html` | Add `<span class="logo-symbol">Ω</span>` in logo anchor |
+| `templates/default.html` | Add `<span class="logo-symbol">≃</span>` in logo anchor |
 | `css/default.css` | Add `--accent` variable, update header border, nav hover, link color, logo-symbol styles |
 
 ---
