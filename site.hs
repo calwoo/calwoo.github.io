@@ -5,7 +5,8 @@ import           Hakyll
 import           Text.Pandoc.Options
 
 import           Data.Char (toLower, toUpper)
-import           Data.List (isPrefixOf)
+import           Data.List (isPrefixOf, nub)
+import           Data.Maybe (mapMaybe)
 import qualified Data.Text as T
 import           System.FilePath (dropExtension, (</>))
 import           Text.Pandoc (Block(..), Inline(..), Pandoc)
@@ -88,20 +89,47 @@ main = hakyll $ do
             >>= relativizeUrls
 
     -- Per-section index pages (concepts, papers, curricula)
+    -- Two-level hierarchy: section → topics (subfolders) → notes
     let noteSections = ["concepts", "papers", "curricula"]
     forM_ noteSections $ \section -> do
-        let sectionPattern =
-              fromGlob ("notes/" ++ section ++ "/**.md")
-              .&&. complement (fromGlob ("notes/" ++ section ++ "/**/exercises.md")
-                               .||. fromGlob ("notes/" ++ section ++ "/**/solutions.md"))
+        -- Discover topic subdirectories dynamically from the matched file paths
+        let sectionGlob = fromGlob ("notes/" ++ section ++ "/**.md")
+                          .&&. complement (fromGlob ("notes/" ++ section ++ "/**/exercises.md")
+                                           .||. fromGlob ("notes/" ++ section ++ "/**/solutions.md"))
+        noteIds <- getMatches sectionGlob
+        let topics = nub $ mapMaybe (extractTopic section) noteIds
+
+        -- Per-topic index page
+        forM_ topics $ \topic -> do
+            let topicGlob = fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**.md")
+                            .&&. complement (fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**/exercises.md")
+                                             .||. fromGlob ("notes/" ++ section ++ "/" ++ topic ++ "/**/solutions.md"))
+            create [fromFilePath ("notes/" ++ section ++ "/" ++ topic ++ "/index.html")] $ do
+                route idRoute
+                compile $ do
+                    topicNotes <- loadAll topicGlob
+                    let topicCtx =
+                            listField "notes"   defaultContext (return topicNotes) `mappend`
+                            constField "title"   (humanize topic)                  `mappend`
+                            constField "topic"   topic                             `mappend`
+                            constField "section" section                           `mappend`
+                            defaultContext
+                    makeItem ""
+                        >>= loadAndApplyTemplate "templates/notes-topic.html" topicCtx
+                        >>= loadAndApplyTemplate "templates/default.html"     topicCtx
+                        >>= relativizeUrls
+
+        -- Section index: list topics (not individual notes)
         create [fromFilePath ("notes/" ++ section ++ "/index.html")] $ do
             route idRoute
             compile $ do
-                notes <- loadAll sectionPattern
-                let sectionCtx =
-                        listField "notes" defaultContext (return notes) `mappend`
-                        constField "title"   (capitalize section)       `mappend`
-                        constField "section" section                    `mappend`
+                let topicCtx =
+                        field "name" (return . humanize . itemBody) `mappend`
+                        field "url"  (\i -> return $ "/notes/" ++ section ++ "/" ++ itemBody i ++ "/")
+                    sectionCtx =
+                        listField "topics" topicCtx (mapM makeItem topics) `mappend`
+                        constField "title"   (capitalize section)           `mappend`
+                        constField "section" section                        `mappend`
                         defaultContext
                 makeItem ""
                     >>= loadAndApplyTemplate "templates/notes-section.html" sectionCtx
@@ -205,6 +233,26 @@ slugify = map (\c -> if c == ' ' then '-' else toLower c)
 capitalize :: String -> String
 capitalize []     = []
 capitalize (c:cs) = toUpper c : cs
+
+-- "ab-testing" → "Ab Testing"
+humanize :: String -> String
+humanize = unwords . map capitalize . splitOn '-'
+  where
+    splitOn _ [] = []
+    splitOn d s  = let (w, rest) = break (== d) s
+                   in w : case rest of { [] -> []; (_:t) -> splitOn d t }
+
+-- Extract the immediate subdirectory name under notes/<section>/
+-- e.g. section="concepts", "notes/concepts/ab-testing/foo.md" → Just "ab-testing"
+extractTopic :: String -> Identifier -> Maybe String
+extractTopic section ident =
+    let path   = toFilePath ident
+        prefix = "notes/" ++ section ++ "/"
+        rest   = drop (length prefix) path
+        topic  = takeWhile (/= '/') rest
+    in if prefix `isPrefixOf` path && '/' `elem` rest && not (null topic)
+       then Just topic
+       else Nothing
 
 --------------------------------------------------------------------------------
 -- Pandoc AST transform: convert Obsidian callout blockquotes to styled divs.
