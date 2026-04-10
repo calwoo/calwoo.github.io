@@ -28,11 +28,6 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match (fromList ["about.rst"]) $ do
-        route   $ setExtension "html"
-        compile $ pandocCompiler_
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
 
     match "posts/*" $ do
         route $ setExtension "html"
