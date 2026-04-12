@@ -265,6 +265,12 @@ transformBlock (BlockQuote (Para inlines : rest))
         Div ("", ["callout", "callout-" <> T.pack calloutType], [])
             (Para remainingInlines : rest)
 transformBlock (CodeBlock (_, classes, _) body)
+    | "mermaid" `elem` classes =
+        RawBlock (Format "html") $
+            "<pre class=\"mermaid\">\n"
+            <> body
+            <> "\n</pre>"
+transformBlock (CodeBlock (_, classes, _) body)
     | "tikz" `elem` classes =
         RawBlock (Format "html") $
             "<div class=\"tikz-diagram\"><script type=\"text/tikz\">\n"
