@@ -280,8 +280,11 @@ transformBlock b = b
 
 parseCalloutMarker :: Inline -> Maybe String
 parseCalloutMarker (Str s)
-    | "[!" `T.isPrefixOf` s && "]" `T.isSuffixOf` s =
-        Just (T.unpack (T.toLower (T.drop 2 (T.init s))))
+    | "[!" `T.isPrefixOf` s =
+        let s' = T.dropWhileEnd (== '-') s
+        in if "]" `T.isSuffixOf` s'
+           then Just (T.unpack (T.toLower (T.drop 2 (T.init s'))))
+           else Nothing
 parseCalloutMarker _ = Nothing
 
 --------------------------------------------------------------------------------
