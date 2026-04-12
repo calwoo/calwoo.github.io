@@ -4,8 +4,8 @@ import           Control.Monad (forM_)
 import           Hakyll
 import           Text.Pandoc.Options
 
-import           Data.Char (isAlphaNum, toLower, toUpper)
-import           Data.List (isPrefixOf, nub)
+import           Data.Char (isAlpha, isAlphaNum, toLower, toUpper)
+import           Data.List (intercalate, isPrefixOf, nub)
 import           Data.Maybe (mapMaybe)
 import qualified Data.Text as T
 import           System.FilePath (dropExtension, joinPath, splitDirectories, takeDirectory, (</>))
@@ -215,13 +215,20 @@ processWikilinks ('[':'[':rest)   =
         _ -> '[' : '[' : processWikilinks rest
 processWikilinks (c:rest)         = c : processWikilinks rest
 
--- Replicate Pandoc's heading-ID algorithm:
--- lowercase → keep only alphanumeric/hyphen/underscore/space → spaces become hyphens.
+-- Replicate Pandoc's heading-ID algorithm (matches pandoc's uniqueIdent):
+-- 1. lowercase
+-- 2. split on whitespace; per-word: strip chars that aren't alphanumeric/hyphen/underscore/period
+-- 3. drop empty words; join with hyphens
+-- 4. drop everything up to the first letter (strips leading section numbers like "1.1-")
+-- 5. fall back to "section" if nothing remains
 headingSlugify :: String -> String
-headingSlugify =
-    map   (\c -> if c == ' ' then '-' else c)
-    . filter (\c -> isAlphaNum c || c == '-' || c == '_' || c == ' ')
-    . map toLower
+headingSlugify s =
+    let ws      = words (map toLower s)
+        cleaned = filter (not . null)
+                  $ map (filter (\c -> isAlphaNum c || c == '-' || c == '_' || c == '.')) ws
+        joined  = intercalate "-" cleaned
+        result  = dropWhile (not . isAlpha) joined
+    in if null result then "section" else result
 
 capitalize :: String -> String
 capitalize []     = []
