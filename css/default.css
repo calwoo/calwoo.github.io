@@ -163,6 +163,10 @@ article .header {
     margin: 1.5rem 0;
 }
 
+[data-theme="dark"] .tikz-diagram svg {
+    filter: invert(1);
+}
+
 /* Tables */
 table {
     border-collapse: collapse;
