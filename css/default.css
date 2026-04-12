@@ -249,18 +249,43 @@ tbody tr:last-child td {
 [data-theme="dark"] .callout-tip       { background: #102018; }
 [data-theme="dark"] .callout-important { background: #251530; }
 
-/* Toggle button — matches existing .nav-github style */
-.nav-theme-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: inherit;
+/* Toggle switch */
+.theme-toggle {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
-.nav-theme-toggle svg {
-  fill: currentColor;
+.theme-toggle-checkbox {
+  display: none;
+}
+
+.theme-toggle-pill {
   display: block;
+  position: relative;
+  width: 2.8rem;
+  height: 1.4rem;
+  background: #bbb;
+  border-radius: 0.7rem;
+  transition: background 0.2s;
+}
+
+.theme-toggle-knob {
+  display: block;
+  position: absolute;
+  width: 1.0rem;
+  height: 1.0rem;
+  background: #fff;
+  border-radius: 50%;
+  top: 0.2rem;
+  left: 0.2rem;
+  transition: left 0.2s;
+}
+
+[data-theme="dark"] .theme-toggle-pill {
+  background: var(--accent);
+}
+
+[data-theme="dark"] .theme-toggle-knob {
+  left: calc(100% - 1.2rem);
 }
