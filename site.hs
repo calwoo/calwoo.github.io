@@ -265,11 +265,11 @@ transformBlock (BlockQuote (Para inlines : rest))
         Div ("", ["callout", "callout-" <> T.pack calloutType], [])
             (Para remainingInlines : rest)
 transformBlock (CodeBlock (_, classes, _) body)
-    | "tikz-cd" `elem` classes =
+    | "tikz" `elem` classes =
         RawBlock (Format "html") $
-            "<script type=\"text/tikz\">\n\\usetikzlibrary{cd}\n\\begin{tikzcd}\n"
+            "<script type=\"text/tikz\">\n"
             <> body
-            <> "\n\\end{tikzcd}\n</script>"
+            <> "\n</script>"
 transformBlock b = b
 
 parseCalloutMarker :: Inline -> Maybe String
