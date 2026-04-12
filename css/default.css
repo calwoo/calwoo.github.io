@@ -254,6 +254,7 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   cursor: pointer;
+  line-height: 0;
 }
 
 .theme-toggle-checkbox {
@@ -261,25 +262,37 @@ tbody tr:last-child td {
 }
 
 .theme-toggle-pill {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: relative;
-  width: 2.8rem;
-  height: 1.4rem;
+  width: 3.6rem;
+  height: 1.6rem;
+  padding: 0 0.3rem;
   background: #bbb;
-  border-radius: 0.7rem;
+  border-radius: 0.8rem;
   transition: background 0.2s;
+  box-sizing: border-box;
+}
+
+.theme-toggle-sun,
+.theme-toggle-moon {
+  font-size: 0.9rem;
+  line-height: 1;
+  user-select: none;
 }
 
 .theme-toggle-knob {
-  display: block;
   position: absolute;
-  width: 1.0rem;
-  height: 1.0rem;
+  width: 1.2rem;
+  height: 1.2rem;
   background: #fff;
   border-radius: 50%;
-  top: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
   left: 0.2rem;
   transition: left 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 [data-theme="dark"] .theme-toggle-pill {
@@ -287,5 +300,5 @@ tbody tr:last-child td {
 }
 
 [data-theme="dark"] .theme-toggle-knob {
-  left: calc(100% - 1.2rem);
+  left: calc(100% - 1.4rem);
 }
