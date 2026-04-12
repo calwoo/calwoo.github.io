@@ -9,7 +9,7 @@ import           Data.List (isPrefixOf, nub)
 import           Data.Maybe (mapMaybe)
 import qualified Data.Text as T
 import           System.FilePath (dropExtension, joinPath, splitDirectories, takeDirectory, (</>))
-import           Text.Pandoc (Block(..), Inline(..), Pandoc)
+import           Text.Pandoc (Block(..), Format(..), Inline(..), Pandoc)
 import           Text.Pandoc.Walk (walk)
 
 
@@ -264,6 +264,12 @@ transformBlock (BlockQuote (Para inlines : rest))
     , Just calloutType <- parseCalloutMarker firstStr =
         Div ("", ["callout", "callout-" <> T.pack calloutType], [])
             (Para remainingInlines : rest)
+transformBlock (CodeBlock (_, classes, _) body)
+    | "tikz-cd" `elem` classes =
+        RawBlock (Format "html") $
+            "<script type=\"text/tikz\">\n\\usetikzlibrary{cd}\n\\begin{tikzcd}\n"
+            <> body
+            <> "\n\\end{tikzcd}\n</script>"
 transformBlock b = b
 
 parseCalloutMarker :: Inline -> Maybe String
