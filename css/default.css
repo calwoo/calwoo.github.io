@@ -156,6 +156,13 @@ article .header {
   }
 }
 
+/* tikz-cd diagrams */
+.tikz-diagram {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
 /* Notes directory listings */
 .notes-listing a {
     text-transform: lowercase;

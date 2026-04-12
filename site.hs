@@ -267,9 +267,9 @@ transformBlock (BlockQuote (Para inlines : rest))
 transformBlock (CodeBlock (_, classes, _) body)
     | "tikz" `elem` classes =
         RawBlock (Format "html") $
-            "<script type=\"text/tikz\">\n"
+            "<div class=\"tikz-diagram\"><script type=\"text/tikz\">\n"
             <> body
-            <> "\n</script>"
+            <> "\n</script></div>"
 transformBlock b = b
 
 parseCalloutMarker :: Inline -> Maybe String
