@@ -223,9 +223,6 @@ headingSlugify =
     . filter (\c -> isAlphaNum c || c == '-' || c == '_' || c == ' ')
     . map toLower
 
-slugify :: String -> String
-slugify = map (\c -> if c == ' ' then '-' else toLower c)
-
 capitalize :: String -> String
 capitalize []     = []
 capitalize (c:cs) = toUpper c : cs
