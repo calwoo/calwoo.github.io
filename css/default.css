@@ -204,3 +204,63 @@ tbody tr:last-child td {
 .callout-tip      { border-color: #3cb371; background: #f0fff4; }
 .callout-info     { border-color: #4a9eff; background: #f0f6ff; }
 .callout-important { border-color: #c678dd; background: #f9f0ff; }
+
+/* ── Dark mode ─────────────────────────────────── */
+
+[data-theme="dark"] {
+  --card-bg:     #1e1c19;
+  --card-bg-alt: #2a2723;
+}
+
+[data-theme="dark"] body {
+  color: #d4cfc8;
+}
+
+[data-theme="dark"] nav a {
+  color: #d4cfc8;
+}
+
+[data-theme="dark"] .logo a {
+  color: #d4cfc8;
+}
+
+[data-theme="dark"] footer {
+  color: #666;
+  border-color: #444;
+}
+
+[data-theme="dark"] article .header {
+  color: #888;
+}
+
+[data-theme="dark"] th,
+[data-theme="dark"] td {
+  border-color: #444;
+}
+
+[data-theme="dark"] thead th,
+[data-theme="dark"] tbody tr:last-child td {
+  border-color: #888;
+}
+
+[data-theme="dark"] .callout-note,
+[data-theme="dark"] .callout-info      { background: #1a2535; }
+[data-theme="dark"] .callout-warning   { background: #2a2010; }
+[data-theme="dark"] .callout-tip       { background: #102018; }
+[data-theme="dark"] .callout-important { background: #251530; }
+
+/* Toggle button — matches existing .nav-github style */
+.nav-theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+}
+
+.nav-theme-toggle svg {
+  fill: currentColor;
+  display: block;
+}
