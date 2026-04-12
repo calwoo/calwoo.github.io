@@ -4,7 +4,7 @@ import           Control.Monad (forM_)
 import           Hakyll
 import           Text.Pandoc.Options
 
-import           Data.Char (toLower, toUpper)
+import           Data.Char (isAlphaNum, toLower, toUpper)
 import           Data.List (isPrefixOf, nub)
 import           Data.Maybe (mapMaybe)
 import qualified Data.Text as T
@@ -193,16 +193,35 @@ escapeForYaml s = "\"" ++ concatMap esc s ++ "\""
     esc c    = [c]
 
 --------------------------------------------------------------------------------
--- Convert Obsidian wikilinks [[target]] to standard markdown links.
+-- Convert Obsidian wikilinks to standard markdown links.
+-- Handles three forms:
+--   [[#Heading|Display]]  → [Display](#heading-anchor)   (intra-page TOC link)
+--   [[path/to/note|Display]] → [Display](/notes/path/to/note/)
+--   [[path/to/note]]         → [path/to/note](/notes/path/to/note/)
 processWikilinks :: String -> String
 processWikilinks []               = []
 processWikilinks ('[':'[':rest)   =
     case break (== ']') rest of
-        (target, ']':']':after) ->
-            "[" ++ target ++ "](/notes/" ++ slugify target ++ "/)"
-            ++ processWikilinks after
+        (inner, ']':']':after) ->
+            let (target, displayText) = case break (== '|') inner of
+                    (t, '|':d) -> (t, d)
+                    (t, _)     -> (t, t)
+                link
+                    | "#" `isPrefixOf` target =
+                        "[" ++ displayText ++ "](#" ++ headingSlugify (drop 1 target) ++ ")"
+                    | otherwise =
+                        "[" ++ displayText ++ "](/notes/" ++ target ++ "/)"
+            in link ++ processWikilinks after
         _ -> '[' : '[' : processWikilinks rest
 processWikilinks (c:rest)         = c : processWikilinks rest
+
+-- Replicate Pandoc's heading-ID algorithm:
+-- lowercase → keep only alphanumeric/hyphen/underscore/space → spaces become hyphens.
+headingSlugify :: String -> String
+headingSlugify =
+    map   (\c -> if c == ' ' then '-' else c)
+    . filter (\c -> isAlphaNum c || c == '-' || c == '_' || c == ' ')
+    . map toLower
 
 slugify :: String -> String
 slugify = map (\c -> if c == ' ' then '-' else toLower c)
