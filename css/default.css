@@ -120,7 +120,24 @@ article .header {
   }
   nav a {
     display: inline;
-    margin: 0 0.6rem;
+    margin: 0 0.9rem;
+    padding: 0.3rem 0;
+  }
+
+  /* Home portrait: stack full-width above text on mobile */
+  .home-portrait {
+    display: block;
+    float: none;
+    width: 80%;
+    max-width: 320px;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* Tables: horizontal scroll instead of viewport overflow */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -153,6 +170,13 @@ article .header {
   .logo a {
     float: left;
     font-size: 1.8rem;
+  }
+
+  /* Home portrait: float right on desktop */
+  .home-portrait {
+    float: right;
+    max-width: 50%;
+    margin: 10px;
   }
 }
 
