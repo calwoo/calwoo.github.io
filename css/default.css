@@ -191,6 +191,19 @@ article .header {
     filter: invert(1);
 }
 
+/* Display math: each formula scrolls independently instead of
+   widening the whole page. Targets MathJax 3 SVG output. */
+mjx-container[display="true"] {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+mjx-container[display="true"] > svg {
+    max-width: none; /* let the SVG keep its natural width inside the scroll box */
+    height: auto;
+}
+
 /* Tables */
 table {
     border-collapse: collapse;
