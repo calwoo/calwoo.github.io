@@ -285,8 +285,19 @@ transformBlock :: Block -> Block
 transformBlock (BlockQuote (Para inlines : rest))
     | (firstStr : remainingInlines) <- inlines
     , Just calloutType <- parseCalloutMarker firstStr =
-        Div ("", ["callout", "callout-" <> T.pack calloutType], [])
-            (Para remainingInlines : rest)
+        let isSoftBreak' SoftBreak = True
+            isSoftBreak' LineBreak = True
+            isSoftBreak' _         = False
+            (titlePart, afterBreak) = break isSoftBreak' remainingInlines
+            -- Strip the leading Space between [!TYPE] and title text
+            titleInlines = dropWhile (== Space) titlePart
+            -- Drop the SoftBreak itself
+            bodyInlines  = drop 1 afterBreak
+            titleBlock   = [ Div ("", ["callout-title"], []) [Plain titleInlines]
+                           | not (null titleInlines) ]
+            bodyContent  = if null bodyInlines then rest else Para bodyInlines : rest
+        in Div ("", ["callout", "callout-" <> T.pack calloutType], [])
+               (titleBlock ++ bodyContent)
 transformBlock (CodeBlock (_, classes, _) body)
     | "mermaid" `elem` classes =
         RawBlock (Format "html") $
