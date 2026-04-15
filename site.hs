@@ -276,10 +276,22 @@ immediateNotes dir ids = filter go ids
         in prefix `isPrefixOf` path && '/' `notElem` rest
 
 --------------------------------------------------------------------------------
+-- Pandoc AST transform: fix relative image paths.
+-- Notes are routed from foo/bar.md → foo/bar/index.html, so a relative path
+-- like "figures/x.png" written in the source resolves one directory too shallow
+-- in the browser.  Prepend "../" to any src that starts with "figures/".
+fixImagePaths :: Pandoc -> Pandoc
+fixImagePaths = walk rewriteImage
+  where
+    rewriteImage (Image attr inlines (url, title))
+        | "figures/" `T.isPrefixOf` url = Image attr inlines ("../" <> url, title)
+    rewriteImage x = x
+
+--------------------------------------------------------------------------------
 -- Pandoc AST transform: convert Obsidian callout blockquotes to styled divs.
 -- > [!NOTE] body  →  <div class="callout callout-note">body</div>
 obsidianTransform :: Pandoc -> Pandoc
-obsidianTransform = walk transformBlock
+obsidianTransform = fixImagePaths . walk transformBlock
 
 transformBlock :: Block -> Block
 transformBlock (BlockQuote (Para inlines : rest))
