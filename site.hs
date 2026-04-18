@@ -296,7 +296,7 @@ obsidianTransform = fixImagePaths . walk transformBlock
 transformBlock :: Block -> Block
 transformBlock (BlockQuote (Para inlines : rest))
     | (firstStr : remainingInlines) <- inlines
-    , Just calloutType <- parseCalloutMarker firstStr =
+    , Just (calloutType, isCollapsible) <- parseCalloutMarker firstStr =
         let isSoftBreak' SoftBreak = True
             isSoftBreak' LineBreak = True
             isSoftBreak' _         = False
@@ -308,7 +308,9 @@ transformBlock (BlockQuote (Para inlines : rest))
             titleBlock   = [ Div ("", ["callout-title"], []) [Plain titleInlines]
                            | not (null titleInlines) ]
             bodyContent  = if null bodyInlines then rest else Para bodyInlines : rest
-        in Div ("", ["callout", "callout-" <> T.pack calloutType], [])
+            classes      = ["callout", "callout-" <> T.pack calloutType]
+                        <> ["collapsible" | isCollapsible]
+        in Div ("", classes, [])
                (titleBlock ++ bodyContent)
 transformBlock (CodeBlock (_, classes, _) body)
     | "mermaid" `elem` classes =
@@ -324,12 +326,13 @@ transformBlock (CodeBlock (_, classes, _) body)
             <> "\n</script></div>"
 transformBlock b = b
 
-parseCalloutMarker :: Inline -> Maybe String
+parseCalloutMarker :: Inline -> Maybe (String, Bool)
 parseCalloutMarker (Str s)
     | "[!" `T.isPrefixOf` s =
-        let s' = T.dropWhileEnd (== '-') s
+        let collapsible = "-" `T.isSuffixOf` s
+            s' = T.dropWhileEnd (== '-') s
         in if "]" `T.isSuffixOf` s'
-           then Just (T.unpack (T.toLower (T.drop 2 (T.init s'))))
+           then Just (T.unpack (T.toLower (T.drop 2 (T.init s'))), collapsible)
            else Nothing
 parseCalloutMarker _ = Nothing
 

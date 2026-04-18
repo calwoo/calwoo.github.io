@@ -250,6 +250,33 @@ tbody tr:last-child td {
     margin-bottom: 0.25rem;
 }
 
+/* Collapsible callouts rendered as <details>/<summary> */
+details.callout > summary {
+    cursor: pointer;
+    list-style: none;
+    margin-bottom: 0;
+}
+
+details.callout > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.callout > summary.callout-title::before {
+    content: '▶';
+    font-size: 0.7em;
+    margin-right: 0.4rem;
+    display: inline-block;
+    transition: transform 0.15s ease;
+}
+
+details.callout[open] > summary.callout-title::before {
+    transform: rotate(90deg);
+}
+
+details.callout > .callout-body {
+    margin-top: 0.5rem;
+}
+
 /* ── Dark mode ─────────────────────────────────── */
 
 [data-theme="dark"] {

@@ -66,6 +66,34 @@
             <a href="http://jaspervdj.be/hakyll">Hakyll</a>
         </footer>
         </div>
+        <script>
+            // Convert .callout.collapsible divs to <details>/<summary> so
+            // Obsidian [!TYPE]- collapsible callouts toggle on the blog.
+            // Runs before MathJax typesetting so math inside solutions renders.
+            (function () {
+                document.querySelectorAll('.callout.collapsible').forEach(function (div) {
+                    var details = document.createElement('details');
+                    details.className = div.className.replace(/\bcollapsible\b/, '').trim();
+
+                    var titleEl = div.querySelector(':scope > .callout-title');
+                    var summary = document.createElement('summary');
+                    summary.className = 'callout-title';
+                    if (titleEl) {
+                        while (titleEl.firstChild) summary.appendChild(titleEl.firstChild);
+                    }
+
+                    var body = document.createElement('div');
+                    body.className = 'callout-body';
+                    Array.from(div.childNodes).forEach(function (child) {
+                        if (child !== titleEl) body.appendChild(child);
+                    });
+
+                    details.appendChild(summary);
+                    details.appendChild(body);
+                    div.parentNode.replaceChild(details, div);
+                });
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
         <script>mermaid.initialize({ startOnLoad: true });</script>
         <script>
