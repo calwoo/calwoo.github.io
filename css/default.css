@@ -245,6 +245,7 @@ tbody tr:last-child td {
 .callout-tip      { border-color: #3cb371; background: #f0fff4; }
 .callout-info     { border-color: #4a9eff; background: #f0f6ff; }
 .callout-important { border-color: #c678dd; background: #f9f0ff; }
+.callout-question { border-color: #2ab7b7; background: #f0fbfb; }
 .callout-title {
     font-weight: bold;
     margin-bottom: 0.25rem;
@@ -317,6 +318,7 @@ details.callout > .callout-body {
 
 [data-theme="dark"] .callout-note,
 [data-theme="dark"] .callout-info      { background: #1a2535; }
+[data-theme="dark"] .callout-question  { background: #0d2525; }
 [data-theme="dark"] .callout-warning   { background: #2a2010; }
 [data-theme="dark"] .callout-tip       { background: #102018; }
 [data-theme="dark"] .callout-important { background: #251530; }
