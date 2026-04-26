@@ -74,7 +74,7 @@ main = hakyll $ do
     -- Pattern covers concepts, papers, curricula but excludes CLAUDE.md, README,
     -- docs/, plans/, and .claude/ by only matching the three known content sections.
     let notePattern =
-          ("notes/concepts/**.md" .||. "notes/papers/**.md" .||. "notes/curricula/**.md" .||. "notes/research/**.md")
+          ("notes/concepts/**.md" .||. "notes/papers/**.md" .||. "notes/curricula/**.md" .||. "notes/research/**.md" .||. "notes/notes/**.md")
           .&&. complement ("notes/**/exercises.md" .||. "notes/**/solutions.md")
     match notePattern $ do
         route $ customRoute noteRoute
