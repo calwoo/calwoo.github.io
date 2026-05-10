@@ -280,12 +280,25 @@ immediateNotes dir ids = filter go ids
 -- Notes are routed from foo/bar.md → foo/bar/index.html, so a relative path
 -- like "figures/x.png" written in the source resolves one directory too shallow
 -- in the browser.  Prepend "../" to any src that starts with "figures/".
+--
+-- Two cases:
+--   1. Standard markdown ![alt](figures/x.png)  → Pandoc Image node  → walk rewriteImage
+--   2. Raw HTML <img src="figures/x.png" ...>   → RawBlock/RawInline → walk rewriteRaw*
 fixImagePaths :: Pandoc -> Pandoc
-fixImagePaths = walk rewriteImage
+fixImagePaths = walk rewriteRawBlock . walk rewriteRawInline . walk rewriteImage
   where
     rewriteImage (Image attr inlines (url, title))
         | "figures/" `T.isPrefixOf` url = Image attr inlines ("../" <> url, title)
     rewriteImage x = x
+
+    fixSrc :: T.Text -> T.Text
+    fixSrc = T.replace "src=\"figures/" "src=\"../figures/"
+
+    rewriteRawBlock (RawBlock fmt body) = RawBlock fmt (fixSrc body)
+    rewriteRawBlock x = x
+
+    rewriteRawInline (RawInline fmt body) = RawInline fmt (fixSrc body)
+    rewriteRawInline x = x
 
 --------------------------------------------------------------------------------
 -- Pandoc AST transform: convert Obsidian callout blockquotes to styled divs.
